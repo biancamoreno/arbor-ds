@@ -1,14 +1,14 @@
-import { useTheme } from '../../../theme'
+import { useTheme } from '../../../ecosystem'
 import type { ButtonProps } from '../interfaces'
 
 export function Button({ children }: ButtonProps) {
-  const { colors, spacing } = useTheme()
+  const { colors, space } = useTheme()
   return (
     <button
       style={{
-        backgroundColor: colors.primary,
+        backgroundColor: colors.brand.c,
         color: '#fff',
-        padding: `${spacing.sm}px ${spacing.md}px`,
+        padding: `${space.medium}px ${space.medium}px`,
         border: 'none',
         borderRadius: 8,
       }}
