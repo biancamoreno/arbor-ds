@@ -1,43 +1,6 @@
 import type * as CSS from 'csstype';
-import { system } from 'styled-system';
 import { type Theme } from '../../tokens';
 import { type Length, type ResponsiveValue, type Token } from '../types';
-
-export const customGrid = system({
-  columnGap: {
-    property: 'gridColumnGap',
-  },
-  rowGap: {
-    property: 'gridRowGap',
-  },
-  row: {
-    property: 'gridRow',
-  },
-  column: {
-    property: 'gridColumn',
-  },
-  area: {
-    property: 'gridArea',
-  },
-  autoFlow: {
-    property: 'gridAutoFlow',
-  },
-  autoRows: {
-    property: 'gridAutoRows',
-  },
-  autoColumns: {
-    property: 'gridAutoColumns',
-  },
-  templateColumns: {
-    property: 'gridTemplateColumns',
-  },
-  templateRows: {
-    property: 'gridTemplateRows',
-  },
-  templateAreas: {
-    property: 'gridTemplateAreas',
-  },
-});
 
 export interface GridProps {
   /**

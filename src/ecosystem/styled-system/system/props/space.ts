@@ -1,17 +1,5 @@
 import { type Theme } from '../../tokens';
 import { type ResponsiveValue, type Token } from '../types';
-import { system } from 'styled-system';
-
-export const customSpace = system({
-  marginInline: {
-    property: 'marginInline',
-    scale: 'space',
-  },
-  paddingInline: {
-    property: 'paddingInline',
-    scale: 'space',
-  },
-});
 
 export interface SpaceProps {
   /**

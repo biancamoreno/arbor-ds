@@ -10,12 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/styled-system": "^5.1.24",
     "jest": "^30.2.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "styled-components": "^6.1.19",
-    "styled-system": "^5.1.5"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

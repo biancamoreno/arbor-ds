@@ -1,17 +1,5 @@
 import type * as CSS from 'csstype';
-import { system } from 'styled-system';
 import { type Length, type ResponsiveValue } from '../types';
-
-export const interactivity = system({
-  appearance: true,
-  cursor: true,
-  resize: true,
-  userSelect: true,
-  pointerEvents: true,
-  outline: true,
-  outlineOffset: true,
-  outlineColor: true,
-});
 
 export interface InteractivityProps {
   /**

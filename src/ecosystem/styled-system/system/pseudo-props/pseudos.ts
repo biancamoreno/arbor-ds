@@ -92,6 +92,8 @@ const pseudoSelectors: PseudoSelectors = {
   _placeholder: '&::-webkit-input-placeholder',
 };
 
+export const pseudoPropNames = Object.keys(pseudoSelectors);
+
 export function systemPseudoProps(pseudoProps: Partial<PseudoSelectors>): Partial<PseudoSelectors> {
   const css: PseudoSelectors = {};
 

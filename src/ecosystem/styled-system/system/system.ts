@@ -1,59 +1,17 @@
-import {
-  background,
-  borders,
-  color,
-  compose,
-  flexbox,
-  grid,
-  layout,
-  position,
-  shadow,
-  size,
-  space,
-  typography,
-} from 'styled-system';
-import {
-  systemBackground,
-  customFlexbox,
-  customTypography,
-  interactivity,
-  transition,
-  customGrid,
-  customGridItem,
-  customSpace,
-} from './props';
+import { AVAILABLE_STYLE_PROPERTIES } from '../core/transform/new-transform/available-style-properties';
+import { pseudoPropNames } from './pseudo-props/pseudos';
 import { systemBlockedProps } from './system.blocked';
 
-export const systemProps = compose(
-  background,
-  borders,
-  color,
-  flexbox,
-  grid,
-  layout,
-  position,
-  shadow,
-  size,
-  space,
-  typography,
-  transition,
-  interactivity,
-  customFlexbox,
-  customTypography,
-  systemBackground,
-  customGrid,
-  customGridItem,
-  customSpace,
-);
+const propNames = new Set<string>([...AVAILABLE_STYLE_PROPERTIES, ...pseudoPropNames]);
+
+export const systemProps = Object.assign((props: Record<string, unknown>) => props, {
+  propNames: Array.from(propNames),
+});
 
 export function systemBlockForwardProp(prop: string) {
   if (systemBlockedProps.includes(prop)) {
     return false;
   }
 
-  if (systemProps.propNames) {
-    return !systemProps.propNames.includes(prop);
-  }
-
-  return true;
+  return !propNames.has(prop);
 }

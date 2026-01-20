@@ -76,4 +76,4 @@ export const themeLightColors = {
   },
 };
 
-export type ThemeRetailColors = typeof themeLightColors;
+export type ThemeLightColors = typeof themeLightColors;

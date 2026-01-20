@@ -1,27 +1,5 @@
 import type * as CSS from 'csstype';
-import { system } from 'styled-system';
 import { type ResponsiveValue } from '../types';
-
-export const customGridItem = system({
-  colSpan: {
-    property: 'gridColumn',
-  },
-  rowSpan: {
-    property: 'gridRow',
-  },
-  colStart: {
-    property: 'gridColumnStart',
-  },
-  colEnd: {
-    property: 'gridColumnEnd',
-  },
-  rowStart: {
-    property: 'gridRowStart',
-  },
-  rowEnd: {
-    property: 'gridRowEnd',
-  },
-});
 
 export interface GridItemProps {
   /**

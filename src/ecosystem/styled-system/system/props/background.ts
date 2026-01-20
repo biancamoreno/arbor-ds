@@ -1,14 +1,6 @@
 
-import { system } from 'styled-system';
 import type { ResponsiveValue, Token } from '../types';
 import type { ArborTheme } from '../../../../foundations';
-
-export const systemBackground = system({
-  background: {
-    property: 'background',
-    scale: 'colors',
-  },
-});
 
 export interface BackgroundProps {
   /**

@@ -1,19 +1,20 @@
-import { useTheme } from '../../../ecosystem'
+import { Clickable } from '../../core'
 import type { ButtonProps } from '../interfaces'
 
 export function Button({ children }: ButtonProps) {
-  const { colors, space } = useTheme()
   return (
-    <button
-      style={{
-        backgroundColor: colors.brand.c,
-        color: '#fff',
-        padding: `${space.medium}px ${space.medium}px`,
-        border: 'none',
-        borderRadius: 8,
-      }}
+    <Clickable
+      alignItems="center"
+      justifyContent="center"
+      backgroundColor="brand.c"
+      color="content.d"
+      borderRadius="medium"
+      borderWidth={0}
+      cursor="pointer"
+      px="medium"
+      py="small"
     >
       {children}
-    </button>
+    </Clickable>
   )
 }

@@ -1,14 +1,6 @@
-import { system } from 'styled-system';
 import type * as CSS from 'csstype';
 import { type Theme } from '../../tokens';
 import { type ResponsiveValue, type Token } from '../types';
-
-export const customTypography = system({
-  wordBreak: true,
-  whiteSpace: true,
-  textTransform: true,
-  textDecorationLine: true,
-});
 
 export interface TypographyProps {
   /**

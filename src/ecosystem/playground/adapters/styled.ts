@@ -1,4 +1,4 @@
-import { createStyledComponent } from '../core/styled';
+import { createStyledComponent } from '../../styled-system/core/styled';
 
 type StyledFactory = Record<string, ReturnType<typeof createStyledComponent>>;
 

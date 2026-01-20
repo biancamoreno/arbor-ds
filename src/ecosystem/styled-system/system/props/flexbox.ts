@@ -1,17 +1,6 @@
 import type * as CSS from 'csstype';
-import { system } from 'styled-system';
 import { type Theme } from '../../tokens';
 import { type Length, type ResponsiveValue, type Token } from '../types';
-
-export const customFlexbox = system({
-  gap: {
-    property: 'gap',
-    scale: 'space',
-  },
-  flexDir: {
-    property: 'flexDirection',
-  },
-});
 
 export interface FlexboxProps {
   /**

@@ -1,14 +1,5 @@
 import type * as CSS from 'csstype';
-import { system } from 'styled-system';
 import { type ResponsiveValue } from '../types';
-
-export const transition = system({
-  transition: true,
-  transitionDelay: true,
-  animation: true,
-  transitionDuration: true,
-  transitionProperty: true,
-});
 
 export interface TransitionProps {
   /**

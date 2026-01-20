@@ -1,5 +1,6 @@
-import { system, compose } from 'styled-system';
 import { type CustomProps, type CustomPropsConfig } from './types';
+import { type Theme } from '../../tokens';
+import { getTokenValue } from '../transform/new-transform/token-handlers';
 
 /**
  *  Cria as custom props com base na configuração fornecida.
@@ -18,17 +19,28 @@ import { type CustomProps, type CustomPropsConfig } from './types';
  * const customProps = createCustomProps(config);
  */
 export function createCustomProps<Config extends CustomPropsConfig>(config: Config) {
-  const properties: Record<string, CustomProps<Config>> = {};
+  return (props: CustomProps<Config> & { theme?: Theme }) => {
+    const result: Record<string, unknown> = {};
+    const theme = props.theme;
 
-  for (const key in config) {
-    properties[key] = {
-      property: config[key].property,
-      scale: config[key].scale || undefined,
-      transform: config[key].transform || undefined,
-    };
-  }
+    for (const key in config) {
+      const value = props[key];
+      if (value === undefined || value === null) continue;
 
-  const systemFunction = system(properties);
+      const { property, scale, transform } = config[key];
+      let resolvedValue: unknown = value;
 
-  return compose(systemFunction);
+      if (scale && theme) {
+        resolvedValue = getTokenValue(scale, theme, value as string) ?? value;
+      }
+
+      if (transform) {
+        resolvedValue = transform(String(resolvedValue));
+      }
+
+      result[property] = resolvedValue;
+    }
+
+    return result;
+  };
 }
