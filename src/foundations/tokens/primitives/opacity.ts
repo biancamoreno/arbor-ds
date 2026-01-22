@@ -13,6 +13,7 @@ export const opacity = {
     80: 0.8,
     88: 0.88,
     96: 0.96,
+    100: 1,
   },
   color: {
     black: {

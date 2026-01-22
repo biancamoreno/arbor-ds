@@ -12,7 +12,6 @@ const unitlessProps = new Set([
   'opacity',
   'zIndex',
   'fontWeight',
-  'lineHeight',
   'flex',
   'flexGrow',
   'flexShrink',

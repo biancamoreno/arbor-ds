@@ -6,8 +6,8 @@ export function Button({ children }: ButtonProps) {
     <Clickable
       alignItems="center"
       justifyContent="center"
-      backgroundColor="brand.c"
-      color="content.d"
+      backgroundColor="brand.base"
+      color="content.inverse"
       borderRadius="medium"
       borderWidth={0}
       cursor="pointer"
