@@ -1,7 +1,7 @@
 import { useTheme } from '../../../adapters';
 import { useToken } from './use-token';
 
-jest.mock('../../adapters', () => ({
+jest.mock('../../../adapters', () => ({
   useTheme: jest.fn(),
 }));
 

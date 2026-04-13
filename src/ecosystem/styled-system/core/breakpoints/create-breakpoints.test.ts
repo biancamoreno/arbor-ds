@@ -12,7 +12,7 @@ describe('createBreakpoints', () => {
   it('should return an array containing keys from the configuration object', () => {
     const result = createBreakpoints(breakpointConfig);
 
-    expect(Object.keys(result)).toEqual(['0', '1', '2', '3', 'sm', 'md', 'lg', 'xl']);
+    expect(Object.keys(result)).toEqual(['0', '1', '2', '3', '4', 'sm', 'md', 'lg', 'xl', '2xl']);
   });
 
   it('should return an array containing the correct values from the configuration object', () => {
@@ -22,10 +22,12 @@ describe('createBreakpoints', () => {
     expect(breakpoints[1]).toBe('600px');
     expect(breakpoints[2]).toBe('1024px');
     expect(breakpoints[3]).toBe('1440px');
+    expect(breakpoints[4]).toBe('1920px');
 
     expect(breakpoints.sm).toBe('320px');
     expect(breakpoints.md).toBe('600px');
     expect(breakpoints.lg).toBe('1024px');
     expect(breakpoints.xl).toBe('1440px');
+    expect(breakpoints['2xl']).toBe('1920px');
   });
 });

@@ -25,3 +25,6 @@ dist-ssr
 
 # AI agent instruction files
 .github/copilot-instructions.md
+
+# Project skills (role-specific instructions, not versioned)
+.skills/

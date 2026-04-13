@@ -267,15 +267,15 @@ export function createStyledComponent(tag: string) {
 
     const combinedClassName = [className, generatedClassName].filter(Boolean).join(' ');
 
-    return createElement(
-      elementTag,
-      {
-        ...elementProps,
-        className: combinedClassName || undefined,
-        ref: (innerRef as typeof ref) ?? ref,
-      },
-      props.children,
-    );
+    const testID = (rest as Record<string, unknown>).testID;
+    const webProps = {
+      ...elementProps,
+      ...(testID && { 'data-testid': testID }),
+      className: combinedClassName || undefined,
+      ref: (innerRef as typeof ref) ?? ref,
+    };
+
+    return createElement(elementTag, webProps, props.children);
   });
 
   return Component;
