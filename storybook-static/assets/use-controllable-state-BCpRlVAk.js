@@ -1,1 +1,0 @@
-import{r as t}from"./iframe-DkxCh0KI.js";function C(l){const{value:n,defaultValue:s,onChange:a}=l,e=n!==void 0,[u,c]=t.useState(s),o=t.useRef(a);o.current=a;const f=t.useCallback(r=>{e||c(r),o.current?.(r)},[e]);return[e?n:u,f]}export{C as u};
