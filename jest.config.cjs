@@ -3,6 +3,7 @@ module.exports = {
   moduleNameMapper: {
     '^react-native$': 'react-native-web',
     '^react-native-web$': 'react-native-web',
+    '\\.(css)$': '<rootDir>/test/styleMock.cjs',
   },
   testMatch: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
   transform: {

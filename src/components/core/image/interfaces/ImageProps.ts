@@ -1,3 +1,8 @@
+/**
+ * @platform native-ready
+ * Componente de imagem com implementação dedicada para web (`image.tsx`) e React Native (`image.native.tsx`).
+ * Suporta web, iOS e Android.
+ */
 export type ImageProps = {
   source: string | { uri: string } | number;
   width?: number | string;

@@ -1,1 +1,1 @@
-export const systemBlockedProps = ['accessibilityElementsHidden', 'importantForAccessibility', 'testID'];
+export const systemBlockedProps = ['accessibilityElementsHidden', 'importantForAccessibility'];

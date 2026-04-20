@@ -1,92 +1,193 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
-import type { TabsProps } from '../interfaces';
+import { useControllableState } from '../../../ecosystem/primitives';
+import { TabsContext, useTabsContext } from '../context/tabs-context';
+import type {
+  TabsRootProps,
+  TabsListProps,
+  TabsTriggerProps,
+  TabsContentProps,
+} from '../interfaces';
 
-export function Tabs({
-  items,
-  value,
-  defaultValue,
+function TabsRoot({
+  children,
+  value: valueProp,
+  defaultValue = '',
   onValueChange,
-  variant = 'underline',
-  size = 'md',
-  fullWidth = false,
-}: TabsProps) {
-  const theme = useTheme();
-  const fallbackId = items[0]?.id;
-  const [internalValue, setInternalValue] = React.useState(defaultValue ?? fallbackId);
-  const selectedValue = value ?? internalValue ?? fallbackId;
-  const activeItem = items.find((item) => item.id === selectedValue) ?? items[0];
+  orientation = 'horizontal',
+  style,
+  ...props
+}: TabsRootProps) {
+  const [activeValue, setActiveValue] = useControllableState({
+    value: valueProp,
+    defaultValue,
+    onChange: onValueChange,
+  });
+
+  const triggerRefs = useRef<Map<string, React.RefObject<HTMLButtonElement | null>>>(new Map());
+
+  const registerTrigger = useCallback((value: string, ref: React.RefObject<HTMLButtonElement | null>) => {
+    triggerRefs.current.set(value, ref);
+  }, []);
+
+  const unregisterTrigger = useCallback((value: string) => {
+    triggerRefs.current.delete(value);
+  }, []);
+
+  const getSortedKeys = () => Array.from(triggerRefs.current.keys());
+
+  const focusNext = useCallback((fromValue: string) => {
+    const keys = getSortedKeys();
+    const idx = keys.indexOf(fromValue);
+    triggerRefs.current.get(keys[(idx + 1) % keys.length])?.current?.focus();
+  }, []);
+
+  const focusPrev = useCallback((fromValue: string) => {
+    const keys = getSortedKeys();
+    const idx = keys.indexOf(fromValue);
+    triggerRefs.current.get(keys[(idx - 1 + keys.length) % keys.length])?.current?.focus();
+  }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: theme.space.small }}>
+    <TabsContext.Provider
+      value={{ activeValue, setActive: setActiveValue, registerTrigger, unregisterTrigger, focusNext, focusPrev, orientation }}
+    >
       <div
-        role="tablist"
+        {...props}
         style={{
           display: 'flex',
-          gap: '8px',
-          borderBottom: variant === 'underline' ? `1px solid ${theme.colors.border.subtle}` : 'none',
-          flexWrap: 'wrap',
+          flexDirection: orientation === 'vertical' ? 'row' : 'column',
+          ...style,
         }}
       >
-        {items.map((item) => {
-          const isActive = item.id === activeItem?.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              disabled={item.disabled}
-              onClick={() => {
-                if (item.disabled) {
-                  return;
-                }
-
-                if (value === undefined) {
-                  setInternalValue(item.id);
-                }
-
-                onValueChange?.(item.id);
-              }}
-              style={{
-                flex: fullWidth ? 1 : undefined,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: size === 'sm' ? '8px 12px' : '10px 16px',
-                border: 'none',
-                borderBottom:
-                  variant === 'underline'
-                    ? `2px solid ${isActive ? theme.colors.brand.base : 'transparent'}`
-                    : 'none',
-                borderRadius: variant === 'pill' ? theme.radii.full : 0,
-                backgroundColor:
-                  variant === 'pill'
-                    ? isActive
-                      ? theme.colors.brand.subtle
-                      : theme.colors.background.subtle
-                    : 'transparent',
-                color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
-                fontSize: size === 'sm' ? theme.fontSizes.xsmall : theme.fontSizes.small,
-                fontWeight: isActive ? theme.fontWeights.medium : theme.fontWeights.regular,
-                cursor: item.disabled ? 'not-allowed' : 'pointer',
-                opacity: item.disabled ? 0.5 : 1,
-              }}
-            >
-              <span>{item.label}</span>
-              {item.badge}
-            </button>
-          );
-        })}
+        {children}
       </div>
-      {activeItem && (
-        <div role="tabpanel" style={{ color: theme.colors.text.primary }}>
-          {activeItem.content}
-        </div>
-      )}
+    </TabsContext.Provider>
+  );
+}
+
+function TabsList({ children, variant = 'underline', fullWidth = false, style, ...props }: TabsListProps) {
+  const theme = useTheme();
+  const { orientation } = useTabsContext();
+
+  return (
+    <div
+      role="tablist"
+      aria-orientation={orientation}
+      {...props}
+      style={{
+        display: 'flex',
+        flexDirection: orientation === 'vertical' ? 'column' : 'row',
+        gap: '2px',
+        borderBottom: variant === 'underline' && orientation === 'horizontal'
+          ? `1px solid ${theme.colors.border.subtle}`
+          : 'none',
+        borderRight: variant === 'underline' && orientation === 'vertical'
+          ? `1px solid ${theme.colors.border.subtle}`
+          : 'none',
+        flexWrap: orientation === 'horizontal' ? 'wrap' : undefined,
+        flexShrink: 0,
+        ...style,
+      }}
+    >
+      {fullWidth
+        ? React.Children.map(children, (child) =>
+            React.isValidElement(child)
+              ? React.cloneElement(child as React.ReactElement<TabsTriggerProps>, {
+                  style: { flex: 1, ...(child.props as TabsTriggerProps).style },
+                })
+              : child
+          )
+        : children}
     </div>
   );
 }
+
+function TabsTrigger({ children, value, size = 'md', disabled, style, ...props }: TabsTriggerProps) {
+  const theme = useTheme();
+  const { activeValue, setActive, registerTrigger, unregisterTrigger, focusNext, focusPrev, orientation } =
+    useTabsContext();
+  const isActive = activeValue === value;
+  const ref = useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    registerTrigger(value, ref);
+    return () => unregisterTrigger(value);
+  }, [value, registerTrigger, unregisterTrigger]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const nextKey = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
+    const prevKey = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
+    if (e.key === nextKey) { e.preventDefault(); focusNext(value); }
+    if (e.key === prevKey) { e.preventDefault(); focusPrev(value); }
+  };
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      role="tab"
+      id={`tab-trigger-${value}`}
+      aria-selected={isActive}
+      aria-controls={`tab-panel-${value}`}
+      tabIndex={isActive ? 0 : -1}
+      disabled={disabled}
+      onClick={() => { if (!disabled) setActive(value); }}
+      onKeyDown={handleKeyDown}
+      {...props}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        padding: size === 'sm' ? '8px 12px' : '10px 16px',
+        border: 'none',
+        borderBottom: `2px solid ${isActive ? theme.colors.brand.base : 'transparent'}`,
+        borderRadius: 0,
+        backgroundColor: 'transparent',
+        color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
+        fontSize: size === 'sm' ? theme.fontSizes.xsmall : theme.fontSizes.small,
+        fontWeight: isActive ? theme.fontWeights.medium : theme.fontWeights.regular,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+        whiteSpace: 'nowrap',
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function TabsContent({ children, value, style, ...props }: TabsContentProps) {
+  const theme = useTheme();
+  const { activeValue } = useTabsContext();
+  if (activeValue !== value) return null;
+
+  return (
+    <div
+      role="tabpanel"
+      id={`tab-panel-${value}`}
+      aria-labelledby={`tab-trigger-${value}`}
+      tabIndex={0}
+      {...props}
+      style={{
+        color: theme.colors.text.primary,
+        padding: `${theme.space.medium} 0`,
+        outline: 'none',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+export const Tabs = Object.assign(TabsRoot, {
+  Root: TabsRoot,
+  List: TabsList,
+  Trigger: TabsTrigger,
+  Content: TabsContent,
+});
 
 export default Tabs;

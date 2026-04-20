@@ -1,4 +1,14 @@
-import { type TextProps } from '../../../../components';
+type TextElementData = {
+  as?: string;
+  fontWeight?: string;
+  textDecorationLine?: string;
+  fontStyle?: string;
+  href?: string;
+  target?: string;
+  children?: string;
+  variant?: string;
+  [key: string]: unknown;
+};
 
 function parseHtmlAttributes(htmlAttrs: string): Record<string, string> {
   const attrRegex = /(\w+)="([^"]*)"/g;
@@ -35,11 +45,11 @@ function parseHtmlAttributes(htmlAttrs: string): Record<string, string> {
 const tagsMap: Record<
   string,
   (
-    props: TextProps<string>,
-    elements: TextProps<string>[],
+    props: TextElementData,
+    elements: TextElementData[],
     attributes: string,
-    options?: TextProps<string>,
-  ) => TextProps<string>
+    options?: TextElementData,
+  ) => TextElementData
 > = {
   b: props => {
     props.fontWeight = 'bold';
@@ -101,13 +111,13 @@ const tagsMap: Record<
  * @param options Propriedades globais que serão passadas para o componente de texto
  * @returns
  */
-export function htmlConverter(html: string, options?: TextProps<string>): TextProps<string>[] {
+export function htmlConverter(html: string, options?: TextElementData): TextElementData[] {
   const cleanedHtml = html.trim();
   const matches = Array.from(cleanedHtml.matchAll(/<(\/?)(\w+)([^>]*)>|([^<>]+)/g));
 
-  const elements: TextProps<string>[] = [];
-  const stack: TextProps<string>[] = [];
-  let props: TextProps<string> = {};
+  const elements: TextElementData[] = [];
+  const stack: TextElementData[] = [];
+  let props: TextElementData = {};
 
   matches.forEach(match => {
     const [, closing, tag, attributes, text] = match;

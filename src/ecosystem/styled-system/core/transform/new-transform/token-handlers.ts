@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Theme } from '../../../tokens/index';
-import { tokenCache } from './token-cache';
+import { getFromTokenCache, setInTokenCache } from './token-cache';
 
 export const getRawNumber = (value: string | number) => {
   if (typeof value === 'number') return value;
@@ -19,12 +19,10 @@ export const getRawNumber = (value: string | number) => {
 
 export const getTokenValue = <T extends string>(scale: string, theme: Theme, tokenValue: T) => {
   const path = `${scale}.${tokenValue}`;
-  if (tokenCache.has(path)) {
-    return tokenCache.get(path);
-  }
+  const cached = getFromTokenCache(theme, path);
+  if (cached !== undefined) return cached;
 
   const keys = path.split('.');
-
   const result = keys.reduce((obj: any, key: string) => {
     if (obj && typeof obj === 'object' && key in obj) {
       return obj[key];
@@ -33,8 +31,8 @@ export const getTokenValue = <T extends string>(scale: string, theme: Theme, tok
     }
   }, theme);
 
-  if (result) {
-    tokenCache.set(path, result);
+  if (result !== undefined) {
+    setInTokenCache(theme, path, result);
   }
 
   return result;

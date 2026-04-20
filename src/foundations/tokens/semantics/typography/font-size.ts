@@ -1,24 +1,22 @@
 import { fontSize as primitiveFontSize } from '../../primitives';
 
 export const fontSize = {
-  /**
-   * value: 10px
-   */
+  /** 10px */
   xsmall: primitiveFontSize[10],
-  /**
-   * value: 16px
-   */
+  /** 12px */
+  xs: primitiveFontSize[12],
+  /** 14px */
+  sm: primitiveFontSize[14],
+  /** 16px */
   small: primitiveFontSize[16],
-  /**
-   * value: 20px
-   */
+  /** 18px */
+  md: primitiveFontSize[18],
+  /** 20px */
   medium: primitiveFontSize[20],
-  /**
-   * value: 28px
-   */
+  /** 24px */
+  lg: primitiveFontSize[24],
+  /** 28px */
   large: primitiveFontSize[28],
-  /**
-   * value: 32px
-   */
+  /** 32px */
   xlarge: primitiveFontSize[32],
 };

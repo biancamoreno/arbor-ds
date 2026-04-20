@@ -12,7 +12,7 @@ function parseBreakpointValue(value: string): number {
 export function useBreakpoint(): string {
   const { width } = useWindowDimensions();
   const theme = useTheme() as Theme;
-  const breakpoints = (theme?.breakpoints ?? []) as Array<string> & Record<string, string>;
+  const breakpoints = theme.breakpoints;
 
   let current = 'base';
   for (const key of breakpointOrder) {

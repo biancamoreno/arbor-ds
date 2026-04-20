@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { Box } from '../../../../../components';
+import { ArborTransform } from '../../../../styled-system/core/transform/transform';
 import type { TapStateProps } from '../interfaces';
 import { backgroundColorVariants } from './variants';
 
@@ -15,7 +15,7 @@ export const TapState = forwardRef(({ variant = 'default', ...props }: TapStateP
   }, [props.pressed]);
 
   return (
-    <Box
+    <ArborTransform
       opacity={pressed ? '1' : '0'}
       position={'absolute'}
       left={0}
@@ -25,13 +25,13 @@ export const TapState = forwardRef(({ variant = 'default', ...props }: TapStateP
       borderRadius={props.borderRadius}
       borderBottomLeftRadius={props.borderBottomLeftRadius}
       borderBottomRightRadius={props.borderBottomRightRadius}
-        data-testid={props.testID}
-        zIndex={'level1'}
-        _active={{
-          opacity: 1,
-          ...backgroundColorVariants(variant),
-        }}
+      data-testid={props.testID}
+      zIndex={'level1'}
+      _active={{
+        opacity: 1,
+        ...backgroundColorVariants(variant),
+      }}
       {...backgroundColorVariants(variant)}
-    ></Box>
+    />
   );
 });

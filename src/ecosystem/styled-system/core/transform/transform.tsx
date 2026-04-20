@@ -3,11 +3,8 @@ import { getDefaultTag } from '../tags';
 import { type ArborTransformProps } from './props';
 
 const defaultTag = getDefaultTag() as string;
-
 const StyledComponent = createStyledComponent(defaultTag);
 
-export function ArborTransform<T>({ as, innerRef, ...props }: ArborTransformProps<T>) {
-
+export function ArborTransform<T extends object, U = unknown>({ as, innerRef, ...props }: ArborTransformProps<T, U>) {
   return <StyledComponent {...props} ref={innerRef} as={as} />;
 }
-

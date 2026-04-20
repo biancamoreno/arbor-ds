@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { createVariant, type Token, type Theme } from '../../../..';
+import { createVariant } from '../../../../styled-system/core/variant/create-variant';
+import type { Token } from '../../../../styled-system/system/types';
+import type { Theme } from '../../../../styled-system/tokens';
 import { type TapStateProps } from '../interfaces';
 
 export function backgroundColorVariants(variant: TapStateProps['variant']) {

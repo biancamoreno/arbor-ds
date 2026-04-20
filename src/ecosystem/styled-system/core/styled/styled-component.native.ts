@@ -1,35 +1,39 @@
-import { createElement, forwardRef } from 'react';
-import { View, Pressable } from 'react-native';
+import { createElement, forwardRef, type ElementType, type ReactNode, type Ref } from 'react';
+import { Pressable, View } from 'react-native';
 import { systemBlockForwardProp } from '../../system';
 import { useBreakpoint } from '../../system/hooks';
 import { createStyle } from '../transform/new-transform/create-style';
 import { useTheme } from '../../adapters';
 import { type Theme } from '../../tokens';
 import { nativeTags } from '../tags/native-tags';
+import { type ArborAs, type ArborStyle, type ArborTransformProps } from '../transform';
 
 const pseudoPropPrefix = '_';
 const responsiveKeys = new Set(['base', 'sm', 'md', 'lg', 'xl', '2xl']);
-
 const interactivePseudoProps = new Set(['_hover', '_active', '_focus', '_pressed']);
 
-function resolveTag(as: unknown, fallback: string) {
+type EmptyProps = Record<never, never>;
+type StyledComponentProps = ArborTransformProps<EmptyProps, unknown> & Record<string, unknown>;
+type PlatformAs = Extract<ArborAs, { web?: unknown; native?: unknown }>;
+
+function isPlatformAs(value: ArborAs): value is PlatformAs {
+  return typeof value === 'object' && value !== null && ('web' in value || 'native' in value);
+}
+
+function resolveTag(as: ArborAs | undefined, fallback: string): ElementType | string {
   if (!as) return fallback;
-  if (typeof as === 'string') return as;
-  if (typeof as === 'object' && as !== null && 'native' in (as as Record<string, unknown>)) {
-    return ((as as Record<string, unknown>).native as string) || fallback;
+  if (isPlatformAs(as)) {
+    return (as.native ?? fallback) as ElementType | string;
   }
-  return fallback;
+  return as as ElementType | string;
 }
 
 function isResponsiveObject(value: unknown) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-  return Object.keys(value).some((key) => responsiveKeys.has(key));
+  return Object.keys(value).some(key => responsiveKeys.has(key));
 }
 
-function getResponsiveValue(
-  value: Record<string, unknown>,
-  currentBreakpoint: string,
-): unknown {
+function getResponsiveValue(value: Record<string, unknown>, currentBreakpoint: string): unknown {
   const order = ['base', 'sm', 'md', 'lg', 'xl', '2xl'];
   const currentIndex = order.indexOf(currentBreakpoint);
   let resolved: unknown;
@@ -59,6 +63,11 @@ function resolveStyleObjectNative(
     if (value === undefined || value === null) return;
 
     if (Array.isArray(value)) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `[arbor-ds] Responsive array syntax for "${key}" is deprecated. Use named object instead: { base, sm, md, lg, xl }.`,
+        );
+      }
       const index = Math.min(
         ['base', 'sm', 'md', 'lg', 'xl', '2xl'].indexOf(currentBreakpoint) + 1,
         value.length - 1,
@@ -97,17 +106,27 @@ function filterNativeStyle(style: Record<string, unknown>): Record<string, unkno
 }
 
 function hasInteractivePseudoProps(pseudoProps: Record<string, unknown>): boolean {
-  return Object.keys(pseudoProps).some((key) => interactivePseudoProps.has(key));
+  return Object.keys(pseudoProps).some(key => interactivePseudoProps.has(key));
+}
+
+function toStyleObject(style: ArborStyle | undefined) {
+  if (!style || Array.isArray(style)) {
+    return {};
+  }
+
+  return style as Record<string, unknown>;
 }
 
 export function createStyledComponent(tag: string) {
-  const Component = forwardRef<unknown, Record<string, unknown>>((props, ref) => {
+  const Component = forwardRef<unknown, StyledComponentProps>((rawProps, ref) => {
     const theme = useTheme() as Theme;
     const currentBreakpoint = useBreakpoint();
-    const { as, innerRef, style, ...rest } = props as Record<string, unknown>;
+    const props = rawProps as StyledComponentProps;
+    const { as, innerRef, style, children, ...rest } = props;
 
     const elementTagName = resolveTag(as, tag);
-    const NativeComponent = nativeTags[elementTagName] ?? View;
+    const nativeComponent = typeof elementTagName === 'string' ? nativeTags[elementTagName] ?? View : elementTagName;
+    const pressableComponent: ElementType = Pressable;
 
     const pseudoProps: Record<string, unknown> = {};
     const elementProps: Record<string, unknown> = {};
@@ -126,11 +145,11 @@ export function createStyledComponent(tag: string) {
     const resolvedBase = resolveStyleObjectNative(rest, theme, currentBreakpoint);
     const mergedBaseStyle = filterNativeStyle({
       ...resolvedBase,
-      ...(style as Record<string, unknown> | undefined),
+      ...toStyleObject(style),
     });
 
-    const styleProp =
-      Object.keys(mergedBaseStyle).length > 0 ? mergedBaseStyle : undefined;
+    const styleProp = Object.keys(mergedBaseStyle).length > 0 ? mergedBaseStyle : undefined;
+    const resolvedRef = (innerRef ?? ref) as Ref<unknown>;
 
     const activeStyles = hasInteractivePseudoProps(pseudoProps)
       ? filterNativeStyle(
@@ -147,25 +166,25 @@ export function createStyledComponent(tag: string) {
 
     if (activeStyles && Object.keys(activeStyles).length > 0) {
       return createElement(
-        Pressable,
+        pressableComponent,
         {
           ...elementProps,
-          ref: (innerRef as typeof ref) ?? ref,
+          ref: resolvedRef,
           style: ({ pressed }: { pressed: boolean }) =>
             [styleProp, pressed ? activeStyles : null].filter(Boolean),
         },
-        props.children,
+        children as ReactNode,
       );
     }
 
     return createElement(
-      NativeComponent,
+      nativeComponent,
       {
         ...elementProps,
         style: styleProp,
-        ref: (innerRef as typeof ref) ?? ref,
+        ref: resolvedRef,
       },
-      props.children,
+      children as ReactNode,
     );
   });
 

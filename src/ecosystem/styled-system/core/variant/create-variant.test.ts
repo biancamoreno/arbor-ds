@@ -11,7 +11,7 @@ describe('createVariant', () => {
       backgroundColor: 'tomato',
       padding: '24px',
     },
-  } as any;
+  } as Record<string, Record<string, string>>;
 
   it('should return object correctly when variant is a string', () => {
     const variant = 'primary';

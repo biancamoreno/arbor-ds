@@ -14,7 +14,7 @@ export function Container(props: ContainerProps) {
       return breakpoints?.[Number(props.maxWidth)];
     }
     return props.maxWidth;
-  }, [props.fluid, props.maxWidth]);
+  }, [props.fluid, props.maxWidth, breakpoints]);
 
   return (
     <ArborTransform

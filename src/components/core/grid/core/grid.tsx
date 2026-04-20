@@ -1,6 +1,11 @@
 import { ArborTransform, type ArborTransformProps } from '../../../../ecosystem';
 
-export function Grid<T>(props: ArborTransformProps<T>) {
+/**
+ * @platform native-ready
+ * Grid layout com implementação dedicada para web (`grid.tsx`) e React Native (`grid.native.tsx`).
+ * No native, renderiza como flex-wrap em linha (equivalente funcional sem CSS grid).
+ */
+export function Grid<T extends object>(props: ArborTransformProps<T>) {
   return (
     <ArborTransform
       {...props}

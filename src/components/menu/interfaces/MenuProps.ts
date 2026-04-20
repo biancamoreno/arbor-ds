@@ -1,0 +1,30 @@
+import type { ReactElement, ReactNode } from 'react';
+
+export type MenuRootProps = {
+  isOpen?: boolean;
+  defaultOpen?: boolean;
+  onClose?: () => void;
+  children: ReactNode;
+};
+
+export type MenuTriggerProps = {
+  children: ReactElement;
+  asChild?: boolean;
+};
+
+export type MenuContentProps = {
+  children: ReactNode;
+  label?: string;
+};
+
+export type MenuItemProps = {
+  children: ReactNode;
+  onSelect?: () => void;
+  disabled?: boolean;
+};
+
+export type MenuSeparatorProps = Record<string, never>;
+
+export type MenuLabelProps = {
+  children: ReactNode;
+};

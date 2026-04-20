@@ -1,32 +1,31 @@
 import { useMemo } from 'react';
-import { ArborTransform, createVariant, htmlConverter, TextIterator, useTheme } from '../../../../ecosystem';
+import { ArborTransform, htmlConverter, TextIterator, useRecipe } from '../../../../ecosystem';
 import { type TextProps } from '../interfaces';
 
 export function Text({
   variant = 'caption',
-  isTruncated,
+  isTruncated: _isTruncated,
   numberOfLines,
   as = 'p',
   children,
   onLinkPress,
   ...props
 }: TextProps<string>) {
-  const {
-    components: { text },
-  } = useTheme();
-  const styles = useMemo(() => createVariant(variant, {}, text), [variant, text]);
+  const styles = useRecipe('text', { variant });
+  const lineHeight = (styles as Record<string, unknown>).lineHeight as string | undefined;
+
   const htmlElements = useMemo(() => {
     if (typeof children === 'string' && htmlConverter.isValidHtml(children)) {
       return htmlConverter(children, { onLinkPress });
     }
     return [];
-  }, [children, onLinkPress]) as TextProps<string>[];
+  }, [children, onLinkPress]);
 
   const truncatedProps = useMemo(() => {
     return {
       display: '-webkit-box',
       overflow: 'hidden',
-      maxHeight: `calc(${styles.lineHeight} * ${numberOfLines})`,
+      maxHeight: `calc(${lineHeight} * ${numberOfLines})`,
       style: {
         boxOrient: 'vertical',
         WebkitLineClamp: numberOfLines,
@@ -34,7 +33,7 @@ export function Text({
         textOverflow: 'ellipsis',
       },
     };
-  }, [numberOfLines, styles.lineHeight]);
+  }, [numberOfLines, lineHeight]);
 
   return (
     <ArborTransform

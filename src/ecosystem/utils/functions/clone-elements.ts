@@ -1,23 +1,29 @@
-import { type ReactNode, cloneElement, isValidElement, Children } from 'react';
+import { type ReactElement, type ReactNode, Children, cloneElement, isValidElement } from 'react';
 
-export function cloneElements<T>(
+type CloneableElementProps = {
+  children?: ReactNode;
+} & Record<string, unknown>;
+
+export function cloneElements<T extends object>(
   children: ReactNode,
   props: T,
-  callback: (element: ReactNode) => ReactNode,
+  callback: (element: ReactElement<CloneableElementProps>) => ReactNode,
 ): ReactNode {
   return Children.map(children, child => {
-    if (!isValidElement(child)) {
+    if (!isValidElement<CloneableElementProps>(child)) {
       return child;
     }
 
-    if (child.props?.children) {
-      child = cloneElement(child, {
+    let nextChild = child as ReactElement<CloneableElementProps>;
+
+    if (nextChild.props.children) {
+      nextChild = cloneElement(nextChild, {
         ...props,
-        ...child.props,
-        children: cloneElements(child.props.children, props, callback),
+        ...nextChild.props,
+        children: cloneElements(nextChild.props.children, props, callback),
       });
     }
 
-    return callback(child);
+    return callback(nextChild);
   });
 }

@@ -5,3 +5,4 @@ export * from './variant';
 export * from './styled';
 export * from './props';
 // export * from './breakpoints';
+export * from '../recipes';

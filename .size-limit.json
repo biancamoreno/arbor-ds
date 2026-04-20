@@ -1,0 +1,5 @@
+[
+  { "path": "dist/components.js", "limit": "50 kB" },
+  { "path": "dist/foundations.js", "limit": "10 kB" },
+  { "path": "dist/native.js", "limit": "40 kB" }
+]

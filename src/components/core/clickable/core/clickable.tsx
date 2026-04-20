@@ -8,10 +8,10 @@ export const Clickable: React.ForwardRefExoticComponent<ClickableProps & React.R
     { as = 'button' , tapState, onClick, ...props }: ClickableProps,
     ref,
   ) => {
-    const buttonRef = useRef(null);
+    const buttonRef = useRef<HTMLElement | null>(null);
     const tapStateRef = useRef<TapStateRef>(null);
 
-    function setRef(node: any) {
+    function setRef(node: HTMLElement | null) {
       if (!node) return;
       buttonRef.current = node;
       if (typeof ref === 'function') {

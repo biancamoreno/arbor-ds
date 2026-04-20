@@ -1,5 +1,4 @@
-import { useMemo } from 'react';
-import { ArborTransform, createVariant, useTheme } from '../../../../ecosystem';
+import { ArborTransform, useRecipe } from '../../../../ecosystem';
 import { type TextProps } from '../interfaces';
 
 export function Text({
@@ -9,10 +8,7 @@ export function Text({
   children,
   ...props
 }: TextProps<string>) {
-  const {
-    components: { text },
-  } = useTheme();
-  const styles = useMemo(() => createVariant(variant, {}, text), [variant, text]);
+  const styles = useRecipe('text', { variant });
 
   return (
     <ArborTransform

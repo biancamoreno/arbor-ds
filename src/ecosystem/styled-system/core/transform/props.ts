@@ -1,41 +1,37 @@
-import { type ForwardedRef, type MutableRefObject, type PropsWithChildren, type RefObject } from 'react';
-import { type StyleProps as PropsWithStyle } from '../../system';
-import type { Tags } from '../tags';
+import { type CSSProperties, type ElementType, type ReactNode, type Ref } from 'react';
+import { type StyleProps as SystemStyleProps } from '../../system';
 
-/** Propriedades que contêm o atributo `testID`. */
-type PropsWithTestID = { testID: string };
+type PropsWithTestID = {
+  testID?: string;
+  'data-testid'?: string;
+};
 
-/** Propriedades que contêm o atributo `innerRef`. */
 type PropsWithInnerRef<T> = {
-  innerRef?: RefObject<T> | MutableRefObject<T | undefined> | ForwardedRef<T>;
+  innerRef?: Ref<T>;
 };
 
-/** Propriedades que contêm o atributo `as`, para transformação do Styled Components. */
+export type ArborAs = ElementType | { web?: ElementType; native?: ElementType };
+
 type PropsWithTransform = {
-  as: Partial<Tags>;
+  as?: ArborAs;
 };
 
-/** Outras propriedades não específicas. */
+export type ArborStyle = CSSProperties | Record<string, unknown>;
+
+type PropsWithStyle = {
+  style?: ArborStyle;
+};
+
 type PropsOther = Record<string, unknown>;
 
-/**
- * Propriedades para um componente Arbor.
- *
- * @typeparam T - Outras propriedades específicas.
- *
- * @example
- *   const props: ArborTransformProps<HTMLButtonElement, { disabled: boolean }> = {
- *   disabled: true,
- *   as: { web: 'button', native: 'TouchableOpacity' },
- *   fontSize: 'lg',
- *   outraProp: 'Hello',
- *   testID: 'button',
- *   innerRef: useRef(null),
- * };
- */
-export type ArborTransformProps<T = PropsOther, U = HTMLElement> = Partial<T> &
-  Partial<PropsWithTransform> &
-  Partial<PropsWithStyle> &
-  Partial<PropsWithChildren> &
-  Partial<PropsWithTestID> &
-  Partial<PropsWithInnerRef<U>>;
+type PropsWithArborChildren = {
+  children?: ReactNode;
+};
+
+export type ArborTransformProps<T extends object = PropsOther, U = unknown> = T &
+  PropsWithTransform &
+  SystemStyleProps &
+  PropsWithStyle &
+  PropsWithArborChildren &
+  PropsWithTestID &
+  PropsWithInnerRef<U>;

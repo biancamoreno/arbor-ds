@@ -18,6 +18,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   onRemove,
 }) => {
   const theme = useTheme();
+  const criticalColor = theme.colors.feedback.critical.base;
+  const subtleCriticalColor = theme.colors.feedback.critical.subtle;
+  const borderColor = theme.colors.border.default;
+  const subtleBackgroundColor = theme.colors.background.subtle;
+  const primaryTextColor = theme.colors.text.primary;
+  const secondaryTextColor = theme.colors.text.secondary;
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -94,7 +100,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           style={{
             fontSize: theme.fontSizes.xsmall,
             fontWeight: 600,
-            color: error ? theme.colors.error : theme.colors.gray900,
+            color: error ? criticalColor : primaryTextColor,
           }}
         >
           {label}
@@ -104,7 +110,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       {previewUrl && preview ? (
         <div
           style={{
-            border: `1px solid ${theme.colors.gray300}`,
+            border: `1px solid ${borderColor}`,
             borderRadius: theme.radii.medium,
             padding: '1rem',
             display: 'flex',
@@ -127,7 +133,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               style={{
                 fontSize: theme.fontSizes.small,
                 fontWeight: 500,
-                color: theme.colors.gray900,
+                color: primaryTextColor,
                 margin: 0,
               }}
             >
@@ -139,10 +145,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             onClick={onRemove}
             style={{
               padding: '0.5rem 1rem',
-              border: `1px solid ${theme.colors.error}`,
+              border: `1px solid ${criticalColor}`,
               borderRadius: theme.radii.small,
               backgroundColor: 'transparent',
-              color: theme.colors.error,
+              color: criticalColor,
               cursor: 'pointer',
               fontSize: theme.fontSizes.small,
             }}
@@ -157,14 +163,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           style={{
-            border: `2px dashed ${isDragging ? theme.colors.brand.base : error ? theme.colors.error : theme.colors.gray300}`,
+            border: `2px dashed ${isDragging ? theme.colors.brand.base : error ? criticalColor : borderColor}`,
             borderRadius: theme.radii.medium,
             padding: '2rem',
             backgroundColor: isDragging
-              ? theme.colors.brand.base + '20'
+              ? theme.colors.brand.subtle
               : error
-              ? theme.colors.error + '20'
-              : theme.colors.gray100,
+              ? subtleCriticalColor
+              : subtleBackgroundColor,
             cursor: disabled ? 'not-allowed' : 'pointer',
             opacity: disabled ? 0.5 : 1,
             display: 'flex',
@@ -178,7 +184,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           {loading ? (
             <>
               <span style={{ fontSize: '2rem' }}>⏳</span>
-              <p style={{ fontSize: theme.fontSizes.small, color: theme.colors.gray700 }}>
+              <p style={{ fontSize: theme.fontSizes.small, color: secondaryTextColor }}>
                 Uploading...
               </p>
             </>
@@ -189,7 +195,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 style={{
                   fontSize: theme.fontSizes.small,
                   fontWeight: 600,
-                  color: theme.colors.gray900,
+                  color: primaryTextColor,
                   margin: 0,
                 }}
               >
@@ -198,7 +204,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <p
                 style={{
                   fontSize: theme.fontSizes.xsmall,
-                  color: theme.colors.gray600,
+                  color: secondaryTextColor,
                   margin: 0,
                 }}
               >
@@ -223,7 +229,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         <span
           style={{
             fontSize: theme.fontSizes.xsmall,
-            color: theme.colors.error,
+            color: criticalColor,
           }}
         >
           {error}

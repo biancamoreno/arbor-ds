@@ -1,3 +1,7 @@
 import { type SquareProps } from '../../square';
 
-export type CircleProps<T> = SquareProps<T>;
+/**
+ * @platform shared
+ * Container circular (Square com borderRadius full) que funciona em web e React Native via ArborTransform.
+ */
+export type CircleProps<T extends object> = SquareProps<T>;

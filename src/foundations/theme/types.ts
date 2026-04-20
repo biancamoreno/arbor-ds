@@ -1,0 +1,44 @@
+import type { StyleProps } from '../../ecosystem/styled-system/system/system.types';
+
+type AnyStyleProps = StyleProps;
+
+export type RecipeConfig = {
+  base?: AnyStyleProps;
+  variants?: Record<string, Record<string, AnyStyleProps>>;
+  compoundVariants?: Array<{
+    conditions: Record<string, unknown>;
+    style: AnyStyleProps;
+  }>;
+  defaultVariants?: Record<string, unknown>;
+};
+
+export type SlotRecipeConfig = {
+  slots: readonly string[];
+  base?: Partial<Record<string, AnyStyleProps>>;
+  variants?: Record<string, Record<string, Record<string, AnyStyleProps>>>;
+  defaultVariants?: Record<string, unknown>;
+};
+
+export type ThemeComponents = {
+  text?: RecipeConfig;
+  button?: RecipeConfig;
+  field?: SlotRecipeConfig;
+  input?: RecipeConfig;
+  checkbox?: SlotRecipeConfig;
+  radio?: SlotRecipeConfig;
+  switch?: SlotRecipeConfig;
+  select?: SlotRecipeConfig;
+  tag?: RecipeConfig;
+  dialog?: SlotRecipeConfig;
+  drawer?: SlotRecipeConfig;
+  tooltip?: SlotRecipeConfig;
+  tabs?: SlotRecipeConfig;
+  badge?: RecipeConfig;
+  alert?: SlotRecipeConfig;
+  accordion?: SlotRecipeConfig;
+  card?: RecipeConfig;
+  chip?: RecipeConfig;
+  avatar?: SlotRecipeConfig;
+  toast?: SlotRecipeConfig;
+  [key: string]: RecipeConfig | SlotRecipeConfig | undefined;
+};

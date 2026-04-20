@@ -17,8 +17,9 @@ describe('Box', () => {
       </Box>,
       { wrapper: Wrapper },
     );
-    expect(screen.getByTestId('inner')).toBeTruthy();
-    expect(screen.getByText('Content')).toBeTruthy();
+    const inner = screen.getByTestId('inner');
+    expect(inner).toBeTruthy();
+    expect(inner.props.children).toBe('Content');
   });
 
   it('forwards testID', () => {

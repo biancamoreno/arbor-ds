@@ -1,50 +1,79 @@
 # arbor-ds
 
-Arbor é um design system raiz, modular e sem dependência de libs de UI prontas. Ele fornece os mecanismos fundamentais de tokens, tema e renderização tipada para criar interfaces altamente personalizáveis por produto.
+Design system cross-platform modular para React e React Native, sem dependência de bibliotecas de UI prontas. Mantém `foundations`, `ecosystem` e `components` como núcleo do sistema.
+
+## Instalação
+
+```bash
+npm install arbor-ds
+# ou
+pnpm add arbor-ds
+```
+
+**Peer dependencies:**
+
+```bash
+npm install react react-dom
+# Para React Native:
+npm install react-native react-native-web
+```
+
+## Matriz de suporte
+
+| Versão | React | React Native | iOS | Android | Node |
+|---|---|---|---|---|---|
+| 1.x | 18+ / 19 | 0.74+ | 15+ | API 24+ | 18+ |
+
+## Estrutura do repositório
+
+```
+arbor-ds/
+├── src/               # Código da biblioteca (publicado)
+│   ├── foundations/   # Tokens, temas e escalas visuais
+│   ├── ecosystem/     # Styled system, provider, hooks e utils
+│   └── components/    # Componentes UI reutilizáveis
+├── playground/        # Aplicação demo (não faz parte do pacote publicado)
+│   ├── src/           # Código do playground (consome a lib via imports relativos)
+│   ├── App.tsx        # Entry Expo (mobile)
+│   ├── main.tsx       # Entry web (Vite)
+│   └── package.json   # Dependências isoladas do demo
+├── docs/              # Decisões arquiteturais e plano de fases
+└── scripts/           # Utilitários de tooling
+```
 
 ## Arquitetura
 
 ### Foundations
 
-Base semântica do design system.
-
-- `tokens`: tokens primitivos e semânticos (cores, spacing, tipografia, z-index, etc.).
-- `theme`: composição de tema (`baseTheme` + tokens), `themeLight` e `createTheme` para overrides.
-- `types`: `ArborTheme` consolida a tipagem esperada pelos componentes e pelo provider.
+- `tokens`: escalas primitivas e semanticas de cor, espaco, tipografia, bordas, opacidade e z-index.
+- `theme`: `themeLight`, `themeDark` e `createTheme` para extensao por produto.
 
 ### Ecosystem
 
-Camada de infraestrutura e utilitários.
-
-- `styled-system`: motor interno de estilo que mapeia props tipadas e pseudo-props para CSS.
-- `core`: `ArborTransform` e `createStyledComponent` fazem a ponte entre props e renderização.
-- `provider`: `ArborProvider` aplica o tema via contexto próprio.
-- `utils`: utilitários e pequenos componentes (ex.: iteradores de texto, tap state).
+- `styled-system`: `ArborProvider`, `ArborTransform`, hooks e engine de props tipadas.
+- `utils`: utilitarios internos usados pela camada de renderizacao e componentes.
 
 ### Components
 
-Catálogo de UI baseado no `ArborTransform`.
+- `core`: primitives de layout e estrutura como `Box`, `Flex`, `Grid`, `Container`, `Text` e afins.
+- `input`, `button`, `checkbox`, `radio-card`, `tag`, `tabs`, `modal`, `drawer`, `tooltip`: componentes base reaproveitaveis.
 
-- `core`: blocos essenciais (Box, Flex, Grid, Text, Image, Spacer, etc.).
-- `button`: componente de botão com interfaces próprias.
+## Como rodar o playground
 
-### Patterns e Templates
-
-Composições de nível mais alto para acelerar telas e fluxos (ex.: header, form-field, login-screen).
-
-## Como usar o pacote publicado
-
-### Instalação
-
-```
-pnpm add arbor-ds
+```bash
+pnpm dev
 ```
 
-> O Arbor depende apenas de `react` e `react-dom`. Garanta versões compatíveis no seu projeto.
+O playground abre em `http://localhost:5173` e demonstra:
 
-### Configuração do provider e tema
+- foundations e semantic tokens
+- `ArborProvider` + `ArborTransform`
+- componentes base e overlays
+- troca de tema entre `light`, `spruce` e `dark`
 
-Crie um tema derivado do `themeLight` e aplique com o `ArborProvider`:
+## Como usar o pacote
+
+### Provider e tema
 
 ```tsx
 import { ArborProvider } from 'arbor-ds/ecosystem';
@@ -53,53 +82,68 @@ import { createTheme, themeLight } from 'arbor-ds/foundations';
 const theme = createTheme(themeLight, {
   colors: {
     brand: {
-      500: '#2F6FED',
+      base: '#2F775F',
+      strong: '#1F5543',
     },
   },
 });
 
 export function App() {
-  return (
-    <ArborProvider theme={theme}>
-      {/* sua aplicação */}
-    </ArborProvider>
-  );
+  return <ArborProvider theme={theme}>{/* sua aplicacao */}</ArborProvider>;
 }
 ```
 
-### Usando componentes
+### Componentes
 
 ```tsx
-import { Box, Text, Button } from 'arbor-ds/components';
+import { Box, Button, Text } from 'arbor-ds/components';
 
 export function Hero() {
   return (
-    <Box padding="24px" backgroundColor="neutral.100">
-      <Text as="h1" variant="title1">Olá, Arbor</Text>
-      <Button size="md" variant="primary">Começar</Button>
+    <Box padding="large" borderRadius="large" backgroundColor="surface.raised">
+      <Text as="h1" variant="title1">
+        Ola, Arbor
+      </Text>
+      <Text as="p" variant="body">
+        Tokens e componentes base aplicados em uma unica camada.
+      </Text>
+      <Button>Comecar</Button>
     </Box>
   );
 }
 ```
 
-### Criando componentes próprios
-
-Quando precisar de um componente customizado, use `ArborTransform` para manter tipagem e props de estilo:
+### ArborTransform
 
 ```tsx
 import { ArborTransform } from 'arbor-ds/ecosystem';
 
-export function Badge(props: { label: string }) {
+export function Badge({ label }: { label: string }) {
   return (
-    <ArborTransform as="span" padding="4px 8px" borderRadius="8px">
-      {props.label}
+    <ArborTransform
+      as="span"
+      display="inline-flex"
+      alignItems="center"
+      padding="tiny"
+      borderRadius="full"
+      backgroundColor="brand.subtle"
+      color="text.primary"
+    >
+      {label}
     </ArborTransform>
   );
 }
 ```
 
-## API principal (exports)
+## API principal
 
-- `arbor-ds/foundations`: tokens, tema (`themeLight`, `createTheme`, `ArborTheme`).
-- `arbor-ds/ecosystem`: provider, motor de estilo e utilitários (`ArborProvider`, `ArborTransform`).
-- `arbor-ds/components`: componentes core e `Button`.
+| Entrypoint | Conteúdo |
+|---|---|
+| `arbor-ds` | Componentes (default) |
+| `arbor-ds/foundations` | Tokens, temas, `createTheme` |
+| `arbor-ds/ecosystem` | `ArborProvider`, `ArborTransform`, hooks |
+| `arbor-ds/native` | Exports para React Native |
+
+## Contribuindo
+
+Veja [CONTRIBUTING.md](./CONTRIBUTING.md) para setup, convenções de commit, fluxo de PR e Definition of Done.

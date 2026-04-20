@@ -1,7 +1,7 @@
-import type { ComponentType } from 'react';
+import type { ElementType } from 'react';
 import { View, Text, Pressable, Image, ScrollView } from 'react-native';
 
-export type NativeTags = Record<string, ComponentType<unknown>>;
+export type NativeTags = Record<string, ElementType>;
 
 export const nativeTags: NativeTags = {
   div: View,

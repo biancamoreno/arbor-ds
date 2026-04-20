@@ -1,6 +1,7 @@
 export const letterSpacing = {
-  0: 0,
-  'negative0.45': -0.45,
-  'negative0.5': -0.5,
-  'negative0.65': -0.65,
+  tightest: '-0.045em',
+  tight: '-0.025em',
+  normal: '0em',
+  wide: '0.025em',
+  widest: '0.05em',
 };

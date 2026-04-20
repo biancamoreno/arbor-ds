@@ -1,7 +1,11 @@
 import { type ArborTransformProps, type Tags } from '../../../../ecosystem';
 
+/**
+ * @platform native-ready
+ * Componente de texto com implementação dedicada para web (`text.tsx`) e React Native (`text.native.tsx`).
+ * Suporta web, iOS e Android.
+ */
 export interface TextProps<T> extends ArborTransformProps {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   variant?: T | ({} & string);
   isTruncated?: boolean;
   numberOfLines?: number;

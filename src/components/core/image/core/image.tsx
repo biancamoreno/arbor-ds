@@ -1,4 +1,4 @@
-import { Box } from '../..';
+import { Box } from '../../box';
 import { type ImageProps } from '../interfaces';
 
 export function Image({

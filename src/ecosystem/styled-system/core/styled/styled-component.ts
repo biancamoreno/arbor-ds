@@ -1,12 +1,28 @@
-import { createElement, forwardRef } from 'react';
+import { createElement, forwardRef, type ElementType, type ReactNode, type Ref } from 'react';
 import { systemBlockForwardProp, systemPseudoProps } from '../../system';
 import { createStyle } from '../transform/new-transform/create-style';
 import { useTheme } from '../../adapters';
 import { type Theme } from '../../tokens';
+import { type ArborAs, type ArborStyle, type ArborTransformProps } from '../transform';
 
 const injectedStyles = new Set<string>();
-const cachedClasses = new Map<string, string>();
+const tokenCache = new WeakMap<object, Map<string, string>>();
+const allCacheMaps = new Set<Map<string, string>>();
 let styleCounter = 0;
+
+function getThemeCache(theme: object): Map<string, string> {
+  if (!tokenCache.has(theme)) tokenCache.set(theme, new Map<string, string>());
+  const map = tokenCache.get(theme)!;
+  allCacheMaps.add(map);
+  return map;
+}
+
+/** Resets CSS injection and className caches between tests. Not for production use. */
+export function __resetStyleEngine__(): void {
+  injectedStyles.clear();
+  allCacheMaps.forEach(m => m.clear());
+  styleCounter = 0;
+}
 
 const unitlessProps = new Set([
   'opacity',
@@ -20,6 +36,15 @@ const unitlessProps = new Set([
 
 const pseudoPropPrefix = '_';
 const responsiveKeys = new Set(['base', 'sm', 'md', 'lg', 'xl', '2xl']);
+const breakpointNames = ['sm', 'md', 'lg', 'xl', '2xl'] as const;
+
+type BreakpointName = (typeof breakpointNames)[number];
+type EmptyProps = Record<never, never>;
+type StyledComponentProps = ArborTransformProps<EmptyProps, unknown> &
+  Record<string, unknown> & {
+    className?: string;
+  };
+type PlatformAs = Extract<ArborAs, { web?: unknown; native?: unknown }>;
 
 function toKebabCase(value: string) {
   return value.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
@@ -62,17 +87,19 @@ function getStyleSheet() {
 }
 
 function createClassName(
+  theme: object,
   baseStyle: Record<string, unknown>,
   pseudoStyles: Record<string, Record<string, unknown>>,
   responsiveStyles: Record<string, Record<string, unknown>>,
   responsivePseudoStyles: Record<string, Record<string, Record<string, unknown>>>,
 ) {
+  const cache = getThemeCache(theme);
   const key = stableStringify({ baseStyle, pseudoStyles, responsiveStyles, responsivePseudoStyles });
-  const cached = cachedClasses.get(key);
+  const cached = cache.get(key);
   if (cached) return cached;
 
   const className = `arbor-${styleCounter++}`;
-  cachedClasses.set(key, className);
+  cache.set(key, className);
 
   const sheet = getStyleSheet();
   if (!sheet) return className;
@@ -126,13 +153,16 @@ function createClassName(
   return className;
 }
 
-function resolveTag(as: unknown, fallback: string) {
+function isPlatformAs(value: ArborAs): value is PlatformAs {
+  return typeof value === 'object' && value !== null && ('web' in value || 'native' in value);
+}
+
+function resolveTag(as: ArborAs | undefined, fallback: string): ElementType | string {
   if (!as) return fallback;
-  if (typeof as === 'string') return as;
-  if (typeof as === 'object' && as !== null && 'web' in (as as Record<string, unknown>)) {
-    return ((as as Record<string, unknown>).web as string) || fallback;
+  if (isPlatformAs(as)) {
+    return (as.web ?? fallback) as ElementType | string;
   }
-  return fallback;
+  return as as ElementType | string;
 }
 
 type StyleBuckets = {
@@ -145,14 +175,14 @@ function isResponsiveObject(value: unknown) {
   return Object.keys(value).some(key => responsiveKeys.has(key));
 }
 
-function getMediaQuery(theme: Theme, breakpoint: string) {
+function getMediaQuery(breakpoint: string) {
   return `@media screen and (min-width: ${breakpoint})`;
 }
 
 function resolveStyleObject(rawProps: Record<string, unknown>, theme: Theme): StyleBuckets {
   const base: Record<string, unknown> = {};
   const responsive: Record<string, Record<string, unknown>> = {};
-  const breakpoints = (theme?.breakpoints ?? []) as Array<string> & Record<string, string>;
+  const breakpoints = theme.breakpoints;
 
   const applyResolved = (resolved: Record<string, unknown>, media?: string) => {
     if (!resolved || Object.keys(resolved).length === 0) return;
@@ -167,6 +197,11 @@ function resolveStyleObject(rawProps: Record<string, unknown>, theme: Theme): St
     if (value === undefined || value === null) return;
 
     if (Array.isArray(value)) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `[arbor-ds] Responsive array syntax for "${key}" is deprecated. Use named object instead: { base, sm, md, lg, xl }.`,
+        );
+      }
       value.forEach((item, index) => {
         if (item === undefined || item === null) return;
         const resolved = createStyle({ [key]: item }, theme);
@@ -177,7 +212,7 @@ function resolveStyleObject(rawProps: Record<string, unknown>, theme: Theme): St
 
         const breakpoint = breakpoints[index - 1];
         if (breakpoint) {
-          applyResolved(resolved, getMediaQuery(theme, breakpoint));
+          applyResolved(resolved, getMediaQuery(breakpoint));
         }
       });
       return;
@@ -192,9 +227,11 @@ function resolveStyleObject(rawProps: Record<string, unknown>, theme: Theme): St
           return;
         }
 
-        const breakpoint = breakpoints[bpKey] ?? bpKey;
+        const breakpoint = breakpointNames.includes(bpKey as BreakpointName)
+          ? breakpoints[bpKey as BreakpointName]
+          : bpKey;
         if (breakpoint) {
-          applyResolved(resolved, getMediaQuery(theme, breakpoint));
+          applyResolved(resolved, getMediaQuery(breakpoint));
         }
       });
       return;
@@ -206,10 +243,19 @@ function resolveStyleObject(rawProps: Record<string, unknown>, theme: Theme): St
   return { base, responsive };
 }
 
+function toStyleObject(style: ArborStyle | undefined) {
+  if (!style || Array.isArray(style)) {
+    return {};
+  }
+
+  return style as Record<string, unknown>;
+}
+
 export function createStyledComponent(tag: string) {
-  const Component = forwardRef<HTMLElement, Record<string, unknown>>((props, ref) => {
+  const Component = forwardRef<unknown, StyledComponentProps>((rawProps, ref) => {
     const theme = useTheme() as Theme;
-    const { as, innerRef, className, style, ...rest } = props as Record<string, unknown>;
+    const props = rawProps as StyledComponentProps;
+    const { as, innerRef, className, style, children, ...rest } = props;
     const elementTag = resolveTag(as, tag);
 
     const pseudoProps: Record<string, unknown> = {};
@@ -222,12 +268,18 @@ export function createStyledComponent(tag: string) {
       }
 
       if (systemBlockForwardProp(key)) {
+        if (key === 'testID') {
+          elementProps.testID = value;
+          elementProps['data-testid'] = value;
+          return;
+        }
+
         elementProps[key] = value;
       }
     });
 
     const resolvedBase = resolveStyleObject(rest, theme);
-    const mergedBaseStyle = { ...resolvedBase.base, ...(style as Record<string, unknown> | undefined) };
+    const mergedBaseStyle = { ...resolvedBase.base, ...toStyleObject(style) };
 
     const pseudoResolved = Object.entries(pseudoProps).reduce((acc, [key, value]) => {
       if (typeof value === 'object' && value !== null) {
@@ -259,6 +311,7 @@ export function createStyledComponent(tag: string) {
     }, {} as Record<string, Record<string, Record<string, unknown>>>);
 
     const generatedClassName = createClassName(
+      theme,
       mergedBaseStyle,
       pseudoStyles as Record<string, Record<string, unknown>>,
       resolvedBase.responsive,
@@ -266,16 +319,15 @@ export function createStyledComponent(tag: string) {
     );
 
     const combinedClassName = [className, generatedClassName].filter(Boolean).join(' ');
+    const resolvedRef = (innerRef ?? ref) as Ref<unknown>;
 
-    const testID = (rest as Record<string, unknown>).testID;
     const webProps = {
       ...elementProps,
-      ...(testID && { 'data-testid': testID }),
       className: combinedClassName || undefined,
-      ref: (innerRef as typeof ref) ?? ref,
+      ref: resolvedRef,
     };
 
-    return createElement(elementTag, webProps, props.children);
+    return createElement(elementTag, webProps, children as ReactNode);
   });
 
   return Component;

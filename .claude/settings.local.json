@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Bash(git -C /c/Users/henri/OneDrive/Projetos/arbor-ds status --short)",
+      "Bash(git -C /c/Users/henri/OneDrive/Projetos/arbor-ds log --oneline --all --name-status)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(pnpm test *)",
+      "Bash(node *)",
+      "Bash(npx jest *)",
+      "Bash(pnpm build:lib *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm tokens:validate)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm depcheck *)",
+      "Bash(xargs grep *)",
+      "Bash(pnpm build *)",
+      "Bash(pnpm tsc *)",
+      "Bash(xargs ls *)",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm view *)",
+      "Bash(pnpm storybook *)",
+      "Bash(pnpm build:storybook)",
+      "Bash(pnpm changeset *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(echo \"Exit code: $?\")"
+    ]
+  }
+}

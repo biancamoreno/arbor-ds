@@ -1,5 +1,11 @@
-import type { ArborTransformProps, BaseBreakpointConfig } from '../../../../ecosystem';
+import type { ArborTransformProps } from '../../../../ecosystem';
+import type { BaseBreakpointConfig } from '../../../../foundations';
 
+/**
+ * @platform shared
+ * Container responsivo com largura máxima controlada por breakpoints.
+ * Funciona em web e React Native via ArborTransform.
+ */
 export type ContainerProps = {
   fluid?: boolean;
   centerContent?: boolean;

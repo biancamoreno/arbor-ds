@@ -1,0 +1,21 @@
+{
+  "name": "arbor-ds-playground",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "native": "expo start"
+  },
+  "dependencies": {
+    "expo": "^54.0.33",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-native": "^0.84.0",
+    "react-native-web": "^0.21.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "vite": "^7.1.2"
+  }
+}

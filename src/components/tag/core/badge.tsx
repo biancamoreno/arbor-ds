@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
-import type { BadgeProps } from '../interfaces';
+import type { BadgeProps } from '../interfaces/BadgeProps';
 
 function getToneStyle(tone: BadgeProps['tone'], theme: ReturnType<typeof useTheme>): CSSProperties {
   switch (tone) {

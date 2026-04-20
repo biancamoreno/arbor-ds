@@ -58,7 +58,7 @@ describe('useToken', () => {
   });
 
   it('should return undefined if tokenValue is null', () => {
-    const tokenValue = useToken<any>('colors', null);
+    const tokenValue = useToken<string>('colors', null);
 
     expect(tokenValue).toBeNull();
     expect(useTheme).toHaveBeenCalled();

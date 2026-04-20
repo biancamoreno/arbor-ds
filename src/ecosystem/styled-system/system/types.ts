@@ -4,7 +4,6 @@ export type ResponsiveArray<T> = Array<T | null>;
 
 export type ResponsiveObject<T> = { [Property in BreakpointKeys]?: T };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type ResponsiveValue<T> = T | ResponsiveArray<T> | ResponsiveObject<T> | ({} & string);
 
 type KeyObject = string | number;

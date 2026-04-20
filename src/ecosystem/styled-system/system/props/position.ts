@@ -24,6 +24,10 @@ export interface PositionProps {
    */
   left?: ResponsiveValue<Token<Theme['sizes']> | number>;
   /**
+   * The CSS `inset` shorthand property
+   */
+  inset?: ResponsiveValue<Token<Theme['sizes']> | number | CSS.Property.Inset>;
+  /**
    * The CSS `position` property
    */
   pos?: ResponsiveValue<CSS.Property.Position>;

@@ -1,2 +1,2 @@
-export * from './core';
-export * from './interfaces';
+export { Tag } from './core/tag';
+export type { TagProps } from './interfaces';
