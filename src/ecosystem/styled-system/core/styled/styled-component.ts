@@ -3,7 +3,7 @@ import { systemBlockForwardProp, systemPseudoProps } from '../../system';
 import { createStyle } from '../transform/new-transform/create-style';
 import { useTheme } from '../../adapters';
 import { type Theme } from '../../tokens';
-import { type ArborAs, type ArborStyle, type ArborTransformProps } from '../transform';
+import { type ArborAs, type ArborStyle, type ArborTransformProps } from '../transform/props';
 
 const injectedStyles = new Set<string>();
 const tokenCache = new WeakMap<object, Map<string, string>>();

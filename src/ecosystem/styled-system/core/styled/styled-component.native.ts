@@ -6,7 +6,7 @@ import { createStyle } from '../transform/new-transform/create-style';
 import { useTheme } from '../../adapters';
 import { type Theme } from '../../tokens';
 import { nativeTags } from '../tags/native-tags';
-import { type ArborAs, type ArborStyle, type ArborTransformProps } from '../transform';
+import { type ArborAs, type ArborStyle, type ArborTransformProps } from '../transform/props';
 
 const pseudoPropPrefix = '_';
 const responsiveKeys = new Set(['base', 'sm', 'md', 'lg', 'xl', '2xl']);
