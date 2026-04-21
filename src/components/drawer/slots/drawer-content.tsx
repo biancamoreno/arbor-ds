@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Portal, FocusScope, DismissableLayer } from '../../../ecosystem/primitives';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useDrawerContext } from '../context/drawer-context';
@@ -28,11 +28,34 @@ function getPanelStyle(placement: DrawerPlacement, size: NonNullable<DrawerConte
   return { ...shared, right: 0, top: 0, bottom: 0, width: widthMap[size], height: '100%', borderRadius: '24px 0 0 24px' };
 }
 
+const SLIDE_HIDDEN: Record<DrawerPlacement, string> = {
+  right: 'translateX(100%)',
+  left: 'translateX(-100%)',
+  bottom: 'translateY(100%)',
+  top: 'translateY(-100%)',
+};
+
 export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
   const { isOpen, close, placement, titleId } = useDrawerContext();
   const theme = useTheme();
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(isOpen);
+  const [visible, setVisible] = useState(false);
+  const frameRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      frameRef.current = requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setMounted(false), 200);
+      return () => clearTimeout(t);
+    }
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [isOpen]);
+
+  if (!mounted) return null;
 
   return (
     <Portal>
@@ -49,6 +72,8 @@ export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
               padding: theme.space.large,
               backgroundColor: theme.colors.surface.raised,
               boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
+              transform: visible ? 'translate(0)' : SLIDE_HIDDEN[placement],
+              transition: 'transform 0.2s cubic-bezier(0, 0, 0.2, 1)',
             }}
           >
             {children}

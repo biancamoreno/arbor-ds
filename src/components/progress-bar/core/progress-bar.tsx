@@ -1,10 +1,12 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { transition } from '../../../ecosystem/utils/functions';
 import type { ProgressBarProps } from '../interfaces';
 
 const HEIGHT_MAP = { sm: 4, md: 8, lg: 12 } as const;
 
 export function ProgressBar({
   progress,
+  indeterminate = false,
   label,
   size = 'md',
   tone = 'brand',
@@ -25,12 +27,14 @@ export function ProgressBar({
   return (
     <div
       role="progressbar"
-      aria-valuenow={clampedProgress}
+      aria-valuenow={indeterminate ? undefined : clampedProgress}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label}
+      aria-busy={indeterminate || undefined}
       {...props}
       style={{
+        position: 'relative',
         width: '100%',
         height: `${height}px`,
         borderRadius: theme.radii.full,
@@ -39,15 +43,28 @@ export function ProgressBar({
         ...style,
       }}
     >
-      <div
-        style={{
-          height: '100%',
-          width: `${clampedProgress}%`,
-          borderRadius: theme.radii.full,
-          backgroundColor: fillColor[tone],
-          transition: 'width 0.3s ease',
-        }}
-      />
+      {indeterminate ? (
+        <div
+          style={{
+            position: 'absolute',
+            height: '100%',
+            width: '35%',
+            borderRadius: theme.radii.full,
+            backgroundColor: fillColor[tone],
+            animation: 'arbor-progress-indeterminate 2.1s cubic-bezier(0.65,0.815,0.735,0.395) infinite',
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            height: '100%',
+            width: `${clampedProgress}%`,
+            borderRadius: theme.radii.full,
+            backgroundColor: fillColor[tone],
+            transition: transition(['width'], 'slow', 'standard'),
+          }}
+        />
+      )}
     </div>
   );
 }

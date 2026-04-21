@@ -3,6 +3,7 @@ import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
 import { RadioContext, useRadioContext } from '../context/radio-context';
+import { transition } from '../../../ecosystem/utils/functions';
 import type {
   RadioRootProps,
   RadioIndicatorProps,
@@ -87,7 +88,7 @@ function RadioRoot({
             border: `1px solid ${isChecked ? theme.colors.brand.base : theme.colors.border.default}`,
             backgroundColor: isChecked ? theme.colors.brand.subtle : theme.colors.surface.default,
             boxShadow: isChecked ? `0 0 0 2px ${theme.colors.brand.subtle}` : 'none',
-            transition: 'border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease',
+            transition: transition(['border-color', 'background-color', 'box-shadow'], 'fast'),
           }}
         >
           {children}
@@ -123,7 +124,7 @@ function RadioIndicator({ style }: RadioIndicatorProps) {
           height: '10px',
           borderRadius: theme.radii.full,
           backgroundColor: ctx.isChecked ? theme.colors.brand.base : 'transparent',
-          transition: 'background-color 0.15s ease',
+          transition: transition(['background-color'], 'fast'),
         }}
       />
     </span>

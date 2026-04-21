@@ -10,7 +10,7 @@ export interface AlertRootProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export interface AlertIconProps extends HTMLAttributes<HTMLSpanElement> {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export interface AlertTitleProps extends HTMLAttributes<HTMLParagraphElement> {

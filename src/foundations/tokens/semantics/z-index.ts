@@ -6,6 +6,8 @@ export const zIndex = {
   level2: 2,
   level3: 3,
   docked: 10,
+  navBar: 100,
+  fab: 900,
   dropdown: 1000,
   sticky: 1100,
   banner: 1200,

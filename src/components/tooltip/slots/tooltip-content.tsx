@@ -27,12 +27,16 @@ export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: 
   const { isOpen, tooltipId } = useTooltipContext();
   const theme = useTheme();
 
-  if (!isOpen) return null;
+  const placementStyle = getPlacementStyle(placement);
+
+  // Animação de scale relativa ao placement para não conflitar com translateX/Y do posicionamento
+  const scaleTransform = isOpen ? 'scale(1)' : 'scale(0.95)';
 
   return (
     <span
       id={tooltipId}
       role="tooltip"
+      aria-hidden={!isOpen || undefined}
       style={{
         position: 'absolute',
         zIndex: theme.zIndices.tooltip,
@@ -46,7 +50,15 @@ export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: 
         boxShadow: '0 12px 32px rgba(0, 0, 0, 0.14)',
         whiteSpace: 'nowrap',
         pointerEvents: 'none',
-        ...getPlacementStyle(placement),
+        opacity: isOpen ? 1 : 0,
+        transformOrigin: 'center',
+        transition: 'opacity 0.1s ease, transform 0.1s cubic-bezier(0, 0, 0.2, 1)',
+        transitionDelay: isOpen ? '300ms' : '0ms',
+        ...placementStyle,
+        // Combina transform de posicionamento com scale
+        transform: placementStyle.transform
+          ? `${placementStyle.transform} ${scaleTransform}`
+          : scaleTransform,
       }}
     >
       {children}

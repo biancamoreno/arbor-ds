@@ -30,9 +30,11 @@ describe('Accordion', () => {
     expect(screen.getByText('Seção B')).toBeTruthy();
   });
 
-  it('conteúdo começa fechado', () => {
+  it('conteúdo começa fechado (data-state=closed)', () => {
     render(<BasicAccordion />, { wrapper });
-    expect(screen.queryByText('Conteúdo A')).toBeNull();
+    const regions = screen.getAllByRole('region');
+    expect(regions[0].getAttribute('data-state')).toBe('closed');
+    expect(regions[1].getAttribute('data-state')).toBe('closed');
   });
 
   it('abre conteúdo ao clicar no trigger', () => {
@@ -41,21 +43,23 @@ describe('Accordion', () => {
     expect(screen.getByText('Conteúdo A')).toBeTruthy();
   });
 
-  it('fecha ao clicar de novo (toggle)', () => {
+  it('fecha ao clicar de novo (toggle) — data-state=closed', () => {
     render(<BasicAccordion />, { wrapper });
     fireEvent.click(screen.getByText('Seção A'));
-    expect(screen.getByText('Conteúdo A')).toBeTruthy();
+    const regions = screen.getAllByRole('region');
+    expect(regions[0].getAttribute('data-state')).toBe('open');
     fireEvent.click(screen.getByText('Seção A'));
-    expect(screen.queryByText('Conteúdo A')).toBeNull();
+    expect(regions[0].getAttribute('data-state')).toBe('closed');
   });
 
   it('type=single fecha o outro ao abrir novo', () => {
     render(<BasicAccordion />, { wrapper });
     fireEvent.click(screen.getByText('Seção A'));
-    expect(screen.getByText('Conteúdo A')).toBeTruthy();
+    const regions = screen.getAllByRole('region');
+    expect(regions[0].getAttribute('data-state')).toBe('open');
     fireEvent.click(screen.getByText('Seção B'));
-    expect(screen.queryByText('Conteúdo A')).toBeNull();
-    expect(screen.getByText('Conteúdo B')).toBeTruthy();
+    expect(regions[0].getAttribute('data-state')).toBe('closed');
+    expect(regions[1].getAttribute('data-state')).toBe('open');
   });
 
   it('type=multiple mantém ambos abertos', () => {
@@ -86,9 +90,9 @@ describe('Accordion', () => {
   it('content expõe role="region" e aria-labelledby', () => {
     render(<BasicAccordion />, { wrapper });
     fireEvent.click(screen.getByText('Seção A'));
-    const region = screen.getByRole('region');
-    expect(region).toBeTruthy();
-    expect(region.getAttribute('aria-labelledby')).toBeTruthy();
+    const openRegion = screen.getAllByRole('region').find(r => r.getAttribute('data-state') === 'open');
+    expect(openRegion).toBeTruthy();
+    expect(openRegion?.getAttribute('aria-labelledby')).toBeTruthy();
   });
 
   it('disabled impede abertura', () => {
@@ -102,7 +106,8 @@ describe('Accordion', () => {
       { wrapper }
     );
     fireEvent.click(screen.getByText('Desabilitado'));
-    expect(screen.queryByText('Não deve aparecer')).toBeNull();
+    const region = screen.getByRole('region');
+    expect(region.getAttribute('data-state')).toBe('closed');
   });
 
   it('defaultValue abre item inicialmente', () => {
@@ -125,5 +130,20 @@ describe('Accordion', () => {
     );
     fireEvent.click(screen.getByText('A'));
     expect(onChange).toHaveBeenCalledWith('a');
+  });
+
+  it('trigger tem ChevronDown como SVG (icon)', () => {
+    const { container } = render(<BasicAccordion />, { wrapper });
+    const triggers = container.querySelectorAll('button');
+    const firstTrigger = triggers[0];
+    expect(firstTrigger.querySelector('svg')).toBeTruthy();
+  });
+
+  it('conteúdo usa grid-template-rows para animação', () => {
+    render(<BasicAccordion />, { wrapper });
+    const regions = screen.getAllByRole('region');
+    expect(regions[0].style.gridTemplateRows).toBe('0fr');
+    fireEvent.click(screen.getByText('Seção A'));
+    expect(regions[0].style.gridTemplateRows).toBe('1fr');
   });
 });

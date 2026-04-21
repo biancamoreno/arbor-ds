@@ -63,4 +63,14 @@ describe('ProgressBar', () => {
     render(<ProgressBar progress={50} style={{ opacity: 0.5 }} />, { wrapper });
     expect(screen.getByRole('progressbar').style.opacity).toBe('0.5');
   });
+
+  it('indeterminate não expõe aria-valuenow', () => {
+    render(<ProgressBar progress={0} indeterminate />, { wrapper });
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBeNull();
+  });
+
+  it('indeterminate expõe aria-busy', () => {
+    render(<ProgressBar progress={0} indeterminate />, { wrapper });
+    expect(screen.getByRole('progressbar').getAttribute('aria-busy')).toBe('true');
+  });
 });

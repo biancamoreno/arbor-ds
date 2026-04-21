@@ -58,4 +58,16 @@ describe('Card', () => {
     const { container } = render(<Card className="my-card"><Card.Body>X</Card.Body></Card>, { wrapper });
     expect(container.querySelector('.my-card')).toBeTruthy();
   });
+
+  it('variant hoverable adiciona classe arbor-card-hoverable', () => {
+    const { container } = render(<Card variant="hoverable"><Card.Body>X</Card.Body></Card>, { wrapper });
+    expect(container.querySelector('.arbor-card-hoverable')).toBeTruthy();
+  });
+
+  it('variant clickable adiciona classe arbor-card-clickable e cursor pointer', () => {
+    const { container } = render(<Card variant="clickable"><Card.Body>X</Card.Body></Card>, { wrapper });
+    expect(container.querySelector('.arbor-card-clickable')).toBeTruthy();
+    const card = container.firstChild as HTMLElement;
+    expect(card.style.cursor).toBe('pointer');
+  });
 });

@@ -1,10 +1,11 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { transition } from '../../../ecosystem/utils/functions';
 import type { CardRootProps, CardSectionProps } from '../interfaces';
 
 const PADDING_MAP = { none: '0', sm: '12px', md: '16px', lg: '24px' } as const;
 
-function CardRoot({ children, variant = 'outlined', padding = 'md', style, ...props }: CardRootProps) {
+function CardRoot({ children, variant = 'outlined', padding = 'md', style, className, ...props }: CardRootProps) {
   const theme = useTheme();
 
   const variantStyle: Record<NonNullable<CardRootProps['variant']>, React.CSSProperties> = {
@@ -20,11 +21,30 @@ function CardRoot({ children, variant = 'outlined', padding = 'md', style, ...pr
       border: 'none',
       boxShadow: 'none',
     },
+    hoverable: {
+      border: `1px solid ${theme.colors.border.subtle}`,
+      boxShadow: 'none',
+      transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate'),
+    },
+    clickable: {
+      border: `1px solid ${theme.colors.border.subtle}`,
+      boxShadow: 'none',
+      cursor: 'pointer',
+      transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate'),
+    },
   };
+
+  const extraClass =
+    variant === 'hoverable'
+      ? 'arbor-card-hoverable'
+      : variant === 'clickable'
+        ? 'arbor-card-clickable'
+        : undefined;
 
   return (
     <div
       {...props}
+      className={[extraClass, className].filter(Boolean).join(' ') || undefined}
       style={{
         display: 'flex',
         flexDirection: 'column',

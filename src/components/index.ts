@@ -1,5 +1,6 @@
 export * from './accordion';
 export * from './alert';
+export * from './button-group';
 export * from './avatar';
 export * from './badge';
 export * from './breadcrumb';
@@ -27,5 +28,7 @@ export * from './switch';
 export * from './table';
 export * from './tabs';
 export * from './tag';
+export * from './fab';
+export * from './nav-bar';
 export * from './toast';
 export * from './tooltip';

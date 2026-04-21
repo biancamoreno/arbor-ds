@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { CSSProperties, ReactNode } from 'react';
 import type { ArborTheme } from '../../../foundations';
+import { transition } from '../../../ecosystem/utils/functions';
 import type { FieldBaseProps, FieldSize } from '../interfaces';
 
 export function getFieldColors(theme: ArborTheme, options: Pick<FieldBaseProps, 'disabled' | 'error' | 'variant'>) {
@@ -54,7 +55,7 @@ export function getFieldFrameStyle(theme: ArborTheme, options: Pick<FieldBasePro
     borderRadius: theme.radii.small,
     backgroundColor: colors.backgroundColor,
     color: colors.textColor,
-    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+    transition: transition(['border-color', 'box-shadow'], 'fast'),
     opacity: options.disabled ? 0.6 : 1,
   } satisfies CSSProperties;
 }

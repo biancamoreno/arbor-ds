@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Icon } from '../../core';
 import { ChipContext, useChipContext } from '../context/chip-context';
 import type { ChipRootProps, ChipLabelProps, ChipIconProps, ChipRemoveProps } from '../interfaces';
 
@@ -131,7 +132,7 @@ function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
         ...style,
       }}
     >
-      ×
+      <Icon name="X" size={12} aria-hidden="true" />
     </button>
   );
 }

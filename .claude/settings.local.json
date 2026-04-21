@@ -25,7 +25,8 @@
       "Bash(pnpm build:storybook)",
       "Bash(pnpm changeset *)",
       "Bash(grep -v \"^$\")",
-      "Bash(echo \"Exit code: $?\")"
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(pnpm typecheck *)"
     ]
   }
 }

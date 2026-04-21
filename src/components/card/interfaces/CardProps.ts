@@ -5,7 +5,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
  */
 export interface CardRootProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  variant?: 'outlined' | 'elevated' | 'flat';
+  variant?: 'outlined' | 'elevated' | 'flat' | 'hoverable' | 'clickable';
   /** Padding interno padrão */
   padding?: 'none' | 'sm' | 'md' | 'lg';
 }

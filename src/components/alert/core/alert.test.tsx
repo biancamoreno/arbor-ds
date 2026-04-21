@@ -63,9 +63,9 @@ describe('Alert', () => {
     expect(screen.getByText('Sucesso')).toBeTruthy();
   });
 
-  it('aceita tone warning com role="status"', () => {
+  it('aceita tone warning com role="alert" (assertivo)', () => {
     render(<Alert tone="warning"><Alert.Title>Atenção</Alert.Title></Alert>, { wrapper });
-    expect(screen.getByRole('status')).toBeTruthy();
+    expect(screen.getByRole('alert')).toBeTruthy();
   });
 
   it('passa className extra', () => {
@@ -82,5 +82,27 @@ describe('Alert', () => {
       { wrapper }
     );
     expect(screen.getByLabelText('Dispensar aviso')).toBeTruthy();
+  });
+
+  it('Alert.Icon renderiza ícone padrão por tone quando sem children', () => {
+    const { container } = render(
+      <Alert tone="success"><Alert.Icon /><Alert.Title>Ok</Alert.Title></Alert>,
+      { wrapper }
+    );
+    expect(container.querySelector('svg')).toBeTruthy();
+  });
+
+  it('Alert.Close usa ícone X', () => {
+    const { container } = render(
+      <Alert><Alert.Title>T</Alert.Title><Alert.Close /></Alert>,
+      { wrapper }
+    );
+    const closeBtn = container.querySelector('[aria-label="Fechar"]');
+    expect(closeBtn?.querySelector('svg')).toBeTruthy();
+  });
+
+  it('aceita tone critical com role="alert"', () => {
+    render(<Alert tone="critical"><Alert.Title>Erro</Alert.Title></Alert>, { wrapper });
+    expect(screen.getByRole('alert')).toBeTruthy();
   });
 });

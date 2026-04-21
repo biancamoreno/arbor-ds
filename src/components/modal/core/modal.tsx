@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type { ModalProps } from '../interfaces';
 
@@ -20,33 +20,40 @@ export function Modal({
   onOpenChange,
 }: ModalProps) {
   const theme = useTheme();
+  const [mounted, setMounted] = useState(open);
+  const [visible, setVisible] = useState(false);
+  const frameRef = useRef<number>(0);
 
-  React.useEffect(() => {
-    if (!open || typeof document === 'undefined') {
-      return undefined;
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      frameRef.current = requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setMounted(false), 200);
+      return () => clearTimeout(t);
     }
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open || typeof document === 'undefined') return undefined;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onOpenChange?.(false);
-      }
+      if (event.key === 'Escape') onOpenChange?.(false);
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, onOpenChange]);
 
-  if (!open) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <div
       role="presentation"
       onClick={() => {
-        if (closeOnOverlayClick) {
-          onOpenChange?.(false);
-        }
+        if (closeOnOverlayClick) onOpenChange?.(false);
       }}
       style={{
         position: 'fixed',
@@ -57,6 +64,8 @@ export function Modal({
         justifyContent: 'center',
         padding: theme.space.medium,
         backgroundColor: theme.colors.background.overlay,
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.2s ease',
       }}
     >
       <div
@@ -74,6 +83,9 @@ export function Modal({
           borderRadius: theme.radii.large,
           backgroundColor: theme.colors.surface.raised,
           boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(-8px)',
+          transition: 'transform 0.2s cubic-bezier(0, 0, 0.2, 1), opacity 0.2s ease',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
@@ -114,7 +126,7 @@ export function Modal({
               lineHeight: 1,
             }}
           >
-            x
+            ×
           </button>
         </div>
         {children && <div style={{ color: theme.colors.text.primary }}>{children}</div>}

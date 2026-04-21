@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
+import { transition } from '../../../ecosystem/utils/functions';
 import { TabsContext, useTabsContext } from '../context/tabs-context';
 import type {
   TabsRootProps,
@@ -151,6 +152,7 @@ function TabsTrigger({ children, value, size = 'md', disabled, style, ...props }
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1,
         whiteSpace: 'nowrap',
+        transition: transition(['color', 'border-color'], 'fast'),
         ...style,
       }}
     >

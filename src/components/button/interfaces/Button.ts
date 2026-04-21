@@ -6,7 +6,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
  * Uma implementação React Native será adicionada em fase futura.
  */
 export interface ButtonVariant {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
 }

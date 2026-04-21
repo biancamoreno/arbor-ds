@@ -1,0 +1,82 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Icon } from './icon';
+import { IconShowcase } from './icon-showcase';
+
+const meta = {
+  title: '🌳 Arbor DS/Foundations/Icons',
+  component: Icon,
+  tags: ['autodocs'],
+  parameters: { layout: 'centered' },
+  argTypes: {
+    name: { control: 'text' },
+    size: { control: 'number' },
+    color: { control: 'color' },
+    strokeWidth: {
+      control: { type: 'select' },
+      options: [1, 1.5, 1.75, 2],
+    },
+    decorative: { control: 'boolean' },
+    'aria-label': { control: 'text' },
+  },
+} satisfies Meta<typeof Icon>;
+
+export default meta;
+type Story = StoryObj;
+
+export const Library: Story = {
+  render: () => <IconShowcase />,
+  parameters: { layout: 'fullscreen' },
+};
+
+export const Single: Story = {
+  args: {
+    name: 'Check',
+    size: 24,
+    color: 'currentColor',
+    strokeWidth: 1.75,
+    decorative: true,
+  },
+};
+
+export const Decorative: Story = {
+  args: {
+    name: 'Check',
+    size: 24,
+    decorative: true,
+  },
+};
+
+export const Semantic: Story = {
+  args: {
+    name: 'Check',
+    size: 24,
+    decorative: false,
+    'aria-label': 'Confirmado',
+  },
+};
+
+export const SizeVariants: Story = {
+  render: () => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      {([16, 20, 24, 32, 48] as const).map((s) => (
+        <div key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <Icon name="Star" size={s} decorative />
+          <span style={{ fontSize: 11, color: '#6b7280' }}>{s}px</span>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+export const StrokeVariants: Story = {
+  render: () => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+      {([1, 1.5, 1.75, 2] as const).map((sw) => (
+        <div key={sw} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <Icon name="Circle" size={24} strokeWidth={sw} decorative />
+          <span style={{ fontSize: 11, color: '#6b7280' }}>{sw}</span>
+        </div>
+      ))}
+    </div>
+  ),
+};

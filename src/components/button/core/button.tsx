@@ -1,34 +1,20 @@
-import { Clickable } from '../../core';
+import type { CSSProperties } from 'react';
+import { Clickable, Icon } from '../../core';
 import type { ButtonProps } from '../interfaces';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
-
-const Spinner = () => (
-  <span
-    aria-hidden="true"
-    style={{
-      display: 'inline-block',
-      animation: 'spin 0.8s linear infinite',
-      marginRight: '0.5rem',
-    }}
-  >
-    ...
-  </span>
-);
+import { useButtonGroup, useButtonGroupItem } from '../../button-group/core/button-group-context';
+import { transition } from '../../../ecosystem/utils/functions';
 
 const buttonSizeMap = {
-  sm: {
-    paddingInline: '12px',
-    paddingBlock: '4px',
-  },
-  md: {
-    paddingInline: '16px',
-    paddingBlock: '8px',
-  },
-  lg: {
-    paddingInline: '20px',
-    paddingBlock: '12px',
-  },
+  sm: { paddingInline: '12px', paddingBlock: '4px' },
+  md: { paddingInline: '16px', paddingBlock: '8px' },
+  lg: { paddingInline: '20px', paddingBlock: '12px' },
 } as const;
+
+const loaderSizeMap = { sm: 14, md: 16, lg: 18 } as const;
+
+// valor do token borderRadius.small
+const BORDER_RADIUS_SMALL = 12;
 
 export function Button({
   children,
@@ -42,7 +28,62 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const theme = useTheme();
-  const isDisabled = loading || disabled;
+  const groupCtx = useButtonGroup();
+  const itemCtx = useButtonGroupItem();
+
+  const isDisabled = loading || disabled || (groupCtx?.isDisabled ?? false);
+
+  // Radii colapsados quando dentro de ButtonGroup attached
+  let attachedStyle: CSSProperties = {};
+  if (groupCtx?.attached && itemCtx) {
+    const { index, totalItems } = itemCtx;
+    const { orientation } = groupCtx;
+    const isFirst = index === 0;
+    const isLast = index === totalItems - 1;
+
+    if (orientation === 'horizontal') {
+      if (isFirst) {
+        attachedStyle = {
+          borderTopRightRadius: 0,
+          borderBottomRightRadius: 0,
+          borderTopLeftRadius: BORDER_RADIUS_SMALL,
+          borderBottomLeftRadius: BORDER_RADIUS_SMALL,
+        };
+      } else if (isLast) {
+        attachedStyle = {
+          borderTopLeftRadius: 0,
+          borderBottomLeftRadius: 0,
+          borderTopRightRadius: BORDER_RADIUS_SMALL,
+          borderBottomRightRadius: BORDER_RADIUS_SMALL,
+          marginInlineStart: -1,
+        };
+      } else {
+        attachedStyle = { borderRadius: 0, marginInlineStart: -1 };
+      }
+    } else {
+      if (isFirst) {
+        attachedStyle = {
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          borderTopLeftRadius: BORDER_RADIUS_SMALL,
+          borderTopRightRadius: BORDER_RADIUS_SMALL,
+        };
+      } else if (isLast) {
+        attachedStyle = {
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          borderBottomLeftRadius: BORDER_RADIUS_SMALL,
+          borderBottomRightRadius: BORDER_RADIUS_SMALL,
+          marginBlockStart: -1,
+        };
+      } else {
+        attachedStyle = { borderRadius: 0, marginBlockStart: -1 };
+      }
+    }
+  }
+
+  // em attached mode, borderRadius é controlado via style (individual corners)
+  const borderRadiusProps = groupCtx?.attached ? {} : { borderRadius: 'small' as const };
 
   const variantStyles = {
     primary: {
@@ -60,6 +101,11 @@ export function Button({
       borderColor: theme.colors.border.default,
       color: theme.colors.text.primary,
     },
+    danger: {
+      backgroundColor: theme.colors.feedback.critical.base,
+      borderColor: theme.colors.feedback.critical.base,
+      color: theme.colors.text.inverse,
+    },
   } as const;
 
   return (
@@ -70,26 +116,36 @@ export function Button({
       display="inline-flex"
       gap="8px"
       justifyContent="center"
-      borderRadius="small"
+      {...borderRadiusProps}
       borderStyle="solid"
       borderWidth="hairline"
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
-      opacity={isDisabled ? 0.6 : 1}
+      opacity={isDisabled ? 0.45 : 1}
       pointerEvents={isDisabled ? 'none' : 'auto'}
       onClick={isDisabled ? undefined : onClick}
+      aria-busy={loading || undefined}
+      data-arbor-focusable=""
       style={{
         ...buttonSizeMap[size],
         fontSize: size === 'lg' ? theme.fontSizes.medium : theme.fontSizes.small,
         fontWeight: theme.fontWeights.medium,
         lineHeight: 1,
-        transition: 'background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease',
+        transition: transition(['background-color', 'border-color', 'opacity', 'filter', 'transform'], 'fast'),
         ...variantStyles[variant],
+        ...attachedStyle,
         ...style,
       }}
       {...variantStyles[variant]}
       {...rest}
     >
-      {loading && <Spinner />}
+      {loading && (
+        <Icon
+          name="LoaderCircle"
+          size={loaderSizeMap[size]}
+          aria-hidden="true"
+          style={{ animation: 'arbor-spin 0.8s linear infinite', flexShrink: 0 }}
+        />
+      )}
       {children}
     </Clickable>
   );

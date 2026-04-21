@@ -1,6 +1,8 @@
 import React, { useCallback, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
+import { Icon } from '../../core';
+import { transition } from '../../../ecosystem/utils/functions';
 import {
   AccordionContext,
   AccordionItemContext,
@@ -145,6 +147,7 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
       disabled={disabled}
       onClick={() => toggle(value)}
       onKeyDown={handleKeyDown}
+      data-arbor-focusable=""
       {...props}
       style={{
         width: '100%',
@@ -163,16 +166,16 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
       }}
     >
       <span>{children}</span>
-      <span
+      <Icon
+        name="ChevronDown"
+        size={16}
         aria-hidden="true"
         style={{
-          transition: 'transform 0.2s ease',
+          transition: transition(['transform'], 'fast'),
           transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-          display: 'inline-flex',
+          flexShrink: 0,
         }}
-      >
-        ▾
-      </span>
+      />
     </button>
   );
 }
@@ -181,22 +184,31 @@ function AccordionContent({ children, style, ...props }: AccordionContentProps) 
   const theme = useTheme();
   const { isOpen, contentId, triggerId } = useAccordionItemContext();
 
-  if (!isOpen) return null;
-
   return (
     <div
       id={contentId}
       role="region"
       aria-labelledby={triggerId}
+      data-state={isOpen ? 'open' : 'closed'}
       {...props}
       style={{
-        padding: `0 ${theme.space.medium} ${theme.space.medium}`,
-        fontSize: theme.fontSizes.small,
-        color: theme.colors.text.secondary,
+        display: 'grid',
+        gridTemplateRows: isOpen ? '1fr' : '0fr',
+        transition: transition(['grid-template-rows'], 'normal'),
         ...style,
       }}
     >
-      {children}
+      <div style={{ minHeight: 0, overflow: 'hidden' }}>
+        <div
+          style={{
+            padding: `0 ${theme.space.medium} ${theme.space.medium}`,
+            fontSize: theme.fontSizes.small,
+            color: theme.colors.text.secondary,
+          }}
+        >
+          {children}
+        </div>
+      </div>
     </div>
   );
 }

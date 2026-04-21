@@ -1,4 +1,6 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Icon } from '../../core';
+import type { IconName } from '../../core';
 import { AlertContext, useAlertContext } from '../context/alert-context';
 import type {
   AlertRootProps,
@@ -9,6 +11,13 @@ import type {
 } from '../interfaces';
 
 type Tone = NonNullable<AlertRootProps['tone']>;
+
+const TONE_ICON: Record<Tone, IconName> = {
+  info: 'Info',
+  success: 'CircleCheck',
+  warning: 'TriangleAlert',
+  critical: 'CircleAlert',
+};
 
 function getToneColors(tone: Tone, theme: ReturnType<typeof useTheme>) {
   const c = theme.colors;
@@ -44,8 +53,7 @@ function getToneColors(tone: Tone, theme: ReturnType<typeof useTheme>) {
 function AlertRoot({ children, tone = 'info', style, ...props }: AlertRootProps) {
   const theme = useTheme();
   const colors = getToneColors(tone, theme);
-  // info → status, critical → alert (assertiva)
-  const role = tone === 'critical' ? 'alert' : 'status';
+  const role = tone === 'critical' || tone === 'warning' ? 'alert' : 'status';
 
   return (
     <AlertContext.Provider value={{ tone }}>
@@ -89,7 +97,7 @@ function AlertIcon({ children, style, ...props }: AlertIconProps) {
         ...style,
       }}
     >
-      {children}
+      {children ?? <Icon name={TONE_ICON[tone]} size={18} />}
     </span>
   );
 }
@@ -154,7 +162,7 @@ function AlertClose({ label = 'Fechar', style, ...props }: AlertCloseProps) {
         ...style,
       }}
     >
-      ×
+      <Icon name="X" size={14} aria-hidden="true" />
     </button>
   );
 }

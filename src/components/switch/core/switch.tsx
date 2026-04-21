@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { transition } from '../../../ecosystem/utils/functions';
 import type { SwitchRootProps, SwitchSize } from '../interfaces/SwitchProps';
 
 const trackSize: Record<SwitchSize, { width: number; height: number; padding: number }> = {
@@ -85,7 +86,7 @@ function SwitchRoot({
           padding: `${track.padding}px`,
           borderRadius: '9999px',
           backgroundColor: isChecked ? theme.colors.interactive.default : theme.colors.border.strong,
-          transition: 'background-color 0.2s ease',
+          transition: transition(['background-color'], 'fast'),
           boxSizing: 'border-box',
         }}
         aria-hidden="true"
@@ -98,7 +99,7 @@ function SwitchRoot({
             borderRadius: '9999px',
             backgroundColor: theme.colors.surface.default,
             transform: `translateX(${translateX}px)`,
-            transition: 'transform 0.2s ease',
+            transition: transition(['transform'], 'fast'),
             flexShrink: 0,
           }}
         />

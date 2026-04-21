@@ -60,4 +60,20 @@ describe('ProgressCircle', () => {
     render(<ProgressCircle progress={50} strokeWidth={8} />, { wrapper });
     expect(screen.getByRole('progressbar')).toBeTruthy();
   });
+
+  it('indeterminate não expõe aria-valuenow', () => {
+    render(<ProgressCircle progress={0} indeterminate />, { wrapper });
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBeNull();
+  });
+
+  it('indeterminate expõe aria-busy', () => {
+    render(<ProgressCircle progress={0} indeterminate />, { wrapper });
+    expect(screen.getByRole('progressbar').getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('indeterminate aplica animação de spin', () => {
+    render(<ProgressCircle progress={0} indeterminate />, { wrapper });
+    const svg = screen.getByRole('progressbar');
+    expect(svg.style.animation).toContain('arbor-spin');
+  });
 });

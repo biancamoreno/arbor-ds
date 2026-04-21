@@ -15,6 +15,15 @@ function renderDrawer(ui: React.ReactElement) {
 }
 
 describe('Drawer', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runAllTimers();
+    jest.useRealTimers();
+  });
+
   it('renders trigger and no content when closed', () => {
     renderDrawer(
       <Drawer.Root>
@@ -64,6 +73,10 @@ describe('Drawer', () => {
 
     fireEvent.click(screen.getByText('Open'));
     fireEvent.click(screen.getByLabelText('Fechar gaveta'));
+
+    // aguarda a animação de saída (200ms) terminar
+    act(() => { jest.advanceTimersByTime(250); });
+
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
@@ -84,6 +97,9 @@ describe('Drawer', () => {
     act(() => {
       fireEvent.keyDown(document, { key: 'Escape' });
     });
+
+    // aguarda a animação de saída
+    act(() => { jest.advanceTimersByTime(250); });
 
     expect(screen.queryByRole('dialog')).toBeNull();
   });

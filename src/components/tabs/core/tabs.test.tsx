@@ -106,4 +106,10 @@ describe('Tabs', () => {
     fireEvent.keyDown(tabB, { key: 'ArrowLeft' });
     expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Tab A' }));
   });
+
+  it('tabs trigger tem transição CSS definida', () => {
+    render(<BasicTabs />, { wrapper });
+    const tab = screen.getByRole('tab', { name: 'Tab A' });
+    expect(tab.style.transition).toBeTruthy();
+  });
 });

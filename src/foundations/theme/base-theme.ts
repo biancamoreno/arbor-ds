@@ -2,7 +2,6 @@ import { createBreakpoints } from '../breakpoints';
 import {
   borderRadius,
   borderWidth,
-  fontFamily,
   fontSize,
   fontWeight,
   letterSpacing,
@@ -10,6 +9,7 @@ import {
   spacing,
   opacity,
   zIndex,
+  fontFamily,
 } from '../tokens';
 import { defineSlotRecipe } from '../../ecosystem/styled-system/recipes';
 import type { ThemeComponents } from './types';
@@ -20,7 +20,7 @@ const components: ThemeComponents = {
     variants: {
       variant: {
         body: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.normal,
           fontSize: fontSize.small,
           textDecorationLine: 'none',
@@ -28,7 +28,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         bodyHighlight: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.normal,
           fontSize: fontSize.small,
           textDecorationLine: 'none',
@@ -36,7 +36,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         caption: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.normal,
           fontSize: fontSize.sm,
           textDecorationLine: 'none',
@@ -44,7 +44,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         captionHighlight: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.normal,
           fontSize: fontSize.sm,
           textDecorationLine: 'none',
@@ -52,7 +52,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         display1: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.tightest,
           fontSize: fontSize.lg,
           textDecorationLine: 'none',
@@ -60,7 +60,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         display2: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.tight,
           fontSize: fontSize.md,
           textDecorationLine: 'none',
@@ -68,7 +68,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         display3: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.normal,
           fontSize: fontSize.small,
           textDecorationLine: 'none',
@@ -76,7 +76,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         display4: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.normal,
           fontSize: fontSize.sm,
           textDecorationLine: 'none',
@@ -84,7 +84,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         subtitle: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.tight,
           fontSize: fontSize.md,
           textDecorationLine: 'none',
@@ -92,14 +92,14 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         tag: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.tight,
           fontSize: fontSize.xsmall,
           textDecorationLine: 'none',
           textTransform: 'uppercase',
         },
         title1: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.tightest,
           fontSize: fontSize.lg,
           textDecorationLine: 'none',
@@ -107,7 +107,7 @@ const components: ThemeComponents = {
           textTransform: 'none',
         },
         title2: {
-          fontFamily: fontFamily.figtree,
+          fontFamily: 'sans',
           letterSpacing: letterSpacing.tight,
           fontSize: fontSize.md,
           textDecorationLine: 'none',

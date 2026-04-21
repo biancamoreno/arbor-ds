@@ -85,4 +85,13 @@ describe('Chip', () => {
     );
     expect(container.querySelector('[aria-hidden="true"]')).toBeTruthy();
   });
+
+  it('Chip.Remove usa ícone X (SVG)', () => {
+    const { container } = render(
+      <Chip><Chip.Label>Tag</Chip.Label><Chip.Remove /></Chip>,
+      { wrapper }
+    );
+    const removeBtn = container.querySelector('[aria-label="Remover"]');
+    expect(removeBtn?.querySelector('svg')).toBeTruthy();
+  });
 });

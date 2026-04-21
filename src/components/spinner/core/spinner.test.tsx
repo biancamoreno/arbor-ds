@@ -24,19 +24,19 @@ describe('Spinner', () => {
     expect(screen.getByLabelText('Aguarde')).toBeTruthy();
   });
 
-  it('aceita size sm', () => {
+  it('aceita size sm — 16px', () => {
     render(<Spinner size="sm" />, { wrapper });
-    expect(screen.getByRole('status').getAttribute('width')).toBe('16');
+    expect(screen.getByRole('status').style.width).toBe('16px');
   });
 
-  it('aceita size md', () => {
+  it('aceita size md — 24px', () => {
     render(<Spinner size="md" />, { wrapper });
-    expect(screen.getByRole('status').getAttribute('width')).toBe('24');
+    expect(screen.getByRole('status').style.width).toBe('24px');
   });
 
-  it('aceita size lg', () => {
+  it('aceita size lg — 40px', () => {
     render(<Spinner size="lg" />, { wrapper });
-    expect(screen.getByRole('status').getAttribute('width')).toBe('40');
+    expect(screen.getByRole('status').style.width).toBe('40px');
   });
 
   it('aceita color customizada', () => {
@@ -49,9 +49,14 @@ describe('Spinner', () => {
     expect(screen.getByRole('status').style.opacity).toBe('0.5');
   });
 
-  it('renderiza SVG com círculos internos', () => {
+  it('renderiza ícone SVG interno (loader-circle)', () => {
     const { container } = render(<Spinner />, { wrapper });
-    const circles = container.querySelectorAll('circle');
-    expect(circles).toHaveLength(2);
+    const svg = container.querySelector('svg');
+    expect(svg).toBeTruthy();
+  });
+
+  it('tem animação de spin', () => {
+    render(<Spinner />, { wrapper });
+    expect(screen.getByRole('status').style.animation).toContain('arbor-spin');
   });
 });

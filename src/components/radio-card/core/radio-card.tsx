@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { transition } from '../../../ecosystem/utils/functions';
 import type { RadioCardProps } from '../interfaces';
 
 const sizeMap = {
@@ -93,7 +94,7 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
             border: `1px solid ${isChecked ? theme.colors.brand.base : theme.colors.border.default}`,
             backgroundColor: isChecked ? theme.colors.brand.subtle : theme.colors.surface.default,
             boxShadow: isChecked ? `0 0 0 2px ${theme.colors.brand.subtle}` : 'none',
-            transition: 'border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease',
+            transition: transition(['border-color', 'background-color', 'box-shadow'], 'fast'),
             ...style,
           }}
         >

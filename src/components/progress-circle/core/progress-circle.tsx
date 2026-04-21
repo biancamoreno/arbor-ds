@@ -1,12 +1,15 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { transition } from '../../../ecosystem/utils/functions';
 import type { ProgressCircleProps } from '../interfaces';
 
 export function ProgressCircle({
   progress,
+  indeterminate = false,
   size = 48,
   strokeWidth = 4,
   tone = 'brand',
   label,
+  style,
   ...props
 }: ProgressCircleProps) {
   const theme = useTheme();
@@ -14,7 +17,7 @@ export function ProgressCircle({
 
   const r = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * r;
-  const offset = circumference * (1 - clampedProgress / 100);
+  const offset = indeterminate ? circumference * 0.75 : circumference * (1 - clampedProgress / 100);
 
   const fillColor: Record<NonNullable<ProgressCircleProps['tone']>, string> = {
     brand: theme.colors.brand.base,
@@ -26,15 +29,20 @@ export function ProgressCircle({
   return (
     <svg
       role="progressbar"
-      aria-valuenow={clampedProgress}
+      aria-valuenow={indeterminate ? undefined : clampedProgress}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label}
+      aria-busy={indeterminate || undefined}
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       fill="none"
-      style={{ transform: 'rotate(-90deg)' }}
+      style={{
+        transform: indeterminate ? undefined : 'rotate(-90deg)',
+        animation: indeterminate ? 'arbor-spin 1.2s linear infinite' : undefined,
+        ...style,
+      }}
       {...props}
     >
       <circle
@@ -53,7 +61,7 @@ export function ProgressCircle({
         strokeLinecap="round"
         strokeDasharray={circumference}
         strokeDashoffset={offset}
-        style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+        style={{ transition: indeterminate ? undefined : transition(['stroke-dashoffset'], 'slow', 'standard') }}
       />
     </svg>
   );
