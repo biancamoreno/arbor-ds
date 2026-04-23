@@ -1,8 +1,9 @@
 import { useId } from 'react';
-import { Pressable, View, Text as RNText } from 'react-native';
+import { Pressable } from 'react-native';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { Box, Flex, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
 import type { CheckboxRootProps, CheckboxLabelProps, CheckboxDescriptionProps } from '../interfaces';
 
@@ -50,7 +51,9 @@ function CheckboxIndicator() {
   const isActive = ctx.isChecked || ctx.isIndeterminate;
 
   return (
-    <View
+    <Flex
+      alignItems="center"
+      justifyContent="center"
       style={{
         width: 18,
         height: 18,
@@ -59,12 +62,10 @@ function CheckboxIndicator() {
         borderWidth: 2,
         borderColor: isActive ? theme.colors.interactive.default : theme.colors.border.strong,
         backgroundColor: isActive ? theme.colors.interactive.default : theme.colors.surface.default,
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
       {isActive && (
-        <View
+        <Box
           style={{
             width: 10,
             height: 2,
@@ -73,18 +74,16 @@ function CheckboxIndicator() {
           }}
         />
       )}
-    </View>
+    </Flex>
   );
 }
 
 function CheckboxLabel({ children }: CheckboxLabelProps) {
-  const theme = useTheme();
-  return <RNText style={{ fontSize: theme.fontSizes.small, color: theme.colors.text.primary }}>{children}</RNText>;
+  return <Text as="span" fontSize="small" color="text.primary">{children}</Text>;
 }
 
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
-  const theme = useTheme();
-  return <RNText style={{ fontSize: theme.fontSizes.xsmall, color: theme.colors.text.secondary }}>{children}</RNText>;
+  return <Text as="span" fontSize="xsmall" color="text.secondary">{children}</Text>;
 }
 
 export const Checkbox = Object.assign(

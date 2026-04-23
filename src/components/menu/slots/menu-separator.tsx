@@ -1,16 +1,13 @@
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box } from '../../core';
 
 export function MenuSeparator() {
-  const theme = useTheme();
-
   return (
-    <li
+    <Box
+      as="li"
       role="separator"
-      style={{
-        height: '1px',
-        margin: `${theme.space.tiny} 0`,
-        backgroundColor: theme.colors.border.default,
-      }}
+      height={1}
+      marginY="tiny"
+      backgroundColor="border.default"
     />
   );
 }

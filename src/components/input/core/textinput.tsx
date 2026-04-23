@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useFieldContext } from '../../field/context/field-context';
+import { Box, Flex, Clickable, Icon } from '../../core';
 import type { TextInputProps } from '../interfaces';
 import { FieldShell, getFieldColors, getFieldFrameStyle } from './shared';
 
@@ -44,21 +45,25 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     };
 
     const inputElement = (
-      <div
+      <Flex
+        alignItems="center"
+        gap="micro"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
           ...frameStyle,
           paddingInline: '12px',
         }}
       >
-        {leftIcon && <span style={{ display: 'flex', alignItems: 'center' }}>{leftIcon}</span>}
-        <input
-          ref={ref}
+        {leftIcon && (
+          <Flex as="span" display="inline-flex" alignItems="center">
+            {leftIcon}
+          </Flex>
+        )}
+        <Box
+          as="input"
+          innerRef={ref}
           id={inputId}
           value={value}
-          onChange={(event) => {
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             onChange?.(event);
             onValueChange?.(event.target.value);
           }}
@@ -67,42 +72,42 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           aria-required={fieldCtx?.isRequired || undefined}
           aria-invalid={fieldCtx?.isInvalid || undefined}
           aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
+          flex={1}
+          outline="none"
+          cursor={effectiveDisabled ? 'not-allowed' : 'auto'}
+          minWidth={0}
           style={{
             border: 'none',
-            outline: 'none',
-            flex: 1,
             backgroundColor: 'transparent',
             color: colors.textColor,
-            cursor: effectiveDisabled ? 'not-allowed' : 'auto',
             fontFamily: 'inherit',
-            fontSize: frameStyle.fontSize,
-            minWidth: 0,
+            fontSize: frameStyle.fontSize as unknown as string,
             ...style,
           }}
           {...rest}
         />
         {clearable && value && (
-          <button
+          <Clickable
+            as="button"
             type="button"
-            aria-label="Clear input"
+            aria-label="Limpar"
             onClick={handleClear}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: colors.placeholderColor,
-              fontSize: theme.fontSizes.small,
-              padding: 0,
-            }}
+            display="inline-flex"
+            alignItems="center"
+            flexShrink={0}
+            style={{ color: colors.placeholderColor }}
           >
-            ×
-          </button>
+            <Icon name="X" size={14} aria-hidden="true" />
+          </Clickable>
         )}
-        {rightIcon && <span style={{ display: 'flex', alignItems: 'center' }}>{rightIcon}</span>}
-      </div>
+        {rightIcon && (
+          <Flex as="span" display="inline-flex" alignItems="center">
+            {rightIcon}
+          </Flex>
+        )}
+      </Flex>
     );
 
-    // When inside a Field.Root, Field handles label/description/error rendering
     if (fieldCtx) return inputElement;
 
     return (

@@ -1,4 +1,5 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Clickable } from '../../core';
 import type {
   PaginationRootProps,
   PaginationListProps,
@@ -9,36 +10,31 @@ import type {
 
 function PaginationRoot({ children, label = 'Paginação', style, ...props }: PaginationRootProps) {
   return (
-    <nav aria-label={label} {...props} style={{ display: 'inline-flex', ...style }}>
+    <Box as="nav" aria-label={label} {...props} display="inline-flex" style={style}>
       {children}
-    </nav>
+    </Box>
   );
 }
 
 function PaginationList({ children, style, ...props }: PaginationListProps) {
   return (
-    <ul
+    <Flex
+      as="ul"
       {...props}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-        listStyle: 'none',
-        margin: 0,
-        padding: 0,
-        ...style,
-      }}
+      alignItems="center"
+      gap="4px"
+      style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}
     >
       {children}
-    </ul>
+    </Flex>
   );
 }
 
 function PaginationItem({ children, style, ...props }: PaginationItemProps) {
   return (
-    <li {...props} style={{ display: 'inline-flex', ...style }}>
+    <Box as="li" {...props} display="inline-flex" style={style}>
       {children}
-    </li>
+    </Box>
   );
 }
 
@@ -52,31 +48,34 @@ function PaginationButton({
   const theme = useTheme();
 
   return (
-    <button
+    <Clickable
+      as="button"
       type="button"
       aria-current={isActive ? 'page' : undefined}
       disabled={disabled}
       {...props}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      height={36}
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      opacity={disabled ? 0.5 : 1}
+      borderRadius="nano"
+      borderWidth={1}
+      borderStyle="solid"
+      fontSize="sm"
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         minWidth: '36px',
-        height: '36px',
         padding: '0 8px',
-        border: `1px solid ${isActive ? theme.colors.brand.base : theme.colors.border.default}`,
-        borderRadius: theme.radii.nano,
+        borderColor: isActive ? theme.colors.brand.base : theme.colors.border.default,
         backgroundColor: isActive ? theme.colors.brand.base : 'transparent',
         color: isActive ? theme.colors.text.inverse : theme.colors.text.primary,
-        fontSize: theme.fontSizes.sm,
         fontWeight: isActive ? theme.fontWeights.medium : theme.fontWeights.regular,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
         ...style,
       }}
     >
       {children}
-    </button>
+    </Clickable>
   );
 }
 
@@ -89,24 +88,21 @@ function PaginationNext({ children = '›', 'aria-label': ariaLabel = 'Próxima 
 }
 
 function PaginationEllipsis({ style, ...props }: PaginationEllipsisProps) {
-  const theme = useTheme();
   return (
-    <span
+    <Flex
+      as="span"
       aria-hidden="true"
       {...props}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: '36px',
-        height: '36px',
-        color: theme.colors.text.tertiary,
-        fontSize: theme.fontSizes.sm,
-        ...style,
-      }}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      height={36}
+      color="text.tertiary"
+      fontSize="sm"
+      style={{ minWidth: '36px', ...style }}
     >
       …
-    </span>
+    </Flex>
   );
 }
 

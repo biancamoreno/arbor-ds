@@ -2,6 +2,7 @@ import React, { useEffect, useId, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { Box, Flex, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
 import type {
   CheckboxRootProps,
@@ -33,25 +34,22 @@ function CheckboxRoot({
     onChange,
   });
 
-  const theme = useTheme();
-
   return (
     <CheckboxContext.Provider
       value={{ isChecked, isIndeterminate: indeterminate, isDisabled: effectiveDisabled, inputId, onChange: setIsChecked }}
     >
-      <label
-        style={{
-          display: 'inline-flex',
-          alignItems: 'flex-start',
-          gap: '10px',
-          cursor: effectiveDisabled ? 'not-allowed' : 'pointer',
-          opacity: effectiveDisabled ? 0.6 : 1,
-          color: theme.colors.text.primary,
-        }}
+      <Flex
+        as="label"
+        display="inline-flex"
+        alignItems="flex-start"
+        gap="10px"
+        cursor={effectiveDisabled ? 'not-allowed' : 'pointer'}
+        opacity={effectiveDisabled ? 0.6 : 1}
+        color="text.primary"
         htmlFor={inputId}
       >
         {children}
-      </label>
+      </Flex>
     </CheckboxContext.Provider>
   );
 }
@@ -69,12 +67,13 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
   }, [ctx.isChecked, ctx.isIndeterminate]);
 
   return (
-    <input
+    <Box
+      as="input"
       {...props}
-      ref={(node) => {
+      innerRef={(node: HTMLInputElement | null) => {
         internalRef.current = node;
         if (typeof ref === 'function') ref(node);
-        else if (ref) ref.current = node;
+        else if (ref) (ref as React.MutableRefObject<HTMLInputElement | null>).current = node;
       }}
       id={ctx.inputId}
       type="checkbox"
@@ -84,16 +83,13 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
       aria-required={fieldCtx?.isRequired || undefined}
       aria-invalid={fieldCtx?.isInvalid || undefined}
       aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
-      onChange={(e) => { if (!ctx.isDisabled) ctx.onChange(e.target.checked); }}
-      style={{
-        width: '18px',
-        height: '18px',
-        marginTop: '2px',
-        accentColor: theme.colors.interactive.default,
-        cursor: ctx.isDisabled ? 'not-allowed' : 'pointer',
-        flexShrink: 0,
-        ...style,
-      }}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => { if (!ctx.isDisabled) ctx.onChange(e.target.checked); }}
+      width={18}
+      height={18}
+      marginTop={2}
+      cursor={ctx.isDisabled ? 'not-allowed' : 'pointer'}
+      flexShrink={0}
+      style={{ accentColor: theme.colors.interactive.default, ...style }}
     />
   );
 });
@@ -101,20 +97,18 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
 CheckboxIndicator.displayName = 'Checkbox.Indicator';
 
 function CheckboxLabel({ children }: CheckboxLabelProps) {
-  const theme = useTheme();
   return (
-    <span style={{ fontSize: theme.fontSizes.small, color: theme.colors.text.primary }}>
+    <Text as="span" fontSize="small" color="text.primary">
       {children}
-    </span>
+    </Text>
   );
 }
 
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
-  const theme = useTheme();
   return (
-    <span style={{ fontSize: theme.fontSizes.xsmall, color: theme.colors.text.secondary }}>
+    <Text as="span" fontSize="xsmall" color="text.secondary">
       {children}
-    </span>
+    </Text>
   );
 }
 
@@ -140,10 +134,10 @@ const LegacyCheckbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       >
         <CheckboxIndicator ref={ref} style={style} />
         {(label || description) && (
-          <span style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <Flex as="span" flexDirection="column" gap="2px">
             {label && <CheckboxLabel>{label}</CheckboxLabel>}
             {description && <CheckboxDescription>{description}</CheckboxDescription>}
-          </span>
+          </Flex>
         )}
       </CheckboxRoot>
     );

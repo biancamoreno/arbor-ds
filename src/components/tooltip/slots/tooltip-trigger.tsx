@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box } from '../../core';
 import { useTooltipContext } from '../context/tooltip-context';
 
 type TooltipTriggerProps = {
@@ -38,8 +39,8 @@ export function TooltipTrigger({ children, asChild = true }: TooltipTriggerProps
   }
 
   return (
-    <span style={{ display: 'inline-flex' }} {...(triggerProps as React.HTMLAttributes<HTMLSpanElement>)}>
+    <Box as="span" display="inline-flex" {...(triggerProps as Record<string, unknown>)}>
       {children}
-    </span>
+    </Box>
   );
 }

@@ -62,20 +62,20 @@ describe('TextInput standalone', () => {
 
   it('shows clearable button when clearable=true and value is set', () => {
     renderInput(<TextInput clearable value="abc" onChange={() => {}} />);
-    expect(screen.getByLabelText('Clear input')).toBeTruthy();
+    expect(screen.getByLabelText('Limpar')).toBeTruthy();
   });
 
   it('clears value when clear button clicked', () => {
     const onChange = jest.fn();
     const onValueChange = jest.fn();
     renderInput(<TextInput clearable value="abc" onChange={onChange} onValueChange={onValueChange} />);
-    fireEvent.click(screen.getByLabelText('Clear input'));
+    fireEvent.click(screen.getByLabelText('Limpar'));
     expect(onValueChange).toHaveBeenCalledWith('');
   });
 
   it('does not show clearable button when no value', () => {
     renderInput(<TextInput clearable value="" onChange={() => {}} />);
-    expect(screen.queryByLabelText('Clear input')).toBeNull();
+    expect(screen.queryByLabelText('Limpar')).toBeNull();
   });
 
   it('renders leftIcon when provided', () => {

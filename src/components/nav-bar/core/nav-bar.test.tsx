@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { NavBar } from './nav-bar';
+import { IconButton } from '../../button';
+import { Icon } from '../../core';
 import { ArborProvider } from '../../../ecosystem';
 import { themeLight } from '../../../foundations';
 
@@ -8,106 +10,109 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <ArborProvider theme={themeLight}>{children}</ArborProvider>
 );
 
-function ControlledNavBar() {
-  const [active, setActive] = useState('home');
-  return (
-    <NavBar value={active} onChange={setActive} aria-label="Navegação principal">
-      <NavBar.Item value="home" icon="House" label="Início" />
-      <NavBar.Item value="search" icon="Search" label="Buscar" />
-      <NavBar.Item value="profile" icon="User" label="Perfil" />
-    </NavBar>
-  );
-}
+const BackButton = () => (
+  <IconButton aria-label="Voltar" variant="ghost" size="sm">
+    <Icon name="ArrowLeft" size={20} decorative />
+  </IconButton>
+);
+
+const SearchButton = () => (
+  <IconButton aria-label="Buscar" variant="ghost" size="sm">
+    <Icon name="Search" size={20} decorative />
+  </IconButton>
+);
 
 describe('NavBar', () => {
-  it('renderiza todos os items', () => {
-    render(<ControlledNavBar />, { wrapper });
-    expect(screen.getByText('Início')).toBeTruthy();
-    expect(screen.getByText('Buscar')).toBeTruthy();
-    expect(screen.getByText('Perfil')).toBeTruthy();
+  it('renderiza o elemento header', () => {
+    const { container } = render(<NavBar />, { wrapper });
+    expect(container.querySelector('header')).toBeTruthy();
   });
 
-  it('tem role="tablist" no container', () => {
-    render(<ControlledNavBar />, { wrapper });
-    expect(screen.getByRole('tablist')).toBeTruthy();
+  it('exibe título quando title é fornecido', () => {
+    render(<NavBar title="Detalhes do produto" />, { wrapper });
+    expect(screen.getByText('Detalhes do produto')).toBeTruthy();
   });
 
-  it('item ativo tem aria-selected=true', () => {
+  it('renderiza slot start', () => {
+    render(<NavBar start={<BackButton />} />, { wrapper });
+    expect(screen.getByRole('button', { name: 'Voltar' })).toBeTruthy();
+  });
+
+  it('renderiza slot end', () => {
+    render(<NavBar end={<SearchButton />} />, { wrapper });
+    expect(screen.getByRole('button', { name: 'Buscar' })).toBeTruthy();
+  });
+
+  it('renderiza start e end simultaneamente', () => {
+    render(<NavBar start={<BackButton />} end={<SearchButton />} title="Home" />, { wrapper });
+    expect(screen.getByRole('button', { name: 'Voltar' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Buscar' })).toBeTruthy();
+    expect(screen.getByText('Home')).toBeTruthy();
+  });
+
+  it('renderiza ProgressBar quando progress é fornecido', () => {
+    render(<NavBar progress={60} progressLabel="Carregando" />, { wrapper });
+    expect(screen.getByRole('progressbar')).toBeTruthy();
+  });
+
+  it('ProgressBar usa progressLabel como aria-label', () => {
+    render(<NavBar progress={40} progressLabel="Upload em andamento" />, { wrapper });
+    expect(screen.getByLabelText('Upload em andamento')).toBeTruthy();
+  });
+
+  it('center sobrepõe title', () => {
     render(
-      <NavBar value="search" onChange={() => {}} aria-label="Nav">
-        <NavBar.Item value="home" icon="House" label="Início" />
-        <NavBar.Item value="search" icon="Search" label="Buscar" />
-      </NavBar>,
+      <NavBar title="Ignorado" center={<span>Centro customizado</span>} />,
       { wrapper },
     );
-    const buscar = screen.getByRole('tab', { name: 'Buscar' });
-    expect(buscar.getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByText('Centro customizado')).toBeTruthy();
+    expect(screen.queryByText('Ignorado')).toBeNull();
   });
 
-  it('item inativo tem aria-selected=false', () => {
+  it('center sobrepõe progress', () => {
     render(
-      <NavBar value="search" onChange={() => {}} aria-label="Nav">
-        <NavBar.Item value="home" icon="House" label="Início" />
-        <NavBar.Item value="search" icon="Search" label="Buscar" />
-      </NavBar>,
+      <NavBar progress={50} center={<span>Centro customizado</span>} />,
       { wrapper },
     );
-    const inicio = screen.getByRole('tab', { name: 'Início' });
-    expect(inicio.getAttribute('aria-selected')).toBe('false');
+    expect(screen.getByText('Centro customizado')).toBeTruthy();
+    expect(screen.queryByRole('progressbar')).toBeNull();
   });
 
-  it('chama onChange ao clicar em item', () => {
-    const onChange = jest.fn();
-    render(
-      <NavBar value="home" onChange={onChange} aria-label="Nav">
-        <NavBar.Item value="home" icon="House" label="Início" />
-        <NavBar.Item value="search" icon="Search" label="Buscar" />
-      </NavBar>,
-      { wrapper },
-    );
-    fireEvent.click(screen.getByRole('tab', { name: 'Buscar' }));
-    expect(onChange).toHaveBeenCalledWith('search');
+  it('progress sobrepõe title', () => {
+    render(<NavBar title="Ignorado" progress={50} progressLabel="Progresso" />, { wrapper });
+    expect(screen.getByRole('progressbar')).toBeTruthy();
+    expect(screen.queryByText('Ignorado')).toBeNull();
   });
 
-  it('badge={3} renderiza "3"', () => {
-    render(
-      <NavBar value="home" onChange={() => {}} aria-label="Nav">
-        <NavBar.Item value="home" icon="House" label="Início" badge={3} />
-      </NavBar>,
+  it('aplica aria-label no header', () => {
+    const { container } = render(
+      <NavBar aria-label="Barra de navegação principal" />,
       { wrapper },
     );
-    expect(screen.getByText('3')).toBeTruthy();
+    const header = container.querySelector('header');
+    expect(header?.getAttribute('aria-label')).toBe('Barra de navegação principal');
   });
 
-  it('badge={150} renderiza "99+"', () => {
-    render(
-      <NavBar value="home" onChange={() => {}} aria-label="Nav">
-        <NavBar.Item value="home" icon="House" label="Início" badge={150} />
-      </NavBar>,
-      { wrapper },
-    );
-    expect(screen.getByText('99+')).toBeTruthy();
+  it('renderiza sem props obrigatórias', () => {
+    const { container } = render(<NavBar />, { wrapper });
+    expect(container.querySelector('header')).toBeTruthy();
   });
 
-  it('item disabled não chama onChange', () => {
-    const onChange = jest.fn();
-    render(
-      <NavBar value="home" onChange={onChange} aria-label="Nav">
-        <NavBar.Item value="search" icon="Search" label="Buscar" disabled />
-      </NavBar>,
-      { wrapper },
-    );
-    fireEvent.click(screen.getByRole('tab', { name: 'Buscar' }));
-    expect(onChange).not.toHaveBeenCalled();
+  it('position sticky por padrão', () => {
+    const { container } = render(<NavBar />, { wrapper });
+    const header = container.querySelector('header') as HTMLElement;
+    expect(header.style.position).toBe('sticky');
   });
 
-  it('aplica aria-label no nav', () => {
-    render(
-      <NavBar value="home" onChange={() => {}} aria-label="Menu principal">
-        <NavBar.Item value="home" icon="House" label="Início" />
-      </NavBar>,
-      { wrapper },
-    );
-    expect(screen.getByRole('tablist', { name: 'Menu principal' })).toBeTruthy();
+  it('elevated aplica box-shadow', () => {
+    const { container } = render(<NavBar elevated />, { wrapper });
+    const header = container.querySelector('header') as HTMLElement;
+    expect(header.style.boxShadow).toBeTruthy();
+  });
+
+  it('sem elevated não aplica box-shadow', () => {
+    const { container } = render(<NavBar />, { wrapper });
+    const header = container.querySelector('header') as HTMLElement;
+    expect(header.style.boxShadow).toBeFalsy();
   });
 });

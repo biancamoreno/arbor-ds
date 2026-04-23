@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Portal, FocusScope, DismissableLayer } from '../../../ecosystem/primitives';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Flex } from '../../core';
+import { transition } from '../../../ecosystem/utils/functions';
 import { useDrawerContext } from '../context/drawer-context';
 import type { DrawerContentProps } from '../interfaces/DrawerProps';
 import type { DrawerPlacement } from '../context/drawer-context';
@@ -9,12 +10,7 @@ const widthMap = { sm: '320px', md: '420px', lg: '560px' } as const;
 const heightMap = { sm: '240px', md: '320px', lg: '420px' } as const;
 
 function getPanelStyle(placement: DrawerPlacement, size: NonNullable<DrawerContentProps['size']>): React.CSSProperties {
-  const shared: React.CSSProperties = {
-    position: 'fixed',
-    display: 'flex',
-    flexDirection: 'column',
-    outline: 'none',
-  };
+  const shared: React.CSSProperties = { position: 'fixed', display: 'flex', flexDirection: 'column', outline: 'none' };
 
   if (placement === 'bottom') {
     return { ...shared, bottom: 0, left: 0, right: 0, width: '100%', height: heightMap[size], borderRadius: '24px 24px 0 0' };
@@ -37,7 +33,6 @@ const SLIDE_HIDDEN: Record<DrawerPlacement, string> = {
 
 export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
   const { isOpen, close, placement, titleId } = useDrawerContext();
-  const theme = useTheme();
 
   const [mounted, setMounted] = useState(isOpen);
   const [visible, setVisible] = useState(false);
@@ -61,23 +56,24 @@ export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
     <Portal>
       <DismissableLayer onDismiss={close} disableOutsideClick>
         <FocusScope trapped autoFocus restoreFocus>
-          <aside
+          <Flex
+            as="aside"
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
+            zIndex="modal"
+            gap="small"
+            padding="large"
+            backgroundColor="surface.raised"
             style={{
               ...getPanelStyle(placement, size),
-              zIndex: theme.zIndices.modal,
-              gap: theme.space.small,
-              padding: theme.space.large,
-              backgroundColor: theme.colors.surface.raised,
               boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
               transform: visible ? 'translate(0)' : SLIDE_HIDDEN[placement],
-              transition: 'transform 0.2s cubic-bezier(0, 0, 0.2, 1)',
+              transition: transition(['transform'], 'normal', 'decelerate'),
             }}
           >
             {children}
-          </aside>
+          </Flex>
         </FocusScope>
       </DismissableLayer>
     </Portal>

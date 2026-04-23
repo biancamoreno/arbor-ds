@@ -1,21 +1,19 @@
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Text } from '../../core';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogDescriptionProps } from '../interfaces/DialogProps';
 
 export function DialogDescription({ children }: DialogDescriptionProps) {
   const { descriptionId } = useDialogContext();
-  const theme = useTheme();
 
   return (
-    <p
+    <Text
+      as="p"
       id={descriptionId}
-      style={{
-        margin: 0,
-        color: theme.colors.text.secondary,
-        fontSize: theme.fontSizes.small,
-      }}
+      color="text.secondary"
+      fontSize="small"
+      style={{ margin: 0 }}
     >
       {children}
-    </p>
+    </Text>
   );
 }

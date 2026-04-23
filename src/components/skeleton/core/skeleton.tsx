@@ -1,4 +1,5 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex } from '../../core';
 import type { SkeletonProps } from '../interfaces';
 
 const KEYFRAMES_ID = 'arbor-skeleton-keyframes';
@@ -25,16 +26,14 @@ function SkeletonLine({ width, height, borderRadius, style, ...props }: Omit<Ske
   const highlight = theme.colors.background.interactive;
 
   return (
-    <span
+    <Box
+      as="span"
       {...props}
+      display="block"
       style={{
-        display: 'block',
         width: typeof width === 'number' ? `${width}px` : (width ?? '100%'),
         height: typeof height === 'number' ? `${height}px` : (height ?? '16px'),
-        borderRadius:
-          typeof borderRadius === 'number'
-            ? `${borderRadius}px`
-            : (borderRadius ?? theme.radii.nano),
+        borderRadius: typeof borderRadius === 'number' ? `${borderRadius}px` : (borderRadius ?? theme.radii.nano),
         backgroundImage: `linear-gradient(90deg, ${bg} 25%, ${highlight} 50%, ${bg} 75%)`,
         backgroundSize: '200% 100%',
         animation: 'arbor-shimmer 1.4s ease-in-out infinite',
@@ -45,13 +44,15 @@ function SkeletonLine({ width, height, borderRadius, style, ...props }: Omit<Ske
 }
 
 export function Skeleton({ lines, width, height, borderRadius, style, ...props }: SkeletonProps) {
-  const theme = useTheme();
   if (lines && lines > 1) {
     return (
-      <span
+      <Flex
+        as="span"
         role="status"
         aria-label="Carregando"
-        style={{ display: 'flex', flexDirection: 'column', gap: theme.space.tiny, ...style }}
+        flexDirection="column"
+        gap="tiny"
+        style={style}
         {...props}
       >
         {Array.from({ length: lines }, (_, i) => (
@@ -63,7 +64,7 @@ export function Skeleton({ lines, width, height, borderRadius, style, ...props }
             borderRadius={borderRadius}
           />
         ))}
-      </span>
+      </Flex>
     );
   }
 

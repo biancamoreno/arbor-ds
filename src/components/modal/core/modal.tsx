@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Text, Clickable } from '../../core';
+import { transition } from '../../../ecosystem/utils/functions';
 import type { ModalProps } from '../interfaces';
 
 const sizeMap = {
@@ -19,7 +20,6 @@ export function Modal({
   closeOnOverlayClick = true,
   onOpenChange,
 }: ModalProps) {
-  const theme = useTheme();
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
   const frameRef = useRef<number>(0);
@@ -50,89 +50,91 @@ export function Modal({
   if (!mounted) return null;
 
   return (
-    <div
+    <Flex
       role="presentation"
       onClick={() => {
         if (closeOnOverlayClick) onOpenChange?.(false);
       }}
+      alignItems="center"
+      justifyContent="center"
+      position="fixed"
+      zIndex="modal"
+      padding="medium"
+      backgroundColor="background.overlay"
+      opacity={visible ? 1 : 0}
       style={{
-        position: 'fixed',
         inset: 0,
-        zIndex: theme.zIndices.modal,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: theme.space.medium,
-        backgroundColor: theme.colors.background.overlay,
-        opacity: visible ? 1 : 0,
         transition: 'opacity 0.2s ease',
       }}
     >
-      <div
+      <Flex
         role="dialog"
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : undefined}
-        onClick={(event) => event.stopPropagation()}
+        onClick={(event: React.MouseEvent) => event.stopPropagation()}
+        flexDirection="column"
+        gap="small"
+        padding="large"
+        borderRadius="large"
+        backgroundColor="surface.raised"
+        width="100%"
         style={{
-          width: '100%',
           maxWidth: sizeMap[size],
-          display: 'flex',
-          flexDirection: 'column',
-          gap: theme.space.small,
-          padding: theme.space.large,
-          borderRadius: theme.radii.large,
-          backgroundColor: theme.colors.surface.raised,
           boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
           opacity: visible ? 1 : 0,
           transform: visible ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(-8px)',
-          transition: 'transform 0.2s cubic-bezier(0, 0, 0.2, 1), opacity 0.2s ease',
+          transition: transition(['transform', 'opacity'], 'normal', 'decelerate'),
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
+        <Flex alignItems="flex-start" justifyContent="space-between" gap="12px">
+          <Flex flexDirection="column" gap="6px" style={{ minWidth: 0 }}>
             {title && (
-              <h2
-                style={{
-                  margin: 0,
-                  color: theme.colors.text.primary,
-                  fontSize: theme.fontSizes.medium,
-                }}
+              <Text
+                as="h2"
+                color="text.primary"
+                fontSize="medium"
+                style={{ margin: 0 }}
               >
                 {title}
-              </h2>
+              </Text>
             )}
             {description && (
-              <p
-                style={{
-                  margin: 0,
-                  color: theme.colors.text.secondary,
-                  fontSize: theme.fontSizes.small,
-                }}
+              <Text
+                as="p"
+                color="text.secondary"
+                fontSize="small"
+                style={{ margin: 0 }}
               >
                 {description}
-              </p>
+              </Text>
             )}
-          </div>
-          <button
+          </Flex>
+          <Clickable
+            as="button"
             type="button"
             aria-label={closeLabel}
             onClick={() => onOpenChange?.(false)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              color: theme.colors.text.secondary,
-              cursor: 'pointer',
-              fontSize: theme.fontSizes.medium,
-              lineHeight: 1,
-            }}
+            color="text.secondary"
+            fontSize="medium"
+            cursor="pointer"
+            backgroundColor="transparent"
+            style={{ lineHeight: 1 }}
           >
             ×
-          </button>
-        </div>
-        {children && <div style={{ color: theme.colors.text.primary }}>{children}</div>}
-        {footer && <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>{footer}</div>}
-      </div>
-    </div>
+          </Clickable>
+        </Flex>
+        {children && (
+          <Box color="text.primary">
+            {children}
+          </Box>
+        )}
+        {footer && (
+          <Flex justifyContent="flex-end" gap="12px">
+            {footer}
+          </Flex>
+        )}
+      </Flex>
+    </Flex>
   );
 }
 

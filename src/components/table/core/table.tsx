@@ -1,4 +1,5 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box } from '../../core';
 import type {
   TableRootProps,
   TableHeadProps,
@@ -9,99 +10,88 @@ import type {
 } from '../interfaces';
 
 function TableRoot({ children, scrollable = false, style, ...props }: TableRootProps) {
-  const theme = useTheme();
   const table = (
-    <table
+    <Box
+      as="table"
       {...props}
-      style={{
-        width: '100%',
-        borderCollapse: 'collapse',
-        fontSize: theme.fontSizes.sm,
-        color: theme.colors.text.primary,
-        ...style,
-      }}
+      width="100%"
+      fontSize="sm"
+      color="text.primary"
+      style={{ borderCollapse: 'collapse', ...style }}
     >
       {children}
-    </table>
+    </Box>
   );
 
   if (!scrollable) return table;
 
   return (
-    <div style={{ width: '100%', overflowX: 'auto' }}>
+    <Box width="100%" style={{ overflowX: 'auto' }}>
       {table}
-    </div>
+    </Box>
   );
 }
 
 function TableHead({ children, style, ...props }: TableHeadProps) {
   const theme = useTheme();
   return (
-    <thead
+    <Box
+      as="thead"
       {...props}
-      style={{
-        borderBottom: `2px solid ${theme.colors.border.default}`,
-        ...style,
-      }}
+      style={{ borderBottom: `2px solid ${theme.colors.border.default}`, ...style }}
     >
       {children}
-    </thead>
+    </Box>
   );
 }
 
 function TableBody({ children, style, ...props }: TableBodyProps) {
-  return <tbody {...props} style={style}>{children}</tbody>;
+  return <Box as="tbody" {...props} style={style}>{children}</Box>;
 }
 
 function TableRow({ children, style, ...props }: TableRowProps) {
   const theme = useTheme();
   return (
-    <tr
+    <Box
+      as="tr"
       {...props}
-      style={{
-        borderBottom: `1px solid ${theme.colors.border.subtle}`,
-        ...style,
-      }}
+      style={{ borderBottom: `1px solid ${theme.colors.border.subtle}`, ...style }}
     >
       {children}
-    </tr>
+    </Box>
   );
 }
 
 function TableCell({ children, style, ...props }: TableCellProps) {
-  const theme = useTheme();
   return (
-    <td
+    <Box
+      as="td"
       {...props}
-      style={{
-        padding: `${theme.space.small} ${theme.space.medium}`,
-        verticalAlign: 'middle',
-        ...style,
-      }}
+      padding="small"
+      paddingX="medium"
+      verticalAlign="middle"
+      style={style}
     >
       {children}
-    </td>
+    </Box>
   );
 }
 
 function TableHeaderCell({ children, style, ...props }: TableHeaderCellProps) {
-  const theme = useTheme();
   return (
-    <th
+    <Box
+      as="th"
       scope="col"
       {...props}
-      style={{
-        padding: `${theme.space.small} ${theme.space.medium}`,
-        textAlign: 'left',
-        fontWeight: theme.fontWeights.medium,
-        color: theme.colors.text.secondary,
-        verticalAlign: 'middle',
-        whiteSpace: 'nowrap',
-        ...style,
-      }}
+      padding="small"
+      paddingX="medium"
+      fontWeight="medium"
+      color="text.secondary"
+      verticalAlign="middle"
+      style={{ textAlign: 'left', whiteSpace: 'nowrap', ...style }}
     >
       {children}
-    </th>
+    </Box>
   );
 }
 

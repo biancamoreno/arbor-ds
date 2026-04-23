@@ -15,6 +15,15 @@ function renderDialog(ui: React.ReactElement) {
 }
 
 describe('Dialog', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runAllTimers();
+    jest.useRealTimers();
+  });
+
   it('renders trigger and no content when closed', () => {
     renderDialog(
       <Dialog.Root>
@@ -66,6 +75,7 @@ describe('Dialog', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
 
     fireEvent.click(screen.getByLabelText('Fechar diálogo'));
+    act(() => { jest.advanceTimersByTime(250); });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
@@ -88,6 +98,7 @@ describe('Dialog', () => {
       fireEvent.keyDown(document, { key: 'Escape' });
     });
 
+    act(() => { jest.advanceTimersByTime(250); });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 

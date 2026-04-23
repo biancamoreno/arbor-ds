@@ -1,32 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { View, StatusBar } from 'react-native';
 import { ArborProvider } from '../src/ecosystem';
 import { createTheme, themeLight } from '../src/foundations';
-import { Badge, Button, Flex, Text } from '../src/components';
+import { TabBar, FloatingActionButton } from '../src/components';
+import {
+  HomeScreen,
+  ButtonsScreen,
+  FormsScreen,
+  FeedbackScreen,
+  OverlayScreen,
+  DataScreen,
+} from './src/mobile/screens';
 
 const theme = createTheme(themeLight, {});
 
+const SCREENS = {
+  home:     HomeScreen,
+  buttons:  ButtonsScreen,
+  forms:    FormsScreen,
+  feedback: FeedbackScreen,
+  overlay:  OverlayScreen,
+  data:     DataScreen,
+} as const;
+
+type ScreenKey = keyof typeof SCREENS;
+
 export default function App() {
+  const [screen, setScreen] = useState<ScreenKey>('home');
+  const Screen = SCREENS[screen];
+
   return (
     <ArborProvider theme={theme}>
-      <Flex flex={1} backgroundColor="background.default" alignItems="center" justifyContent="center" padding="24px">
-        <Flex
-          flexDirection="column"
-          gap="16px"
-          alignItems="center"
-          padding="24px"
-          borderRadius="large"
-          backgroundColor="surface.raised"
+      <View style={{ flex: 1 }}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+        <Screen />
+        <TabBar
+          value={screen}
+          onChange={(v) => setScreen(v as ScreenKey)}
+          aria-label="Navegação principal"
         >
-          <Badge tone="brand">Arbor DS</Badge>
-          <Text as="h1" variant="title1">
-            Core design system
-          </Text>
-          <Text as="p" variant="body" style={{ textAlign: 'center', maxWidth: 320 }}>
-            Foundations, provider and component primitives shared between web and mobile surfaces.
-          </Text>
-          <Button>Open playground on web</Button>
-        </Flex>
-      </Flex>
+          <TabBar.Item value="home"     icon="House"              label="Início"   />
+          <TabBar.Item value="buttons"  icon="MousePointerClick"  label="Botões"   />
+          <TabBar.Item value="forms"    icon="FileText"           label="Forms"    />
+          <TabBar.Item value="feedback" icon="Bell"               label="Feedback" />
+          <TabBar.Item value="overlay"  icon="Layers"             label="Overlay"  />
+          <TabBar.Item value="data"     icon="Database"           label="Dados"    />
+        </TabBar>
+        {screen === 'buttons' && (
+          <FloatingActionButton
+            icon="Plus"
+            label="Criar"
+            position="bottom-right"
+            offset={{ bottom: 90 }}
+            onPress={() => console.log('[Arbor DS] FAB pressed')}
+          />
+        )}
+      </View>
     </ArborProvider>
   );
 }

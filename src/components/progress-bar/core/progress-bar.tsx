@@ -1,4 +1,5 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box } from '../../core';
 import { transition } from '../../../ecosystem/utils/functions';
 import type { ProgressBarProps } from '../interfaces';
 
@@ -25,7 +26,7 @@ export function ProgressBar({
   };
 
   return (
-    <div
+    <Box
       role="progressbar"
       aria-valuenow={indeterminate ? undefined : clampedProgress}
       aria-valuemin={0}
@@ -33,38 +34,35 @@ export function ProgressBar({
       aria-label={label}
       aria-busy={indeterminate || undefined}
       {...props}
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: `${height}px`,
-        borderRadius: theme.radii.full,
-        backgroundColor: theme.colors.background.subtle,
-        overflow: 'hidden',
-        ...style,
-      }}
+      position="relative"
+      width="100%"
+      borderRadius="full"
+      backgroundColor="background.subtle"
+      overflow="hidden"
+      style={{ height, ...style }}
     >
       {indeterminate ? (
-        <div
+        <Box
+          position="absolute"
+          height="100%"
+          borderRadius="full"
           style={{
-            position: 'absolute',
-            height: '100%',
             width: '35%',
-            borderRadius: theme.radii.full,
             backgroundColor: fillColor[tone],
             animation: 'arbor-progress-indeterminate 2.1s cubic-bezier(0.65,0.815,0.735,0.395) infinite',
           }}
         />
       ) : (
-        <div
+        <Box
+          height="100%"
+          borderRadius="full"
           style={{
-            height: '100%',
             width: `${clampedProgress}%`,
-            borderRadius: theme.radii.full,
             backgroundColor: fillColor[tone],
             transition: transition(['width'], 'slow', 'standard'),
           }}
         />
       )}
-    </div>
+    </Box>
   );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clickable } from '../../core';
 import { useMenuContext } from '../context/menu-context';
 import type { MenuTriggerProps } from '../interfaces/MenuProps';
 
@@ -24,8 +25,8 @@ export function MenuTrigger({ children, asChild = false }: MenuTriggerProps) {
   }
 
   return (
-    <button type="button" {...triggerProps}>
+    <Clickable as="button" type="button" {...triggerProps}>
       {children}
-    </button>
+    </Clickable>
   );
 }

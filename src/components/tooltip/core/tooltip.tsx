@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
+import { Box } from '../../core';
 import { TooltipContext } from '../context/tooltip-context';
 import { TooltipTrigger } from '../slots/tooltip-trigger';
 import { TooltipContent } from '../slots/tooltip-content';
@@ -24,9 +25,9 @@ function TooltipRoot({
 
   return (
     <TooltipContext.Provider value={{ isOpen: !disabled && isOpen, open, close, tooltipId }}>
-      <span style={{ position: 'relative', display: 'inline-flex' }}>
+      <Box as="span" position="relative" display="inline-flex">
         {children}
-      </span>
+      </Box>
     </TooltipContext.Provider>
   );
 }

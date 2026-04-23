@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Text } from '../../core';
 import type { TextAreaProps } from '../interfaces';
 import { FieldShell, getFieldColors, getFieldFrameStyle } from './shared';
 
@@ -30,11 +31,12 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
 
     return (
       <FieldShell theme={theme} label={label} helperText={helperText} error={error}>
-        <textarea
-          ref={ref}
+        <Box
+          as="textarea"
+          innerRef={ref}
           rows={rows}
           value={value}
-          onChange={(event) => {
+          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
             onChange?.(event);
             onValueChange?.(event.target.value);
           }}
@@ -52,16 +54,19 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           {...rest}
         />
         {showCharCount && maxLength && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <span
+          <Flex justifyContent="flex-end">
+            <Text
+              as="span"
+              fontSize="xsmall"
               style={{
-                fontSize: theme.fontSizes.xsmall,
-                color: charCount > maxLength * 0.9 ? theme.colors.feedback.critical.base : theme.colors.text.secondary,
+                color: charCount > maxLength * 0.9
+                  ? theme.colors.feedback.critical.base
+                  : theme.colors.text.secondary,
               }}
             >
               {charCount} / {maxLength}
-            </span>
-          </div>
+            </Text>
+          </Flex>
         )}
       </FieldShell>
     );

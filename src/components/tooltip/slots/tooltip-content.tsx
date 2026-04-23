@@ -1,5 +1,6 @@
 import React from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box } from '../../core';
+import { transition } from '../../../ecosystem/utils/functions';
 import { useTooltipContext } from '../context/tooltip-context';
 import type { TooltipPlacement } from '../context/tooltip-context';
 
@@ -25,43 +26,40 @@ function getPlacementStyle(placement: TooltipPlacement): React.CSSProperties {
 
 export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: TooltipContentProps) {
   const { isOpen, tooltipId } = useTooltipContext();
-  const theme = useTheme();
 
   const placementStyle = getPlacementStyle(placement);
-
-  // Animação de scale relativa ao placement para não conflitar com translateX/Y do posicionamento
   const scaleTransform = isOpen ? 'scale(1)' : 'scale(0.95)';
 
   return (
-    <span
+    <Box
+      as="span"
       id={tooltipId}
       role="tooltip"
       aria-hidden={!isOpen || undefined}
+      position="absolute"
+      zIndex="tooltip"
+      borderRadius="small"
+      backgroundColor="text.primary"
+      color="text.inverse"
+      fontSize="xsmall"
+      pointerEvents="none"
+      opacity={isOpen ? 1 : 0}
       style={{
-        position: 'absolute',
-        zIndex: theme.zIndices.tooltip,
         maxWidth,
         padding: '8px 12px',
-        borderRadius: theme.radii.small,
-        backgroundColor: theme.colors.text.primary,
-        color: theme.colors.text.inverse,
-        fontSize: theme.fontSizes.xsmall,
         lineHeight: 1.4,
         boxShadow: '0 12px 32px rgba(0, 0, 0, 0.14)',
         whiteSpace: 'nowrap',
-        pointerEvents: 'none',
-        opacity: isOpen ? 1 : 0,
         transformOrigin: 'center',
-        transition: 'opacity 0.1s ease, transform 0.1s cubic-bezier(0, 0, 0.2, 1)',
+        transition: transition(['opacity', 'transform'], 'fast', 'decelerate'),
         transitionDelay: isOpen ? '300ms' : '0ms',
         ...placementStyle,
-        // Combina transform de posicionamento com scale
         transform: placementStyle.transform
           ? `${placementStyle.transform} ${scaleTransform}`
           : scaleTransform,
       }}
     >
       {children}
-    </span>
+    </Box>
   );
 }

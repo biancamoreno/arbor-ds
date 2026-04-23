@@ -630,6 +630,55 @@ Você deve ajudar a definir e reforçar:
 
 ---
 
+## Regras de Implementação de Componentes
+
+### Nunca usar tags HTML ou primitivas React Native diretamente
+
+**Regra absoluta:** Nenhum componente do Arbor-DS deve usar tags HTML puras (`<div>`, `<span>`, `<p>`, `<button>`, `<nav>`, `<header>`, `<aside>`, `<ul>`, `<ol>`, `<li>`, `<a>`, `<label>`, `<input>`, `<img>`, etc.) nem primitivas React Native (`View`, `Text`, `Pressable`, `TouchableOpacity`, `ScrollView`) diretamente no corpo dos componentes.
+
+**Substitua sempre por componentes de layout do Arbor-DS com a prop `as`:**
+
+| Tag proibida | Substituto correto |
+|---|---|
+| `<div>` | `<Box>` ou `<Flex>` |
+| `<div style={{ display: 'flex' }}>` | `<Flex>` |
+| `<span>` estrutural | `<Box as="span">` |
+| `<span>` de texto | `<Text as="span">` |
+| `<p>` | `<Text as="p">` ou `<Box as="p">` |
+| `<h1>`–`<h6>` | `<Text as="h1">` etc. |
+| `<button>` | `<Clickable>` (usa `as="button"` internamente) |
+| `<nav>`, `<header>`, `<aside>` | `<Box as="nav">`, `<Box as="header">` etc. |
+| `<ul>`, `<ol>` | `<Box as="ul">`, `<Box as="ol">` |
+| `<li>` | `<Box as="li">` |
+| `<a>` | `<Box as="a">` |
+| `<label>` | `<Box as="label">` |
+| `<input>`, `<textarea>` | `<Box as="input">`, `<Box as="textarea">` |
+| `<img>` | `<Box as="img">` ou componente `<Image>` |
+| `<table>`, `<tr>`, `<td>`, `<th>` | `<Box as="table">`, `<Box as="tr">` etc. |
+| React Native `View` | `<Box>` ou `<Flex>` |
+| React Native `Text` | `<Text>` do Arbor-DS |
+| React Native `Pressable`, `TouchableOpacity` | `<Clickable>` |
+
+**Exceção legítima:** Elementos SVG (`<svg>`, `<circle>`, `<path>`, `<line>` etc.) podem ser usados diretamente, pois são primitivas de renderização vetorial sem equivalente na camada de layout.
+
+### Nunca usar a prop `style` quando há prop declarativa equivalente
+
+A prop `style` é um escape hatch para CSS não coberto pelo sistema. Use props declarativas:
+
+```tsx
+// ❌ Errado
+<div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px' }}>
+
+// ✅ Correto
+<Flex alignItems="center" gap="8px" padding="medium">
+```
+
+Props declarativas suportadas (subset mais usado): `display`, `flexDirection`, `alignItems`, `justifyContent`, `gap`, `padding`, `paddingX`, `paddingY`, `margin`, `width`, `height`, `maxWidth`, `minHeight`, `overflow`, `position`, `top`, `left`, `right`, `bottom`, `zIndex`, `borderRadius`, `borderColor`, `borderWidth`, `borderStyle`, `backgroundColor`, `color`, `fontSize`, `fontWeight`, `lineHeight`, `opacity`, `cursor`, `pointerEvents`, `transition`, `animation`, `boxShadow`, `transform`, `flexShrink`, `flexGrow`, `flex`.
+
+**Escape hatch aceitável com `style`:** Propriedades CSS não cobertas pelo sistema (`backdropFilter`, `textDecoration`, `listStyle`, `borderCollapse`, `backgroundImage`, propriedades vendor-prefixadas), e valores altamente dinâmicos ou computados que não têm equivalente em token.
+
+---
+
 ## Forbidden Anti-Patterns
 
 Critique e evite explicitamente:
@@ -653,6 +702,8 @@ Critique e evite explicitamente:
 - arquitetura difícil de documentar
 - arquitetura difícil de testar
 - arquitetura bonita no papel e ruim no código real
+- **usar tags HTML (`<div>`, `<span>`, `<button>`, etc.) ou primitivas React Native (`View`, `Text`, `Pressable`) diretamente nos componentes em vez de Box/Flex/Clickable/Text**
+- **usar a prop `style={{...}}` para CSS que pode ser expresso como prop declarativa**
 
 ---
 

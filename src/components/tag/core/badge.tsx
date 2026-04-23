@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Flex } from '../../core';
 import type { BadgeProps } from '../interfaces/BadgeProps';
 
 function getToneStyle(tone: BadgeProps['tone'], theme: ReturnType<typeof useTheme>): CSSProperties {
@@ -21,21 +22,22 @@ export function Badge({ children, tone = 'neutral', style, ...props }: BadgeProp
   const theme = useTheme();
 
   return (
-    <span
-      {...props}
+    <Flex
+      as="span"
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      borderRadius="full"
+      fontSize="xsmall"
+      fontWeight="medium"
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: theme.radii.full,
         padding: '4px 10px',
-        fontSize: theme.fontSizes.xsmall,
-        fontWeight: theme.fontWeights.medium,
         ...getToneStyle(tone, theme),
         ...style,
       }}
+      {...props}
     >
       {children}
-    </span>
+    </Flex>
   );
 }

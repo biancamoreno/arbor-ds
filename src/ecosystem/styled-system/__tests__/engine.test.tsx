@@ -217,26 +217,30 @@ describe('resolução de tokens', () => {
 // ─── style inline ─────────────────────────────────────────────────────────
 
 describe('style inline', () => {
-  it('style inline é mergeado após transform — sobrescreve prop', () => {
+  it('style inline é aplicado como inline style — sobrescreve prop via especificidade CSS', () => {
     render(
       <ArborTransform testID="el" padding="small" style={{ paddingTop: 999 }}>
         content
       </ArborTransform>,
       { wrapper: Wrapper },
     );
-    expect(getStyleContent()).toMatch(/padding-top:999px/);
+    // inline style aplicado diretamente no elemento (não na classe CSS)
+    expect(screen.getByTestId('el').props.style).toMatchObject({ paddingTop: 999 });
+    // CSS class mantém o padding do ArborTransform
+    expect(getStyleContent()).toMatch(/padding-top:16px/);
   });
 
-  it('style inline não remove outras props de estilo', () => {
+  it('style inline não remove outras props de estilo do transform', () => {
     render(
       <ArborTransform testID="el" padding="small" style={{ color: 'red' }}>
         content
       </ArborTransform>,
       { wrapper: Wrapper },
     );
+    // color vai para inline style; padding continua na CSS class
+    expect(screen.getByTestId('el').props.style).toMatchObject({ color: 'red' });
     const css = getStyleContent();
     expect(css).toMatch(/padding-top:16px/);
-    expect(css).toMatch(/color:red/);
   });
 });
 

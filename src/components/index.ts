@@ -30,5 +30,6 @@ export * from './tabs';
 export * from './tag';
 export * from './fab';
 export * from './nav-bar';
+export * from './tab-bar';
 export * from './toast';
 export * from './tooltip';

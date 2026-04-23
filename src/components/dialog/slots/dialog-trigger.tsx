@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clickable } from '../../core';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogTriggerProps } from '../interfaces/DialogProps';
 
@@ -19,8 +20,8 @@ export function DialogTrigger({ children, asChild = false }: DialogTriggerProps)
   }
 
   return (
-    <button type="button" onClick={open}>
+    <Clickable as="button" type="button" onClick={open}>
       {children}
-    </button>
+    </Clickable>
   );
 }

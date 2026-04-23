@@ -1,4 +1,4 @@
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Flex, Text, Clickable } from '../../core';
 import { Icon } from '../../core';
 import type { IconName } from '../../core';
 import { AlertContext, useAlertContext } from '../context/alert-context';
@@ -19,151 +19,113 @@ const TONE_ICON: Record<Tone, IconName> = {
   critical: 'CircleAlert',
 };
 
-function getToneColors(tone: Tone, theme: ReturnType<typeof useTheme>) {
-  const c = theme.colors;
-  const map: Record<Tone, { bg: string; border: string; text: string; icon: string }> = {
-    info: {
-      bg: 'transparent',
-      border: c.status.info,
-      text: c.text.primary,
-      icon: c.status.info,
-    },
-    success: {
-      bg: c.feedback.success.subtle,
-      border: c.feedback.success.base,
-      text: c.feedback.success.strong,
-      icon: c.feedback.success.base,
-    },
-    warning: {
-      bg: c.feedback.warning.subtle,
-      border: c.feedback.warning.base,
-      text: c.feedback.warning.strong,
-      icon: c.feedback.warning.base,
-    },
-    critical: {
-      bg: c.feedback.critical.subtle,
-      border: c.feedback.critical.base,
-      text: c.feedback.critical.strong,
-      icon: c.feedback.critical.base,
-    },
-  };
-  return map[tone];
-}
+const TONE_COLORS: Record<Tone, { bg: string; border: string; text: string; icon: string }> = {
+  info: { bg: 'transparent', border: 'status.info', text: 'text.primary', icon: 'status.info' },
+  success: { bg: 'feedback.success.subtle', border: 'feedback.success.base', text: 'feedback.success.strong', icon: 'feedback.success.base' },
+  warning: { bg: 'feedback.warning.subtle', border: 'feedback.warning.base', text: 'feedback.warning.strong', icon: 'feedback.warning.base' },
+  critical: { bg: 'feedback.critical.subtle', border: 'feedback.critical.base', text: 'feedback.critical.strong', icon: 'feedback.critical.base' },
+};
 
 function AlertRoot({ children, tone = 'info', style, ...props }: AlertRootProps) {
-  const theme = useTheme();
-  const colors = getToneColors(tone, theme);
+  const colors = TONE_COLORS[tone];
   const role = tone === 'critical' || tone === 'warning' ? 'alert' : 'status';
 
   return (
     <AlertContext.Provider value={{ tone }}>
-      <div
+      <Flex
         role={role}
         {...props}
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: theme.space.small,
-          padding: `${theme.space.small} ${theme.space.medium}`,
-          borderRadius: theme.radii.small,
-          borderLeftWidth: '4px',
-          borderLeftStyle: 'solid',
-          borderLeftColor: colors.border,
-          backgroundColor: colors.bg,
-          color: colors.text,
-          ...style,
-        }}
+        alignItems="flex-start"
+        gap="small"
+        padding="small"
+        paddingX="medium"
+        borderRadius="small"
+        borderLeftWidth={4}
+        borderLeftStyle="solid"
+        borderLeftColor={colors.border as never}
+        backgroundColor={colors.bg as never}
+        color={colors.text as never}
+        style={style}
       >
         {children}
-      </div>
+      </Flex>
     </AlertContext.Provider>
   );
 }
 
 function AlertIcon({ children, style, ...props }: AlertIconProps) {
-  const theme = useTheme();
   const { tone } = useAlertContext();
-  const colors = getToneColors(tone, theme);
+  const colors = TONE_COLORS[tone];
 
   return (
-    <span
+    <Flex
+      as="span"
       aria-hidden="true"
       {...props}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        flexShrink: 0,
-        color: colors.icon,
-        ...style,
-      }}
+      display="inline-flex"
+      alignItems="center"
+      flexShrink={0}
+      color={colors.icon as never}
+      style={style}
     >
       {children ?? <Icon name={TONE_ICON[tone]} size={18} />}
-    </span>
+    </Flex>
   );
 }
 
 function AlertTitle({ children, style, ...props }: AlertTitleProps) {
-  const theme = useTheme();
   return (
-    <p
+    <Text
+      as="p"
       {...props}
-      style={{
-        margin: 0,
-        fontWeight: theme.fontWeights.medium,
-        fontSize: theme.fontSizes.small,
-        lineHeight: '20px',
-        ...style,
-      }}
+      fontWeight="medium"
+      fontSize="small"
+      style={{ margin: 0, lineHeight: '20px', ...style }}
     >
       {children}
-    </p>
+    </Text>
   );
 }
 
 function AlertDescription({ children, style, ...props }: AlertDescriptionProps) {
-  const theme = useTheme();
   return (
-    <p
+    <Text
+      as="p"
       {...props}
-      style={{
-        margin: 0,
-        fontSize: theme.fontSizes.sm,
-        color: 'inherit',
-        lineHeight: '20px',
-        ...style,
-      }}
+      fontSize="sm"
+      color="inherit"
+      style={{ margin: 0, lineHeight: '20px', ...style }}
     >
       {children}
-    </p>
+    </Text>
   );
 }
 
 function AlertClose({ label = 'Fechar', style, ...props }: AlertCloseProps) {
-  const theme = useTheme();
   return (
-    <button
+    <Clickable
+      as="button"
       type="button"
       aria-label={label}
       {...props}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      width={20}
+      height={20}
+      flexShrink={0}
+      cursor="pointer"
+      color="inherit"
       style={{
         marginLeft: 'auto',
-        flexShrink: 0,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '20px',
-        height: '20px',
         padding: 0,
         border: 'none',
         background: 'none',
-        cursor: 'pointer',
-        color: 'inherit',
-        borderRadius: theme.radii.nano,
         ...style,
       }}
     >
       <Icon name="X" size={14} aria-hidden="true" />
-    </button>
+    </Clickable>
   );
 }
 

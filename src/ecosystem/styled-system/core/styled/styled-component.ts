@@ -1,4 +1,4 @@
-import { createElement, forwardRef, type ElementType, type ReactNode, type Ref } from 'react';
+import React, { createElement, forwardRef, type ElementType, type ReactNode, type Ref } from 'react';
 import { systemBlockForwardProp, systemPseudoProps } from '../../system';
 import { createStyle } from '../transform/new-transform/create-style';
 import { useTheme } from '../../adapters';
@@ -279,7 +279,7 @@ export function createStyledComponent(tag: string) {
     });
 
     const resolvedBase = resolveStyleObject(rest, theme);
-    const mergedBaseStyle = { ...resolvedBase.base, ...toStyleObject(style) };
+    const inlineStyle = toStyleObject(style);
 
     const pseudoResolved = Object.entries(pseudoProps).reduce((acc, [key, value]) => {
       if (typeof value === 'object' && value !== null) {
@@ -312,7 +312,7 @@ export function createStyledComponent(tag: string) {
 
     const generatedClassName = createClassName(
       theme,
-      mergedBaseStyle,
+      resolvedBase.base,
       pseudoStyles as Record<string, Record<string, unknown>>,
       resolvedBase.responsive,
       responsivePseudoStyles,
@@ -324,6 +324,7 @@ export function createStyledComponent(tag: string) {
     const webProps = {
       ...elementProps,
       className: combinedClassName || undefined,
+      style: Object.keys(inlineStyle).length > 0 ? inlineStyle as React.CSSProperties : undefined,
       ref: resolvedRef,
     };
 

@@ -1,8 +1,6 @@
 import { useId } from 'react';
-import type { TextStyle } from 'react-native';
-import { View, Text as RNText } from 'react-native';
+import { Flex, Box, Text } from '../../core';
 import { FieldContext, useFieldContext } from '../context/field-context';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type {
   FieldRootProps,
   FieldLabelProps,
@@ -25,62 +23,64 @@ function FieldRoot({
 
   return (
     <FieldContext.Provider value={{ fieldId, descriptionId, errorId, isDisabled, isRequired, isInvalid }}>
-      <View style={{ flexDirection: 'column', gap: 8 }}>{children}</View>
+      <Flex flexDirection="column" gap="micro">
+        {children}
+      </Flex>
     </FieldContext.Provider>
   );
 }
 
 function FieldLabel({ children }: FieldLabelProps) {
   const ctx = useFieldContext();
-  const theme = useTheme();
 
   return (
-    <RNText
+    <Text
+      as="span"
       accessibilityRole="text"
-      style={{
-        fontSize: theme.fontSizes.sm,
-        fontWeight: theme.fontWeights.medium as TextStyle['fontWeight'],
-        color: ctx?.isInvalid ? theme.colors.feedback.critical.base : theme.colors.text.primary,
-      }}
+      fontSize="sm"
+      fontWeight="medium"
+      color={ctx?.isInvalid ? 'feedback.critical.base' : 'text.primary'}
     >
       {children}
       {ctx?.isRequired ? ' *' : ''}
-    </RNText>
+    </Text>
   );
 }
 
 function FieldControl({ children }: FieldControlProps) {
-  return <View>{children}</View>;
+  return <Box>{children}</Box>;
 }
 
 function FieldDescription({ children }: FieldDescriptionProps) {
   const ctx = useFieldContext();
-  const theme = useTheme();
 
   return (
-    <RNText
+    <Text
+      as="span"
       nativeID={ctx?.descriptionId}
-      style={{ fontSize: theme.fontSizes.xs, color: theme.colors.text.secondary }}
+      fontSize="xs"
+      color="text.secondary"
     >
       {children}
-    </RNText>
+    </Text>
   );
 }
 
 function FieldError({ children }: FieldErrorProps) {
   const ctx = useFieldContext();
-  const theme = useTheme();
 
   if (ctx && !ctx.isInvalid) return null;
 
   return (
-    <RNText
+    <Text
+      as="span"
       nativeID={ctx?.errorId}
       accessibilityRole="alert"
-      style={{ fontSize: theme.fontSizes.xs, color: theme.colors.feedback.critical.base }}
+      fontSize="xs"
+      color="feedback.critical.base"
     >
       {children}
-    </RNText>
+    </Text>
   );
 }
 

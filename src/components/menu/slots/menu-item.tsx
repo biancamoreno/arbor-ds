@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Flex } from '../../core';
 import { useMenuContext } from '../context/menu-context';
 import type { MenuItemProps } from '../interfaces/MenuProps';
 
 export function MenuItem({ children, onSelect, disabled = false }: MenuItemProps) {
   const { close, activeIndex, setActiveIndex, registerItem } = useMenuContext();
-  const theme = useTheme();
   const indexRef = useRef<number>(-1);
   const itemRef = useRef<HTMLLIElement>(null);
 
@@ -43,25 +42,24 @@ export function MenuItem({ children, onSelect, disabled = false }: MenuItemProps
   };
 
   return (
-    <li
-      ref={itemRef}
+    <Flex
+      as="li"
+      innerRef={itemRef}
       role="menuitem"
       aria-disabled={disabled || undefined}
       tabIndex={isActive ? 0 : -1}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: `${theme.space.tiny} ${theme.space.small}`,
-        fontSize: theme.fontSizes.small,
-        color: disabled ? theme.colors.text.disabled : theme.colors.text.primary,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        outline: 'none',
-      }}
+      alignItems="center"
+      paddingX="small"
+      paddingY="tiny"
+      fontSize="small"
+      color={disabled ? 'text.disabled' : 'text.primary'}
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      outline="none"
     >
       {children}
-    </li>
+    </Flex>
   );
 }

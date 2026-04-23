@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clickable } from '../../core';
 import { usePopoverContext } from '../context/popover-context';
 import type { PopoverTriggerProps } from '../interfaces/PopoverProps';
 
@@ -25,8 +26,8 @@ export function PopoverTrigger({ children, asChild = false }: PopoverTriggerProp
   }
 
   return (
-    <button type="button" {...triggerProps}>
+    <Clickable as="button" type="button" {...triggerProps}>
       {children}
-    </button>
+    </Clickable>
   );
 }

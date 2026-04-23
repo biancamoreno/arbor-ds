@@ -1,8 +1,9 @@
 import { useId } from 'react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { Box, Flex } from '../../core';
 import { transition } from '../../../ecosystem/utils/functions';
 import type { SwitchRootProps, SwitchSize } from '../interfaces/SwitchProps';
 
@@ -48,17 +49,17 @@ function SwitchRoot({
   const translateX = isChecked ? track.width - thumb - track.padding * 2 : 0;
 
   return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: theme.space.tiny,
-        cursor: effectiveDisabled ? 'not-allowed' : 'pointer',
-        opacity: effectiveDisabled ? 0.6 : 1,
-        userSelect: 'none',
-      }}
+    <Flex
+      as="span"
+      display="inline-flex"
+      alignItems="center"
+      gap="tiny"
+      cursor={effectiveDisabled ? 'not-allowed' : 'pointer'}
+      opacity={effectiveDisabled ? 0.6 : 1}
+      userSelect="none"
     >
-      <input
+      <Box
+        as="input"
         id={inputId}
         type="checkbox"
         role="switch"
@@ -73,50 +74,59 @@ function SwitchRoot({
         aria-required={fieldCtx?.isRequired || undefined}
         aria-invalid={fieldCtx?.isInvalid || undefined}
         aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
-        onChange={(e) => setIsChecked(e.target.checked)}
-        style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsChecked(e.target.checked)}
+        position="absolute"
+        opacity={0}
+        pointerEvents="none"
+        style={{ width: 0, height: 0 }}
       />
-      <span
+      <Box
+        as="span"
+        display="inline-flex"
+        alignItems="center"
+        borderRadius="full"
         onClick={() => !effectiveDisabled && setIsChecked(!isChecked)}
+        aria-hidden="true"
         style={{
-          display: 'inline-flex',
-          alignItems: 'center',
           width: `${track.width}px`,
           height: `${track.height}px`,
           padding: `${track.padding}px`,
-          borderRadius: '9999px',
           backgroundColor: isChecked ? theme.colors.interactive.default : theme.colors.border.strong,
           transition: transition(['background-color'], 'fast'),
           boxSizing: 'border-box',
         }}
-        aria-hidden="true"
       >
-        <span
+        <Box
+          as="span"
+          display="block"
+          borderRadius="full"
+          flexShrink={0}
           style={{
-            display: 'block',
             width: `${thumb}px`,
             height: `${thumb}px`,
-            borderRadius: '9999px',
             backgroundColor: theme.colors.surface.default,
             transform: `translateX(${translateX}px)`,
             transition: transition(['transform'], 'fast'),
-            flexShrink: 0,
           }}
         />
-      </span>
+      </Box>
       {children}
-    </span>
+    </Flex>
   );
 }
 
 SwitchRoot.displayName = 'Switch.Root';
 
 function SwitchTrack({ children }: { children?: ReactNode }) {
-  return <span style={{ display: 'inline-flex', alignItems: 'center' }}>{children}</span>;
+  return (
+    <Flex as="span" display="inline-flex" alignItems="center">
+      {children}
+    </Flex>
+  );
 }
 
-function SwitchThumb({ style }: { style?: CSSProperties }) {
-  return <span style={style} />;
+function SwitchThumb({ style }: { style?: React.CSSProperties }) {
+  return <Box as="span" style={style} />;
 }
 
 export const Switch = Object.assign(SwitchRoot, {

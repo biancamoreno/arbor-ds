@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex } from '../../core';
 import type { BadgeProps, BadgeAnchorProps } from '../interfaces';
 
 type ToneKey = NonNullable<BadgeProps['tone']>;
@@ -45,22 +46,23 @@ function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'md'
   const theme = useTheme();
   const colors = getBadgeColors(tone, variant, theme);
   const padding = size === 'sm' ? '2px 6px' : '3px 8px';
-  const fontSize = size === 'sm' ? theme.fontSizes.xsmall : theme.fontSizes.xsmall;
+  const fontSize = theme.fontSizes.xsmall;
 
   return (
-    <span
+    <Flex
+      as="span"
       {...props}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      gap="4px"
+      borderRadius="full"
+      borderWidth={1}
+      borderStyle="solid"
+      fontWeight="medium"
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '4px',
-        borderRadius: theme.radii.full,
-        borderWidth: '1px',
-        borderStyle: 'solid',
         padding,
         fontSize,
-        fontWeight: theme.fontWeights.medium,
         lineHeight: 1.4,
         whiteSpace: 'nowrap',
         backgroundColor: colors.bg,
@@ -70,7 +72,7 @@ function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'md'
       }}
     >
       {children}
-    </span>
+    </Flex>
   );
 }
 
@@ -83,13 +85,16 @@ function BadgeAnchor({ children, badge, placement = 'top-right', style, ...props
   };
 
   return (
-    <span
+    <Box
+      as="span"
       {...props}
-      style={{ position: 'relative', display: 'inline-flex', ...style }}
+      position="relative"
+      display="inline-flex"
+      style={style}
     >
       {children}
-      <span style={{ position: 'absolute', ...placementStyle[placement] }}>{badge}</span>
-    </span>
+      <Box as="span" position="absolute" style={placementStyle[placement]}>{badge}</Box>
+    </Box>
   );
 }
 

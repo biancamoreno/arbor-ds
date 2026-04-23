@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Text, Clickable } from '../../core';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
 import { Icon } from '../../core';
 import { transition } from '../../../ecosystem/utils/functions';
@@ -25,9 +25,6 @@ function AccordionRoot({
   style,
   ...props
 }: AccordionRootProps) {
-  const theme = useTheme();
-
-  // Normaliza tudo para array internamente
   const normalize = (v: string | string[] | undefined): string[] => {
     if (v === undefined) return [];
     return Array.isArray(v) ? v : [v];
@@ -82,47 +79,44 @@ function AccordionRoot({
 
   return (
     <AccordionContext.Provider value={{ openValues, toggle, type, registerTrigger, unregisterTrigger, focusNext, focusPrev }}>
-      <div
+      <Flex
         {...props}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: theme.radii.small,
-          border: `1px solid ${theme.colors.border.subtle}`,
-          overflow: 'hidden',
-          ...style,
-        }}
+        flexDirection="column"
+        borderRadius="small"
+        borderColor="border.subtle"
+        borderWidth={1}
+        borderStyle="solid"
+        overflow="hidden"
+        style={style}
       >
         {children}
-      </div>
+      </Flex>
     </AccordionContext.Provider>
   );
 }
 
 function AccordionItem({ children, value, disabled = false, style, ...props }: AccordionItemProps) {
   const { openValues } = useAccordionContext();
-  const theme = useTheme();
   const contentId = useLayoutId(`accordion-content-${value}`);
   const triggerId = useLayoutId(`accordion-trigger-${value}`);
   const isOpen = openValues.includes(value);
 
   return (
     <AccordionItemContext.Provider value={{ value, isOpen, disabled, contentId, triggerId }}>
-      <div
+      <Box
         {...props}
-        style={{
-          borderBottom: `1px solid ${theme.colors.border.subtle}`,
-          ...style,
-        }}
+        borderBottomColor="border.subtle"
+        borderBottomWidth={1}
+        borderBottomStyle="solid"
+        style={style}
       >
         {children}
-      </div>
+      </Box>
     </AccordionItemContext.Provider>
   );
 }
 
 function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) {
-  const theme = useTheme();
   const { toggle, registerTrigger, unregisterTrigger, focusNext, focusPrev } = useAccordionContext();
   const { value, isOpen, disabled, contentId, triggerId } = useAccordionItemContext();
   const ref = useRef<HTMLButtonElement>(null);
@@ -138,8 +132,9 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
   };
 
   return (
-    <button
-      ref={ref}
+    <Clickable
+      as="button"
+      innerRef={ref}
       id={triggerId}
       type="button"
       aria-expanded={isOpen}
@@ -149,23 +144,24 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
       onKeyDown={handleKeyDown}
       data-arbor-focusable=""
       {...props}
+      width="100%"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      padding="small"
+      paddingX="medium"
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      fontWeight="medium"
+      fontSize="small"
+      color={disabled ? 'text.disabled' : 'text.primary'}
       style={{
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: `${theme.space.small} ${theme.space.medium}`,
         background: 'none',
         border: 'none',
-        cursor: disabled ? 'not-allowed' : 'pointer',
         textAlign: 'left',
-        fontWeight: theme.fontWeights.medium,
-        fontSize: theme.fontSizes.small,
-        color: disabled ? theme.colors.text.disabled : theme.colors.text.primary,
         ...style,
       }}
     >
-      <span>{children}</span>
+      <Text as="span">{children}</Text>
       <Icon
         name="ChevronDown"
         size={16}
@@ -176,40 +172,34 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
           flexShrink: 0,
         }}
       />
-    </button>
+    </Clickable>
   );
 }
 
 function AccordionContent({ children, style, ...props }: AccordionContentProps) {
-  const theme = useTheme();
   const { isOpen, contentId, triggerId } = useAccordionItemContext();
 
   return (
-    <div
+    <Box
       id={contentId}
       role="region"
       aria-labelledby={triggerId}
       data-state={isOpen ? 'open' : 'closed'}
       {...props}
+      display="grid"
+      overflow="hidden"
       style={{
-        display: 'grid',
         gridTemplateRows: isOpen ? '1fr' : '0fr',
         transition: transition(['grid-template-rows'], 'normal'),
         ...style,
       }}
     >
-      <div style={{ minHeight: 0, overflow: 'hidden' }}>
-        <div
-          style={{
-            padding: `0 ${theme.space.medium} ${theme.space.medium}`,
-            fontSize: theme.fontSizes.small,
-            color: theme.colors.text.secondary,
-          }}
-        >
+      <Box minHeight={0} overflow="hidden">
+        <Box padding="medium" style={{ paddingTop: 0 }}>
           {children}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

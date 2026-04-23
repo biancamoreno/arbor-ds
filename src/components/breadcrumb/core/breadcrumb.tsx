@@ -1,4 +1,4 @@
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Text } from '../../core';
 import type {
   BreadcrumbRootProps,
   BreadcrumbListProps,
@@ -10,91 +10,86 @@ import type {
 
 function BreadcrumbRoot({ children, label = 'Navegação estrutural', style, ...props }: BreadcrumbRootProps) {
   return (
-    <nav aria-label={label} {...props} style={{ display: 'inline-flex', ...style }}>
+    <Box as="nav" aria-label={label} {...props} display="inline-flex" style={style}>
       {children}
-    </nav>
+    </Box>
   );
 }
 
 function BreadcrumbList({ children, style, ...props }: BreadcrumbListProps) {
   return (
-    <ol
+    <Flex
+      as="ol"
       {...props}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '4px',
-        listStyle: 'none',
-        margin: 0,
-        padding: 0,
-        ...style,
-      }}
+      alignItems="center"
+      flexWrap="wrap"
+      gap="4px"
+      style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}
     >
       {children}
-    </ol>
+    </Flex>
   );
 }
 
 function BreadcrumbItem({ children, style, ...props }: BreadcrumbItemProps) {
   return (
-    <li {...props} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', ...style }}>
+    <Flex
+      as="li"
+      {...props}
+      display="inline-flex"
+      alignItems="center"
+      gap="4px"
+      style={style}
+    >
       {children}
-    </li>
+    </Flex>
   );
 }
 
 function BreadcrumbLink({ children, style, ...props }: BreadcrumbLinkProps) {
-  const theme = useTheme();
   return (
-    <a
+    <Box
+      as="a"
       {...props}
-      style={{
-        color: theme.colors.interactive.default,
-        textDecoration: 'none',
-        fontSize: theme.fontSizes.sm,
-        ...style,
-      }}
+      color="interactive.default"
+      fontSize="sm"
+      style={{ textDecoration: 'none', ...style }}
     >
       {children}
-    </a>
+    </Box>
   );
 }
 
 function BreadcrumbCurrent({ children, style, ...props }: BreadcrumbCurrentProps) {
-  const theme = useTheme();
   return (
-    <span
+    <Text
+      as="span"
       aria-current="page"
       {...props}
-      style={{
-        color: theme.colors.text.primary,
-        fontSize: theme.fontSizes.sm,
-        fontWeight: theme.fontWeights.medium,
-        ...style,
-      }}
+      color="text.primary"
+      fontSize="sm"
+      fontWeight="medium"
+      style={style}
     >
       {children}
-    </span>
+    </Text>
   );
 }
 
 function BreadcrumbSeparator({ children = '/', style, ...props }: BreadcrumbSeparatorProps) {
-  const theme = useTheme();
   return (
-    <span
+    <Text
+      as="span"
       aria-hidden="true"
       role="presentation"
       {...props}
-      style={{
-        color: theme.colors.text.tertiary,
-        fontSize: theme.fontSizes.sm,
-        userSelect: 'none',
-        ...style,
-      }}
+      color="text.tertiary"
+      fontSize="sm"
+      userSelect="none"
+      style={style}
     >
       {children}
-    </span>
+    </Text>
   );
 }
 

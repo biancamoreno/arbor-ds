@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { Box, Flex, Text } from '../../core';
 import { RadioContext, useRadioContext } from '../context/radio-context';
 import { transition } from '../../../ecosystem/utils/functions';
 import type {
@@ -53,15 +54,14 @@ function RadioRoot({
         onChange: () => !effectiveDisabled && setIsChecked(true),
       }}
     >
-      <label
-        style={{
-          display: 'flex',
-          width: '100%',
-          cursor: effectiveDisabled ? 'not-allowed' : 'pointer',
-          opacity: effectiveDisabled ? 0.6 : 1,
-        }}
+      <Box
+        as="label"
+        width="100%"
+        cursor={effectiveDisabled ? 'not-allowed' : 'pointer'}
+        opacity={effectiveDisabled ? 0.6 : 1}
       >
-        <input
+        <Box
+          as="input"
           id={inputId}
           type="radio"
           name={name}
@@ -73,18 +73,19 @@ function RadioRoot({
           aria-invalid={fieldCtx?.isInvalid || undefined}
           aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
           onChange={() => !effectiveDisabled && setIsChecked(true)}
-          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+          position="absolute"
+          opacity={0}
+          pointerEvents="none"
         />
-        <div
+        <Flex
           aria-hidden="true"
+          width="100%"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          borderRadius="medium"
           style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
             gap: theme.space.small,
             padding: sizing.padding,
-            borderRadius: theme.radii.medium,
             border: `1px solid ${isChecked ? theme.colors.brand.base : theme.colors.border.default}`,
             backgroundColor: isChecked ? theme.colors.brand.subtle : theme.colors.surface.default,
             boxShadow: isChecked ? `0 0 0 2px ${theme.colors.brand.subtle}` : 'none',
@@ -92,8 +93,8 @@ function RadioRoot({
           }}
         >
           {children}
-        </div>
-      </label>
+        </Flex>
+      </Box>
     </RadioContext.Provider>
   );
 }
@@ -103,57 +104,56 @@ function RadioIndicator({ style }: RadioIndicatorProps) {
   const ctx = useRadioContext();
 
   return (
-    <span
+    <Flex
+      as="span"
       aria-hidden="true"
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      width={20}
+      height={20}
+      borderRadius="full"
+      flexShrink={0}
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '20px',
-        height: '20px',
-        borderRadius: theme.radii.full,
         border: `1px solid ${ctx.isChecked ? theme.colors.brand.base : theme.colors.border.strong}`,
         backgroundColor: theme.colors.surface.default,
-        flexShrink: 0,
         ...style,
       }}
     >
-      <span
+      <Box
+        as="span"
+        width={10}
+        height={10}
+        borderRadius="full"
         style={{
-          width: '10px',
-          height: '10px',
-          borderRadius: theme.radii.full,
           backgroundColor: ctx.isChecked ? theme.colors.brand.base : 'transparent',
           transition: transition(['background-color'], 'fast'),
         }}
       />
-    </span>
+    </Flex>
   );
 }
 
 function RadioLabel({ children }: RadioLabelProps) {
-  const theme = useTheme();
   return (
-    <span
-      style={{
-        color: theme.colors.text.primary,
-        fontSize: theme.fontSizes.small,
-        fontWeight: theme.fontWeights.medium,
-        flex: 1,
-        minWidth: 0,
-      }}
+    <Text
+      as="span"
+      color="text.primary"
+      fontSize="small"
+      fontWeight="medium"
+      flex={1}
+      style={{ minWidth: 0 }}
     >
       {children}
-    </span>
+    </Text>
   );
 }
 
 function RadioDescription({ children }: RadioDescriptionProps) {
-  const theme = useTheme();
   return (
-    <span style={{ color: theme.colors.text.secondary, fontSize: theme.fontSizes.xsmall }}>
+    <Text as="span" color="text.secondary" fontSize="xsmall">
       {children}
-    </span>
+    </Text>
   );
 }
 

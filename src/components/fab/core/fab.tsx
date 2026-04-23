@@ -1,6 +1,5 @@
 import { useState, useEffect, type CSSProperties } from 'react';
-import { Icon } from '../../core';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Clickable, Text, Icon } from '../../core';
 import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks/use-prefers-reduced-motion';
 import { transition } from '../../../ecosystem/utils/functions/transition';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
@@ -21,7 +20,6 @@ export function FloatingActionButton({
   'aria-label': ariaLabel,
   animateOnMount = true,
 }: FloatingActionButtonProps) {
-  const theme = useTheme();
   const prefersReduced = usePrefersReducedMotion();
   const [mounted, setMounted] = useState(false);
 
@@ -50,17 +48,13 @@ export function FloatingActionButton({
           zIndex: FAB_Z_INDEX,
         };
 
-  const variantMap = {
-    primary: { bg: theme.colors.interactive.default, fg: theme.colors.text.inverse, border: 'none' },
-    secondary: { bg: theme.colors.brand.subtle, fg: theme.colors.text.primary, border: 'none' },
-    surface: {
-      bg: theme.colors.surface.default,
-      fg: theme.colors.text.primary,
-      border: `1px solid ${theme.colors.border.default}`,
-    },
+  const variantTokens = {
+    primary: { bg: 'interactive.default' as const, fg: 'text.inverse' as const },
+    secondary: { bg: 'brand.subtle' as const, fg: 'text.primary' as const },
+    surface: { bg: 'surface.default' as const, fg: 'text.primary' as const },
   };
 
-  const { bg, fg, border } = variantMap[variant];
+  const { bg, fg } = variantTokens[variant];
 
   const animStyle: CSSProperties =
     animateOnMount && !prefersReduced
@@ -74,48 +68,52 @@ export function FloatingActionButton({
       : {};
 
   return (
-    <button
+    <Clickable
+      as="button"
       type="button"
       aria-label={label || ariaLabel}
       disabled={disabled}
       onClick={disabled ? undefined : onPress}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      borderRadius="full"
+      backgroundColor={bg}
+      color={fg}
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      opacity={disabled ? 0.5 : 1}
+      outline="none"
+      borderWidth={variant === 'surface' ? 1 : 0}
+      borderStyle={variant === 'surface' ? 'solid' : undefined}
+      borderColor={variant === 'surface' ? 'border.default' : undefined}
       style={{
         ...positionStyle,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         gap: isExtended ? 8 : 0,
         width: isExtended ? 'auto' : dim,
         height: dim,
         minWidth: dim,
         paddingInline: isExtended ? 16 : 0,
-        borderRadius: 1000,
-        backgroundColor: bg,
-        color: fg,
-        border,
         boxShadow: '0 8px 32px rgba(0,0,0,0.20)',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        outline: 'none',
         fontFamily: 'inherit',
         ...animStyle,
       }}
     >
-      <Icon name={icon} size={iconSize} color={fg} decorative />
+      <Icon name={icon} size={iconSize} decorative />
       {isExtended && (
-        <span
+        <Text
+          as="span"
+          color={fg}
+          whiteSpace="nowrap"
           style={{
             fontSize: 14,
             fontWeight: 500,
             lineHeight: 1,
-            color: fg,
             transition: transition(['opacity'], 'fast'),
-            whiteSpace: 'nowrap',
           }}
         >
           {label}
-        </span>
+        </Text>
       )}
-    </button>
+    </Clickable>
   );
 }

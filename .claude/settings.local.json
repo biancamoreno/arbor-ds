@@ -26,7 +26,8 @@
       "Bash(pnpm changeset *)",
       "Bash(grep -v \"^$\")",
       "Bash(echo \"Exit code: $?\")",
-      "Bash(pnpm typecheck *)"
+      "Bash(pnpm typecheck *)",
+      "Bash(grep -A 15 \"aceita size sm$\")"
     ]
   }
 }

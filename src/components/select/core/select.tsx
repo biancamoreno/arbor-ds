@@ -6,6 +6,7 @@ import React, { useId, useRef, useEffect } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState, useDisclosure } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { Box, Flex, Clickable } from '../../core';
 import { SelectContext, useSelectContext } from '../context/select-context';
 import type {
   SelectRootProps,
@@ -65,7 +66,9 @@ function SelectRoot({
     <SelectContext.Provider
       value={{ isOpen, selectedValue, isDisabled: effectiveDisabled, inputId, size, open, close, select }}
     >
-      <div style={{ position: 'relative', width: '100%' }}>{children}</div>
+      <Box position="relative" width="100%">
+        {children}
+      </Box>
     </SelectContext.Provider>
   );
 }
@@ -85,8 +88,9 @@ function SelectTrigger({ children }: SelectTriggerProps) {
   };
 
   return (
-    <button
-      ref={ref}
+    <Clickable
+      as="button"
+      innerRef={ref}
       type="button"
       id={ctx.inputId}
       role="combobox"
@@ -99,49 +103,49 @@ function SelectTrigger({ children }: SelectTriggerProps) {
       disabled={ctx.isDisabled}
       onClick={() => (ctx.isOpen ? ctx.close() : ctx.open())}
       onKeyDown={handleKeyDown}
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      width="100%"
+      borderRadius="nano"
+      cursor={ctx.isDisabled ? 'not-allowed' : 'pointer'}
+      opacity={ctx.isDisabled ? 0.6 : 1}
+      outline="none"
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '100%',
         height: triggerHeight[ctx.size],
         padding: triggerPadding[ctx.size],
         fontSize: triggerFontSize[ctx.size],
-        borderRadius: theme.radii.nano,
         border: `1px solid ${fieldCtx?.isInvalid ? theme.colors.feedback.critical.base : theme.colors.border.default}`,
         backgroundColor: theme.colors.surface.default,
         color: theme.colors.text.primary,
-        cursor: ctx.isDisabled ? 'not-allowed' : 'pointer',
-        opacity: ctx.isDisabled ? 0.6 : 1,
-        outline: 'none',
         boxSizing: 'border-box',
       }}
     >
       {children}
-      <span aria-hidden="true" style={{ marginLeft: 8, fontSize: 10 }}>
+      <Box as="span" aria-hidden="true" style={{ marginLeft: 8, fontSize: 10 }}>
         {ctx.isOpen ? '▲' : '▼'}
-      </span>
-    </button>
+      </Box>
+    </Clickable>
   );
 }
 
 function SelectValue({ placeholder = 'Select...' }: SelectValueProps) {
-  const theme = useTheme();
   const ctx = useSelectContext();
 
   return (
-    <span
+    <Box
+      as="span"
+      flex={1}
+      textOverflow="ellipsis"
+      whiteSpace="nowrap"
       style={{
-        flex: 1,
         textAlign: 'left',
-        color: ctx.selectedValue ? theme.colors.text.primary : theme.colors.text.tertiary,
         overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+        color: ctx.selectedValue ? 'inherit' : undefined,
       }}
     >
       {ctx.selectedValue || placeholder}
-    </span>
+    </Box>
   );
 }
 
@@ -173,11 +177,14 @@ function SelectContent({ children }: SelectContentProps) {
   if (!ctx.isOpen) return null;
 
   return (
-    <ul
-      ref={ref}
+    <Box
+      as="ul"
+      innerRef={ref}
       role="listbox"
+      position="absolute"
+      backgroundColor="surface.default"
+      borderRadius="nano"
       style={{
-        position: 'absolute',
         top: '100%',
         left: 0,
         right: 0,
@@ -185,16 +192,14 @@ function SelectContent({ children }: SelectContentProps) {
         margin: '4px 0 0',
         padding: '4px 0',
         listStyle: 'none',
-        backgroundColor: theme.colors.surface.default,
         border: `1px solid ${theme.colors.border.default}`,
-        borderRadius: theme.radii.nano,
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         maxHeight: '200px',
         overflowY: 'auto',
       }}
     >
       {children}
-    </ul>
+    </Box>
   );
 }
 
@@ -204,30 +209,30 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
   const isSelected = ctx.selectedValue === value;
 
   return (
-    <li
+    <Flex
+      as="li"
       role="option"
       aria-selected={isSelected}
       aria-disabled={disabled || undefined}
       onClick={() => !disabled && ctx.select(value)}
-      onKeyDown={(e) => {
+      onKeyDown={(e: React.KeyboardEvent) => {
         if ((e.key === 'Enter' || e.key === ' ') && !disabled) ctx.select(value);
       }}
       tabIndex={disabled ? -1 : 0}
+      alignItems="center"
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      opacity={disabled ? 0.5 : 1}
+      color="text.primary"
+      outline="none"
+      userSelect="none"
       style={{
-        display: 'flex',
-        alignItems: 'center',
         padding: '8px 16px',
         fontSize: 14,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
         backgroundColor: isSelected ? theme.colors.brand.subtle : 'transparent',
-        color: theme.colors.text.primary,
-        outline: 'none',
-        userSelect: 'none',
       }}
     >
       {children}
-    </li>
+    </Flex>
   );
 }
 

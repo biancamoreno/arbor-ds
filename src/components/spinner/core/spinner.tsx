@@ -1,4 +1,5 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Flex } from '../../core';
 import { Icon } from '../../core';
 import type { SpinnerProps } from '../interfaces';
 
@@ -10,22 +11,23 @@ export function Spinner({ size = 'md', color, label = 'Carregando', style, ...pr
   const strokeColor = color ?? theme.colors.brand.base;
 
   return (
-    <span
+    <Flex
+      as="span"
       role="status"
       aria-label={label}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: strokeColor,
-        animation: 'arbor-spin 0.8s linear infinite',
         width: px,
         height: px,
+        color: strokeColor,
+        animation: 'arbor-spin 0.8s linear infinite',
         ...style,
       }}
       {...props}
     >
       <Icon name="LoaderCircle" size={px} color="currentColor" aria-hidden="true" />
-    </span>
+    </Flex>
   );
 }

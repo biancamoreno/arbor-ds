@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { transition } from '../../../ecosystem/utils/functions';
+import { Box, Flex, Text } from '../../core';
 import type { RadioCardProps } from '../interfaces';
 
 const sizeMap = {
@@ -46,17 +47,15 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
     const sizing = sizeMap[size];
 
     return (
-      <label
-        style={{
-          display: 'flex',
-          width: '100%',
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          opacity: disabled ? 0.6 : 1,
-        }}
+      <Box
+        as="label"
+        width="100%"
+        cursor={disabled ? 'not-allowed' : 'pointer'}
+        opacity={disabled ? 0.6 : 1}
       >
-        <input
-          {...rest}
-          ref={ref}
+        <Box
+          as="input"
+          innerRef={ref}
           id={id}
           type="radio"
           name={name}
@@ -64,33 +63,25 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
           checked={isChecked}
           disabled={disabled}
           onChange={() => {
-            if (disabled) {
-              return;
-            }
-
-            if (checked === undefined) {
-              setInternalChecked(true);
-            }
-
+            if (disabled) return;
+            if (checked === undefined) setInternalChecked(true);
             onCheckedChange?.(true, value);
           }}
-          style={{
-            position: 'absolute',
-            opacity: 0,
-            pointerEvents: 'none',
-          }}
+          position="absolute"
+          opacity={0}
+          pointerEvents="none"
+          {...rest}
         />
-        <div
+        <Flex
           aria-checked={isChecked}
           role="radio"
+          width="100%"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          borderRadius="medium"
           style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
             gap: theme.space.small,
             padding: sizing.padding,
-            borderRadius: theme.radii.medium,
             border: `1px solid ${isChecked ? theme.colors.brand.base : theme.colors.border.default}`,
             backgroundColor: isChecked ? theme.colors.brand.subtle : theme.colors.surface.default,
             boxShadow: isChecked ? `0 0 0 2px ${theme.colors.brand.subtle}` : 'none',
@@ -98,53 +89,57 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
             ...style,
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
-            <span
+          <Flex flexDirection="column" gap="6px" style={{ minWidth: 0 }}>
+            <Text
+              as="span"
+              fontWeight="medium"
               style={{
                 color: theme.colors.text.primary,
                 fontSize: sizing.titleSize,
-                fontWeight: theme.fontWeights.medium,
               }}
             >
               {label}
-            </span>
+            </Text>
             {description && (
-              <span
+              <Text
+                as="span"
                 style={{
                   color: theme.colors.text.secondary,
                   fontSize: sizing.descriptionSize,
                 }}
               >
                 {description}
-              </span>
+              </Text>
             )}
-            {children && <div>{children}</div>}
-          </div>
-          <span
+            {children && <Box>{children}</Box>}
+          </Flex>
+          <Flex
+            as="span"
             aria-hidden="true"
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            width={20}
+            height={20}
+            borderRadius="full"
+            flexShrink={0}
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '20px',
-              height: '20px',
-              borderRadius: theme.radii.full,
               border: `1px solid ${isChecked ? theme.colors.brand.base : theme.colors.border.strong}`,
               backgroundColor: theme.colors.surface.default,
-              flexShrink: 0,
             }}
           >
-            <span
+            <Box
+              as="span"
+              width={10}
+              height={10}
+              borderRadius="full"
               style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: theme.radii.full,
                 backgroundColor: isChecked ? theme.colors.brand.base : 'transparent',
               }}
             />
-          </span>
-        </div>
-      </label>
+          </Flex>
+        </Flex>
+      </Box>
     );
   },
 );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clickable } from '../../core';
 import { useDrawerContext } from '../context/drawer-context';
 import type { DrawerTriggerProps } from '../interfaces/DrawerProps';
 
@@ -19,8 +20,8 @@ export function DrawerTrigger({ children, asChild = false }: DrawerTriggerProps)
   }
 
   return (
-    <button type="button" onClick={open}>
+    <Clickable as="button" type="button" onClick={open}>
       {children}
-    </button>
+    </Clickable>
   );
 }

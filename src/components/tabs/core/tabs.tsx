@@ -1,5 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Clickable } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { transition } from '../../../ecosystem/utils/functions';
 import { TabsContext, useTabsContext } from '../context/tabs-context';
@@ -53,16 +54,13 @@ function TabsRoot({
     <TabsContext.Provider
       value={{ activeValue, setActive: setActiveValue, registerTrigger, unregisterTrigger, focusNext, focusPrev, orientation }}
     >
-      <div
+      <Flex
         {...props}
-        style={{
-          display: 'flex',
-          flexDirection: orientation === 'vertical' ? 'row' : 'column',
-          ...style,
-        }}
+        flexDirection={orientation === 'vertical' ? 'row' : 'column'}
+        style={style}
       >
         {children}
-      </div>
+      </Flex>
     </TabsContext.Provider>
   );
 }
@@ -72,14 +70,14 @@ function TabsList({ children, variant = 'underline', fullWidth = false, style, .
   const { orientation } = useTabsContext();
 
   return (
-    <div
+    <Flex
       role="tablist"
       aria-orientation={orientation}
       {...props}
+      flexDirection={orientation === 'vertical' ? 'column' : 'row'}
+      gap="2px"
+      flexShrink={0}
       style={{
-        display: 'flex',
-        flexDirection: orientation === 'vertical' ? 'column' : 'row',
-        gap: '2px',
         borderBottom: variant === 'underline' && orientation === 'horizontal'
           ? `1px solid ${theme.colors.border.subtle}`
           : 'none',
@@ -87,7 +85,6 @@ function TabsList({ children, variant = 'underline', fullWidth = false, style, .
           ? `1px solid ${theme.colors.border.subtle}`
           : 'none',
         flexWrap: orientation === 'horizontal' ? 'wrap' : undefined,
-        flexShrink: 0,
         ...style,
       }}
     >
@@ -100,7 +97,7 @@ function TabsList({ children, variant = 'underline', fullWidth = false, style, .
               : child
           )
         : children}
-    </div>
+    </Flex>
   );
 }
 
@@ -124,8 +121,9 @@ function TabsTrigger({ children, value, size = 'md', disabled, style, ...props }
   };
 
   return (
-    <button
-      ref={ref}
+    <Clickable
+      as="button"
+      innerRef={ref}
       type="button"
       role="tab"
       id={`tab-trigger-${value}`}
@@ -136,11 +134,13 @@ function TabsTrigger({ children, value, size = 'md', disabled, style, ...props }
       onClick={() => { if (!disabled) setActive(value); }}
       onKeyDown={handleKeyDown}
       {...props}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      gap="6px"
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      opacity={disabled ? 0.5 : 1}
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '6px',
         padding: size === 'sm' ? '8px 12px' : '10px 16px',
         border: 'none',
         borderBottom: `2px solid ${isActive ? theme.colors.brand.base : 'transparent'}`,
@@ -149,39 +149,33 @@ function TabsTrigger({ children, value, size = 'md', disabled, style, ...props }
         color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
         fontSize: size === 'sm' ? theme.fontSizes.xsmall : theme.fontSizes.small,
         fontWeight: isActive ? theme.fontWeights.medium : theme.fontWeights.regular,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
         whiteSpace: 'nowrap',
         transition: transition(['color', 'border-color'], 'fast'),
         ...style,
       }}
     >
       {children}
-    </button>
+    </Clickable>
   );
 }
 
 function TabsContent({ children, value, style, ...props }: TabsContentProps) {
-  const theme = useTheme();
   const { activeValue } = useTabsContext();
   if (activeValue !== value) return null;
 
   return (
-    <div
+    <Box
       role="tabpanel"
       id={`tab-panel-${value}`}
       aria-labelledby={`tab-trigger-${value}`}
       tabIndex={0}
       {...props}
-      style={{
-        color: theme.colors.text.primary,
-        padding: `${theme.space.medium} 0`,
-        outline: 'none',
-        ...style,
-      }}
+      color="text.primary"
+      padding="medium"
+      style={{ paddingLeft: 0, paddingRight: 0, outline: 'none', ...style }}
     >
       {children}
-    </div>
+    </Box>
   );
 }
 

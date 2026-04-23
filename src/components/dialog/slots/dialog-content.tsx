@@ -1,5 +1,7 @@
+import { useEffect, useRef, useState } from 'react';
 import { Portal, FocusScope, DismissableLayer } from '../../../ecosystem/primitives';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Flex } from '../../core';
+import { transition } from '../../../ecosystem/utils/functions';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogContentProps } from '../interfaces/DialogProps';
 
@@ -11,39 +13,55 @@ const sizeMap = {
 
 export function DialogContent({ children, size = 'md' }: DialogContentProps) {
   const { isOpen, close, titleId, descriptionId } = useDialogContext();
-  const theme = useTheme();
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(isOpen);
+  const [visible, setVisible] = useState(false);
+  const frameRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true);
+      frameRef.current = requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setMounted(false), 200);
+      return () => clearTimeout(t);
+    }
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [isOpen]);
+
+  if (!mounted) return null;
 
   return (
     <Portal>
       <DismissableLayer onDismiss={close} disableOutsideClick>
         <FocusScope trapped autoFocus restoreFocus>
-          <div
+          <Flex
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descriptionId}
+            position="fixed"
+            zIndex="modal"
+            flexDirection="column"
+            gap="small"
+            padding="large"
+            borderRadius="large"
+            backgroundColor="surface.raised"
             style={{
-              position: 'fixed',
               top: '50%',
               left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: theme.zIndices.modal,
               width: '90%',
               maxWidth: sizeMap[size],
-              display: 'flex',
-              flexDirection: 'column',
-              gap: theme.space.small,
-              padding: theme.space.large,
-              borderRadius: theme.radii.large,
-              backgroundColor: theme.colors.surface.raised,
               boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
               outline: 'none',
+              transform: `translate(-50%, -50%) scale(${visible ? 1 : 0.95})`,
+              opacity: visible ? 1 : 0,
+              transition: transition(['transform', 'opacity'], 'normal', 'decelerate'),
             }}
           >
             {children}
-          </div>
+          </Flex>
         </FocusScope>
       </DismissableLayer>
     </Portal>

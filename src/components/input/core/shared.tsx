@@ -2,6 +2,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { ArborTheme } from '../../../foundations';
 import { transition } from '../../../ecosystem/utils/functions';
+import { Flex, Box, Text } from '../../core';
 import type { FieldBaseProps, FieldSize } from '../interfaces';
 
 export function getFieldColors(theme: ArborTheme, options: Pick<FieldBaseProps, 'disabled' | 'error' | 'variant'>) {
@@ -76,29 +77,27 @@ export function FieldShell({
   const colors = getFieldColors(theme, { error });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <Flex flexDirection="column" gap="6px">
       {label && (
-        <label
-          style={{
-            color: colors.labelColor,
-            fontSize: theme.fontSizes.xsmall,
-            fontWeight: theme.fontWeights.medium,
-          }}
+        <Box
+          as="label"
+          fontSize="xsmall"
+          fontWeight="medium"
+          style={{ color: colors.labelColor }}
         >
           {label}
-        </label>
+        </Box>
       )}
       {children}
       {(error || helperText) && (
-        <span
-          style={{
-            color: colors.helperColor,
-            fontSize: theme.fontSizes.xsmall,
-          }}
+        <Text
+          as="span"
+          fontSize="xsmall"
+          style={{ color: colors.helperColor }}
         >
           {error ?? helperText}
-        </span>
+        </Text>
       )}
-    </div>
+    </Flex>
   );
 }

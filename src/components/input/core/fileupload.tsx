@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Text, Clickable } from '../../core';
 import type { FileUploadProps } from '../interfaces';
 
 export const FileUpload: React.FC<FileUploadProps> = ({
@@ -18,12 +19,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   onRemove,
 }) => {
   const theme = useTheme();
-  const criticalColor = theme.colors.feedback.critical.base;
-  const subtleCriticalColor = theme.colors.feedback.critical.subtle;
-  const borderColor = theme.colors.border.default;
-  const subtleBackgroundColor = theme.colors.background.subtle;
-  const primaryTextColor = theme.colors.text.primary;
-  const secondaryTextColor = theme.colors.text.secondary;
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,13 +52,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
-
     const fileArray = Array.from(files);
     const { valid } = validateFiles(fileArray);
-
-    if (valid.length > 0) {
-      onFileSelect?.(valid);
-    }
+    if (valid.length > 0) onFileSelect?.(valid);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -72,9 +63,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
+  const handleDragLeave = () => setIsDragging(false);
 
   const handleDrop = (e: React.DragEvent) => {
     if (disabled || !dragAndDrop) return;
@@ -84,9 +73,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const handleClick = () => {
-    if (!disabled) {
-      fileInputRef.current?.click();
-    }
+    if (!disabled) fileInputRef.current?.click();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,148 +81,119 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+    <Flex flexDirection="column" gap="micro">
       {label && (
-        <label
-          style={{
-            fontSize: theme.fontSizes.xsmall,
-            fontWeight: 600,
-            color: error ? criticalColor : primaryTextColor,
-          }}
+        <Box
+          as="label"
+          fontSize="xsmall"
+          fontWeight="semibold"
+          color={error ? 'feedback.critical.base' : 'text.primary'}
         >
           {label}
-        </label>
+        </Box>
       )}
 
       {previewUrl && preview ? (
-        <div
-          style={{
-            border: `1px solid ${borderColor}`,
-            borderRadius: theme.radii.medium,
-            padding: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
+        <Flex
+          alignItems="center"
+          gap="small"
+          borderRadius="medium"
+          borderWidth={1}
+          borderStyle="solid"
+          borderColor="border.default"
+          style={{ padding: '1rem' }}
         >
-          <img
+          <Box
+            as="img"
             src={previewUrl}
             alt="Preview"
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: theme.radii.small,
-              objectFit: 'cover',
-            }}
+            borderRadius="small"
+            style={{ width: '80px', height: '80px', objectFit: 'cover' }}
           />
-          <div style={{ flex: 1 }}>
-            <p
-              style={{
-                fontSize: theme.fontSizes.small,
-                fontWeight: 500,
-                color: primaryTextColor,
-                margin: 0,
-              }}
-            >
+          <Box flex={1}>
+            <Text as="p" fontSize="small" fontWeight="medium" color="text.primary" style={{ margin: 0 }}>
               File uploaded
-            </p>
-          </div>
-          <button
+            </Text>
+          </Box>
+          <Clickable
+            as="button"
             type="button"
             onClick={onRemove}
-            style={{
-              padding: '0.5rem 1rem',
-              border: `1px solid ${criticalColor}`,
-              borderRadius: theme.radii.small,
-              backgroundColor: 'transparent',
-              color: criticalColor,
-              cursor: 'pointer',
-              fontSize: theme.fontSizes.small,
-            }}
+            borderRadius="small"
+            fontSize="small"
+            backgroundColor="transparent"
+            color="feedback.critical.base"
+            borderWidth={1}
+            borderStyle="solid"
+            borderColor="feedback.critical.base"
+            cursor="pointer"
+            style={{ padding: '0.5rem 1rem' }}
           >
             Remove
-          </button>
-        </div>
+          </Clickable>
+        </Flex>
       ) : (
-        <div
+        <Flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          gap="micro"
+          borderRadius="medium"
+          opacity={disabled ? 0.5 : 1}
+          cursor={disabled ? 'not-allowed' : 'pointer'}
           onClick={handleClick}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           style={{
-            border: `2px dashed ${isDragging ? theme.colors.brand.base : error ? criticalColor : borderColor}`,
-            borderRadius: theme.radii.medium,
+            border: `2px dashed ${isDragging ? theme.colors.brand.base : error ? theme.colors.feedback.critical.base : theme.colors.border.default}`,
             padding: '2rem',
             backgroundColor: isDragging
               ? theme.colors.brand.subtle
               : error
-              ? subtleCriticalColor
-              : subtleBackgroundColor,
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            opacity: disabled ? 0.5 : 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
+              ? theme.colors.feedback.critical.subtle
+              : theme.colors.background.subtle,
             transition: 'all 0.2s',
           }}
         >
           {loading ? (
             <>
-              <span style={{ fontSize: '2rem' }}>⏳</span>
-              <p style={{ fontSize: theme.fontSizes.small, color: secondaryTextColor }}>
+              <Box as="span" style={{ fontSize: '2rem' }}>⏳</Box>
+              <Text as="p" fontSize="small" color="text.secondary" style={{ margin: 0 }}>
                 Uploading...
-              </p>
+              </Text>
             </>
           ) : (
             <>
-              <span style={{ fontSize: '2rem' }}>📤</span>
-              <p
-                style={{
-                  fontSize: theme.fontSizes.small,
-                  fontWeight: 600,
-                  color: primaryTextColor,
-                  margin: 0,
-                }}
-              >
+              <Box as="span" style={{ fontSize: '2rem' }}>📤</Box>
+              <Text as="p" fontSize="small" fontWeight="semibold" color="text.primary" style={{ margin: 0 }}>
                 Drag and drop or click to upload
-              </p>
-              <p
-                style={{
-                  fontSize: theme.fontSizes.xsmall,
-                  color: secondaryTextColor,
-                  margin: 0,
-                }}
-              >
+              </Text>
+              <Text as="p" fontSize="xsmall" color="text.secondary" style={{ margin: 0 }}>
                 Maximum {formatFileSize(maxSize)}
-              </p>
+              </Text>
             </>
           )}
-        </div>
+        </Flex>
       )}
 
-      <input
-        ref={fileInputRef}
+      <Box
+        as="input"
+        innerRef={fileInputRef as React.Ref<unknown>}
         type="file"
         accept={accept}
         multiple={multiple}
         onChange={handleChange}
         disabled={disabled}
-        style={{ display: 'none' }}
+        display="none"
       />
 
       {error && (
-        <span
-          style={{
-            fontSize: theme.fontSizes.xsmall,
-            color: criticalColor,
-          }}
-        >
+        <Text as="span" fontSize="xsmall" color="feedback.critical.base">
           {error}
-        </span>
+        </Text>
       )}
-    </div>
+    </Flex>
   );
 };
 

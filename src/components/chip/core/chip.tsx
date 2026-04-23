@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { Box, Flex, Clickable } from '../../core';
 import { Icon } from '../../core';
 import { ChipContext, useChipContext } from '../context/chip-context';
 import type { ChipRootProps, ChipLabelProps, ChipIconProps, ChipRemoveProps } from '../interfaces';
@@ -15,16 +16,8 @@ function getChipStyle(
 
   if (variant === 'filled') {
     return selected
-      ? {
-          backgroundColor: isBrand ? c.brand.base : c.text.primary,
-          color: c.text.inverse,
-          borderColor: 'transparent',
-        }
-      : {
-          backgroundColor: isBrand ? c.brand.subtle : c.background.subtle,
-          color: isBrand ? c.brand.strong : c.text.primary,
-          borderColor: 'transparent',
-        };
+      ? { backgroundColor: isBrand ? c.brand.base : c.text.primary, color: c.text.inverse, borderColor: 'transparent' }
+      : { backgroundColor: isBrand ? c.brand.subtle : c.background.subtle, color: isBrand ? c.brand.strong : c.text.primary, borderColor: 'transparent' };
   }
 
   if (variant === 'outlined') {
@@ -35,7 +28,6 @@ function getChipStyle(
     };
   }
 
-  // subtle (default)
   return {
     backgroundColor: selected ? (isBrand ? c.brand.subtle : c.background.interactive) : 'transparent',
     color: selected ? (isBrand ? c.brand.strong : c.text.primary) : c.text.secondary,
@@ -60,80 +52,78 @@ function ChipRoot({
 
   return (
     <ChipContext.Provider value={{ variant, tone, selected, disabled }}>
-      <span
+      <Flex
+        as="span"
         {...props}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          borderRadius: theme.radii.full,
-          borderWidth: '1px',
-          borderStyle: 'solid',
-          padding,
-          fontSize,
-          fontWeight: theme.fontWeights.medium,
-          lineHeight: 1.4,
-          whiteSpace: 'nowrap',
-          cursor: disabled ? 'not-allowed' : 'default',
-          opacity: disabled ? Number(theme.opacity.medium) : 1,
-          ...chipStyle,
-          ...style,
-        }}
+        display="inline-flex"
+        alignItems="center"
+        gap="4px"
+        borderRadius="full"
+        borderWidth={1}
+        borderStyle="solid"
+        fontWeight="medium"
+        cursor={disabled ? 'not-allowed' : 'default'}
+        opacity={disabled ? Number(theme.opacity.medium) : 1}
+        style={{ padding, fontSize, lineHeight: 1.4, whiteSpace: 'nowrap', ...chipStyle, ...style }}
       >
         {children}
-      </span>
+      </Flex>
     </ChipContext.Provider>
   );
 }
 
 function ChipLabel({ children, style, ...props }: ChipLabelProps) {
   return (
-    <span {...props} style={{ lineHeight: 'inherit', ...style }}>
+    <Box as="span" {...props} style={{ lineHeight: 'inherit', ...style }}>
       {children}
-    </span>
+    </Box>
   );
 }
 
 function ChipIcon({ children, style, ...props }: ChipIconProps) {
   return (
-    <span
+    <Flex
+      as="span"
       aria-hidden="true"
       {...props}
-      style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0, ...style }}
+      display="inline-flex"
+      alignItems="center"
+      flexShrink={0}
+      style={style}
     >
       {children}
-    </span>
+    </Flex>
   );
 }
 
 function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
-  const theme = useTheme();
   const { disabled } = useChipContext();
 
   return (
-    <button
+    <Clickable
+      as="button"
       type="button"
       aria-label={label}
       disabled={disabled}
       {...props}
+      display="inline-flex"
+      alignItems="center"
+      justifyContent="center"
+      width={14}
+      height={14}
+      flexShrink={0}
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      color="inherit"
+      borderRadius="full"
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '14px',
-        height: '14px',
         padding: 0,
         border: 'none',
         background: 'none',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        color: 'inherit',
-        borderRadius: theme.radii.full,
-        flexShrink: 0,
         ...style,
       }}
     >
       <Icon name="X" size={12} aria-hidden="true" />
-    </button>
+    </Clickable>
   );
 }
 
