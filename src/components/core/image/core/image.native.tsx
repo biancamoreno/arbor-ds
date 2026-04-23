@@ -52,3 +52,5 @@ export function Image({
     />
   );
 }
+
+Image.displayName = 'Image';

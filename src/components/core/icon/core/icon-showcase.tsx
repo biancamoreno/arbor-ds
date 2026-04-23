@@ -1,6 +1,10 @@
 import { useState, useCallback } from 'react';
 import { icons } from 'lucide-react';
 import { Icon } from './icon';
+import { Box } from '../../box';
+import { Flex } from '../../flex';
+import { Text } from '../../text';
+import { Clickable } from '../../clickable';
 import type { IconName } from '../interfaces/IconName';
 
 const ALL_NAMES = Object.keys(icons) as IconName[];
@@ -31,13 +35,14 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
   }, []);
 
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', padding: 24 }}>
-      <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
-        <input
+    <Box fontFamily="sans-serif" padding="24px">
+      <Flex alignItems="center" gap="12px" marginBottom="20px">
+        <Box
+          as="input"
           type="text"
           placeholder="Buscar ícone..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
           style={{
             padding: '8px 12px',
             border: '1px solid #d1d5db',
@@ -47,49 +52,41 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
             outline: 'none',
           }}
         />
-        <span style={{ fontSize: 13, color: '#6b7280' }}>
+        <Text as="span" fontSize={13} color="#6b7280">
           {filtered.length} de {ALL_NAMES.length} ícones
-        </span>
-      </div>
+        </Text>
+      </Flex>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))',
-          gap: 4,
-        }}
+      <Box
+        display="grid"
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))', gap: 4 }}
       >
         {filtered.map((name) => (
-          <button
+          <Clickable
             key={name}
             title={`Copiar <Icon name="${name}" />`}
             onClick={() => handleCopy(name)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 6,
-              padding: '12px 8px',
-              border: '1px solid transparent',
-              borderRadius: 8,
-              background: copied === name ? '#d1fae5' : 'transparent',
-              cursor: 'pointer',
-              transition: 'background 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              if (copied !== name) (e.currentTarget as HTMLElement).style.background = '#f3f4f6';
-            }}
-            onMouseLeave={(e) => {
-              if (copied !== name) (e.currentTarget as HTMLElement).style.background = 'transparent';
-            }}
+            flexDirection="column"
+            alignItems="center"
+            gap="6px"
+            padding="12px 8px"
+            borderRadius="8px"
+            backgroundColor={copied === name ? '#d1fae5' : 'transparent'}
+            transition="background 0.15s"
           >
             <Icon name={name} size={size} color={color} strokeWidth={strokeWidth} decorative />
-            <span style={{ fontSize: 10, color: '#6b7280', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-all' }}>
+            <Text
+              as="span"
+              fontSize={10}
+              color="#6b7280"
+              textAlign="center"
+              style={{ lineHeight: 1.3, wordBreak: 'break-all' }}
+            >
               {copied === name ? '✓ copiado' : toKebab(name)}
-            </span>
-          </button>
+            </Text>
+          </Clickable>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

@@ -8,6 +8,8 @@ export function Image({
   style,
   testID,
   alt,
+  width,
+  height,
   ...props
 }: ImageProps) {
   if (children) {
@@ -31,17 +33,16 @@ export function Image({
 
   return (
     <Box
-      as={'img' }
+      as={'img'}
       src={source}
-      style={{
-        objectFit: resizeMode === 'stretch' ? undefined : resizeMode,
-        width: props.width,
-        height: props.height,
-        ...style,
-      }}
+      width={width}
+      height={height}
+      style={{ objectFit: resizeMode !== 'stretch' ? resizeMode : undefined, ...style }}
       data-testid={testID}
       alt={alt}
       {...props}
     />
   );
 }
+
+Image.displayName = 'Image';

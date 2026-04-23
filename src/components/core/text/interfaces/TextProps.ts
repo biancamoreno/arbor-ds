@@ -36,6 +36,6 @@ export interface TextProps<T> extends ArborTransformProps {
       | 's'
       | 'a'
     >;
-  role?: string;
+  role?: React.AriaRole;
   onPress?: () => void | Promise<void>;
 }

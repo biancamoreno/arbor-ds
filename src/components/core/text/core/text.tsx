@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { forwardRef, useMemo } from 'react';
 import { ArborTransform, htmlConverter, TextIterator, useRecipe } from '../../../../ecosystem';
 import { type TextProps } from '../interfaces';
 
-export function Text({
+export const Text = forwardRef<HTMLElement, TextProps<string>>(function Text({
   variant = 'caption',
   isTruncated: _isTruncated,
   numberOfLines,
@@ -10,7 +10,7 @@ export function Text({
   children,
   onLinkPress,
   ...props
-}: TextProps<string>) {
+}: TextProps<string>, ref) {
   const styles = useRecipe('text', { variant });
   const lineHeight = (styles as Record<string, unknown>).lineHeight as string | undefined;
 
@@ -41,8 +41,11 @@ export function Text({
       {...styles}
       {...(numberOfLines ? truncatedProps : {})}
       {...props}
+      innerRef={ref}
     >
       {htmlElements.length > 0 ? <TextIterator variant={variant} elements={htmlElements} /> : children}
     </ArborTransform>
   );
-}
+});
+
+Text.displayName = 'Text';

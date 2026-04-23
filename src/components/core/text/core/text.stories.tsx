@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Flex } from '../../flex';
 import { Text } from './text';
 
 const meta = {
@@ -19,7 +20,8 @@ export const AsHeading: Story = {
   args: {
     as: 'h1',
     children: 'Título H1',
-    style: { fontSize: 32, fontWeight: 700 },
+    fontSize: 32,
+    fontWeight: 700,
   },
 };
 
@@ -27,18 +29,19 @@ export const AsLabel: Story = {
   args: {
     as: 'label',
     children: 'Rótulo de formulário',
-    style: { fontSize: 14, fontWeight: 500 },
+    fontSize: 14,
+    fontWeight: 500,
   },
 };
 
 export const Scale: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <Flex flexDirection="column" gap="8px">
       {(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span'] as const).map((tag) => (
         <Text key={tag} as={tag}>
           {tag} — Arbor DS Typography
         </Text>
       ))}
-    </div>
+    </Flex>
   ),
 };

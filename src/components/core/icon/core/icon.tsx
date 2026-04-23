@@ -29,3 +29,5 @@ export function Icon({
     />
   );
 }
+
+Icon.displayName = 'Icon';

@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 /**
  * @platform native-ready
  * Componente de imagem com implementação dedicada para web (`image.tsx`) e React Native (`image.native.tsx`).
@@ -8,7 +10,7 @@ export type ImageProps = {
   width?: number | string;
   height?: number | string;
   resizeMode?: ResizeMode;
-  style?: object;
+  style?: CSSProperties;
   children?: React.ReactNode;
   testID?: string;
   alt?: string;

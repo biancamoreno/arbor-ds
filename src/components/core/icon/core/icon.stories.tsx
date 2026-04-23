@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Icon } from './icon';
 import { IconShowcase } from './icon-showcase';
+import { Flex } from '../../flex';
+import { Text } from '../../text';
 
 const meta = {
   title: '🌳 Arbor DS/Foundations/Icons',
@@ -57,26 +59,26 @@ export const Semantic: Story = {
 
 export const SizeVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+    <Flex alignItems="center" gap="16px">
       {([16, 20, 24, 32, 48] as const).map((s) => (
-        <div key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <Flex key={s} flexDirection="column" alignItems="center" gap="4px">
           <Icon name="Star" size={s} decorative />
-          <span style={{ fontSize: 11, color: '#6b7280' }}>{s}px</span>
-        </div>
+          <Text as="span" fontSize={11} color="#6b7280">{s}px</Text>
+        </Flex>
       ))}
-    </div>
+    </Flex>
   ),
 };
 
 export const StrokeVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+    <Flex alignItems="center" gap="24px">
       {([1, 1.5, 1.75, 2] as const).map((sw) => (
-        <div key={sw} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <Flex key={sw} flexDirection="column" alignItems="center" gap="4px">
           <Icon name="Circle" size={24} strokeWidth={sw} decorative />
-          <span style={{ fontSize: 11, color: '#6b7280' }}>{sw}</span>
-        </div>
+          <Text as="span" fontSize={11} color="#6b7280">{sw}</Text>
+        </Flex>
       ))}
-    </div>
+    </Flex>
   ),
 };

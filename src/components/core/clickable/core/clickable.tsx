@@ -3,7 +3,7 @@ import { Flex } from '../../flex';
 import { TapState, type TapStateRef } from '../../../../ecosystem';
 import { type ClickableProps } from '../interfaces';
 
-export const Clickable: React.ForwardRefExoticComponent<ClickableProps & React.RefAttributes<unknown>> = forwardRef(
+export const Clickable: React.ForwardRefExoticComponent<ClickableProps & React.RefAttributes<HTMLElement>> = forwardRef(
   (
     { as = 'button' , tapState, onClick, ...props }: ClickableProps,
     ref,
@@ -26,11 +26,11 @@ export const Clickable: React.ForwardRefExoticComponent<ClickableProps & React.R
         as={as}
         innerRef={setRef}
         data-testid={props.testID}
+        onClick={onClick}
+        {...props}
         display={'flex'}
         cursor={'pointer'}
         border={'none'}
-        onClick={onClick}
-        {...props}
       >
         {tapState && <TapState ref={tapStateRef} {...tapState} />}
         {props.children}
@@ -38,3 +38,5 @@ export const Clickable: React.ForwardRefExoticComponent<ClickableProps & React.R
     );
   },
 );
+
+Clickable.displayName = 'Clickable';

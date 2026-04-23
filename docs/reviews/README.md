@@ -21,7 +21,7 @@ Componentes são revisados por **dependência arquitetural** (montante → jusan
 | **R0** | Setup da rubrica e índice | — | ✅ concluído |
 | **R1** | Auditoria de foundations | [R1-foundations](./R1-foundations.md) | ✅ concluído |
 | **R2** | Core — layout primitives | [R2 consolidação](./R2-core-layout.md) · [Box](./box.md) · [Flex](./flex.md) · [Grid](./grid.md) · [Container](./container.md) · [Center](./center.md) · [Square](./square.md) · [Circle](./circle.md) · [Spacer](./spacer.md) · [Empty](./empty.md) | ✅ concluído |
-| **R3** | Core — cross-platform primitives | [Text](./text.md) · [Clickable](./clickable.md) · [Icon](./icon.md) · [Image](./image.md) | ⏳ pendente |
+| **R3** | Core — cross-platform primitives | [R3 consolidação](./R3-core-cross-platform.md) · [Text](./text.md) · [Clickable](./clickable.md) · [Icon](./icon.md) · [Image](./image.md) | ✅ concluído |
 | **R4** | Botões e triggers | [Button](./button.md) · [ButtonGroup](./button-group.md) · [FloatingActionButton](./fab.md) | ⏳ pendente |
 | **R5** | Formulário — base | [Field](./field.md) · [Input](./input.md) | ⏳ pendente |
 | **R6** | Formulário — seleção | [Checkbox](./checkbox.md) · [Radio](./radio.md) · [RadioCard](./radio-card.md) · [Switch](./switch.md) · [Select](./select.md) | ⏳ pendente |
