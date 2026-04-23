@@ -11,3 +11,5 @@ export function Center<T extends object>(props: CenterProps<T>) {
     />
   );
 }
+
+Center.displayName = 'Center';

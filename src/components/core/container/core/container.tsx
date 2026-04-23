@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ArborTransform, useTheme } from '../../../../ecosystem';
+import type { BaseBreakpointConfig } from '../../../../foundations';
 import type { ContainerProps } from '../interfaces';
 
 export function Container(props: ContainerProps) {
@@ -11,7 +12,7 @@ export function Container(props: ContainerProps) {
       };
     }
     if (props.maxWidth && typeof props.maxWidth === 'string') {
-      return breakpoints?.[Number(props.maxWidth)];
+      return breakpoints?.[props.maxWidth as keyof BaseBreakpointConfig];
     }
     return props.maxWidth;
   }, [props.fluid, props.maxWidth, breakpoints]);
@@ -22,7 +23,7 @@ export function Container(props: ContainerProps) {
       display="block"
       width="100%"
       marginInline="auto"
-      paddingInline="md"
+      paddingInline="medium"
       maxWidth={maxWidth}
       backgroundColor={props.backgroundColor}
       background={props.background}
@@ -31,3 +32,5 @@ export function Container(props: ContainerProps) {
     />
   );
 }
+
+Container.displayName = 'Container';

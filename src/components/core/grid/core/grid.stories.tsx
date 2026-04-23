@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Box } from '../../box';
 import { Grid } from './grid';
 
 const meta = {
@@ -11,32 +12,40 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
-const Cell = ({ children, color = '#4a90e2' }: { children: React.ReactNode; color?: string }) => (
-  <div style={{ padding: 16, background: color, color: '#fff', borderRadius: 4, textAlign: 'center' }}>
+const Cell = ({ children, variant = 'brand' }: { children: React.ReactNode; variant?: 'brand' | 'success' }) => (
+  <Box
+    padding="medium"
+    backgroundColor={variant === 'brand' ? 'semantic.brand.base' : 'semantic.feedback.success.base'}
+    borderRadius="small"
+    color="semantic.text.inverse"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+  >
     {children}
-  </div>
+  </Box>
 );
 
 export const ThreeColumns: Story = {
   render: () => (
-    <Grid templateColumns="repeat(3, 1fr)" columnGap={16} rowGap={16} style={{ width: '100%' }}>
+    <Grid templateColumns="repeat(3, 1fr)" columnGap={16} rowGap={16} width="100%">
       <Cell>1</Cell>
       <Cell>2</Cell>
       <Cell>3</Cell>
-      <Cell color="#2ecc71">4</Cell>
-      <Cell color="#2ecc71">5</Cell>
-      <Cell color="#2ecc71">6</Cell>
+      <Cell variant="success">4</Cell>
+      <Cell variant="success">5</Cell>
+      <Cell variant="success">6</Cell>
     </Grid>
   ),
 };
 
 export const TwoColumns: Story = {
   render: () => (
-    <Grid templateColumns="1fr 2fr" columnGap={16} rowGap={16} style={{ width: '100%' }}>
+    <Grid templateColumns="1fr 2fr" columnGap={16} rowGap={16} width="100%">
       <Cell>Sidebar</Cell>
-      <Cell color="#e74c3c">Conteúdo Principal</Cell>
+      <Cell variant="success">Conteúdo Principal</Cell>
       <Cell>Sidebar 2</Cell>
-      <Cell color="#e74c3c">Conteúdo 2</Cell>
+      <Cell variant="success">Conteúdo 2</Cell>
     </Grid>
   ),
 };

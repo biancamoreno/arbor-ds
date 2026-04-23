@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Box } from '../../box';
 import { Flex } from './flex';
 
 const meta = {
@@ -12,14 +13,20 @@ export default meta;
 type Story = StoryObj;
 
 const Item = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ padding: '8px 16px', background: '#4a90e2', color: '#fff', borderRadius: 4 }}>
+  <Box
+    paddingX="medium"
+    paddingY="small"
+    backgroundColor="semantic.brand.base"
+    borderRadius="small"
+    color="semantic.text.inverse"
+  >
     {children}
-  </div>
+  </Box>
 );
 
 export const Row: Story = {
   render: () => (
-    <Flex style={{ gap: 8, padding: 16 }}>
+    <Flex gap="small" padding="medium">
       <Item>A</Item>
       <Item>B</Item>
       <Item>C</Item>
@@ -29,7 +36,7 @@ export const Row: Story = {
 
 export const Column: Story = {
   render: () => (
-    <Flex style={{ flexDirection: 'column', gap: 8, padding: 16 }}>
+    <Flex flexDirection="column" gap="small" padding="medium">
       <Item>Topo</Item>
       <Item>Meio</Item>
       <Item>Base</Item>
@@ -39,7 +46,13 @@ export const Column: Story = {
 
 export const Centered: Story = {
   render: () => (
-    <Flex style={{ justifyContent: 'center', alignItems: 'center', height: 120, background: '#f5f5f5', gap: 8 }}>
+    <Flex
+      justifyContent="center"
+      alignItems="center"
+      height={120}
+      backgroundColor="semantic.surface.highlight"
+      gap="small"
+    >
       <Item>Centro</Item>
     </Flex>
   ),
@@ -47,7 +60,7 @@ export const Centered: Story = {
 
 export const SpaceBetween: Story = {
   render: () => (
-    <Flex style={{ justifyContent: 'space-between', padding: 16, background: '#f5f5f5' }}>
+    <Flex justifyContent="space-between" padding="medium" backgroundColor="semantic.surface.highlight">
       <Item>Esquerda</Item>
       <Item>Direita</Item>
     </Flex>

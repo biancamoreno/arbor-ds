@@ -474,7 +474,6 @@ const components: ThemeComponents = {
 };
 
 export const baseTheme = {
-  borders: borderWidth,
   borderWidths: borderWidth,
   radii: borderRadius,
   sizes: spacing,

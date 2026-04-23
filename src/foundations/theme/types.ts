@@ -32,7 +32,6 @@ export type ThemeComponents = {
   dialog?: SlotRecipeConfig;
   drawer?: SlotRecipeConfig;
   tooltip?: SlotRecipeConfig;
-  tabs?: SlotRecipeConfig;
   badge?: RecipeConfig;
   alert?: SlotRecipeConfig;
   accordion?: SlotRecipeConfig;

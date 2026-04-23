@@ -6,7 +6,7 @@ export interface BorderProps {
   /**
    * The CSS `border` property
    */
-  border?: ResponsiveValue<Token<Theme['borders']>>;
+  border?: ResponsiveValue<CSS.Property.Border>;
   /**
    * The CSS `border-width` property
    */
@@ -30,12 +30,12 @@ export interface BorderProps {
   /**
    * The CSS `border-top` property
    */
-  borderTop?: ResponsiveValue<Token<Theme['borders']>>;
+  borderTop?: ResponsiveValue<CSS.Property.BorderTop>;
   borderBlockStart?: ResponsiveValue<CSS.Property.BorderBlockStart | number>;
   /**
    * The CSS `border-top-width` property
    */
-  borderTopWidth?: ResponsiveValue<Token<Theme['borders']>>;
+  borderTopWidth?: ResponsiveValue<Token<Theme['borderWidths']> | number>;
   borderBlockStartWidth?: ResponsiveValue<CSS.Property.BorderBlockStartWidth | number>;
   /**
    * The CSS `border-bottom-width` property
@@ -101,20 +101,20 @@ export interface BorderProps {
   /**
    * The CSS `border-right` property
    */
-  borderRight?: ResponsiveValue<Token<Theme['borders']>>;
-  borderEnd?: ResponsiveValue<Token<Theme['borders']>>;
-  borderInlineEnd?: ResponsiveValue<Token<Theme['borders']>>;
+  borderRight?: ResponsiveValue<CSS.Property.BorderRight>;
+  borderEnd?: ResponsiveValue<CSS.Property.BorderInlineEnd>;
+  borderInlineEnd?: ResponsiveValue<CSS.Property.BorderInlineEnd>;
   /**
    * The CSS `border-bottom` property
    */
-  borderBottom?: ResponsiveValue<Token<Theme['borders']>>;
-  borderBlockEnd?: ResponsiveValue<Token<Theme['borders']>>;
+  borderBottom?: ResponsiveValue<CSS.Property.BorderBottom>;
+  borderBlockEnd?: ResponsiveValue<CSS.Property.BorderBlockEnd>;
   /**
    * The CSS `border-left` property
    */
-  borderLeft?: ResponsiveValue<Token<Theme['borders']>>;
-  borderStart?: ResponsiveValue<Token<Theme['borders']>>;
-  borderInlineStart?: ResponsiveValue<Token<Theme['borders']>>;
+  borderLeft?: ResponsiveValue<CSS.Property.BorderLeft>;
+  borderStart?: ResponsiveValue<CSS.Property.BorderInlineStart>;
+  borderInlineStart?: ResponsiveValue<CSS.Property.BorderInlineStart>;
   /**
    * The CSS `border-top-radius` property
    */
@@ -224,11 +224,11 @@ export interface BorderProps {
   /**
    * The CSS `border-right` and `border-left` property
    */
-  borderX?: ResponsiveValue<Token<Theme['borders']>>;
-  borderInline?: ResponsiveValue<Token<Theme['borders']>>;
+  borderX?: ResponsiveValue<CSS.Property.Border>;
+  borderInline?: ResponsiveValue<CSS.Property.BorderInline>;
   /**
    * The CSS `border-top` and `border-bottom` property
    */
-  borderY?: ResponsiveValue<Token<Theme['borders']>>;
-  borderBlock?: ResponsiveValue<Token<Theme['borders']>>;
+  borderY?: ResponsiveValue<CSS.Property.Border>;
+  borderBlock?: ResponsiveValue<CSS.Property.BorderBlock>;
 }

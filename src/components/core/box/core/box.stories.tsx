@@ -17,7 +17,9 @@ type Story = StoryObj;
 export const Default: Story = {
   args: {
     children: 'Box básico',
-    style: { padding: 16, background: '#f0f0f0', borderRadius: 4 },
+    padding: 'small',
+    backgroundColor: 'semantic.surface.highlight',
+    borderRadius: 'medium',
   },
 };
 
@@ -25,19 +27,31 @@ export const AsSection: Story = {
   args: {
     as: 'section',
     children: 'Box renderizado como <section>',
-    style: { padding: 16, border: '2px dashed #aaa', borderRadius: 4 },
+    padding: 'small',
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: 'semantic.border.default',
+    borderRadius: 'medium',
   },
 };
 
 export const Nested: Story = {
   render: () => (
-    <Box style={{ padding: 24, background: '#e8f4fd', borderRadius: 8 }}>
-      <Box style={{ padding: 16, background: '#ffffff', borderRadius: 4, marginBottom: 8 }}>
+    <Box padding="large" backgroundColor="semantic.surface.highlight" borderRadius="large">
+      <Box padding="small" backgroundColor="semantic.surface.default" borderRadius="medium" marginBottom="small">
         Item 1
       </Box>
-      <Box style={{ padding: 16, background: '#ffffff', borderRadius: 4 }}>
+      <Box padding="small" backgroundColor="semantic.surface.default" borderRadius="medium">
         Item 2
       </Box>
+    </Box>
+  ),
+};
+
+export const Responsive: Story = {
+  render: () => (
+    <Box padding={{ base: 'tiny', md: 'medium' }} backgroundColor="semantic.brand.subtle" borderRadius="medium">
+      Padding responsivo: tiny em mobile, medium em md+
     </Box>
   ),
 };

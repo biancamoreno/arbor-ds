@@ -1,23 +1,22 @@
 import { ArborTransform, type ArborTransformProps } from '../../../../ecosystem';
 import { type SquareProps } from '../interfaces';
 
-export function Square<T extends object>({ centerContent = true, ...props }: SquareProps<T>) {
-  const squareProps = centerContent
-    ? {
-        alignItems: 'center' as const,
-        justifyContent: 'center' as const,
-      }
-    : undefined;
+export function Square<T extends object>({ centerContent = true, size, ...rest }: SquareProps<T>) {
+  const centeredProps = centerContent
+    ? { alignItems: 'center' as const, justifyContent: 'center' as const }
+    : {};
 
   return (
     <ArborTransform<T>
-      {...squareProps}
-      {...(props as ArborTransformProps<T>)}
+      {...(rest as ArborTransformProps<T>)}
+      {...centeredProps}
       display="flex"
-      width={props.size}
-      height={props.size}
+      width={size}
+      height={size}
       flexGrow={0}
       flexShrink={0}
     />
   );
 }
+
+Square.displayName = 'Square';

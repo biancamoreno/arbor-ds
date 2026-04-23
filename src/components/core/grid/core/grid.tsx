@@ -1,26 +1,31 @@
 import { ArborTransform, type ArborTransformProps } from '../../../../ecosystem';
+import type { GridProps } from '../interfaces';
 
-/**
- * @platform native-ready
- * Grid layout com implementação dedicada para web (`grid.tsx`) e React Native (`grid.native.tsx`).
- * No native, renderiza como flex-wrap em linha (equivalente funcional sem CSS grid).
- */
-export function Grid<T extends object>(props: ArborTransformProps<T>) {
+export function Grid<T extends object>(props: GridProps<T>) {
+  const {
+    templateColumns, templateRows, templateAreas,
+    columnGap, rowGap, row, column, area,
+    autoFlow, autoRows, autoColumns,
+    ...rest
+  } = props;
+
   return (
     <ArborTransform
-      {...props}
+      {...(rest as ArborTransformProps<T>)}
       display="grid"
-      gridTemplateColumns={props.templateColumns}
-      gridColumnGap={props.columnGap}
-      gridRowGap={props.rowGap}
-      gridRow={props.row}
-      gridColumn={props.column}
-      gridArea={props.area}
-      gridAutoFlow={props.autoFlow}
-      gridAutoRows={props.autoRows}
-      gridAutoColumns={props.autoColumns}
-      gridTemplateRows={props.templateRows}
-      gridTemplateAreas={props.templateAreas}
+      gridTemplateColumns={templateColumns}
+      gridColumnGap={columnGap}
+      gridRowGap={rowGap}
+      gridRow={row}
+      gridColumn={column}
+      gridArea={area}
+      gridAutoFlow={autoFlow}
+      gridAutoRows={autoRows}
+      gridAutoColumns={autoColumns}
+      gridTemplateRows={templateRows}
+      gridTemplateAreas={templateAreas}
     />
   );
 }
+
+Grid.displayName = 'Grid';

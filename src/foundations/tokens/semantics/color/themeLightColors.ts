@@ -46,9 +46,9 @@ export const themeLightColors = {
   },
   feedback: {
     success: {
-      subtle: primitiveColor.aqua['10'],
-      base: primitiveColor.aqua['60'],
-      strong: primitiveColor.aqua['80'],
+      subtle: primitiveColor.emerald['10'],
+      base: primitiveColor.emerald['60'],
+      strong: primitiveColor.emerald['80'],
     },
     warning: {
       subtle: primitiveColor.orange['10'],

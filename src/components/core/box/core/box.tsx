@@ -6,4 +6,5 @@ function BoxComponent<T extends object>(props: BoxProps<T>) {
   return <ArborTransform<T> {...props} />;
 }
 
+BoxComponent.displayName = 'Box';
 export const Box = memo(BoxComponent) as typeof BoxComponent;
