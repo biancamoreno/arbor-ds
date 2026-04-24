@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { Image as RNImage, type ImageStyle, type StyleProp } from 'react-native';
 import { type ImageProps } from '../interfaces';
 
@@ -15,19 +16,10 @@ function toNativeDimension(value: string | number | undefined) {
   return undefined;
 }
 
-export function Image({
-  source,
-  resizeMode = 'cover',
-  style,
-  testID,
-  onError,
-  onLoad,
-  width,
-  height,
-  alt,
-  children,
-  ...props
-}: ImageProps) {
+export const Image = forwardRef<unknown, ImageProps>(function Image(
+  { source, resizeMode = 'cover', style, testID, onError, onLoad, width, height, alt, children, ...props },
+  ref,
+) {
   void children;
 
   const nativeWidth = toNativeDimension(width);
@@ -41,6 +33,7 @@ export function Image({
 
   return (
     <RNImage
+      ref={ref as never}
       source={normalizeSource(source)}
       resizeMode={resizeMode}
       style={imageStyle}
@@ -51,6 +44,6 @@ export function Image({
       {...props}
     />
   );
-}
+});
 
 Image.displayName = 'Image';

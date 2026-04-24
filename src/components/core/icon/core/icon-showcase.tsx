@@ -43,14 +43,12 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
           placeholder="Buscar ícone..."
           value={query}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-          style={{
-            padding: '8px 12px',
-            border: '1px solid #d1d5db',
-            borderRadius: 6,
-            fontSize: 14,
-            width: 280,
-            outline: 'none',
-          }}
+          padding="8px 12px"
+          border="1px solid #d1d5db"
+          borderRadius="6px"
+          fontSize={14}
+          width={280}
+          style={{ outline: 'none' }}
         />
         <Text as="span" fontSize={13} color="#6b7280">
           {filtered.length} de {ALL_NAMES.length} ícones
@@ -59,7 +57,8 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
 
       <Box
         display="grid"
-        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))', gap: 4 }}
+        gap="4px"
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))' }}
       >
         {filtered.map((name) => (
           <Clickable
@@ -80,7 +79,8 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
               fontSize={10}
               color="#6b7280"
               textAlign="center"
-              style={{ lineHeight: 1.3, wordBreak: 'break-all' }}
+              lineHeight={1.3}
+              style={{ wordBreak: 'break-all' }}
             >
               {copied === name ? '✓ copiado' : toKebab(name)}
             </Text>

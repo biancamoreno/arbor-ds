@@ -8,6 +8,7 @@ export * from './icon';
 export * from './image';
 export * from './flex';
 export * from './grid';
+export * from './press-feedback';
 export * from './spacer';
 export * from './square';
 export * from './text';

@@ -28,7 +28,6 @@ export type ThemeComponents = {
   radio?: SlotRecipeConfig;
   switch?: SlotRecipeConfig;
   select?: SlotRecipeConfig;
-  tag?: RecipeConfig;
   dialog?: SlotRecipeConfig;
   drawer?: SlotRecipeConfig;
   tooltip?: SlotRecipeConfig;

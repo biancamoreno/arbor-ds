@@ -6,7 +6,7 @@ import { type ArborTransformProps } from '../../../../ecosystem';
  */
 export type SquareOmitted = 'width' | 'height' | 'w' | 'h';
 
-export type SquareProps<T extends object> = Omit<ArborTransformProps<T>, SquareOmitted> & {
+export type SquareProps = Omit<ArborTransformProps, SquareOmitted> & {
   centerContent?: boolean;
   size?: ArborTransformProps['width'];
 };

@@ -1,6 +1,6 @@
 import type { ArborTransformProps } from '../../../../ecosystem';
 
-export type GridProps<T extends object = object> = ArborTransformProps<T> & {
+export type GridProps = ArborTransformProps & {
   templateColumns?: string;
   templateRows?: string;
   templateAreas?: string;

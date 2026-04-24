@@ -4,7 +4,9 @@ Este diretório hospeda a revisão sistemática do Design System, um componente 
 
 - **Template:** [`_template.md`](./_template.md) — duplique e preencha para cada componente.
 - **Plano mestre:** este arquivo (fases, ordem, status).
-- **Follow-ups:** cada achado vira fix, issue ou RFC — nunca os três no mesmo PR.
+- **Follow-ups consolidados:** [`_followups.md`](./_followups.md) — índice acionável de fixes pendentes, issues e RFCs por fase.
+- **RFCs:** [`docs/rfcs/`](../rfcs/README.md) — registros formais de mudanças sistêmicas.
+- **Convenção:** cada achado vira fix, issue ou RFC — nunca os três no mesmo PR.
 
 ---
 

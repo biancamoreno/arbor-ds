@@ -1,42 +1,39 @@
-import React, { forwardRef, useRef } from 'react';
+import { forwardRef, useEffect, type Ref } from 'react';
 import { Flex } from '../../flex';
-import { TapState, type TapStateRef } from '../../../../ecosystem';
 import { type ClickableProps } from '../interfaces';
 
-export const Clickable: React.ForwardRefExoticComponent<ClickableProps & React.RefAttributes<HTMLElement>> = forwardRef(
-  (
-    { as = 'button' , tapState, onClick, ...props }: ClickableProps,
-    ref,
-  ) => {
-    const buttonRef = useRef<HTMLElement | null>(null);
-    const tapStateRef = useRef<TapStateRef>(null);
+const NATIVELY_INTERACTIVE = new Set(['button', 'a']);
 
-    function setRef(node: HTMLElement | null) {
-      if (!node) return;
-      buttonRef.current = node;
-      if (typeof ref === 'function') {
-        ref(node);
-      } else if (ref) {
-        ref.current = node;
-      }
+export const Clickable = forwardRef<HTMLElement, ClickableProps>(function Clickable(
+  { as = 'button', onClick, ...props },
+  ref,
+) {
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    const tag = typeof as === 'string' ? as : undefined;
+    if (tag && !NATIVELY_INTERACTIVE.has(tag) && !props.role) {
+      console.warn(
+        `[Clickable] as="${tag}" sem prop \`role\` definida. Adicione role="button" (ou semântico) para garantir acessibilidade.`,
+      );
     }
+  }, [as, props.role]);
 
-    return (
-      <Flex
-        as={as}
-        innerRef={setRef}
-        data-testid={props.testID}
-        onClick={onClick}
-        {...props}
-        display={'flex'}
-        cursor={'pointer'}
-        border={'none'}
-      >
-        {tapState && <TapState ref={tapStateRef} {...tapState} />}
-        {props.children}
-      </Flex>
-    );
-  },
-);
+  const legacyRef = props.innerRef as Ref<HTMLElement> | undefined;
+
+  return (
+    <Flex
+      as={as}
+      ref={ref ?? legacyRef}
+      data-testid={props.testID}
+      onClick={onClick}
+      {...props}
+      display={'flex'}
+      cursor={'pointer'}
+      border={'none'}
+    >
+      {props.children}
+    </Flex>
+  );
+});
 
 Clickable.displayName = 'Clickable';

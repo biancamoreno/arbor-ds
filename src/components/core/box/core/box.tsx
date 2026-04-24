@@ -1,10 +1,11 @@
-import { memo } from 'react';
+import { forwardRef, memo, type Ref } from 'react';
 import { ArborTransform } from '../../../../ecosystem';
 import { type BoxProps } from '../interfaces';
 
-function BoxComponent<T extends object>(props: BoxProps<T>) {
-  return <ArborTransform<T> {...props} />;
-}
+const BoxComponent = forwardRef<HTMLElement, BoxProps>(function Box(props, ref) {
+  const legacyRef = props.innerRef as Ref<HTMLElement> | undefined;
+  return <ArborTransform {...props} innerRef={ref ?? legacyRef} />;
+});
 
 BoxComponent.displayName = 'Box';
-export const Box = memo(BoxComponent) as typeof BoxComponent;
+export const Box = memo(BoxComponent);

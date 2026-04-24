@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { forwardRef, useMemo } from 'react';
 import { ArborTransform, useTheme } from '../../../../ecosystem';
 import type { BaseBreakpointConfig } from '../../../../foundations';
 import type { ContainerProps } from '../interfaces';
 
-export function Container(props: ContainerProps) {
+export const Container = forwardRef<HTMLElement, ContainerProps>(function Container(props, ref) {
   const { breakpoints } = useTheme();
   const maxWidth = useMemo(() => {
     if (!props.fluid && !props.maxWidth) {
@@ -20,6 +20,7 @@ export function Container(props: ContainerProps) {
   return (
     <ArborTransform
       as={props.as}
+      innerRef={ref}
       display="block"
       width="100%"
       marginInline="auto"
@@ -31,6 +32,6 @@ export function Container(props: ContainerProps) {
       {...(props.centerContent && { display: 'flex', flexDirection: 'column', alignItems: 'center' })}
     />
   );
-}
+});
 
 Container.displayName = 'Container';

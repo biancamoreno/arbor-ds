@@ -74,6 +74,76 @@ Para um componente ser considerado estável e mergeável:
 - [ ] MDX com uso correto, uso incorreto, props table e notas de a11y.
 - [ ] Changeset criado se a API pública foi modificada.
 
+## Convenções de implementação
+
+Padrões consolidados nas reviews R1–R3 (2026-04-24). Aplicáveis a todo componente novo ou refatoração.
+
+### 1. Invariantes por último
+
+Em primitives com contrato semântico (Center, Square, Circle, Flex, Grid etc.), as props que o componente **garante** (invariantes) vão **depois** do spread de `{...props}`, para impedir que o consumidor sobrescreva o contrato:
+
+```tsx
+// ✅ Correto — invariantes ganham
+<ArborTransform {...props} display="flex" alignItems="center" />
+
+// ❌ Errado — consumidor pode quebrar o contrato
+<ArborTransform display="flex" alignItems="center" {...props} />
+```
+
+### 2. `Omit` das props que o componente controla
+
+Quando uma prop é invariante, `Omit<ArborTransformProps, 'alignItems'>` na interface complementa a blindagem em compile-time:
+
+```tsx
+// CenterProps explicitamente omite props que Center controla
+export type CenterProps = Omit<ArborTransformProps, 'display' | 'alignItems' | 'justifyContent'>;
+```
+
+### 3. `displayName` obrigatório
+
+Todo componente público deve definir `displayName` — incluindo os sem `forwardRef`. Importante para React DevTools, mensagens de erro e snapshots.
+
+```tsx
+export const Box = forwardRef<HTMLElement, BoxProps>(function Box(...) { ... });
+Box.displayName = 'Box';
+```
+
+### 4. `.native.tsx` só quando há divergência real
+
+Primitives que delegam ao `ArborTransform` **não precisam** de `.native.tsx` — o `ArborTransform` já resolve por plataforma via `styled-component.ts` (web) e `styled-component.native.ts` (native). Crie `.native.tsx` apenas quando a implementação **realmente diverge** (ex: `Image` usa `<img>` na web e `<RNImage>` na native).
+
+### 5. Stories usam apenas componentes do DS
+
+Sem `<div>`, `<span>`, `<button>` crus em stories. Sem `style={{...}}` quando há prop declarativa equivalente.
+
+```tsx
+// ❌ Errado
+<div style={{ display: 'flex', gap: '8px' }}>
+  <span style={{ color: 'red' }}>label</span>
+</div>
+
+// ✅ Correto
+<Flex gap="8px">
+  <Text as="span" color="red">label</Text>
+</Flex>
+```
+
+Escape hatch via `style={{...}}` é aceitável apenas para CSS sem prop equivalente (`outline`, `gridTemplateColumns`, `wordBreak`, `backdropFilter` etc.).
+
+### 6. Componentes `platform-split` têm warning de dev para limitações
+
+Componentes com implementações `.tsx` e `.native.tsx` divergentes devem alertar em modo dev sobre props que não funcionam em alguma plataforma:
+
+```tsx
+if (process.env.NODE_ENV !== 'production') {
+  if (color === 'currentColor' && Platform.OS !== 'web') {
+    console.warn('[Icon] color="currentColor" não é suportado em React Native.');
+  }
+}
+```
+
+Exemplos: `Icon.native` para `currentColor`, `Clickable` para `as !== 'button'/'a'` sem `role`.
+
 ## RFCs
 
 Mudanças que afetam API pública, breaking changes ou decisões arquiteturais relevantes requerem RFC.

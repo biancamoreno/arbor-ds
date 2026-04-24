@@ -1,15 +1,18 @@
-import { ArborTransform, type ArborTransformProps } from '../../../../ecosystem';
+import { forwardRef, type Ref } from 'react';
+import { ArborTransform } from '../../../../ecosystem';
 import { type CenterProps } from '../interfaces';
 
-export function Center<T extends object>(props: CenterProps<T>) {
+export const Center = forwardRef<HTMLElement, CenterProps>(function Center(props, ref) {
+  const legacyRef = props.innerRef as Ref<HTMLElement> | undefined;
   return (
-    <ArborTransform<T>
-      {...(props as ArborTransformProps<T>)}
+    <ArborTransform
+      {...props}
+      innerRef={ref ?? legacyRef}
       alignItems="center"
       justifyContent="center"
       display="flex"
     />
   );
-}
+});
 
 Center.displayName = 'Center';

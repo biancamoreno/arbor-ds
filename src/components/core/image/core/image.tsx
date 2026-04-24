@@ -1,20 +1,15 @@
+import { forwardRef } from 'react';
 import { Box } from '../../box';
 import { type ImageProps } from '../interfaces';
 
-export function Image({
-  children,
-  resizeMode = 'cover',
-  source,
-  style,
-  testID,
-  alt,
-  width,
-  height,
-  ...props
-}: ImageProps) {
+export const Image = forwardRef<HTMLElement, ImageProps>(function Image(
+  { children, resizeMode = 'cover', source, style, testID, alt, width, height, ...props },
+  ref,
+) {
   if (children) {
     return (
       <Box
+        ref={ref}
         width={'100%'}
         height={'auto'}
         position={'relative'}
@@ -33,6 +28,7 @@ export function Image({
 
   return (
     <Box
+      ref={ref}
       as={'img'}
       src={source}
       width={width}
@@ -43,6 +39,6 @@ export function Image({
       {...props}
     />
   );
-}
+});
 
 Image.displayName = 'Image';

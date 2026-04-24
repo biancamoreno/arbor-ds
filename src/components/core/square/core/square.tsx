@@ -1,22 +1,26 @@
-import { ArborTransform, type ArborTransformProps } from '../../../../ecosystem';
+import { forwardRef, type Ref } from 'react';
+import { ArborTransform } from '../../../../ecosystem';
 import { type SquareProps } from '../interfaces';
 
-export function Square<T extends object>({ centerContent = true, size, ...rest }: SquareProps<T>) {
+export const Square = forwardRef<HTMLElement, SquareProps>(function Square(props, ref) {
+  const { centerContent = true, size, ...rest } = props;
+  const legacyRef = props.innerRef as Ref<HTMLElement> | undefined;
   const centeredProps = centerContent
     ? { alignItems: 'center' as const, justifyContent: 'center' as const }
     : {};
 
   return (
-    <ArborTransform<T>
-      {...(rest as ArborTransformProps<T>)}
+    <ArborTransform
+      {...rest}
       {...centeredProps}
+      innerRef={ref ?? legacyRef}
       display="flex"
-      width={size}
-      height={size}
+      width={size as SquareProps['size']}
+      height={size as SquareProps['size']}
       flexGrow={0}
       flexShrink={0}
     />
   );
-}
+});
 
 Square.displayName = 'Square';
