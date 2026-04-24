@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex } from '../../core';
 import { transition } from '../../../ecosystem/utils/functions';
 import type { SwitchRootProps, SwitchSize } from '../interfaces/SwitchProps';
@@ -35,7 +36,7 @@ function SwitchRoot({
   const autoId = useId();
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
-  const effectiveDisabled = disabled ?? fieldCtx?.isDisabled ?? false;
+  const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const theme = useTheme();
 
   const [isChecked, setIsChecked] = useControllableState({
@@ -70,10 +71,10 @@ function SwitchRoot({
         aria-checked={isChecked}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
-        aria-describedby={fieldCtx?.descriptionId}
-        aria-required={fieldCtx?.isRequired || undefined}
-        aria-invalid={fieldCtx?.isInvalid || undefined}
-        aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
+        aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
+        aria-required={fieldCtx?.required || undefined}
+        aria-invalid={fieldCtx?.invalid || undefined}
+        aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsChecked(e.target.checked)}
         position="absolute"
         opacity={0}
@@ -128,6 +129,8 @@ function SwitchTrack({ children }: { children?: ReactNode }) {
 function SwitchThumb({ style }: { style?: React.CSSProperties }) {
   return <Box as="span" style={style} />;
 }
+
+markFieldAware(SwitchRoot);
 
 export const Switch = Object.assign(SwitchRoot, {
   Root: SwitchRoot,

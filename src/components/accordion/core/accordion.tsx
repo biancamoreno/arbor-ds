@@ -43,11 +43,11 @@ function AccordionRoot({
 
   const toggle = useCallback(
     (value: string) => {
-      const isOpen = openValues.includes(value);
+      const isCurrentlyOpen = openValues.includes(value);
       if (type === 'single') {
-        setOpenValues(isOpen ? [] : [value]);
+        setOpenValues(isCurrentlyOpen ? [] : [value]);
       } else {
-        setOpenValues(isOpen ? openValues.filter((v) => v !== value) : [...openValues, value]);
+        setOpenValues(isCurrentlyOpen ? openValues.filter((v) => v !== value) : [...openValues, value]);
       }
     },
     [type, setOpenValues, openValues]
@@ -99,10 +99,10 @@ function AccordionItem({ children, value, disabled = false, style, ...props }: A
   const { openValues } = useAccordionContext();
   const contentId = useLayoutId(`accordion-content-${value}`);
   const triggerId = useLayoutId(`accordion-trigger-${value}`);
-  const isOpen = openValues.includes(value);
+  const open = openValues.includes(value);
 
   return (
-    <AccordionItemContext.Provider value={{ value, isOpen, disabled, contentId, triggerId }}>
+    <AccordionItemContext.Provider value={{ value, open, disabled, contentId, triggerId }}>
       <Box
         {...props}
         borderBottomColor="border.subtle"
@@ -118,7 +118,7 @@ function AccordionItem({ children, value, disabled = false, style, ...props }: A
 
 function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) {
   const { toggle, registerTrigger, unregisterTrigger, focusNext, focusPrev } = useAccordionContext();
-  const { value, isOpen, disabled, contentId, triggerId } = useAccordionItemContext();
+  const { value, open, disabled, contentId, triggerId } = useAccordionItemContext();
   const ref = useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
@@ -137,7 +137,7 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
       innerRef={ref}
       id={triggerId}
       type="button"
-      aria-expanded={isOpen}
+      aria-expanded={open}
       aria-controls={contentId}
       disabled={disabled}
       onClick={() => toggle(value)}
@@ -164,11 +164,10 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
       <Text as="span">{children}</Text>
       <Icon
         name="ChevronDown"
-        size={16}
-        aria-hidden="true"
+        size="sm"
         style={{
           transition: transition(['transform'], 'fast'),
-          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
           flexShrink: 0,
         }}
       />
@@ -177,19 +176,19 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
 }
 
 function AccordionContent({ children, style, ...props }: AccordionContentProps) {
-  const { isOpen, contentId, triggerId } = useAccordionItemContext();
+  const { open, contentId, triggerId } = useAccordionItemContext();
 
   return (
     <Box
       id={contentId}
       role="region"
       aria-labelledby={triggerId}
-      data-state={isOpen ? 'open' : 'closed'}
+      data-state={open ? 'open' : 'closed'}
       {...props}
       display="grid"
       overflow="hidden"
       style={{
-        gridTemplateRows: isOpen ? '1fr' : '0fr',
+        gridTemplateRows: open ? '1fr' : '0fr',
         transition: transition(['grid-template-rows'], 'normal'),
         ...style,
       }}

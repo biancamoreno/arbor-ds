@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
 import { RadioContext, useRadioContext } from '../context/radio-context';
 import { transition } from '../../../ecosystem/utils/functions';
@@ -33,7 +34,7 @@ function RadioRoot({
   const autoId = useId();
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
-  const effectiveDisabled = disabled || (fieldCtx?.isDisabled ?? false);
+  const effectiveDisabled = disabled || (fieldCtx?.disabled ?? false);
   const theme = useTheme();
   const sizing = sizeMap[size];
 
@@ -68,10 +69,10 @@ function RadioRoot({
           value={value}
           checked={isChecked}
           disabled={effectiveDisabled}
-          aria-describedby={fieldCtx?.descriptionId}
-          aria-required={fieldCtx?.isRequired || undefined}
-          aria-invalid={fieldCtx?.isInvalid || undefined}
-          aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
+          aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
+          aria-required={fieldCtx?.required || undefined}
+          aria-invalid={fieldCtx?.invalid || undefined}
+          aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
           onChange={() => !effectiveDisabled && setIsChecked(true)}
           position="absolute"
           opacity={0}
@@ -156,6 +157,8 @@ function RadioDescription({ children }: RadioDescriptionProps) {
     </Text>
   );
 }
+
+markFieldAware(RadioRoot);
 
 export const Radio = Object.assign(RadioRoot, {
   Root: RadioRoot,

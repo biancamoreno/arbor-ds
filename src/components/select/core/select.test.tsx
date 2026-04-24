@@ -181,7 +181,7 @@ describe('Select FieldContext integration', () => {
 
   it('picks up aria-invalid from Field', () => {
     renderSelect(
-      <Field id="sel-field" isInvalid>
+      <Field id="sel-field" invalid>
         <Field.Control>
           <BasicSelect />
         </Field.Control>
@@ -192,7 +192,7 @@ describe('Select FieldContext integration', () => {
 
   it('picks up disabled from FieldContext', () => {
     renderSelect(
-      <Field id="sel-field" isDisabled>
+      <Field id="sel-field" disabled>
         <BasicSelect />
       </Field>,
     );

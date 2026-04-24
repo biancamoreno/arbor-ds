@@ -6,7 +6,8 @@ import type { DialogCloseProps } from '../interfaces/DialogProps';
 type AnyProps = Record<string, unknown>;
 
 export function DialogClose({ children, label = 'Fechar' }: DialogCloseProps) {
-  const { close } = useDialogContext();
+  const { setOpen } = useDialogContext();
+  const close = () => setOpen(false);
 
   if (children) {
     return React.cloneElement(children as React.ReactElement<AnyProps>, { onClick: close });

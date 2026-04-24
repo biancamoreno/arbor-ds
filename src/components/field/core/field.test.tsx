@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { createTheme, themeLight } from '../../../foundations';
 import { ArborProvider } from '../../../ecosystem/styled-system';
 import { Field } from './field';
+import { markFieldAware } from '../utils/is-field-aware';
+import { useFieldContext } from '../context/field-context';
 
 const theme = createTheme(themeLight, {});
 
@@ -62,9 +64,9 @@ describe('Field.Label', () => {
     expect(label?.getAttribute('for')).toBe('f1');
   });
 
-  it('appends * indicator when isRequired', () => {
+  it('appends * indicator when required', () => {
     renderField(
-      <Field id="f1" isRequired>
+      <Field id="f1" required>
         <Field.Label>Email</Field.Label>
       </Field>,
     );
@@ -80,9 +82,9 @@ describe('Field.Label', () => {
     expect(screen.queryByText('*', { exact: false })).toBeNull();
   });
 
-  it('applies error color style when isInvalid', () => {
+  it('applies error color style when invalid', () => {
     renderField(
-      <Field id="f1" isInvalid>
+      <Field id="f1" invalid>
         <Field.Label>Email</Field.Label>
       </Field>,
     );
@@ -90,7 +92,7 @@ describe('Field.Label', () => {
   });
 });
 
-describe('Field.Control', () => {
+describe('Field.Control (RFC-0014)', () => {
   it('injects id prop from context', () => {
     renderField(
       <Field id="ctrl-field">
@@ -102,9 +104,21 @@ describe('Field.Control', () => {
     expect(screen.getByTestId('ctrl').getAttribute('id')).toBe('ctrl-field');
   });
 
-  it('injects aria-describedby from context', () => {
+  it('does NOT inject aria-describedby when no Field.Description is rendered', () => {
     renderField(
       <Field id="f2">
+        <Field.Control>
+          <input data-testid="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByTestId('ctrl').getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('injects aria-describedby when Field.Description is rendered', () => {
+    renderField(
+      <Field id="f2">
+        <Field.Description>Helper</Field.Description>
         <Field.Control>
           <input data-testid="ctrl" />
         </Field.Control>
@@ -113,9 +127,9 @@ describe('Field.Control', () => {
     expect(screen.getByTestId('ctrl').getAttribute('aria-describedby')).toBe('f2-description');
   });
 
-  it('injects aria-invalid when isInvalid', () => {
+  it('injects aria-invalid when invalid', () => {
     renderField(
-      <Field id="f3" isInvalid>
+      <Field id="f3" invalid>
         <Field.Control>
           <input data-testid="ctrl" />
         </Field.Control>
@@ -124,9 +138,10 @@ describe('Field.Control', () => {
     expect(screen.getByTestId('ctrl').getAttribute('aria-invalid')).toBe('true');
   });
 
-  it('injects aria-errormessage pointing to errorId when isInvalid', () => {
+  it('injects aria-errormessage only when invalid AND Field.Error is rendered', () => {
     renderField(
-      <Field id="f3" isInvalid>
+      <Field id="f3" invalid>
+        <Field.Error>Oops</Field.Error>
         <Field.Control>
           <input data-testid="ctrl" />
         </Field.Control>
@@ -135,7 +150,18 @@ describe('Field.Control', () => {
     expect(screen.getByTestId('ctrl').getAttribute('aria-errormessage')).toBe('f3-error');
   });
 
-  it('does not inject aria-invalid when not isInvalid', () => {
+  it('does NOT inject aria-errormessage when invalid but no Field.Error exists', () => {
+    renderField(
+      <Field id="f3-lone" invalid>
+        <Field.Control>
+          <input data-testid="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByTestId('ctrl').getAttribute('aria-errormessage')).toBeNull();
+  });
+
+  it('does not inject aria-invalid when not invalid', () => {
     renderField(
       <Field id="f4">
         <Field.Control>
@@ -146,9 +172,9 @@ describe('Field.Control', () => {
     expect(screen.getByTestId('ctrl').getAttribute('aria-invalid')).toBeNull();
   });
 
-  it('injects disabled when isDisabled', () => {
+  it('injects disabled when disabled', () => {
     renderField(
-      <Field id="f5" isDisabled>
+      <Field id="f5" disabled>
         <Field.Control>
           <input data-testid="ctrl" />
         </Field.Control>
@@ -157,9 +183,9 @@ describe('Field.Control', () => {
     expect((screen.getByTestId('ctrl') as HTMLInputElement).disabled).toBe(true);
   });
 
-  it('injects aria-required when isRequired', () => {
+  it('injects aria-required when required', () => {
     renderField(
-      <Field id="f6" isRequired>
+      <Field id="f6" required>
         <Field.Control>
           <input data-testid="ctrl" />
         </Field.Control>
@@ -177,6 +203,30 @@ describe('Field.Control', () => {
       </Wrapper>,
     );
     expect(screen.getByTestId('standalone')).toBeTruthy();
+  });
+
+  it('does NOT inject anything when child is Field-aware (marker present)', () => {
+    function FieldAwareInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+      const ctx = useFieldContext();
+      return <input data-testid="aware" id={ctx?.fieldId} {...props} />;
+    }
+    markFieldAware(FieldAwareInput);
+
+    renderField(
+      <Field id="aware-field" invalid required>
+        <Field.Error>Err</Field.Error>
+        <Field.Control>
+          <FieldAwareInput data-extra="keep" />
+        </Field.Control>
+      </Field>,
+    );
+
+    const el = screen.getByTestId('aware');
+    expect(el.getAttribute('id')).toBe('aware-field');
+    expect(el.getAttribute('aria-invalid')).toBeNull();
+    expect(el.getAttribute('aria-required')).toBeNull();
+    expect(el.getAttribute('aria-errormessage')).toBeNull();
+    expect(el.getAttribute('data-extra')).toBe('keep');
   });
 });
 
@@ -202,16 +252,16 @@ describe('Field.Description', () => {
 });
 
 describe('Field.Error', () => {
-  it('renders when isInvalid is true', () => {
+  it('renders when invalid is true', () => {
     renderField(
-      <Field id="fe" isInvalid>
+      <Field id="fe" invalid>
         <Field.Error>Something went wrong</Field.Error>
       </Field>,
     );
     expect(screen.getByText('Something went wrong')).toBeTruthy();
   });
 
-  it('does not render when isInvalid is false', () => {
+  it('does not render when invalid is false', () => {
     renderField(
       <Field id="fe">
         <Field.Error>Something went wrong</Field.Error>
@@ -222,7 +272,7 @@ describe('Field.Error', () => {
 
   it('has role="alert"', () => {
     renderField(
-      <Field id="fe" isInvalid>
+      <Field id="fe" invalid>
         <Field.Error>Error!</Field.Error>
       </Field>,
     );
@@ -231,14 +281,14 @@ describe('Field.Error', () => {
 
   it('has id matching errorId', () => {
     renderField(
-      <Field id="fe" isInvalid>
+      <Field id="fe" invalid>
         <Field.Error>Error!</Field.Error>
       </Field>,
     );
     expect(screen.getByRole('alert').getAttribute('id')).toBe('fe-error');
   });
 
-  it('renders outside context without isInvalid guard', () => {
+  it('renders outside context without invalid guard', () => {
     render(
       <Wrapper>
         <Field.Error>Orphan error</Field.Error>
@@ -248,10 +298,70 @@ describe('Field.Error', () => {
   });
 });
 
+describe('Field legacy alias props (RFC-0013 transition)', () => {
+  let warnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it('accepts isDisabled and warns', () => {
+    renderField(
+      <Field id="legacy" isDisabled>
+        <Field.Control>
+          <input data-testid="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect((screen.getByTestId('ctrl') as HTMLInputElement).disabled).toBe(true);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isDisabled'));
+  });
+
+  it('accepts isRequired and warns', () => {
+    renderField(
+      <Field id="legacy" isRequired>
+        <Field.Control>
+          <input data-testid="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByTestId('ctrl').getAttribute('aria-required')).toBe('true');
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isRequired'));
+  });
+
+  it('accepts isInvalid and warns', () => {
+    renderField(
+      <Field id="legacy" isInvalid>
+        <Field.Error>Err</Field.Error>
+        <Field.Control>
+          <input data-testid="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByTestId('ctrl').getAttribute('aria-invalid')).toBe('true');
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isInvalid'));
+  });
+
+  it('canonical prop wins over legacy alias', () => {
+    renderField(
+      <Field id="legacy" disabled={false} isDisabled>
+        <Field.Control>
+          <input data-testid="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect((screen.getByTestId('ctrl') as HTMLInputElement).disabled).toBe(false);
+  });
+});
+
 describe('Field full composition', () => {
   it('wires label, control, description and error together', () => {
     renderField(
-      <Field id="full" isInvalid isRequired>
+      <Field id="full" invalid required>
         <Field.Label>Email</Field.Label>
         <Field.Control>
           <input data-testid="email-input" type="email" />

@@ -3,6 +3,7 @@ import { Pressable } from 'react-native';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
 import type { CheckboxRootProps, CheckboxLabelProps, CheckboxDescriptionProps } from '../interfaces';
@@ -19,7 +20,7 @@ function CheckboxRoot({
   const autoId = useId();
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
-  const effectiveDisabled = disabled ?? fieldCtx?.isDisabled ?? false;
+  const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
 
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
@@ -85,6 +86,9 @@ function CheckboxLabel({ children }: CheckboxLabelProps) {
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
   return <Text as="span" fontSize="xsmall" color="text.secondary">{children}</Text>;
 }
+
+markFieldAware(CheckboxRoot);
+markFieldAware(CheckboxIndicator);
 
 export const Checkbox = Object.assign(
   function LegacyCheckbox() { return null; },

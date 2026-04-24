@@ -26,7 +26,7 @@ export const Default: Story = {
 
 export const Required: Story = {
   render: () => (
-    <Field.Root id="email-field" isRequired style={{ width: 320 }}>
+    <Field.Root id="email-field" required style={{ width: 320 }}>
       <Field.Label>E-mail *</Field.Label>
       <Field.Control>
         <TextInput type="email" placeholder="seu@email.com" />
@@ -37,7 +37,7 @@ export const Required: Story = {
 
 export const WithError: Story = {
   render: () => (
-    <Field.Root id="email-error" isInvalid style={{ width: 320 }}>
+    <Field.Root id="email-error" invalid style={{ width: 320 }}>
       <Field.Label>E-mail</Field.Label>
       <Field.Control>
         <TextInput type="email" value="nao-e-email" />
@@ -49,7 +49,7 @@ export const WithError: Story = {
 
 export const Disabled: Story = {
   render: () => (
-    <Field.Root id="disabled-field" isDisabled style={{ width: 320 }}>
+    <Field.Root id="disabled-field" disabled style={{ width: 320 }}>
       <Field.Label>Campo desabilitado</Field.Label>
       <Field.Control>
         <TextInput value="Valor fixo" disabled />

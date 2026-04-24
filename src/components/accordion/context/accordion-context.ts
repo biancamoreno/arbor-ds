@@ -22,7 +22,7 @@ export const AccordionContext = createContext<AccordionContextValue>({
 
 export interface AccordionItemContextValue {
   value: string;
-  isOpen: boolean;
+  open: boolean;
   disabled: boolean;
   contentId: string;
   triggerId: string;
@@ -30,7 +30,7 @@ export interface AccordionItemContextValue {
 
 export const AccordionItemContext = createContext<AccordionItemContextValue>({
   value: '',
-  isOpen: false,
+  open: false,
   disabled: false,
   contentId: '',
   triggerId: '',

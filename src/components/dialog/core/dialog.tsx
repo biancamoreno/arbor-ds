@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
-import { DialogContext } from '../context/dialog-context';
+import { DialogContext, type DialogContextValue } from '../context/dialog-context';
 import { DialogTrigger } from '../slots/dialog-trigger';
 import { DialogOverlay } from '../slots/dialog-overlay';
 import { DialogContent } from '../slots/dialog-content';
@@ -9,26 +9,42 @@ import { DialogDescription } from '../slots/dialog-description';
 import { DialogClose } from '../slots/dialog-close';
 import type { DialogRootProps } from '../interfaces/DialogProps';
 
-function DialogRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, children }: DialogRootProps) {
-  const [isOpen, setIsOpen] = useControllableState({
-    value: isOpenProp,
+const IS_DEV = process.env.NODE_ENV !== 'production';
+
+function DialogRoot({
+  open: openProp,
+  isOpen: legacyIsOpen,
+  defaultOpen = false,
+  onOpenChange,
+  onClose,
+  children,
+}: DialogRootProps) {
+  const warned = useRef(false);
+  if (IS_DEV && legacyIsOpen !== undefined && !warned.current) {
+    console.warn('[Arbor-DS][Dialog] `isOpen` is deprecated; use `open` (RFC-0013).');
+    warned.current = true;
+  }
+
+  const [open, setOpen] = useControllableState({
+    value: openProp ?? legacyIsOpen,
     defaultValue: defaultOpen,
-    onChange: (v) => {
-      if (!v) onClose?.();
+    onChange: (next) => {
+      onOpenChange?.(next);
+      if (!next) onClose?.();
     },
   });
 
   const titleId = useLayoutId('dialog-title');
   const descriptionId = useLayoutId('dialog-desc');
 
-  const open = useCallback(() => setIsOpen(true), [setIsOpen]);
-  const close = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const handleSetOpen = useCallback((next: boolean) => setOpen(next), [setOpen]);
 
-  return (
-    <DialogContext.Provider value={{ isOpen, open, close, titleId, descriptionId }}>
-      {children}
-    </DialogContext.Provider>
+  const value = useMemo<DialogContextValue>(
+    () => ({ open, setOpen: handleSetOpen, titleId, descriptionId }),
+    [open, handleSetOpen, titleId, descriptionId],
   );
+
+  return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 }
 
 export const Dialog = Object.assign(DialogRoot, {

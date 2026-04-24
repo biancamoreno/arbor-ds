@@ -112,7 +112,7 @@ describe('Switch FieldContext integration', () => {
 
   it('picks up aria-invalid from Field', () => {
     renderSwitch(
-      <Field id="sw-field" isInvalid>
+      <Field id="sw-field" invalid>
         <Field.Control>
           <Switch aria-label="Toggle" />
         </Field.Control>
@@ -123,7 +123,7 @@ describe('Switch FieldContext integration', () => {
 
   it('picks up disabled from FieldContext', () => {
     renderSwitch(
-      <Field id="sw-field" isDisabled>
+      <Field id="sw-field" disabled>
         <Switch aria-label="Toggle" />
       </Field>,
     );
@@ -132,7 +132,7 @@ describe('Switch FieldContext integration', () => {
 
   it('picks up aria-required from Field', () => {
     renderSwitch(
-      <Field id="sw-field" isRequired>
+      <Field id="sw-field" required>
         <Field.Control>
           <Switch aria-label="Toggle" />
         </Field.Control>
@@ -143,7 +143,7 @@ describe('Switch FieldContext integration', () => {
 
   it('picks up aria-errormessage from Field when isInvalid', () => {
     renderSwitch(
-      <Field id="sw-field" isInvalid>
+      <Field id="sw-field" invalid>
         <Field.Control>
           <Switch aria-label="Toggle" />
         </Field.Control>

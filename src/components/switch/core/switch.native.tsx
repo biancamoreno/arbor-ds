@@ -2,6 +2,7 @@ import { Switch as RNSwitch, View } from 'react-native';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { markFieldAware } from '../../field/utils/is-field-aware';
 import type { SwitchRootProps } from '../interfaces/SwitchProps';
 
 function SwitchRoot({
@@ -13,7 +14,7 @@ function SwitchRoot({
   'aria-label': ariaLabel,
 }: SwitchRootProps) {
   const fieldCtx = useFieldContext();
-  const effectiveDisabled = disabled ?? fieldCtx?.isDisabled ?? false;
+  const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const theme = useTheme();
 
   const [isChecked, setIsChecked] = useControllableState({
@@ -45,6 +46,8 @@ function SwitchRoot({
     </View>
   );
 }
+
+markFieldAware(SwitchRoot);
 
 export const Switch = Object.assign(SwitchRoot, {
   Root: SwitchRoot,

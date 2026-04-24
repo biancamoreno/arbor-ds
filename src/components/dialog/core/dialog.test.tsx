@@ -106,7 +106,7 @@ describe('Dialog', () => {
     const onClose = jest.fn();
 
     renderDialog(
-      <Dialog.Root isOpen onClose={onClose}>
+      <Dialog.Root open onClose={onClose}>
         <Dialog.Content>
           <Dialog.Title>My Dialog</Dialog.Title>
           <Dialog.Close />
@@ -116,6 +116,44 @@ describe('Dialog', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts legacy `isOpen` alias and warns (RFC-0013 transition)', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    renderDialog(
+      <Dialog.Root isOpen>
+        <Dialog.Content>
+          <Dialog.Title>Legacy</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isOpen'));
+    warnSpy.mockRestore();
+  });
+
+  it('calls onOpenChange when state toggles', () => {
+    const onOpenChange = jest.fn();
+
+    renderDialog(
+      <Dialog.Root onOpenChange={onOpenChange}>
+        <Dialog.Trigger asChild>
+          <button type="button">Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Controlled</Dialog.Title>
+          <Dialog.Close />
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+
+    fireEvent.click(screen.getByText('Open'));
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('has aria-modal and correct aria attributes', () => {

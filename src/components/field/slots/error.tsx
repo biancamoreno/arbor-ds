@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ArborTransform, useSlotRecipe } from '../../../ecosystem';
 import { useFieldContext } from '../context/field-context';
 import type { FieldErrorProps } from '../interfaces/FieldProps';
@@ -7,7 +8,15 @@ export function FieldError({ children }: FieldErrorProps) {
   const slots = useSlotRecipe('field', {});
   const errorStyles = (slots as Record<string, unknown>).error as Record<string, unknown> | undefined;
 
-  if (ctx && !ctx.isInvalid) return null;
+  const shouldRender = !ctx || ctx.invalid;
+
+  useEffect(() => {
+    if (!ctx || !shouldRender) return;
+    ctx.registerError();
+    return ctx.unregisterError;
+  }, [ctx, shouldRender]);
+
+  if (!shouldRender) return null;
 
   return (
     <ArborTransform
@@ -21,3 +30,5 @@ export function FieldError({ children }: FieldErrorProps) {
     </ArborTransform>
   );
 }
+
+FieldError.displayName = 'Field.Error';

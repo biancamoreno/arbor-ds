@@ -2,6 +2,7 @@ import React, { useEffect, useId, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
 import type {
@@ -26,7 +27,7 @@ function CheckboxRoot({
   const autoId = useId();
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
-  const effectiveDisabled = disabled ?? fieldCtx?.isDisabled ?? false;
+  const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
 
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
@@ -79,10 +80,10 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
       type="checkbox"
       checked={ctx.isChecked}
       disabled={ctx.isDisabled}
-      aria-describedby={fieldCtx?.descriptionId}
-      aria-required={fieldCtx?.isRequired || undefined}
-      aria-invalid={fieldCtx?.isInvalid || undefined}
-      aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
+      aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
+      aria-required={fieldCtx?.required || undefined}
+      aria-invalid={fieldCtx?.invalid || undefined}
+      aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => { if (!ctx.isDisabled) ctx.onChange(e.target.checked); }}
       width={18}
       height={18}
@@ -145,6 +146,10 @@ const LegacyCheckbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
 );
 
 LegacyCheckbox.displayName = 'Checkbox';
+
+markFieldAware(CheckboxRoot);
+markFieldAware(CheckboxIndicator);
+markFieldAware(LegacyCheckbox);
 
 export const Checkbox = Object.assign(LegacyCheckbox, {
   Root: CheckboxRoot,

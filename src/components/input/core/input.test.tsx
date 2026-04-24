@@ -127,7 +127,7 @@ describe('TextInput FieldContext integration', () => {
     expect(screen.getByRole('textbox').getAttribute('id')).toBe('name-field');
   });
 
-  it('picks up aria-describedby from Field', () => {
+  it('picks up aria-describedby from Field when Field.Description is present', () => {
     renderInput(
       <Field id="name-field">
         <Field.Control>
@@ -139,9 +139,20 @@ describe('TextInput FieldContext integration', () => {
     expect(screen.getByRole('textbox').getAttribute('aria-describedby')).toBe('name-field-description');
   });
 
+  it('does NOT set aria-describedby when Field.Description is absent', () => {
+    renderInput(
+      <Field id="name-field">
+        <Field.Control>
+          <TextInput />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByRole('textbox').getAttribute('aria-describedby')).toBeNull();
+  });
+
   it('picks up aria-invalid from Field', () => {
     renderInput(
-      <Field id="name-field" isInvalid>
+      <Field id="name-field" invalid>
         <Field.Control>
           <TextInput />
         </Field.Control>
@@ -150,9 +161,9 @@ describe('TextInput FieldContext integration', () => {
     expect(screen.getByRole('textbox').getAttribute('aria-invalid')).toBe('true');
   });
 
-  it('picks up aria-errormessage from Field when isInvalid', () => {
+  it('picks up aria-errormessage from Field when invalid AND Field.Error exists', () => {
     renderInput(
-      <Field id="name-field" isInvalid>
+      <Field id="name-field" invalid>
         <Field.Control>
           <TextInput />
         </Field.Control>
@@ -162,9 +173,9 @@ describe('TextInput FieldContext integration', () => {
     expect(screen.getByRole('textbox').getAttribute('aria-errormessage')).toBe('name-field-error');
   });
 
-  it('picks up disabled from FieldContext via Field.Control', () => {
+  it('picks up disabled from FieldContext', () => {
     renderInput(
-      <Field id="name-field" isDisabled>
+      <Field id="name-field" disabled>
         <Field.Control>
           <TextInput />
         </Field.Control>
@@ -175,13 +186,27 @@ describe('TextInput FieldContext integration', () => {
 
   it('picks up aria-required from Field', () => {
     renderInput(
-      <Field id="name-field" isRequired>
+      <Field id="name-field" required>
         <Field.Control>
           <TextInput />
         </Field.Control>
       </Field>,
     );
     expect(screen.getByRole('textbox').getAttribute('aria-required')).toBe('true');
+  });
+
+  it('works WITHOUT Field.Control wrapper (Field-aware consumes context directly)', () => {
+    renderInput(
+      <Field id="direct" invalid required>
+        <Field.Error>err</Field.Error>
+        <TextInput />
+      </Field>,
+    );
+    const input = screen.getByRole('textbox');
+    expect(input.getAttribute('id')).toBe('direct');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(input.getAttribute('aria-required')).toBe('true');
+    expect(input.getAttribute('aria-errormessage')).toBe('direct-error');
   });
 
   it('does not render FieldShell label when inside Field context', () => {

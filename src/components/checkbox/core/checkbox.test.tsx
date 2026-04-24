@@ -151,7 +151,7 @@ describe('Checkbox FieldContext integration', () => {
 
   it('receives aria-invalid from Field context', () => {
     renderCb(
-      <Field id="cb-field" isInvalid>
+      <Field id="cb-field" invalid>
         <Field.Control>
           <Checkbox.Root defaultChecked={false} onChange={() => {}}>
             <Checkbox.Indicator data-testid="cb" />
@@ -164,7 +164,7 @@ describe('Checkbox FieldContext integration', () => {
 
   it('receives disabled from Field context', () => {
     renderCb(
-      <Field id="cb-field" isDisabled>
+      <Field id="cb-field" disabled>
         <Checkbox.Root defaultChecked={false} onChange={() => {}}>
           <Checkbox.Indicator data-testid="cb" />
         </Checkbox.Root>
@@ -175,7 +175,7 @@ describe('Checkbox FieldContext integration', () => {
 
   it('receives aria-required from Field context', () => {
     renderCb(
-      <Field id="cb-field" isRequired>
+      <Field id="cb-field" required>
         <Field.Control>
           <Checkbox.Root defaultChecked={false} onChange={() => {}}>
             <Checkbox.Indicator data-testid="cb" />

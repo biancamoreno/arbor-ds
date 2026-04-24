@@ -1,8 +1,8 @@
-# Follow-ups consolidados — R1, R2, R3
+# Follow-ups consolidados — R1, R2, R3, R4, R5
 
 > Índice acionável de tudo que ficou em aberto após cada fase de review. Atualizar ao mover itens para "concluído", abrir issue/PR ou rejeitar.
 
-**Última atualização:** 2026-04-24
+**Última atualização:** 2026-04-24 (pós-RFC-0013/0014 — gate R6 destravado)
 
 > Para débito técnico mapeado (decisões de adiar com plano de resolução), ver [`docs/TECH_DEBT.md`](../TECH_DEBT.md).
 
@@ -15,8 +15,10 @@
 | R1 | 0 | 6 | 7 | 0 | parcial — issues C3/C4 não viraram código |
 | R2 | 0 | 6 | 3 | 2 (RFC-0001, 0002) | parcial — testes verdes 541/541, faltam stories/testes ausentes |
 | R3 | 0 | 8 | 6 | 1 (RFC-0008) | parcial — testes verdes 541/541, Storybook build não verificado |
+| R4 | 0 | 14 | 0 | — | ✅ — bug crítico CR4-1 corrigido, 544/544 verdes |
+| R5 | 0 | 24 | 2 (4 candidatas) | 2 (RFC-0013, 0014) | ✅ — fixes triviais aplicados, dead code removido, FileUpload pt-BR, RFCs do gate R6 implementadas (RFC-0013/0014) |
 
-**Total:** 12 RFCs (`RFC-0001` a `RFC-0012`) — 3 implementadas (0001, 0002, 0008), 9 em Draft · 20 issues · 0 fixes imediatos pendentes.
+**Total:** 14 RFCs (`RFC-0001` a `RFC-0014`) — 7 implementadas (0001, 0002, 0008, 0009, 0010, 0013, 0014), 7 em Draft · 58 issues · 0 fixes imediatos pendentes · 2 TD resolvidas (TD-010, TD-011 via RFC-0014).
 
 ---
 
@@ -65,6 +67,82 @@ Cada item deve virar issue com label `review:R1` / `R2` / `R3` quando o backlog 
 - [ ] **Container** — promover `fluid`/`maxWidth` para discriminated union.
 - [ ] **Container** — extrair `resolveMaxWidth` para `utils/` com testes isolados.
 - [ ] **Container** — avaliar permitir `...rest` (aumentar Pick).
+
+### R4 — Botões e triggers
+
+Issues abertas após review consolidada em [`R4-button-buttongroup-fab.md`](./R4-button-buttongroup-fab.md):
+
+- [ ] **HR4-1** `forwardRef` em Button, IconButton, ButtonGroup, FAB (sweep coordenado).
+- [ ] **HR4-2** Avaliar `<PressFeedback>` em Button/FAB (decisão de produto).
+- [ ] **HR4-10** Mover `attachedStyle` de Button para ButtonGroup (RFC).
+- [ ] **HR4-11** IconButton como variant de Button vs componente separado (RFC).
+- [ ] **HR4-12** Token de `keyframe` `arbor-spin` em motion tokens.
+- [ ] **HR4-13** FAB `outline="none"` quebra focus visible — condicionar a `:not(:focus-visible)`.
+- [ ] **HR4-14** API `position` de FAB: `position?: undefined` em vez de `position="none"` (RFC).
+- [ ] **HR4-15** FAB.native: migrar `TouchableOpacity` → `Pressable`.
+- [ ] **HR4-16** FAB.native: paridade ou doc para `animateOnMount`.
+- [ ] **MR4-2** `IconButton` sem testes próprios.
+- [ ] **MR4-3** `IconButton` sem story dedicada.
+- [ ] **MR4-4** Warning a11y para Button vazio sem `aria-label`.
+- [ ] **MR4-5** Avaliar `ButtonGroup.native.tsx`.
+- [ ] **MR4-6** ButtonGroup: warning em dev se filhos não-elementos forem passados.
+- [ ] **MR4-8/9/10** Aumentar cobertura de testes (FAB 7→15+, Button 14→15+, ButtonGroup 7→15+).
+- [ ] **CR4-3 → TD-004** (TECH_DEBT) Native abstraction para FAB.
+- [ ] **CR4-4/5 → TD-005** (TECH_DEBT) Cores e shadows hardcoded em FAB.
+
+### R5 — Formulário base (Field + Input)
+
+Issues abertas após review consolidada em [`R5-form-base.md`](./R5-form-base.md):
+
+**Field:**
+
+- [ ] **F-1** Field.Control: condicionar `aria-describedby` à existência real do Description (CR5-2).
+- [ ] **F-2** Field.Control: também injetar `aria-describedby` apontando para `errorId` quando `isInvalid` (cobertura `aria-errormessage` parcial).
+- [ ] **F-3** Slots aceitarem props adicionais (`style`, `className`, `id` próprio).
+- [ ] **F-4** Recipe variant `size` propagada via `<Field.Root size="md">` (HR5-2).
+- [ ] **F-5** Field.native: implementar testes (cobertura zero).
+- [ ] **F-6** Field.native: ler tokens via `useTheme()` (TD-005 padrão).
+- [ ] **F-7** JSDoc em `Field`/slots documentando contrato compound.
+- [ ] **F-8** Stories adicionais: composição completa, `size`, integração Field+Checkbox/Radio/Switch.
+- [ ] **F-9** Cast `(slots as Record<string, unknown>)` — bloqueado por **RFC-0007**.
+- [ ] **F-10** `forwardRef` no `Field.Root` — sweep TD-007.
+
+**Input (família):**
+
+- [ ] **I-1** TextArea, SearchInput, Counter, FileUpload: criar testes (CR5-3).
+- [ ] **I-2** Stories dedicadas para TextArea, Counter, FileUpload.
+- [ ] **I-3** TextInput: remover `outline="none"`; usar `:focus-visible` (HR5-3).
+- [ ] **I-4** Counter: substituir `'−'`/`'+'` por `<Icon name="Minus|Plus" />`.
+- [ ] **I-5** Counter: substituir `'white'` por token; usar `transition()` helper.
+- [ ] **I-6** Counter: `forwardRef` + `role="spinbutton"` + `aria-valuenow/min/max` + setas teclado (HR5-6).
+- [x] **I-7** FileUpload: traduzir strings para pt-BR (HR5-7) — aplicado em 2026-04-24.
+- [ ] **I-8** FileUpload: substituir emojis por `<Icon />` + `<Spinner />`.
+- [ ] **I-9** FileUpload: `forwardRef` + `role="button"` + `tabIndex` + Enter/Space (HR5-8).
+- [ ] **I-10** FileUpload: expor erros de validação via callback `onValidationError`.
+- [x] **I-11** FileUpload: trocar `transition: 'all 0.2s'` por específico — aplicado (transition('border-color', 'background-color', 'fast')).
+- [ ] **I-12** TextInput/TextArea: promover `style.border/backgroundColor/fontFamily` para props (potencialmente coberto por TD-008).
+- [ ] **I-13** TextInput: remover sentinel `' '` em `effectiveError` (HR5-12).
+- [ ] **I-14** TextArea, SearchInput, Counter, FileUpload: ler `useFieldContext` (HR5-14) — **será resolvido por RFC-0014**.
+- [ ] **I-15** Touch target ≥ 44×44 em sm: revisar TextInput/Counter (MR5-6/7).
+- [ ] **I-16** Counter: remover redundância `pointerEvents: 'none'` + `disabled`.
+- [x] **I-17** Counter: remover default export — aplicado (mais TextInput/TextArea/FileUpload também).
+- [ ] **I-18** Stories TextInput: clearable, leftIcon, rightIcon, integração Field.
+- [x] **CR5-4 / TD-010** `src/components/input/core/select.tsx` removido em 2026-04-24 (`SelectProps` interface também).
+
+**RFCs do gate R6 — Implementadas (2026-04-24):**
+
+- [x] **[RFC-0013](../rfcs/RFC-0013-convencao-naming-de-props-booleanas.md)** — Convenção `is*` × `disabled`/`open`/`required` (HR5-11). `Field`/`Dialog` migrados para API canônica com aliases legados + warning em dev.
+- [x] **[RFC-0014](../rfcs/RFC-0014-contrato-canonico-field-aware-components.md)** — Contrato canônico Field.Control × Field-aware components. `FieldContext` ganhou registry de slots; família Input + R6 (Checkbox/Radio/Switch/Select) marcados `isFieldAware`; Field.Control detecta marker e não duplica wiring. Fechou CR5-2, HR5-4, HR5-14, TD-011.
+
+**F-1 (aria-describedby condicional)** e **I-14 (inputs lendo Field context)** — ambos fechados pela implementação de RFC-0014.
+
+**RFCs candidatas R5 (não bloqueantes para R6):**
+
+- [ ] **RFC candidata: Recipe `input` consumida** (`getFieldFrameStyle` imperativo → slot recipe) (CR5-1 / TD-008).
+- [ ] **RFC candidata: Polimorfismo `Field.Root` (`as="fieldset"`)** (MR5-11).
+- [ ] **RFC candidata: `leftIcon`/`rightIcon` → `startIcon`/`endIcon`** (RTL) (MR5-16).
+- [ ] **RFC candidata: Surface area `extends InputHTMLAttributes` → `nativeProps`** (HR5-13).
+- [ ] **RFC candidata: Estratégia Field.native** — partir de primitives ou aceitar split formal (HR5-1 / TD-009).
 
 ### R3 — Core cross-platform primitives
 
@@ -121,8 +199,8 @@ Todas em **Status: Draft**. Localizadas em `docs/rfcs/`.
 | [RFC-0006](../rfcs/RFC-0006-istruncated-vs-numberoflines-em-text.md) | Consolidar `isTruncated` e `numberOfLines` | R3-A · `text.md` | nada (cleanup local) | Draft |
 | [RFC-0007](../rfcs/RFC-0007-tipagem-generica-de-userecipe.md) | Tipagem genérica do retorno de `useRecipe` | R3-B · `text.md` | múltiplos componentes que casteiam recipes | Draft |
 | [RFC-0008](../rfcs/RFC-0008-tapstate-prop-vs-slot-em-clickable.md) | `tapState`: prop vs. slot em `Clickable` | R3-C · `clickable.md` | ~~R4~~ (destravada) | **Implemented c/ recorte (2026-04-24)** |
-| [RFC-0009](../rfcs/RFC-0009-tamanhos-semanticos-em-icon.md) | Tamanhos semânticos para `Icon.size` | R3-D · `icon.md` | implementar com RFC-0010 | Draft |
-| [RFC-0010](../rfcs/RFC-0010-discriminated-union-decorative-em-icon.md) | Discriminated union `decorative` + `aria-label` | R3-E · `icon.md` | implementar com RFC-0009 | Draft |
+| [RFC-0009](../rfcs/RFC-0009-tamanhos-semanticos-em-icon.md) | Tamanhos semânticos para `Icon.size` | R3-D · `icon.md` | — | **Implemented (2026-04-24)** |
+| [RFC-0010](../rfcs/RFC-0010-discriminated-union-decorative-em-icon.md) | Discriminated union `decorative` + `aria-label` | R3-E · `icon.md` | — | **Implemented (2026-04-24)** |
 | [RFC-0011](../rfcs/RFC-0011-modo-de-renderizacao-explicito-em-image.md) | Modo de renderização explícito em `Image` | R3-F · `image.md` | implementar com RFC-0012 | Draft |
 | [RFC-0012](../rfcs/RFC-0012-loading-e-error-states-em-image.md) | Estados de loading/error em `Image` | R3-G · `image.md` | implementar com RFC-0011 | Draft |
 

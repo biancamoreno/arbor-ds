@@ -149,7 +149,7 @@ describe('Radio FieldContext integration', () => {
 
   it('picks up aria-invalid from Field', () => {
     renderRadio(
-      <Field id="radio-field" isInvalid>
+      <Field id="radio-field" invalid>
         <Field.Control>
           <Radio value="a" defaultChecked={false}>
             <Radio.Indicator />
@@ -162,7 +162,7 @@ describe('Radio FieldContext integration', () => {
 
   it('picks up disabled from FieldContext', () => {
     renderRadio(
-      <Field id="radio-field" isDisabled>
+      <Field id="radio-field" disabled>
         <Radio value="a" defaultChecked={false}>
           <Radio.Indicator />
         </Radio>
@@ -173,7 +173,7 @@ describe('Radio FieldContext integration', () => {
 
   it('picks up aria-required from Field', () => {
     renderRadio(
-      <Field id="radio-field" isRequired>
+      <Field id="radio-field" required>
         <Field.Control>
           <Radio value="a" defaultChecked={false}>
             <Radio.Indicator />
@@ -186,7 +186,7 @@ describe('Radio FieldContext integration', () => {
 
   it('picks up aria-errormessage from Field when isInvalid', () => {
     renderRadio(
-      <Field id="radio-field" isInvalid>
+      <Field id="radio-field" invalid>
         <Field.Control>
           <Radio value="a" defaultChecked={false}>
             <Radio.Indicator />

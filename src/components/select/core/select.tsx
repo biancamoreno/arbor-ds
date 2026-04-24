@@ -6,6 +6,7 @@ import React, { useId, useRef, useEffect } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState, useDisclosure } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
+import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable } from '../../core';
 import { SelectContext, useSelectContext } from '../context/select-context';
 import type {
@@ -47,7 +48,7 @@ function SelectRoot({
   const autoId = useId();
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
-  const effectiveDisabled = disabled ?? fieldCtx?.isDisabled ?? false;
+  const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
 
   const [selectedValue, setSelectedValue] = useControllableState({
     value,
@@ -96,10 +97,10 @@ function SelectTrigger({ children }: SelectTriggerProps) {
       role="combobox"
       aria-expanded={ctx.isOpen}
       aria-haspopup="listbox"
-      aria-describedby={fieldCtx?.descriptionId}
-      aria-required={fieldCtx?.isRequired || undefined}
-      aria-invalid={fieldCtx?.isInvalid || undefined}
-      aria-errormessage={fieldCtx?.isInvalid ? fieldCtx.errorId : undefined}
+      aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
+      aria-required={fieldCtx?.required || undefined}
+      aria-invalid={fieldCtx?.invalid || undefined}
+      aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
       disabled={ctx.isDisabled}
       onClick={() => (ctx.isOpen ? ctx.close() : ctx.open())}
       onKeyDown={handleKeyDown}
@@ -115,7 +116,7 @@ function SelectTrigger({ children }: SelectTriggerProps) {
         height: triggerHeight[ctx.size],
         padding: triggerPadding[ctx.size],
         fontSize: triggerFontSize[ctx.size],
-        border: `1px solid ${fieldCtx?.isInvalid ? theme.colors.feedback.critical.base : theme.colors.border.default}`,
+        border: `1px solid ${fieldCtx?.invalid ? theme.colors.feedback.critical.base : theme.colors.border.default}`,
         backgroundColor: theme.colors.surface.default,
         color: theme.colors.text.primary,
         boxSizing: 'border-box',
@@ -235,6 +236,9 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
     </Flex>
   );
 }
+
+markFieldAware(SelectRoot);
+markFieldAware(SelectTrigger);
 
 export const Select = Object.assign(SelectRoot, {
   Root: SelectRoot,

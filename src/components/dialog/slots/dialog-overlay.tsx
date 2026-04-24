@@ -6,14 +6,15 @@ import { useDialogContext } from '../context/dialog-context';
 import type { DialogOverlayProps } from '../interfaces/DialogProps';
 
 export function DialogOverlay({ style }: DialogOverlayProps) {
-  const { isOpen, close } = useDialogContext();
+  const { open, setOpen } = useDialogContext();
+  const close = () => setOpen(false);
 
-  const [mounted, setMounted] = useState(isOpen);
+  const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       setMounted(true);
       frameRef.current = requestAnimationFrame(() => setVisible(true));
     } else {
@@ -22,7 +23,7 @@ export function DialogOverlay({ style }: DialogOverlayProps) {
       return () => clearTimeout(t);
     }
     return () => cancelAnimationFrame(frameRef.current);
-  }, [isOpen]);
+  }, [open]);
 
   if (!mounted) return null;
 

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useFieldContext } from '../../field/context/field-context';
+import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable } from '../../core';
 import type { CounterProps } from '../interfaces';
 
-export const Counter: React.FC<CounterProps> = ({
+const CounterBase: React.FC<CounterProps> = ({
   value,
   onChange,
   min = 0,
@@ -15,6 +17,12 @@ export const Counter: React.FC<CounterProps> = ({
   showInput = true,
 }) => {
   const theme = useTheme();
+  const fieldCtx = useFieldContext();
+  const autoId = useId();
+  const inputId = fieldCtx?.fieldId ?? autoId;
+
+  const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(String(value));
 
@@ -25,11 +33,11 @@ export const Counter: React.FC<CounterProps> = ({
   };
 
   const handleDecrement = () => {
-    if (!disabled && value > min) onChange?.(Math.max(value - step, min));
+    if (!effectiveDisabled && value > min) onChange?.(Math.max(value - step, min));
   };
 
   const handleIncrement = () => {
-    if (!disabled && value < max) onChange?.(Math.min(value + step, max));
+    if (!effectiveDisabled && value < max) onChange?.(Math.min(value + step, max));
   };
 
   const handleInputBlur = () => {
@@ -44,14 +52,15 @@ export const Counter: React.FC<CounterProps> = ({
     setIsEditing(false);
   };
 
-  const canDecrement = !disabled && value > min;
-  const canIncrement = !disabled && value < max;
+  const canDecrement = !effectiveDisabled && value > min;
+  const canIncrement = !effectiveDisabled && value < max;
 
   return (
     <Flex flexDirection="column" gap="micro">
-      {label && (
+      {label && !fieldCtx && (
         <Box
           as="label"
+          htmlFor={inputId}
           fontSize="xsmall"
           fontWeight="semibold"
           color="text.primary"
@@ -62,14 +71,15 @@ export const Counter: React.FC<CounterProps> = ({
       <Flex
         alignItems="center"
         gap="4px"
-        opacity={disabled ? 0.5 : 1}
-        pointerEvents={disabled ? 'none' : 'auto'}
+        opacity={effectiveDisabled ? 0.5 : 1}
+        pointerEvents={effectiveDisabled ? 'none' : 'auto'}
       >
         <Clickable
           as="button"
           type="button"
+          aria-label="Decrementar"
           onClick={handleDecrement}
-          disabled={disabled || value <= min}
+          disabled={effectiveDisabled || value <= min}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -90,12 +100,17 @@ export const Counter: React.FC<CounterProps> = ({
         {showInput ? (
           <Box
             as="input"
+            id={inputId}
             type="number"
             value={isEditing ? editValue : value}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditValue(e.target.value)}
             onFocus={() => setIsEditing(true)}
             onBlur={handleInputBlur}
-            disabled={disabled}
+            disabled={effectiveDisabled}
+            aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
+            aria-required={fieldCtx?.required || undefined}
+            aria-invalid={fieldCtx?.invalid || undefined}
+            aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
             borderRadius="medium"
             outline="none"
             style={{
@@ -129,8 +144,9 @@ export const Counter: React.FC<CounterProps> = ({
         <Clickable
           as="button"
           type="button"
+          aria-label="Incrementar"
           onClick={handleIncrement}
-          disabled={disabled || value >= max}
+          disabled={effectiveDisabled || value >= max}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -153,6 +169,6 @@ export const Counter: React.FC<CounterProps> = ({
   );
 };
 
-Counter.displayName = 'Counter';
+CounterBase.displayName = 'Counter';
 
-export default Counter;
+export const Counter = markFieldAware(CounterBase);

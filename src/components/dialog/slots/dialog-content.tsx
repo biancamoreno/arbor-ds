@@ -12,14 +12,15 @@ const sizeMap = {
 } as const;
 
 export function DialogContent({ children, size = 'md' }: DialogContentProps) {
-  const { isOpen, close, titleId, descriptionId } = useDialogContext();
+  const { open, setOpen, titleId, descriptionId } = useDialogContext();
+  const close = () => setOpen(false);
 
-  const [mounted, setMounted] = useState(isOpen);
+  const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       setMounted(true);
       frameRef.current = requestAnimationFrame(() => setVisible(true));
     } else {
@@ -28,7 +29,7 @@ export function DialogContent({ children, size = 'md' }: DialogContentProps) {
       return () => clearTimeout(t);
     }
     return () => cancelAnimationFrame(frameRef.current);
-  }, [isOpen]);
+  }, [open]);
 
   if (!mounted) return null;
 

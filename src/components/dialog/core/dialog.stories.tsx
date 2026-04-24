@@ -38,13 +38,13 @@ export const Default: Story = {
 };
 
 function ControlledDialog() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   return (
     <>
-      <button onClick={() => setIsOpen(true)} style={{ padding: '8px 16px', borderRadius: 4, cursor: 'pointer' }}>
+      <button onClick={() => setOpen(true)} style={{ padding: '8px 16px', borderRadius: 4, cursor: 'pointer' }}>
         Abrir controlado
       </button>
-      <Dialog.Root isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Overlay />
         <Dialog.Content>
           <Dialog.Title>Dialog controlado</Dialog.Title>

@@ -6,7 +6,8 @@ import type { DialogTriggerProps } from '../interfaces/DialogProps';
 type AnyProps = Record<string, unknown>;
 
 export function DialogTrigger({ children, asChild = false }: DialogTriggerProps) {
-  const { open } = useDialogContext();
+  const { setOpen } = useDialogContext();
+  const handleOpen = () => setOpen(true);
 
   if (asChild) {
     const child = children as React.ReactElement<AnyProps>;
@@ -14,13 +15,13 @@ export function DialogTrigger({ children, asChild = false }: DialogTriggerProps)
     return React.cloneElement(child, {
       onClick: (e: React.MouseEvent) => {
         childOnClick?.(e);
-        open();
+        handleOpen();
       },
     });
   }
 
   return (
-    <Clickable as="button" type="button" onClick={open}>
+    <Clickable as="button" type="button" onClick={handleOpen}>
       {children}
     </Clickable>
   );
