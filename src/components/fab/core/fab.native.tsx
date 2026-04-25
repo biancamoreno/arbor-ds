@@ -27,6 +27,10 @@ export function FloatingActionButton({
   const { bg, fg } = VARIANT_COLORS[variant];
   const isExtended = !!label;
 
+  if (process.env.NODE_ENV !== 'production' && !label && !ariaLabel) {
+    console.warn('[FloatingActionButton] aria-label is required when label is not provided.');
+  }
+
   const positionStyle =
     position !== 'none'
       ? ({
@@ -74,3 +78,5 @@ export function FloatingActionButton({
     </TouchableOpacity>
   );
 }
+
+FloatingActionButton.displayName = 'FloatingActionButton';

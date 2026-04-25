@@ -13,9 +13,6 @@ const buttonSizeMap = {
 
 const loaderSizeMap = { sm: 14, md: 16, lg: 18 } as const;
 
-// valor do token borderRadius.small
-const BORDER_RADIUS_SMALL = 12;
-
 export function Button({
   children,
   variant = 'primary',
@@ -30,6 +27,7 @@ export function Button({
   const theme = useTheme();
   const groupCtx = useButtonGroup();
   const itemCtx = useButtonGroupItem();
+  const radiusSmall = theme.radii.small;
 
   const isDisabled = loading || disabled || (groupCtx?.isDisabled ?? false);
 
@@ -46,15 +44,15 @@ export function Button({
         attachedStyle = {
           borderTopRightRadius: 0,
           borderBottomRightRadius: 0,
-          borderTopLeftRadius: BORDER_RADIUS_SMALL,
-          borderBottomLeftRadius: BORDER_RADIUS_SMALL,
+          borderTopLeftRadius: radiusSmall,
+          borderBottomLeftRadius: radiusSmall,
         };
       } else if (isLast) {
         attachedStyle = {
           borderTopLeftRadius: 0,
           borderBottomLeftRadius: 0,
-          borderTopRightRadius: BORDER_RADIUS_SMALL,
-          borderBottomRightRadius: BORDER_RADIUS_SMALL,
+          borderTopRightRadius: radiusSmall,
+          borderBottomRightRadius: radiusSmall,
           marginInlineStart: -1,
         };
       } else {
@@ -65,15 +63,15 @@ export function Button({
         attachedStyle = {
           borderBottomLeftRadius: 0,
           borderBottomRightRadius: 0,
-          borderTopLeftRadius: BORDER_RADIUS_SMALL,
-          borderTopRightRadius: BORDER_RADIUS_SMALL,
+          borderTopLeftRadius: radiusSmall,
+          borderTopRightRadius: radiusSmall,
         };
       } else if (isLast) {
         attachedStyle = {
           borderTopLeftRadius: 0,
           borderTopRightRadius: 0,
-          borderBottomLeftRadius: BORDER_RADIUS_SMALL,
-          borderBottomRightRadius: BORDER_RADIUS_SMALL,
+          borderBottomLeftRadius: radiusSmall,
+          borderBottomRightRadius: radiusSmall,
           marginBlockStart: -1,
         };
       } else {
@@ -112,6 +110,7 @@ export function Button({
     <Clickable
       as="button"
       type={type}
+      disabled={isDisabled}
       alignItems="center"
       display="inline-flex"
       gap="8px"
@@ -142,7 +141,6 @@ export function Button({
         <Icon
           name="LoaderCircle"
           size={loaderSizeMap[size]}
-          aria-hidden="true"
           style={{ animation: 'arbor-spin 0.8s linear infinite', flexShrink: 0 }}
         />
       )}
@@ -150,3 +148,5 @@ export function Button({
     </Clickable>
   );
 }
+
+Button.displayName = 'Button';

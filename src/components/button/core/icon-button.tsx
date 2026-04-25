@@ -29,3 +29,5 @@ export function IconButton({
     </Button>
   );
 }
+
+IconButton.displayName = 'IconButton';

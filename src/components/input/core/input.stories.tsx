@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Flex } from '../../core';
 import { TextInput } from './textinput';
 import { TextArea } from './textarea';
 import { SearchInput } from './search-input';
@@ -53,11 +54,11 @@ export const Filled: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 320 }}>
+    <Flex flexDirection="column" gap="12px" style={{ width: 320 }}>
       <TextInput size="sm" placeholder="Pequeno (sm)" label="Pequeno" />
       <TextInput size="md" placeholder="Médio (md)" label="Médio" />
       <TextInput size="lg" placeholder="Grande (lg)" label="Grande" />
-    </div>
+    </Flex>
   ),
 };
 

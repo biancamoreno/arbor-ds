@@ -1,12 +1,12 @@
 import { useState, useEffect, type CSSProperties } from 'react';
 import { Clickable, Text, Icon } from '../../core';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks/use-prefers-reduced-motion';
 import { transition } from '../../../ecosystem/utils/functions/transition';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 
 const SIZE_MAP = { sm: 40, md: 56, lg: 72 } as const;
 const ICON_SIZE_MAP = { sm: 16, md: 20, lg: 24 } as const;
-const FAB_Z_INDEX = 900;
 
 export function FloatingActionButton({
   icon,
@@ -20,6 +20,7 @@ export function FloatingActionButton({
   'aria-label': ariaLabel,
   animateOnMount = true,
 }: FloatingActionButtonProps) {
+  const theme = useTheme();
   const prefersReduced = usePrefersReducedMotion();
   const [mounted, setMounted] = useState(false);
 
@@ -45,7 +46,7 @@ export function FloatingActionButton({
           ...(position === 'bottom-left' && { left: offset?.left ?? 16 }),
           ...(position === 'bottom-right' && { right: offset?.right ?? 16 }),
           ...(position === 'bottom-center' && { left: `calc(50% - ${dim / 2}px)` }),
-          zIndex: FAB_Z_INDEX,
+          zIndex: theme.zIndices.fab,
         };
 
   const variantTokens = {
@@ -117,3 +118,5 @@ export function FloatingActionButton({
     </Clickable>
   );
 }
+
+FloatingActionButton.displayName = 'FloatingActionButton';

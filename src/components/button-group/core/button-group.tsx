@@ -38,3 +38,5 @@ export function ButtonGroup({
     </ButtonGroupContext.Provider>
   );
 }
+
+ButtonGroup.displayName = 'ButtonGroup';

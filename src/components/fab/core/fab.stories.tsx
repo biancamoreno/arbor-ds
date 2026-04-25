@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FloatingActionButton } from './fab';
+import { Box, Flex, Text } from '../../core';
 
 const meta = {
   title: 'Components/FloatingActionButton',
@@ -26,10 +27,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ height: '100vh', position: 'relative', background: '#f9fafb', padding: 24 }}>
-    <p style={{ color: '#6b7280', fontSize: 14 }}>Conteúdo da página</p>
+  <Box height="100vh" position="relative" backgroundColor="#f9fafb" padding="24px">
+    <Text as="p" color="#6b7280" fontSize={14}>Conteúdo da página</Text>
     {children}
-  </div>
+  </Box>
 );
 
 export const Default: Story = {
@@ -55,11 +56,18 @@ export const Extended: Story = {
 export const Sizes: Story = {
   render: () => (
     <PageWrapper>
-      <div style={{ position: 'fixed', bottom: 24, right: 24, display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'flex-end' }}>
+      <Flex
+        position="fixed"
+        bottom="24px"
+        right="24px"
+        flexDirection="column"
+        gap="16px"
+        alignItems="flex-end"
+      >
         <FloatingActionButton icon="Plus" size="sm" position="none" onPress={() => {}} aria-label="Pequeno" />
         <FloatingActionButton icon="Plus" size="md" position="none" onPress={() => {}} aria-label="Médio" />
         <FloatingActionButton icon="Plus" size="lg" position="none" onPress={() => {}} aria-label="Grande" />
-      </div>
+      </Flex>
     </PageWrapper>
   ),
 };
@@ -67,11 +75,18 @@ export const Sizes: Story = {
 export const Variants: Story = {
   render: () => (
     <PageWrapper>
-      <div style={{ position: 'fixed', bottom: 24, right: 24, display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'flex-end' }}>
+      <Flex
+        position="fixed"
+        bottom="24px"
+        right="24px"
+        flexDirection="column"
+        gap="16px"
+        alignItems="flex-end"
+      >
         <FloatingActionButton icon="Pencil" variant="primary" position="none" onPress={() => {}} aria-label="Primary" />
         <FloatingActionButton icon="Pencil" variant="secondary" position="none" onPress={() => {}} aria-label="Secondary" />
         <FloatingActionButton icon="Pencil" variant="surface" position="none" onPress={() => {}} aria-label="Surface" />
-      </div>
+      </Flex>
     </PageWrapper>
   ),
 };

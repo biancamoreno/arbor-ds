@@ -63,11 +63,11 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it('disabled tem pointer-events none', () => {
+  it('disabled propaga atributo HTML disabled e aria-busy ausente', () => {
     render(<Button disabled>Btn</Button>, { wrapper });
     const btn = screen.getByRole('button');
-    // pointerEvents é aplicado via styled-system
-    expect(btn.style.pointerEvents === 'none' || btn.getAttribute('disabled') !== null || true).toBe(true);
+    expect(btn.hasAttribute('disabled')).toBe(true);
+    expect(btn.getAttribute('aria-busy')).toBeNull();
   });
 
   it('loading também bloqueia click', () => {
