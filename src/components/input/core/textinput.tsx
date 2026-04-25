@@ -1,10 +1,10 @@
 import React, { useId } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { ArborTransform, useSlotRecipe } from '../../../ecosystem';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable, Icon } from '../../core';
 import type { TextInputProps } from '../interfaces';
-import { FieldShell, getFieldColors, getFieldFrameStyle } from './shared';
+import { FieldShell } from './field-shell';
 
 export const TextInput = markFieldAware(
   React.forwardRef<HTMLInputElement, TextInputProps>(
@@ -28,16 +28,14 @@ export const TextInput = markFieldAware(
       },
       ref,
     ) => {
-      const theme = useTheme();
       const fieldCtx = useFieldContext();
       const autoId = useId();
 
       const effectiveError = fieldCtx?.invalid ? (error ?? ' ') : error;
       const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
+      const state = effectiveError ? 'error' : effectiveDisabled ? 'disabled' : 'idle';
 
-      const colors = getFieldColors(theme, { error: effectiveError, variant, disabled: effectiveDisabled });
-      const frameStyle = getFieldFrameStyle(theme, { size, variant, error: effectiveError, disabled: effectiveDisabled });
-
+      const slots = useSlotRecipe<'frame' | 'control'>('input', { size, variant, state });
       const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
 
       const handleClear = () => {
@@ -47,22 +45,25 @@ export const TextInput = markFieldAware(
       };
 
       const inputElement = (
-        <Flex
+        <ArborTransform
+          as="div"
+          {...slots.frame}
+          display="flex"
           alignItems="center"
           gap="micro"
-          style={{
-            ...frameStyle,
-            paddingInline: '12px',
-          }}
         >
           {leftIcon && (
-            <Flex as="span" display="inline-flex" alignItems="center">
+            <Flex as="span" display="inline-flex" alignItems="center" flexShrink={0}>
               {leftIcon}
             </Flex>
           )}
           <Box
             as="input"
             ref={ref}
+            {...slots.control}
+            flex={1}
+            minWidth={0}
+            cursor={effectiveDisabled ? 'not-allowed' : 'auto'}
             id={inputId}
             value={value}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,19 +75,14 @@ export const TextInput = markFieldAware(
             aria-required={fieldCtx?.required || undefined}
             aria-invalid={fieldCtx?.invalid || undefined}
             aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
-            flex={1}
-            outline="none"
-            cursor={effectiveDisabled ? 'not-allowed' : 'auto'}
-            minWidth={0}
+            {...rest}
             style={{
               border: 'none',
               backgroundColor: 'transparent',
-              color: colors.textColor,
+              outline: 'none',
               fontFamily: 'inherit',
-              fontSize: frameStyle.fontSize as unknown as string,
               ...style,
             }}
-            {...rest}
           />
           {clearable && value && (
             <Clickable
@@ -97,23 +93,23 @@ export const TextInput = markFieldAware(
               display="inline-flex"
               alignItems="center"
               flexShrink={0}
-              style={{ color: colors.placeholderColor }}
+              color="text.tertiary"
             >
               <Icon name="X" size="sm" />
             </Clickable>
           )}
           {rightIcon && (
-            <Flex as="span" display="inline-flex" alignItems="center">
+            <Flex as="span" display="inline-flex" alignItems="center" flexShrink={0}>
               {rightIcon}
             </Flex>
           )}
-        </Flex>
+        </ArborTransform>
       );
 
       if (fieldCtx) return inputElement;
 
       return (
-        <FieldShell theme={theme} label={label} helperText={helperText} error={error}>
+        <FieldShell label={label} helperText={helperText} error={error}>
           {inputElement}
         </FieldShell>
       );

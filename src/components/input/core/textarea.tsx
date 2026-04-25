@@ -1,10 +1,10 @@
 import React, { useId } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
 import type { TextAreaProps } from '../interfaces';
-import { FieldShell, getFieldColors, getFieldFrameStyle } from './shared';
+import { FieldShell } from './field-shell';
 
 export const TextArea = markFieldAware(
   React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
@@ -28,22 +28,24 @@ export const TextArea = markFieldAware(
       },
       ref,
     ) => {
-      const theme = useTheme();
       const fieldCtx = useFieldContext();
       const autoId = useId();
 
       const effectiveError = fieldCtx?.invalid ? (error ?? ' ') : error;
       const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
-      const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
+      const state = effectiveError ? 'error' : effectiveDisabled ? 'disabled' : 'idle';
 
-      const colors = getFieldColors(theme, { error: effectiveError, variant, disabled: effectiveDisabled });
-      const frameStyle = getFieldFrameStyle(theme, { size, variant, error: effectiveError, disabled: effectiveDisabled });
+      const slots = useSlotRecipe<'frame' | 'control'>('input', { size, variant, state });
+      const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
       const charCount = (value as string)?.length || 0;
 
       const textareaElement = (
         <Box
           as="textarea"
           ref={ref}
+          {...slots.frame}
+          {...slots.control}
+          cursor={effectiveDisabled ? 'not-allowed' : 'auto'}
           id={inputId}
           rows={rows}
           value={value}
@@ -57,16 +59,13 @@ export const TextArea = markFieldAware(
           aria-required={fieldCtx?.required || undefined}
           aria-invalid={fieldCtx?.invalid || undefined}
           aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
+          {...rest}
           style={{
-            ...frameStyle,
-            fontFamily: 'inherit',
-            color: colors.textColor,
-            cursor: effectiveDisabled ? 'not-allowed' : 'auto',
             outline: 'none',
             resize: 'vertical',
+            fontFamily: 'inherit',
             ...style,
           }}
-          {...rest}
         />
       );
 
@@ -75,11 +74,7 @@ export const TextArea = markFieldAware(
           <Text
             as="span"
             fontSize="xsmall"
-            style={{
-              color: charCount > maxLength * 0.9
-                ? theme.colors.feedback.critical.base
-                : theme.colors.text.secondary,
-            }}
+            color={charCount > maxLength * 0.9 ? 'feedback.critical.base' : 'text.secondary'}
           >
             {charCount} / {maxLength}
           </Text>
@@ -96,7 +91,7 @@ export const TextArea = markFieldAware(
       }
 
       return (
-        <FieldShell theme={theme} label={label} helperText={helperText} error={error}>
+        <FieldShell label={label} helperText={helperText} error={error}>
           {textareaElement}
           {charCountEl}
         </FieldShell>

@@ -23,7 +23,7 @@ export type ThemeComponents = {
   text?: RecipeConfig;
   button?: RecipeConfig;
   field?: SlotRecipeConfig;
-  input?: RecipeConfig;
+  input?: SlotRecipeConfig;
   checkbox?: SlotRecipeConfig;
   radio?: SlotRecipeConfig;
   switch?: SlotRecipeConfig;

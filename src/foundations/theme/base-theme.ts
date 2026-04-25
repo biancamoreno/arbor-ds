@@ -13,6 +13,7 @@ import {
   fontFamily,
 } from '../tokens';
 import { defineSlotRecipe } from '../../ecosystem/styled-system/recipes';
+import { transition } from '../../ecosystem/utils/functions/transition';
 import type { ThemeComponents } from './types';
 
 const components: ThemeComponents = {
@@ -180,27 +181,47 @@ const components: ThemeComponents = {
     defaultVariants: { size: 'md' },
   }),
 
-  input: {
+  input: defineSlotRecipe({
+    slots: ['frame', 'control'] as const,
     base: {
-      display: 'flex',
-      alignItems: 'center',
-      borderRadius: 'nano',
-      borderWidth: 'hairline',
-      width: '100%',
+      frame: {
+        width: '100%',
+        borderRadius: 'small',
+        borderWidth: 'hairline',
+        borderStyle: 'solid',
+        transition: transition(['border-color', 'box-shadow'], 'fast'),
+      },
+      control: {
+        color: 'text.primary',
+      },
     },
     variants: {
       size: {
-        sm: { minHeight: '32px', paddingLeft: 'tiny', paddingRight: 'tiny', fontSize: 'xs' },
-        md: { minHeight: '40px', paddingLeft: 'small', paddingRight: 'small', fontSize: 'sm' },
-        lg: { minHeight: '48px', paddingLeft: 'small', paddingRight: 'small', fontSize: 'small' },
+        sm: {
+          frame: { minHeight: '32px', paddingInline: '12px', paddingBlock: '6px' },
+          control: { fontSize: 'xsmall' },
+        },
+        md: {
+          frame: { minHeight: '40px', paddingInline: '16px', paddingBlock: '8px' },
+          control: { fontSize: 'small' },
+        },
+        lg: {
+          frame: { minHeight: '48px', paddingInline: '18px', paddingBlock: '10px' },
+          control: { fontSize: 'medium' },
+        },
       },
       variant: {
-        default: { borderColor: 'border.default', backgroundColor: 'surface.default' },
-        filled: { borderColor: 'border.default', backgroundColor: 'background.subtle' },
+        default: { frame: { backgroundColor: 'surface.default', borderColor: 'border.default' } },
+        filled: { frame: { backgroundColor: 'background.subtle', borderColor: 'border.default' } },
+      },
+      state: {
+        idle: {},
+        error: { frame: { borderColor: 'feedback.critical.base' } },
+        disabled: { frame: { opacity: 0.6 } },
       },
     },
-    defaultVariants: { size: 'md', variant: 'default' },
-  },
+    defaultVariants: { size: 'md', variant: 'default', state: 'idle' },
+  }),
 
   checkbox: defineSlotRecipe({
     slots: ['root', 'indicator', 'label', 'description'] as const,
