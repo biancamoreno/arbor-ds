@@ -1,8 +1,8 @@
-# Follow-ups consolidados — R1, R2, R3, R4, R5
+# Follow-ups consolidados — R1, R2, R3, R4, R5, R6
 
 > Índice acionável de tudo que ficou em aberto após cada fase de review. Atualizar ao mover itens para "concluído", abrir issue/PR ou rejeitar.
 
-**Última atualização:** 2026-04-24 (RFC-0005 + RFC-0006 implementadas em paralelo a R6 — `Empty` removido, `isTruncated` removido de Text+engine; CONTRIBUTING.md confirmado com 6 convenções + naming RFC-0013/0015)
+**Última atualização:** 2026-04-24 (R6 fixes imediatos aplicados — CR6-1/CR6-2/HR6-3 + sweep displayName/stories + limpeza Select APIs residuais + JSDocs + RadioCard default export removido; 598/598 testes verdes, lint limpo)
 
 > Para débito técnico mapeado (decisões de adiar com plano de resolução), ver [`docs/TECH_DEBT.md`](../TECH_DEBT.md).
 
@@ -14,11 +14,12 @@
 |---|---:|---:|---:|---:|---|
 | R1 | 0 | 6 | 7 | 0 | parcial — issues C3/C4 não viraram código |
 | R2 | 0 | 6 | 2 | 3 (RFC-0001, 0002, 0005 parcial) | parcial — testes verdes 536/536, faltam stories/testes ausentes |
-| R3 | 0 | 8 | 4 | 4 (RFC-0006, 0008, 0009, 0010) | parcial — testes verdes 536/536, Storybook build não verificado |
+| R3 | 0 | 6 | 2 | 6 (RFC-0006, 0008, 0009, 0010, 0011, 0012) | parcial — testes verdes 598/598, Storybook build não verificado |
 | R4 | 0 | 14 | 0 | — | ✅ — bug crítico CR4-1 corrigido, 544/544 verdes |
 | R5 | 0 | 24 | 2 (4 candidatas) | 2 (RFC-0013, 0014) | ✅ — fixes triviais aplicados, dead code removido, FileUpload pt-BR, RFCs do gate R6 implementadas (RFC-0013/0014) |
+| R6 | 0 | 30+ | 0 (6 candidatas) | — | ✅ — review documentada + fixes triviais aplicados (598/598) |
 
-**Total:** 15 RFCs (`RFC-0001` a `RFC-0015`) — 9 implementadas (0001, 0002, 0005, 0006, 0008, 0009, 0010, 0013, 0014, 0015), 5 em Draft (0003, 0004, 0007, 0011, 0012) · 58 issues · 0 fixes imediatos pendentes · 4 TDs resolvidas (TD-008, TD-010, TD-011, TD-012).
+**Total:** 15 RFCs (`RFC-0001` a `RFC-0015`) — 11 implementadas (0001, 0002, 0005, 0006, 0008, 0009, 0010, 0011, 0012, 0013, 0014, 0015), 3 em Draft (0003, 0004, 0007) · ~90 issues · 0 fixes imediatos pendentes · 4 TDs resolvidas (TD-008, TD-010, TD-011, TD-012).
 
 ---
 
@@ -60,9 +61,11 @@ Cada item deve virar issue com label `review:R1` / `R2` / `R3` quando o backlog 
 
 ### R2 — Core layout primitives
 
-- [ ] **Testes** ausentes em Flex, Grid (web + native), Container, Center, Square, Circle, Spacer (7 componentes).
+- [x] **Testes web** adicionados em Flex, Grid, Container, Center, Square, Circle, Spacer (2026-04-24 — 598/598 verdes).
+- [ ] **Testes native** ainda pendentes para Grid (`grid.native.tsx` sem cobertura).
 - [ ] **Stories** ausentes em Container, Center, Square, Circle, Spacer (5 componentes).
 - [ ] **Container** — regressão específica de `maxWidth: string`.
+- [ ] **Transform — whitelist incompleto (achado durante testes R2)**: `AVAILABLE_STYLE_PROPERTIES` não inclui `grid-template-*`, `grid-column-gap`, `grid-row-gap`, `grid-auto-flow`, `grid-auto-rows/columns`, `marginInline`, `paddingInline`, `justifySelf`, `backgroundImage/Size/Position/Repeat`. Componentes (Grid, Container, Spacer, Image-bg) passam essas props mas são descartadas silenciosamente. Estilo visível hoje vem de `display:grid`/`display:block`/`display:flex`/`flex:1` apenas. Decidir: estender whitelist (PR mecânico) ou tratar como feature de nova fase.
 - [ ] **Box / Flex** — remover `onClick` da tipagem (anti-pattern: usar `Clickable`).
 - [ ] **Container** — promover `fluid`/`maxWidth` para discriminated union.
 - [ ] **Container** — extrair `resolveMaxWidth` para `utils/` com testes isolados.
@@ -144,23 +147,115 @@ Issues abertas após review consolidada em [`R5-form-base.md`](./R5-form-base.md
 - [ ] **RFC candidata: Surface area `extends InputHTMLAttributes` → `nativeProps`** (HR5-13).
 - [ ] **RFC candidata: Estratégia Field.native** — partir de primitives ou aceitar split formal (HR5-1 / TD-009).
 
+### R6 — Formulário seleção (Checkbox + Radio + RadioCard + Switch + Select)
+
+Issues abertas após review consolidada em [`R6-form-selection.md`](./R6-form-selection.md).
+
+**Fixes imediatos — concluídos em 2026-04-24 (598/598 testes verdes, lint limpo):**
+
+- [x] **CR6-1** Checkbox: `name` e `value` repassados ao `<input>` via `CheckboxContext` (bug funcional resolvido).
+- [x] **CR6-2** RadioCard: `role="radio"` duplicado removido do `<Flex>`; troca por `aria-hidden="true"` (`<input type=radio>` mantém a semântica).
+- [x] **HR6-3** Radio: `disabled || …` → `disabled ?? …`; default `disabled = false` removido da destructuring (alinha com Checkbox/Switch/Select).
+- [x] **MR6-1** `displayName` adicionado em: Checkbox.Label/Description (web+native), Checkbox.Root/Indicator (native), Radio.Root/Indicator/Label/Description, Switch.Root (native), Switch.Track/Thumb, Select.Root/Trigger/Value/Content/Item.
+- [x] **MR6-2** Stories sweep: `<div style={{…}}>` → `<Flex>` / `<Box>` em Checkbox (Disabled/Group/WithDescription), Radio (WithDescription/Group/Sizes), RadioCard (Group/Sizes), Switch (WithLabel/Disabled/Sizes), Select (Sizes).
+- [x] **MR6-3 / MR6-4** Select: `placeholder?` e `style?` removidos de `SelectRootProps`; `SelectOption` interface removida (e do index); stories `Default`/`WithDefaultValue`/`WithDisabledItem`/`Sizes`/`Disabled` envoltas em `<Box width="280px">`.
+- [x] **CB-2** Checkbox: `displayName` em `CheckboxLabel`, `CheckboxDescription`, `CheckboxRoot`, `CheckboxIndicator` (web + native).
+- [x] **CB-3** Checkbox: JSDoc `@platform web-only` incorreto substituído por doc reflete a existência do `.native.tsx`.
+- [x] **R-3** Radio: JSDoc `@platform web-only` adicionado em `RadioProps.ts` (não existe `radio.native.tsx`).
+- [x] **RC-2** RadioCard: `export default RadioCard` removido; `export { default } from './radio-card'` removido do `core/index.ts`. Confirmado grep: zero importações `import RadioCard` (default) no repo.
+
+**Issues — Checkbox:**
+
+- [ ] **CB-4** `forwardRef` em `CheckboxRoot` (sweep TD-007).
+- [ ] **CB-5** `:focus-visible` token quando definido (RFC R1 futura).
+- [ ] **CB-6** Native: trocar `Pressable` por `Clickable`.
+- [ ] **CB-7** Native: substituir hardcodes (`width: 18`, `borderRadius: 4`, `borderWidth: 2`) por props ou tokens.
+- [ ] **CB-8** Native: usar `<Icon name="Check\|Minus" />` em vez de `<Box>` rotacionado.
+- [ ] **CB-9** Native: `accessibilityState={{ checked: 'mixed' }}` quando indeterminate.
+- [ ] **CB-10** Testes adicionais: focus, keyboard, label click, touch target, RTL, dark theme, anúncio "mixed".
+- [ ] **CB-11** Testes nativos (cobertura zero).
+- [ ] **CB-12** Stories: integração `<Field>`, form com submit, dark theme.
+- [ ] **CB-13** JSDoc explicando contrato de `indeterminate` (caller deve limpar).
+
+**Issues — Radio:**
+
+- [ ] **R-4** `forwardRef` em `RadioRoot`.
+- [ ] **R-5** Foco visível (boxShadow/outline no card via `:focus-visible` do input oculto).
+- [ ] **R-6** `Indicator` deve escalar com `size` (sm: 16, md: 20, lg: 24).
+- [ ] **R-7** Respeitar `usePrefersReducedMotion`.
+- [ ] **R-8** Promover `gap`/`padding`/`backgroundColor`/`transition` de `style` para props.
+- [ ] **R-9** Testes: keyboard real (`fireEvent.click` em vez de só ler `disabled`), setas, focus, sizes, RTL, integração `<Field>`.
+- [ ] **R-10** Story: integração `<Field>` completa, dark theme, RadioGroup quando existir.
+- [ ] **R-11** Decidir comportamento native (criar `radio.native.tsx` ou guard de import).
+
+**Issues — RadioCard:**
+
+- [ ] **RC-4** Criar suíte de testes (cobertura zero — escrever 12+ casos).
+- [ ] **RC-5** Adicionar `useFieldContext` + `markFieldAware(RadioCard)`.
+- [ ] **RC-6** Trocar `useState + checked ?? internal` por `useControllableState`.
+- [ ] **RC-7** Foco visível.
+- [ ] **RC-8** Bug visual `sm`/`md` indistinguíveis em font (ajustar `sizeMap`).
+- [ ] **RC-9** Promover `style` declarativas onde existem props.
+- [ ] **RC-10** Respeitar `usePrefersReducedMotion`.
+
+**Issues — Switch:**
+
+- [ ] **SW-3** `forwardRef` em `SwitchRoot`.
+- [ ] **SW-4** Foco visível no track quando `<input>` recebe `:focus-visible`.
+- [ ] **SW-5** Touch target ≥ 44×44 (padding wrapper).
+- [ ] **SW-6** Respeitar `usePrefersReducedMotion`.
+- [ ] **SW-7** RTL: usar `inset-inline-start` em vez de `transform: translateX`.
+- [ ] **SW-8** Native: trocar `View` por `Box`/`Flex`; mapear `aria-labelledby`.
+- [ ] **SW-9** Native: criar testes.
+- [ ] **SW-10** JSDoc + Storybook docs para diferença visual cross-platform.
+- [ ] **SW-11** Promover `style` declarativas.
+- [ ] **SW-12** Story: integração `<Field>`, dark theme.
+
+**Issues — Select:**
+
+- [ ] **SE-7** `forwardRef` em `SelectTrigger`.
+- [ ] **SE-8** Substituir `▲`/`▼` por `<Icon name="ChevronDown" />` com rotação CSS.
+- [ ] **SE-9** Foco visível no trigger.
+- [ ] **SE-10** Promover `style` declarativas (height/padding/fontSize/border/backgroundColor/color).
+- [ ] **SE-11** `transition()` em open/close + `usePrefersReducedMotion`.
+- [ ] **SE-12** Touch target ≥ 44×44 em `sm`/`md`.
+- [ ] **SE-13** Substituir outside-click manual por `DismissableLayer`.
+- [ ] **SE-14** `useOverlayStack` para múltiplos selects.
+- [ ] **SE-15** Stories: `<Field>`, controlado, dark theme, conteúdo longo, portal.
+- [ ] **SE-16** Testes: keyboard (setas/Home/End/type-ahead), focus, RTL, dark theme.
+
+**RFCs candidatas R6 (não bloqueantes para R7, mas decidir antes de R7 fechar):**
+
+- [ ] **RFC candidata R6-A: Recipes mortas em R6** — `checkbox`/`radio`/`switch`/`select` declaradas em `base-theme.ts` mas não consumidas. Mesmo padrão de TD-008 (resolvido). Decidir entre implementar consumo ou remover do theme. **Sweep coordenado.**
+- [ ] **RFC candidata R6-B: Foco visível em inputs ocultos** — padrão técnico recorrente em Radio/RadioCard/Switch/Checkbox. Definir como refletir `:focus-visible` no visual desenhado (boxShadow/outline/peer-style). Resolve HR6-1.
+- [ ] **RFC candidata R6-C: `RadioGroup` / `CheckboxGroup` / `SwitchGroup`** — caso de uso primário (escolha entre N, lista de toggles) hoje exige consumidor montar `<div role="...">` + gerenciar estado coletivo manualmente. Lacuna de produto.
+- [ ] **RFC candidata R6-D: `RadioCard` — deprecar, unificar como `Radio variant="card"` ou alinhar contratos** — duplicação funcional com Radio (mesma intenção, contratos divergentes, manutenção dobrada).
+- [ ] **RFC candidata R6-E: Slots reais ou remoção em `Switch.Track`/`Switch.Thumb`** — slots fantasma hoje. Decidir entre refactor para slot real ou tornar Switch elementar.
+- [ ] **RFC candidata R6-F: Select cumprindo WAI-ARIA "Select-Only Combobox"** — setas/Home/End/type-ahead, focus management completo, `aria-controls`/`aria-activedescendant`, item registry (display × value). **Refatoração ampla — peça mais relevante de R6.**
+- [ ] **RFC candidata R6-G: Render via `Portal` para overlays** — Select.Content + R11 (Dialog/Drawer/Tooltip/Popover/Menu). Definir antes de R11 poupa retrabalho.
+- [ ] **RFC candidata R6-H: Estratégia native para componentes form web-only** — Radio/RadioCard/Select sem `.native.tsx`. Decidir entre re-implementar ou marcar formal `web-only` com guard de import.
+- [ ] **RFC candidata R6-I: Touch target padrão do DS** — invariante WCAG 44×44 mínimo em todos os componentes interativos. Cobre Counter (R5), TextInput sm (R5), Switch md (R6), Select sm/md (R6), items (R6).
+- [ ] **RFC candidata R6-J: Indicator visual cross-platform unificado para Checkbox** — substituir `accentColor` (web, dependente do user agent) e Box rotacionado (native, sem ícone real) por SVG/Icon próprio com paridade. Resolve HR6-8/HR6-9.
+
 ### R3 — Core cross-platform primitives
 
-- [ ] **Text** — testes (variantes, truncamento, HTML parsing, a11y).
+- [x] **Text** — testes (polimorfismo, ref, role, parsing HTML, truncamento) adicionados 2026-04-24.
 - [ ] **Text** — stories por variante tipográfica nomeada (`bigNumber`, `body`, `display1–4`, `title1–2`, etc.).
 - [ ] **Text** — story para HTML parsing com `onLinkPress`.
 - [ ] **Text** — story para truncamento com `numberOfLines={2}`.
 - [ ] **Text** — fixar `lineHeight` hardcoded (`'20px'`) na recipe para usar token.
-- [ ] **Text** — investigar `onPress` na interface (implementar ou remover).
-- [ ] **Clickable** — testes (renderização, click, ref, TapState, keyboard).
+- [ ] **Text** — **bug de truncamento**: `maxHeight: calc(${lineHeight} * ${n})` vira `NaNpx` no transform (getSize interpreta string como numero). Follow-up registrado via teste de truncamento (cobre display/overflow mas não max-height).
+- [ ] **Text** — investigar `onPress`/`onLinkPress` na interface: html-converter não liga `onLinkPress` ao click nativo do `<a>` no web hoje (teste cobre só href atributo).
+- [x] **Clickable** — testes (renderização, click, ref, TapState, keyboard) — implementados na Fase R4/gate.
 - [ ] **Clickable** — stories (default, com TapState, polimórfico, disabled, em composição).
-- [ ] **Clickable** — warning de dev para `as !== 'button'` sem `role` (proteção a11y).
-- [ ] **Clickable** — documentar `TapState` no JSDoc com exemplo.
+- [x] **Clickable** — warning de dev para `as !== 'button'/'a'` sem `role` (ativo em dev).
+- [ ] **Clickable** — documentar `PressFeedback` no JSDoc com exemplo.
 - [ ] **Icon** — testes para `icon.native.tsx` (normalização de `currentColor`, size string, `accessibilityElementsHidden/Label`).
-- [ ] **Image** — testes web (render `<img>`, render background, `resizeMode`, `alt`, `onError`/`onLoad`) e native (normalização, dimensões percentuais).
-- [ ] **Image** — stories para `center` resizeMode, `stretch` resizeMode, `onError` com fallback, `onLoad` com indicador.
-- [ ] **Image** — adicionar `forwardRef`.
-- [ ] **Image** — documentar comportamento dual no JSDoc (até RFC-0011 ser aceito).
+- [x] **Image** — testes web (18 testes: mode="img"/"background", resizeMode, fallback, errorFallback, aria-busy, onLoad/onError, ref) adicionados 2026-04-24.
+- [ ] **Image** — testes native (normalização source, dimensões percentuais, transição de status com `onLoad`/`onError` da RN).
+- [x] **Image** — stories ampliadas (`Default`, `Contain`, `Stretch`, `CenterMode`, `Background`, `ErrorState`, `CustomFallback`, `NoFallback`) adicionadas 2026-04-24.
+- [x] **Image** — `forwardRef` adicionado (verificado em teste).
+- [x] **Image** — comportamento dual substituído por `mode: 'img'|'background'` (RFC-0011 implementada 2026-04-24); JSDoc atualizado em `ImageProps.ts`.
 
 ---
 
@@ -201,8 +296,8 @@ Todas em **Status: Draft**. Localizadas em `docs/rfcs/`.
 | [RFC-0008](../rfcs/RFC-0008-tapstate-prop-vs-slot-em-clickable.md) | `tapState`: prop vs. slot em `Clickable` | R3-C · `clickable.md` | ~~R4~~ (destravada) | **Implemented c/ recorte (2026-04-24)** |
 | [RFC-0009](../rfcs/RFC-0009-tamanhos-semanticos-em-icon.md) | Tamanhos semânticos para `Icon.size` | R3-D · `icon.md` | — | **Implemented (2026-04-24)** |
 | [RFC-0010](../rfcs/RFC-0010-discriminated-union-decorative-em-icon.md) | Discriminated union `decorative` + `aria-label` | R3-E · `icon.md` | — | **Implemented (2026-04-24)** |
-| [RFC-0011](../rfcs/RFC-0011-modo-de-renderizacao-explicito-em-image.md) | Modo de renderização explícito em `Image` | R3-F · `image.md` | implementar com RFC-0012 | Draft |
-| [RFC-0012](../rfcs/RFC-0012-loading-e-error-states-em-image.md) | Estados de loading/error em `Image` | R3-G · `image.md` | implementar com RFC-0011 | Draft |
+| [RFC-0011](../rfcs/RFC-0011-modo-de-renderizacao-explicito-em-image.md) | Modo de renderização explícito em `Image` | R3-F · `image.md` | implementar com RFC-0012 | **Implemented (2026-04-24)** |
+| [RFC-0012](../rfcs/RFC-0012-loading-e-error-states-em-image.md) | Estados de loading/error em `Image` | R3-G · `image.md` | implementar com RFC-0011 | **Implemented (2026-04-24)** |
 
 ---
 

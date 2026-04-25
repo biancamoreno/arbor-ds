@@ -13,13 +13,26 @@ const meta = {
       control: { type: 'select' },
       options: ['cover', 'contain', 'stretch', 'center'],
     },
+    mode: {
+      control: { type: 'select' },
+      options: ['img', 'background'],
+    },
+    fallback: {
+      control: { type: 'select' },
+      options: ['skeleton', 'none'],
+    },
+    errorFallback: {
+      control: { type: 'select' },
+      options: ['icon', 'none'],
+    },
   },
 } satisfies Meta<typeof Image>;
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj<typeof meta>;
 
 const PLACEHOLDER = 'https://placehold.co/400x250/4a90e2/ffffff?text=Arbor+DS';
+const BROKEN = 'https://invalid.example.com/missing.jpg';
 
 export const Default: Story = {
   args: {
@@ -41,19 +54,67 @@ export const Contain: Story = {
   },
 };
 
-export const WithOverlay: Story = {
-  render: () => (
-    <Image source={PLACEHOLDER} width={400} height={250} alt="Com overlay">
-      <Box
-        position="absolute"
-        bottom={0}
-        left={0}
-        right={0}
-        padding="12px 16px"
-        backgroundColor="rgba(0,0,0,0.6)"
-      >
-        <Text as="span" color="#fff">Legenda da imagem</Text>
+export const Stretch: Story = {
+  args: {
+    source: PLACEHOLDER,
+    width: 400,
+    height: 250,
+    alt: 'Stretch mode',
+    resizeMode: 'stretch',
+  },
+};
+
+export const CenterMode: Story = {
+  args: {
+    source: PLACEHOLDER,
+    width: 400,
+    height: 250,
+    alt: 'Center mode',
+    resizeMode: 'center',
+  },
+};
+
+export const Background: Story = {
+  args: {
+    mode: 'background',
+    source: PLACEHOLDER,
+    width: 400,
+    height: 250,
+    alt: 'Banner com legenda',
+    children: (
+      <Box position="absolute" bottom={0} left={0} right={0} padding="md" backgroundColor="background.overlay">
+        <Text as="span" color="text.inverse">Legenda da imagem</Text>
       </Box>
-    </Image>
-  ),
+    ),
+  },
+};
+
+export const ErrorState: Story = {
+  args: {
+    source: BROKEN,
+    width: 400,
+    height: 250,
+    alt: 'Imagem que falha',
+  },
+};
+
+export const CustomFallback: Story = {
+  args: {
+    source: PLACEHOLDER,
+    width: 400,
+    height: 250,
+    alt: 'Imagem com loading custom',
+    fallback: <Box width="100%" height="100%" backgroundColor="background.subtle" />,
+  },
+};
+
+export const NoFallback: Story = {
+  args: {
+    source: PLACEHOLDER,
+    width: 400,
+    height: 250,
+    alt: 'Sem fallback',
+    fallback: 'none',
+    errorFallback: 'none',
+  },
 };
