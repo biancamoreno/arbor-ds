@@ -84,6 +84,16 @@ function SwitchRoot({
         {...slots.track}
         onClick={() => !effectiveDisabled && setIsChecked(!isChecked)}
         aria-hidden="true"
+        position="relative"
+        _before={{
+          content: '""',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '44px',
+          minHeight: '44px',
+        }}
         style={{ boxSizing: 'border-box' }}
       >
         <Box

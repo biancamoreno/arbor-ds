@@ -191,6 +191,67 @@ onCheckedChange?: (checked: boolean, value: string) => void;
 
 **Eventos pontuais (não-Change):** seguem `on{Verbo}` simples — `onSubmit`, `onClose`, `onSelect`. `Change` é reservado para par `value`/`onValueChange`.
 
+### 8. Foco visível em componentes com input oculto (WCAG 2.4.7)
+
+Componentes que escondem o `<input>` real (`position:absolute; opacity:0; pointerEvents:none`) e desenham um controle visual próprio (Radio, RadioCard, Switch, Counter, etc.) **devem refletir o `:focus-visible` do input no controle desenhado**. Sem isso, o usuário com teclado não enxerga onde está e o formulário viola WCAG 2.4.7 (AA).
+
+Padrão técnico DS:
+
+```tsx
+// No slot do wrapper que contém o input + visual:
+_focusVisibleWithin: {
+  outline: '2px solid',
+  outlineColor: 'interactive.default',
+  outlineOffset: '2px',
+}
+
+// Quando o input já é visível (ex: Checkbox.Indicator usa <Box as="input">):
+_focusVisible: {
+  outline: '2px solid',
+  outlineColor: 'interactive.default',
+  outlineOffset: '2px',
+}
+```
+
+`_focusVisibleWithin` resolve para `&:has(:focus-visible)` — reage só ao foco por teclado, suportado em todos os navegadores modernos. O wrapper deve ter `borderRadius` apropriado para o anel acompanhar a forma do controle. Cada componente novo desse padrão precisa de **1 teste assertivo** verificando a regra de outline no stylesheet gerado.
+
+### 9. Touch target ≥ 44×44 (WCAG 2.5.5)
+
+Todo elemento interativo (botão, trigger, item de lista, ícone clicável, input) **deve ter área de toque mínima de 44×44 CSS pixels** em qualquer size do componente. Sem exceção. Aplica para web e native.
+
+**Caminho preferido — bumpar `minHeight` na recipe:**
+
+```ts
+// Em base-theme.ts
+size: {
+  sm: { control: { minHeight: '44px' } },  // não menos que 44
+  md: { control: { minHeight: '44px' } },
+  lg: { control: { minHeight: '48px' } },
+}
+```
+
+**Quando o visual precisa ser menor que 44 (ex: Counter compacto, Switch),** preserve o visual e expanda apenas a área de toque com overlay invisível via `_before`:
+
+```tsx
+<Clickable
+  position="relative"
+  _before={{
+    content: '""',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: '44px',
+    minHeight: '44px',
+  }}
+  style={{ width: 24, height: 24 /* visual compacto */ }}
+>
+  …
+</Clickable>
+```
+
+O `::before` herda os event handlers do parent — clicar no overlay dispara `onClick` do botão. **Cada componente novo interativo precisa de teste assertivo** verificando `min-height >= 44` (no slot via recipe) ou regra `::before{min-width:44px;min-height:44px}` (no overlay).
+
 ## RFCs
 
 Mudanças que afetam API pública, breaking changes ou decisões arquiteturais relevantes requerem RFC.

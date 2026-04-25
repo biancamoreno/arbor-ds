@@ -248,3 +248,23 @@ describe('Select FieldContext integration', () => {
     expect((screen.getByRole('combobox') as HTMLButtonElement).disabled).toBe(true);
   });
 });
+
+describe('Select accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
+  it.each(['sm', 'md', 'lg'] as const)('trigger minHeight is >= 44 in size %s', size => {
+    renderSelect(
+      <Select defaultValue="" size={size}>
+        <Select.Trigger>
+          <Select.Value placeholder="Pick one" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="apple">Apple</Select.Item>
+        </Select.Content>
+      </Select>,
+    );
+    const triggerClass = (screen.getByRole('combobox').className.split(' ').pop())!;
+    const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
+    const minHeightMatch = new RegExp(`\\.${triggerClass}\\{[^}]*min-height:(\\d+)px`).exec(sheet);
+    expect(minHeightMatch).not.toBeNull();
+    expect(Number(minHeightMatch![1])).toBeGreaterThanOrEqual(44);
+  });
+});

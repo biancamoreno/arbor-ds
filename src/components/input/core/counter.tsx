@@ -27,10 +27,20 @@ const CounterBase: React.FC<CounterProps> = ({
   const [editValue, setEditValue] = useState(String(value));
 
   const sizeMap = {
-    sm: { button: '24px', font: theme.fontSizes.xsmall, padding: '0.25rem 0.5rem' },
-    md: { button: '32px', font: theme.fontSizes.small, padding: '0.5rem 0.75rem' },
-    lg: { button: '40px', font: theme.fontSizes.medium, padding: '0.75rem 1rem' },
+    sm: { button: '32px', font: theme.fontSizes.xsmall, padding: '0.25rem 0.5rem' },
+    md: { button: '40px', font: theme.fontSizes.small, padding: '0.5rem 0.75rem' },
+    lg: { button: '48px', font: theme.fontSizes.medium, padding: '0.75rem 1rem' },
   };
+
+  const hitTargetOverlay = {
+    content: '""',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: '44px',
+    minHeight: '44px',
+  } as const;
 
   const handleDecrement = () => {
     if (!effectiveDisabled && value > min) onValueChange?.(Math.max(value - step, min));
@@ -85,6 +95,8 @@ const CounterBase: React.FC<CounterProps> = ({
           justifyContent="center"
           borderRadius="medium"
           cursor={!canDecrement ? 'not-allowed' : 'pointer'}
+          position="relative"
+          _before={hitTargetOverlay}
           style={{
             width: sizeMap[size].button,
             height: sizeMap[size].button,
@@ -152,6 +164,8 @@ const CounterBase: React.FC<CounterProps> = ({
           justifyContent="center"
           borderRadius="medium"
           cursor={!canIncrement ? 'not-allowed' : 'pointer'}
+          position="relative"
+          _before={hitTargetOverlay}
           style={{
             width: sizeMap[size].button,
             height: sizeMap[size].button,

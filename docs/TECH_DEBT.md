@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-25 (RFC-0018 onda 1 — `Clickable.native` criado; TD-004 Resolved; FAB.native migrado)
+**Última atualização:** 2026-04-25 (TD-016 Resolved — touch target ≥ 44×44 em Field/Input/Select/Counter/Switch/FAB via `minHeight` em recipes + overlay `::before`)
 
 ---
 
@@ -25,12 +25,12 @@
 | [TD-011](#td-011) | Field — sem registry de slots para condicional `aria-describedby` | R5 (Field, CR5-2) | **Resolved (2026-04-24)** | A11y: aria-describedby aponta para id inexistente quando Description ausente | Resolvido por RFC-0014 — FieldContext ganhou `descriptionRegistered`/`errorRegistered` + register/unregister via `useEffect` nos slots Description/Error |
 | [TD-012](#td-012) | Varredura completa de depreciados (Modal, aliases `is*`, flat Checkbox/Tooltip/Drawer, array responsivo) | Pré-release | **Resolved (2026-04-24)** | Surface area dobrada; warnings em runtime; documentação inflada | Removido em 2026-04-24 — sem consumidores externos, sem janela de transição. Ver TD-012 abaixo. |
 | [TD-013](#td-013) | Ambiente de testes para componentes `.native.tsx` ausente | TD-009 (estratégia Field.native) | **Resolved (2026-04-25)** | Drift cross-platform sem trava; bloqueia validação de TD-004/005/009 e R6 native | RFC-0016 implementada — jest multi-project (`web` + `native`) + 13/13 `.native.tsx` cobertos + `scripts/check-platform-contract.js` valida paridade |
-| [TD-014](#td-014) | Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox web) | R6 review (HR6-1) | Open | A11y crítica — WCAG 2.4.7 quebrado | Sweep coordenado: refletir `:focus-visible` do `<input>` oculto via boxShadow no visual desenhado |
+| [TD-014](#td-014) | Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox web) | R6 review (HR6-1) | **Resolved (2026-04-25)** | A11y crítica — WCAG 2.4.7 quebrado | Pseudo-prop `_focusVisibleWithin` (`:has(:focus-visible)`) + `_focusVisible` no Checkbox.Indicator; engine ganhou `outline*`/`boxShadow`; CONTRIBUTING §8 documenta padrão |
 | [TD-015](#td-015) | Slots fantasma `Switch.Track`/`Switch.Thumb` | R6 review (HR6-2) | **Resolved (2026-04-25)** | API mente — slots não-funcionais | RFC-0017 caminho B — `Switch.Track` / `Switch.Thumb` removidos do export; Switch é elementar |
-| [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | Open | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Sweep + invariante DS via lint rule custom |
+| [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | **Resolved (2026-04-25)** | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Field/Input/Select recipes com `minHeight: 44` + Counter/Switch com overlay `::before` 44×44; FAB sm 40→44; engine ganhou `content`; CONTRIBUTING §9 documenta padrão |
 | [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | Open (10 restantes) | **Crítico** — Promessa do DS quebrada em mobile; Field-aware mistos | RFC-0018 (paridade native completa) — onda 1 (Clickable) e onda 2 (Input família) entregues; ondas 3–6 pendentes |
 
-**Total:** 8 dívidas abertas, 8 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013 e TD-015 em 2026-04-25).
+**Total:** 6 dívidas abertas, 10 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25).
 
 ---
 
@@ -772,8 +772,21 @@ Workaround conhecido em `jest.setup.native.cjs`: pre-resolve dos lazy globals da
 ## TD-014 — Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox)
 
 **Origem:** R6 review (HR6-1) · 2026-04-25
-**Status:** Open
+**Status:** Resolved (2026-04-25)
 **Severidade:** Alta (a11y — WCAG 2.4.7)
+
+### Resolução (2026-04-25)
+
+1. **Engine — pseudo-prop nova:** `_focusVisibleWithin` resolve para `&:has(:focus-visible)` (`src/ecosystem/styled-system/system/pseudo-props/pseudos.ts`). Reage só ao foco por teclado mesmo quando o input real é descendente invisível. `:has` tem suporte amplo em todos navegadores modernos.
+2. **Engine — props habilitadas:** `outline`, `outlineColor`, `outlineOffset` e `boxShadow` adicionadas em `available-style-properties.ts`. `outlineColor` resolve token de cor via `getColor` no `style-map.ts` (antes já existiam tipados em `interactivity.ts` mas eram silenciosamente descartadas pelo engine).
+3. **Recipes (`src/foundations/theme/base-theme.ts`):**
+   - `checkbox.base.indicator`: `_focusVisible` (input visível direto).
+   - `radio.base.root`: `borderRadius: medium` + `_focusVisibleWithin`.
+   - `switch.base.root`: `borderRadius: full` + `_focusVisibleWithin`.
+   - Constante `focusRing` reutilizada (`{ outline: '2px solid', outlineColor: 'interactive.default', outlineOffset: '2px' }`).
+4. **RadioCard (não consome recipe):** prop direta `_focusVisibleWithin` no `<Box as="label">` raiz.
+5. **Tests:** 1 teste assertivo por componente verificando que o stylesheet gerado contém regra `:has(:focus-visible){...outline...}` (ou `:focus-visible{...outline...}` no caso do Checkbox). 686/686 verdes.
+6. **CONTRIBUTING §8:** padrão técnico documentado para componentes futuros com input oculto.
 
 ### Contexto
 
@@ -873,8 +886,18 @@ Decidir entre:
 ## TD-016 — Touch target abaixo de WCAG 44×44
 
 **Origem:** R6 review (R6-I) · 2026-04-25
-**Status:** Open
+**Status:** Resolved (2026-04-25)
 **Severidade:** Alta (a11y mobile — WCAG 2.5.5 / SC 2.5.8)
+
+### Resolução (2026-04-25)
+
+1. **Engine — `content` habilitado:** adicionado em `available-style-properties.ts`. Antes era descartado, impedindo `_before` overlays funcionais.
+2. **Recipes (`base-theme.ts`):** `field.size.{sm,md}.control.minHeight` e `input.size.{sm,md}.frame.minHeight` 32/40 → **44**. `select.size.{sm,md}.trigger.minHeight` e `select.size.{sm,md,lg}.item.minHeight` → **44**. `lg` mantido em 48 onde já estava.
+3. **FAB (`fab.tsx`):** `SIZE_MAP.sm` 40 → **44**.
+4. **Counter (`counter.tsx`):** visual subiu (sm 24→32, md 32→40, lg 40→48) **e** ambos botões ganharam overlay `_before` com `minWidth/minHeight: 44px` centrado via `transform: translate(-50%, -50%)`. Hit area é 44×44 mesmo no sm.
+5. **Switch (`switch.tsx`):** track recebeu overlay `_before` 44×44 idêntico (track herda `onClick`, então clicar no overlay ainda toggla).
+6. **Tests:** parametrizados `it.each(['sm','md','lg'])` por componente — TextInput/Select inspecionam regra `min-height` no stylesheet; Counter/Switch inspecionam regra `::before{...min-width:44px;min-height:44px}`; FAB checa `style.height`. Novo `counter.test.tsx` criado. **702/702 verdes** (+16).
+7. **CONTRIBUTING §9:** padrão e exemplos documentados (`minHeight` em recipe ou `_before` overlay para visuais < 44).
 
 ### Contexto
 

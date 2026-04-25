@@ -220,3 +220,24 @@ describe('Switch sizes', () => {
     expect(getSwitch()).toBeTruthy();
   });
 });
+
+describe('Switch accessibility — visible focus (TD-014, WCAG 2.4.7)', () => {
+  it('emits :has(:focus-visible) outline rule on the root', () => {
+    renderSwitch(<Switch aria-label="Toggle" />);
+    const rootClass = (getSwitch().parentElement as HTMLElement).className;
+    const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
+    const focusRule = new RegExp(`\\.${rootClass.split(' ').pop()}:has\\(:focus-visible\\)\\{[^}]*outline`);
+    expect(sheet).toMatch(focusRule);
+  });
+});
+
+describe('Switch accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
+  it.each(['sm', 'md', 'lg'] as const)('track has 44x44 hit-area overlay in size %s', size => {
+    renderSwitch(<Switch size={size} aria-label="Toggle" />);
+    const track = document.querySelector('[aria-hidden="true"]') as HTMLElement;
+    const trackClass = track.className.split(' ').pop()!;
+    const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
+    const beforeRule = new RegExp(`\\.${trackClass}::before\\{[^}]*min-width:44px[^}]*min-height:44px`);
+    expect(sheet).toMatch(beforeRule);
+  });
+});

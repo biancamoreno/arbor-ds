@@ -71,3 +71,19 @@ describe('FloatingActionButton', () => {
     expect(screen.getByRole('button').tagName).toBe('BUTTON');
   });
 });
+
+describe('FloatingActionButton accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
+  it.each([
+    ['sm', 44],
+    ['md', 56],
+    ['lg', 72],
+  ] as const)('size %s renders with height %d (>= 44)', (size, expected) => {
+    render(
+      <FloatingActionButton icon="Plus" size={size} onPress={() => {}} aria-label="x" />,
+      { wrapper },
+    );
+    const btn = screen.getByRole('button') as HTMLButtonElement;
+    expect(btn.style.height).toBe(`${expected}px`);
+    expect(expected).toBeGreaterThanOrEqual(44);
+  });
+});

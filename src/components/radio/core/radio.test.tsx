@@ -272,3 +272,17 @@ describe('Radio full composition', () => {
     expect(screen.getByRole('radio').getAttribute('name')).toBe('group1');
   });
 });
+
+describe('Radio accessibility — visible focus (TD-014, WCAG 2.4.7)', () => {
+  it('emits :has(:focus-visible) outline rule on the root', () => {
+    const { container } = renderRadio(
+      <Radio value="a" defaultChecked={false}>
+        <Radio.Indicator />
+      </Radio>,
+    );
+    const rootClass = (container.querySelector('label') as HTMLElement).className;
+    const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
+    const focusRule = new RegExp(`\\.${rootClass.split(' ').pop()}:has\\(:focus-visible\\)\\{[^}]*outline`);
+    expect(sheet).toMatch(focusRule);
+  });
+});

@@ -23,6 +23,14 @@ const pseudoSelectors: PseudoSelectors = {
   _focusWithin: '&:focus-within',
   _focusVisible: '&:focus-visible',
   /**
+   * Estilos a serem aplicados quando este elemento contiver um descendente focado por teclado.
+   * - Seletor CSS `&:has(:focus-visible)`
+   *
+   * Use em wrappers cujo input real está visualmente oculto (Radio/Switch/RadioCard) para
+   * refletir foco visível no controle desenhado, atendendo WCAG 2.4.7.
+   */
+  _focusVisibleWithin: '&:has(:focus-visible)',
+  /**
    * Estilos a serem aplicados quando este elemento estiver desabilitado. Os estilos passados são aplicados a estes seletores CSS:
    * - `&[aria-disabled=true]`
    * - `&:disabled`

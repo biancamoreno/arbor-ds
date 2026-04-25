@@ -27,6 +27,7 @@ styleMap.set('borderLeftColor', getColor);
 styleMap.set('borderStartColor', getColor);
 styleMap.set('borderTopColor', getColor);
 styleMap.set('textDecorationColor', getColor);
+styleMap.set('outlineColor', getColor);
 styleMap.set('opacity', getOpacity);
 styleMap.set('borderRadius', getRadius);
 styleMap.set('borderBottomEndRadius', getRadius);

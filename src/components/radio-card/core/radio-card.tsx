@@ -52,6 +52,12 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
         width="100%"
         cursor={disabled ? 'not-allowed' : 'pointer'}
         opacity={disabled ? 0.6 : 1}
+        borderRadius="medium"
+        _focusVisibleWithin={{
+          outline: '2px solid',
+          outlineColor: 'interactive.default',
+          outlineOffset: '2px',
+        }}
       >
         <Box
           as="input"

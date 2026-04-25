@@ -5,7 +5,7 @@ import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system
 import { transition } from '../../../ecosystem/utils/functions/transition';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 
-const SIZE_MAP = { sm: 40, md: 56, lg: 72 } as const;
+const SIZE_MAP = { sm: 44, md: 56, lg: 72 } as const;
 const ICON_SIZE_MAP = { sm: 16, md: 20, lg: 24 } as const;
 
 export function FloatingActionButton({

@@ -16,6 +16,12 @@ import { defineSlotRecipe } from '../../ecosystem/styled-system/recipes';
 import { transition } from '../../ecosystem/utils/functions/transition';
 import type { ThemeComponents } from './types';
 
+const focusRing = {
+  outline: '2px solid',
+  outlineColor: 'interactive.default',
+  outlineOffset: '2px',
+} as const;
+
 const components: ThemeComponents = {
   text: {
     base: {},
@@ -173,8 +179,8 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { control: { minHeight: '32px' } },
-        md: { control: { minHeight: '40px' } },
+        sm: { control: { minHeight: '44px' } },
+        md: { control: { minHeight: '44px' } },
         lg: { control: { minHeight: '48px' } },
       },
     },
@@ -198,11 +204,11 @@ const components: ThemeComponents = {
     variants: {
       size: {
         sm: {
-          frame: { minHeight: '32px', paddingInline: '12px', paddingBlock: '6px' },
+          frame: { minHeight: '44px', paddingInline: '12px', paddingBlock: '6px' },
           control: { fontSize: 'xsmall' },
         },
         md: {
-          frame: { minHeight: '40px', paddingInline: '16px', paddingBlock: '8px' },
+          frame: { minHeight: '44px', paddingInline: '16px', paddingBlock: '8px' },
           control: { fontSize: 'small' },
         },
         lg: {
@@ -236,6 +242,7 @@ const components: ThemeComponents = {
         borderWidth: 'thin',
         borderColor: 'border.strong',
         backgroundColor: 'surface.default',
+        _focusVisible: focusRing,
       },
       label: { fontSize: 'small', fontWeight: 'medium', color: 'text.primary' },
       description: { fontSize: 'xsmall', color: 'text.secondary' },
@@ -261,7 +268,12 @@ const components: ThemeComponents = {
   radio: defineSlotRecipe({
     slots: ['root', 'control', 'indicator', 'label', 'description'] as const,
     base: {
-      root: { display: 'flex', width: '100%' },
+      root: {
+        display: 'flex',
+        width: '100%',
+        borderRadius: 'medium',
+        _focusVisibleWithin: focusRing,
+      },
       control: {
         display: 'flex',
         alignItems: 'flex-start',
@@ -311,7 +323,14 @@ const components: ThemeComponents = {
   switch: defineSlotRecipe({
     slots: ['root', 'track', 'thumb'] as const,
     base: {
-      root: { display: 'inline-flex', alignItems: 'center', gap: 'tiny', userSelect: 'none' },
+      root: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 'tiny',
+        userSelect: 'none',
+        borderRadius: 'full',
+        _focusVisibleWithin: focusRing,
+      },
       track: {
         display: 'inline-flex',
         alignItems: 'center',
@@ -387,18 +406,18 @@ const components: ThemeComponents = {
     variants: {
       size: {
         sm: {
-          trigger: { minHeight: '32px', paddingLeft: 'tiny', paddingRight: 'tiny', fontSize: 'xsmall' },
-          item: { minHeight: '32px' },
+          trigger: { minHeight: '44px', paddingLeft: 'tiny', paddingRight: 'tiny', fontSize: 'xsmall' },
+          item: { minHeight: '44px' },
           value: { fontSize: 'xsmall' },
         },
         md: {
-          trigger: { minHeight: '40px', paddingLeft: 'small', paddingRight: 'small', fontSize: 'small' },
-          item: { minHeight: '36px' },
+          trigger: { minHeight: '44px', paddingLeft: 'small', paddingRight: 'small', fontSize: 'small' },
+          item: { minHeight: '44px' },
           value: { fontSize: 'small' },
         },
         lg: {
           trigger: { minHeight: '48px', paddingLeft: 'small', paddingRight: 'small', fontSize: 'medium' },
-          item: { minHeight: '40px' },
+          item: { minHeight: '44px' },
           value: { fontSize: 'medium' },
         },
       },

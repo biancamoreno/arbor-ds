@@ -222,3 +222,18 @@ describe('TextInput FieldContext integration', () => {
     expect(screen.getByText('From context')).toBeTruthy();
   });
 });
+
+describe('TextInput accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
+  it.each(['sm', 'md', 'lg'] as const)('frame minHeight is >= 44 in size %s', size => {
+    renderInput(<TextInput size={size} />);
+    const frame = screen.getByRole('textbox').parentElement as HTMLElement;
+    const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
+    const classes = frame.className.split(' ').filter(c => c.startsWith('arbor-'));
+    const minHeights = classes
+      .map(c => new RegExp(`\\.${c}\\{[^}]*min-height:(\\d+)px`).exec(sheet))
+      .filter(Boolean)
+      .map(m => Number(m![1]));
+    expect(minHeights.length).toBeGreaterThan(0);
+    expect(Math.max(...minHeights)).toBeGreaterThanOrEqual(44);
+  });
+});

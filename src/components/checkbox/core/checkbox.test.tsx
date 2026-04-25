@@ -245,3 +245,16 @@ describe('Checkbox FieldContext integration', () => {
   });
 });
 
+describe('Checkbox accessibility — visible focus (TD-014, WCAG 2.4.7)', () => {
+  it('emits :focus-visible outline rule for the indicator', () => {
+    renderCb(
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
+        <Checkbox.Indicator data-testid="cb" />
+      </Checkbox.Root>,
+    );
+    const indicatorClass = (screen.getByTestId('cb') as HTMLInputElement).className;
+    const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
+    const focusRule = new RegExp(`\\.${indicatorClass.split(' ').pop()}:focus-visible\\{[^}]*outline`);
+    expect(sheet).toMatch(focusRule);
+  });
+});
