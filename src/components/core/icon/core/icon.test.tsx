@@ -1,11 +1,6 @@
 import { render } from '@testing-library/react';
 import { Icon } from './icon';
 
-const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-afterEach(() => consoleSpy.mockClear());
-afterAll(() => consoleSpy.mockRestore());
-
 describe('Icon', () => {
   it('renders svg for a valid name', () => {
     const { container } = render(<Icon name="Check" />);
@@ -23,6 +18,12 @@ describe('Icon', () => {
     expect(svg?.getAttribute('aria-hidden')).toBe('true');
   });
 
+  it('applies aria-hidden when decorative is omitted (default behavior)', () => {
+    const { container } = render(<Icon name="Check" />);
+    const svg = container.querySelector('svg');
+    expect(svg?.getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('does not apply aria-hidden when not decorative', () => {
     const { container } = render(<Icon name="Check" decorative={false} aria-label="Check icon" />);
     const svg = container.querySelector('svg');
@@ -35,17 +36,26 @@ describe('Icon', () => {
     expect(svg?.getAttribute('aria-label')).toBe('Confirmar');
   });
 
-  it('warns in dev when decorative=false and aria-label is missing', () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
-    render(<Icon name="Check" decorative={false} />);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('decorative=false requires aria-label'),
-    );
-    process.env.NODE_ENV = originalEnv;
+  it('resolves semantic size token "md" to 20px (default)', () => {
+    const { container } = render(<Icon name="Check" />);
+    const svg = container.querySelector('svg');
+    expect(svg?.getAttribute('width')).toBe('20');
+    expect(svg?.getAttribute('height')).toBe('20');
   });
 
-  it('propagates size prop', () => {
+  it('resolves semantic size token "xs" to 12px', () => {
+    const { container } = render(<Icon name="Check" size="xs" />);
+    const svg = container.querySelector('svg');
+    expect(svg?.getAttribute('width')).toBe('12');
+  });
+
+  it('resolves semantic size token "hero" to 48px', () => {
+    const { container } = render(<Icon name="Check" size="hero" />);
+    const svg = container.querySelector('svg');
+    expect(svg?.getAttribute('width')).toBe('48');
+  });
+
+  it('aceita number como escape hatch para size', () => {
     const { container } = render(<Icon name="Check" size={32} />);
     const svg = container.querySelector('svg');
     expect(svg?.getAttribute('width')).toBe('32');

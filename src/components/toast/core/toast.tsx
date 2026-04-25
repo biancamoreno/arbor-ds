@@ -134,7 +134,7 @@ function ToastClose({ label = 'Fechar', onClose, style, ...props }: ToastClosePr
         ...style,
       }}
     >
-      <Icon name="X" size={14} aria-hidden="true" />
+      <Icon name="X" size="sm" />
     </Clickable>
   );
 }

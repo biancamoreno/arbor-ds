@@ -27,7 +27,7 @@ export function Spinner({ size = 'md', color, label = 'Carregando', style, ...pr
       }}
       {...props}
     >
-      <Icon name="LoaderCircle" size={px} color="currentColor" aria-hidden="true" />
+      <Icon name="LoaderCircle" size={px} color="currentColor" />
     </Flex>
   );
 }

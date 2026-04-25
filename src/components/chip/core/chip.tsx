@@ -122,7 +122,7 @@ function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
         ...style,
       }}
     >
-      <Icon name="X" size={12} aria-hidden="true" />
+      <Icon name="X" size="xs" />
     </Clickable>
   );
 }

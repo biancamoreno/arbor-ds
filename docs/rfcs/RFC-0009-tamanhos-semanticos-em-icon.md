@@ -1,8 +1,10 @@
 # RFC-0009 — Tamanhos semânticos para `Icon.size`
 
-**Status**: Draft
+**Status**: Implemented
 **Autores**: Arquiteto Arbor-DS
 **Data**: 2026-04-24
+**Aceita em**: 2026-04-24
+**Implementada em**: 2026-04-24 (junto com RFC-0010)
 **Origem**: R3 · achado em `icon.md`
 **PR**: —
 

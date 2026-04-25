@@ -1,25 +1,34 @@
 import * as lucideNative from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
-import type { IconProps } from '../interfaces/IconProps';
+import { iconSize as iconSizeTokens } from '../../../../foundations';
+import type { IconProps, IconSize } from '../interfaces/IconProps';
 
-export function Icon({
-  name,
-  size = 20,
-  color = 'currentColor',
-  strokeWidth = 1.75,
-  decorative = true,
-  'aria-label': ariaLabel,
-}: IconProps) {
+function resolveSize(size: IconSize): number {
+  if (typeof size === 'number') return size;
+  return iconSizeTokens[size];
+}
+
+export function Icon(props: IconProps) {
+  const {
+    name,
+    size = 'md',
+    color = 'currentColor',
+    strokeWidth = 1.75,
+    decorative,
+  } = props;
+  const ariaLabel = (props as { 'aria-label'?: string })['aria-label'];
+  const isDecorative = decorative !== false;
+
   const LucideIconComponent = (lucideNative as Record<string, unknown>)[name] as LucideIcon | undefined;
   if (!LucideIconComponent) return null;
 
   return (
     <LucideIconComponent
-      size={typeof size === 'number' ? size : 20}
+      size={resolveSize(size)}
       color={color === 'currentColor' ? '#000000' : color}
       strokeWidth={strokeWidth}
-      accessibilityElementsHidden={decorative}
-      accessibilityLabel={decorative ? undefined : ariaLabel}
+      accessibilityElementsHidden={isDecorative}
+      accessibilityLabel={isDecorative ? undefined : ariaLabel}
     />
   );
 }

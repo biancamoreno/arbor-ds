@@ -4,6 +4,7 @@ import {
   borderWidth,
   fontSize,
   fontWeight,
+  iconSize,
   letterSpacing,
   lineHeight,
   spacing,
@@ -484,6 +485,7 @@ export const baseTheme = {
   fontSizes: fontSize,
   fonts: fontFamily,
   zIndices: zIndex,
+  iconSizes: iconSize,
   breakpoints: createBreakpoints({
     sm: '640px',
     md: '768px',

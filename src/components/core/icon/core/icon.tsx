@@ -1,31 +1,34 @@
 import { icons } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { IconProps } from '../interfaces/IconProps';
+import { iconSize as iconSizeTokens } from '../../../../foundations';
+import type { IconProps, IconSize } from '../interfaces/IconProps';
 
-export function Icon({
-  name,
-  size = 20,
-  color = 'currentColor',
-  strokeWidth = 1.75,
-  decorative = true,
-  'aria-label': ariaLabel,
-  ...rest
-}: IconProps) {
+function resolveSize(size: IconSize): number {
+  if (typeof size === 'number') return size;
+  return iconSizeTokens[size];
+}
+
+export function Icon(props: IconProps) {
+  const {
+    name,
+    size = 'md',
+    color = 'currentColor',
+    strokeWidth = 1.75,
+    decorative,
+  } = props;
+  const ariaLabel = (props as { 'aria-label'?: string })['aria-label'];
+  const isDecorative = decorative !== false;
+
   const LucideIconComponent = icons[name] as LucideIcon | undefined;
   if (!LucideIconComponent) return null;
 
-  if (process.env.NODE_ENV !== 'production' && !decorative && !ariaLabel) {
-    console.warn(`[Icon] name="${name}": decorative=false requires aria-label for accessibility.`);
-  }
-
   return (
     <LucideIconComponent
-      size={size}
+      size={resolveSize(size)}
       color={color}
       strokeWidth={strokeWidth}
-      aria-hidden={decorative || undefined}
-      aria-label={!decorative ? ariaLabel : undefined}
-      {...(rest as object)}
+      aria-hidden={isDecorative || undefined}
+      aria-label={!isDecorative ? ariaLabel : undefined}
     />
   );
 }

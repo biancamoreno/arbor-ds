@@ -75,7 +75,7 @@ export const StrokeVariants: Story = {
     <Flex alignItems="center" gap="24px">
       {([1, 1.5, 1.75, 2] as const).map((sw) => (
         <Flex key={sw} flexDirection="column" alignItems="center" gap="4px">
-          <Icon name="Circle" size={24} strokeWidth={sw} decorative />
+          <Icon name="Circle" size="lg" strokeWidth={sw} decorative />
           <Text as="span" fontSize={11} color="#6b7280">{sw}</Text>
         </Flex>
       ))}
