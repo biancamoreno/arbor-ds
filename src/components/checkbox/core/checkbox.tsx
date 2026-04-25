@@ -15,7 +15,7 @@ import type {
 function CheckboxRoot({
   checked,
   defaultChecked = false,
-  onChange,
+  onCheckedChange,
   disabled,
   indeterminate = false,
   id: idProp,
@@ -31,7 +31,7 @@ function CheckboxRoot({
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
     defaultValue: defaultChecked,
-    onChange,
+    onChange: onCheckedChange,
   });
 
   return (

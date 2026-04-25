@@ -65,7 +65,7 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
           onChange={() => {
             if (disabled) return;
             if (checked === undefined) setInternalChecked(true);
-            onCheckedChange?.(true, value);
+            onCheckedChange?.(true);
           }}
           position="absolute"
           opacity={0}

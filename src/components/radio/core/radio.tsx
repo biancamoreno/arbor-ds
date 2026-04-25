@@ -41,7 +41,7 @@ function RadioRoot({
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
     defaultValue: defaultChecked,
-    onChange: (val) => onCheckedChange?.(val, value),
+    onChange: (val) => onCheckedChange?.(val),
   });
 
   return (

@@ -23,7 +23,7 @@ const thumbSize: Record<SwitchSize, number> = {
 function SwitchRoot({
   checked,
   defaultChecked = false,
-  onChange,
+  onCheckedChange,
   disabled,
   id: idProp,
   name,
@@ -42,7 +42,7 @@ function SwitchRoot({
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
     defaultValue: defaultChecked,
-    onChange,
+    onChange: onCheckedChange,
   });
 
   const track = trackSize[size];

@@ -144,6 +144,42 @@ if (process.env.NODE_ENV !== 'production') {
 
 Exemplos: `Icon.native` para `currentColor`, `Clickable` para `as !== 'button'/'a'` sem `role`.
 
+### 7. Naming de props e eventos
+
+**Props booleanas (RFC-0013):** API pública usa nomes alinhados com HTML/ARIA, **sem prefixo `is`**.
+
+```tsx
+// ✅ Correto
+<Field disabled required invalid />
+<Dialog open onOpenChange={…} />
+<Checkbox checked indeterminate />
+
+// ❌ Errado
+<Field isDisabled isRequired isInvalid />
+<Dialog isOpen />
+```
+
+Variáveis derivadas locais dentro do componente podem usar `is*` para legibilidade (`const isInteractive = !disabled && !readOnly`).
+
+**Eventos de mudança de estado controlado (RFC-0015):** usar `on{Verbo}Change` com assinatura **value-only**.
+
+```tsx
+// ✅ Correto — nome explícito + assinatura value-only
+onCheckedChange?: (checked: boolean) => void;
+onValueChange?: (value: T) => void;
+onOpenChange?: (open: boolean) => void;
+
+// ❌ Errado — onChange ambíguo (conflita com onChange HTML)
+onChange?: (checked: boolean) => void;
+
+// ❌ Errado — assinatura estendida (consumidor já tem `value` no escopo do JSX)
+onCheckedChange?: (checked: boolean, value: string) => void;
+```
+
+**Exceção legítima:** componentes que envolvem `<input>`/`<textarea>` podem aceitar `onChange` HTML adicional **com semântica preservada** (`(e: ChangeEvent) => void`). Não redefinir o significado de `onChange`.
+
+**Eventos pontuais (não-Change):** seguem `on{Verbo}` simples — `onSubmit`, `onClose`, `onSelect`. `Change` é reservado para par `value`/`onValueChange`.
+
 ## RFCs
 
 Mudanças que afetam API pública, breaking changes ou decisões arquiteturais relevantes requerem RFC.

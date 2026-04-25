@@ -14,6 +14,6 @@ export interface RadioCardProps
   defaultChecked?: boolean;
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
-  onCheckedChange?: (checked: boolean, value: string) => void;
+  onCheckedChange?: (checked: boolean) => void;
   children?: ReactNode;
 }

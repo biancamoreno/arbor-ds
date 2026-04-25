@@ -7,7 +7,7 @@ import type { CounterProps } from '../interfaces';
 
 const CounterBase: React.FC<CounterProps> = ({
   value,
-  onChange,
+  onValueChange,
   min = 0,
   max = 999,
   step = 1,
@@ -33,18 +33,18 @@ const CounterBase: React.FC<CounterProps> = ({
   };
 
   const handleDecrement = () => {
-    if (!effectiveDisabled && value > min) onChange?.(Math.max(value - step, min));
+    if (!effectiveDisabled && value > min) onValueChange?.(Math.max(value - step, min));
   };
 
   const handleIncrement = () => {
-    if (!effectiveDisabled && value < max) onChange?.(Math.min(value + step, max));
+    if (!effectiveDisabled && value < max) onValueChange?.(Math.min(value + step, max));
   };
 
   const handleInputBlur = () => {
     const numValue = parseInt(editValue, 10);
     if (!isNaN(numValue)) {
       const clamped = Math.max(min, Math.min(numValue, max));
-      onChange?.(clamped);
+      onValueChange?.(clamped);
       setEditValue(String(clamped));
     } else {
       setEditValue(String(value));

@@ -8,7 +8,7 @@ import type { SwitchRootProps } from '../interfaces/SwitchProps';
 function SwitchRoot({
   checked,
   defaultChecked = false,
-  onChange,
+  onCheckedChange,
   disabled,
   children,
   'aria-label': ariaLabel,
@@ -20,7 +20,7 @@ function SwitchRoot({
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
     defaultValue: defaultChecked,
-    onChange,
+    onChange: onCheckedChange,
   });
 
   return (

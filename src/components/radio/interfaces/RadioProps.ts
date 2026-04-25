@@ -6,7 +6,7 @@ export interface RadioRootProps {
   value: string;
   checked?: boolean;
   defaultChecked?: boolean;
-  onCheckedChange?: (checked: boolean, value: string) => void;
+  onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   id?: string;
   name?: string;

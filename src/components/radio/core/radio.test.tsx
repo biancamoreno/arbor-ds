@@ -62,7 +62,7 @@ describe('Radio.Root', () => {
     );
     const input = screen.getByRole('radio') as HTMLInputElement;
     fireEvent.click(input);
-    expect(onCheckedChange).toHaveBeenCalledWith(true, 'opt1');
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
   });
 
   it('sets checked on click (uncontrolled)', () => {

@@ -18,7 +18,7 @@ function renderCb(ui: React.ReactElement) {
 describe('Checkbox compound anatomy', () => {
   it('renders Checkbox.Root with children', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator />
         <Checkbox.Label>Accept terms</Checkbox.Label>
       </Checkbox.Root>,
@@ -28,7 +28,7 @@ describe('Checkbox compound anatomy', () => {
 
   it('renders unchecked by default', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -37,7 +37,7 @@ describe('Checkbox compound anatomy', () => {
 
   it('renders checked when defaultChecked=true', () => {
     renderCb(
-      <Checkbox.Root defaultChecked onChange={() => {}}>
+      <Checkbox.Root defaultChecked onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -46,7 +46,7 @@ describe('Checkbox compound anatomy', () => {
 
   it('toggles state on click (uncontrolled)', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -55,20 +55,20 @@ describe('Checkbox compound anatomy', () => {
     expect(input.checked).toBe(true);
   });
 
-  it('calls onChange when toggled', () => {
-    const onChange = jest.fn();
+  it('calls onCheckedChange when toggled', () => {
+    const onCheckedChange = jest.fn();
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={onChange}>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={onCheckedChange}>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
     fireEvent.click(screen.getByTestId('cb'));
-    expect(onChange).toHaveBeenCalledWith(true);
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
   });
 
   it('respects controlled checked prop', () => {
     renderCb(
-      <Checkbox.Root checked onChange={() => {}}>
+      <Checkbox.Root checked onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -77,7 +77,7 @@ describe('Checkbox compound anatomy', () => {
 
   it('renders as disabled when disabled=true', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}} disabled>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}} disabled>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -85,19 +85,19 @@ describe('Checkbox compound anatomy', () => {
   });
 
   it('does not toggle when disabled', () => {
-    const onChange = jest.fn();
+    const onCheckedChange = jest.fn();
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={onChange} disabled>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={onCheckedChange} disabled>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
     fireEvent.click(screen.getByTestId('cb'));
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onCheckedChange).not.toHaveBeenCalled();
   });
 
   it('sets indeterminate on native input', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}} indeterminate>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}} indeterminate>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -106,7 +106,7 @@ describe('Checkbox compound anatomy', () => {
 
   it('Checkbox.Indicator has type="checkbox"', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -115,7 +115,7 @@ describe('Checkbox compound anatomy', () => {
 
   it('Checkbox.Label renders children', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator />
         <Checkbox.Label>My label</Checkbox.Label>
       </Checkbox.Root>,
@@ -125,7 +125,7 @@ describe('Checkbox compound anatomy', () => {
 
   it('Checkbox.Description renders children', () => {
     renderCb(
-      <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator />
         <Checkbox.Description>Extra info</Checkbox.Description>
       </Checkbox.Root>,
@@ -139,7 +139,7 @@ describe('Checkbox FieldContext integration', () => {
     renderCb(
       <Field id="cb-field">
         <Field.Control>
-          <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+          <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
             <Checkbox.Indicator data-testid="cb" />
           </Checkbox.Root>
         </Field.Control>
@@ -153,7 +153,7 @@ describe('Checkbox FieldContext integration', () => {
     renderCb(
       <Field id="cb-field" invalid>
         <Field.Control>
-          <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+          <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
             <Checkbox.Indicator data-testid="cb" />
           </Checkbox.Root>
         </Field.Control>
@@ -165,7 +165,7 @@ describe('Checkbox FieldContext integration', () => {
   it('receives disabled from Field context', () => {
     renderCb(
       <Field id="cb-field" disabled>
-        <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+        <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
           <Checkbox.Indicator data-testid="cb" />
         </Checkbox.Root>
       </Field>,
@@ -177,7 +177,7 @@ describe('Checkbox FieldContext integration', () => {
     renderCb(
       <Field id="cb-field" required>
         <Field.Control>
-          <Checkbox.Root defaultChecked={false} onChange={() => {}}>
+          <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
             <Checkbox.Indicator data-testid="cb" />
           </Checkbox.Root>
         </Field.Control>

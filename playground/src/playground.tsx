@@ -504,7 +504,7 @@ function ComponentsSection({
               <Badge tone="critical">critical</Badge>
             </Flex>
 
-            <Checkbox.Root checked={compactMode} onChange={setCompactMode}>
+            <Checkbox.Root checked={compactMode} onCheckedChange={setCompactMode}>
               <Checkbox.Indicator />
               <Flex flexDirection="column" gap="2px">
                 <Checkbox.Label>Compact mode</Checkbox.Label>
@@ -531,7 +531,7 @@ function ComponentsSection({
               />
             </div>
 
-            <Counter label="Density scale" value={counterValue} onChange={setCounterValue} min={1} max={8} />
+            <Counter label="Density scale" value={counterValue} onValueChange={setCounterValue} min={1} max={8} />
           </div>
         </article>
       </section>

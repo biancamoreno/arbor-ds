@@ -42,25 +42,25 @@ describe('Switch', () => {
     expect(getSwitch().checked).toBe(true);
   });
 
-  it('calls onChange when toggled', () => {
-    const onChange = jest.fn();
-    renderSwitch(<Switch onChange={onChange} aria-label="Toggle" />);
+  it('calls onCheckedChange when toggled', () => {
+    const onCheckedChange = jest.fn();
+    renderSwitch(<Switch onCheckedChange={onCheckedChange} aria-label="Toggle" />);
     const track = document.querySelector('[aria-hidden="true"]') as HTMLElement;
     fireEvent.click(track);
-    expect(onChange).toHaveBeenCalledWith(true);
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
   });
 
   it('respects controlled checked prop', () => {
-    renderSwitch(<Switch checked onChange={() => {}} aria-label="Toggle" />);
+    renderSwitch(<Switch checked onCheckedChange={() => {}} aria-label="Toggle" />);
     expect(getSwitch().checked).toBe(true);
   });
 
-  it('updates controlled state via onChange', () => {
-    const onChange = jest.fn();
-    renderSwitch(<Switch checked={false} onChange={onChange} aria-label="Toggle" />);
+  it('updates controlled state via onCheckedChange', () => {
+    const onCheckedChange = jest.fn();
+    renderSwitch(<Switch checked={false} onCheckedChange={onCheckedChange} aria-label="Toggle" />);
     const track = document.querySelector('[aria-hidden="true"]') as HTMLElement;
     fireEvent.click(track);
-    expect(onChange).toHaveBeenCalledWith(true);
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
   });
 
   it('is disabled when disabled=true', () => {
@@ -69,11 +69,11 @@ describe('Switch', () => {
   });
 
   it('does not toggle when disabled', () => {
-    const onChange = jest.fn();
-    renderSwitch(<Switch disabled onChange={onChange} aria-label="Toggle" />);
+    const onCheckedChange = jest.fn();
+    renderSwitch(<Switch disabled onCheckedChange={onCheckedChange} aria-label="Toggle" />);
     const track = document.querySelector('[aria-hidden="true"]') as HTMLElement;
     fireEvent.click(track);
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onCheckedChange).not.toHaveBeenCalled();
   });
 
   it('has aria-label when provided', () => {

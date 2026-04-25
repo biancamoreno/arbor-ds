@@ -5,7 +5,7 @@ export type SwitchSize = 'sm' | 'md' | 'lg';
 export interface SwitchRootProps {
   checked?: boolean;
   defaultChecked?: boolean;
-  onChange?: (checked: boolean) => void;
+  onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   id?: string;
   name?: string;

@@ -7,7 +7,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 export interface CheckboxRootProps {
   checked?: boolean;
   defaultChecked?: boolean;
-  onChange?: (checked: boolean) => void;
+  onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   indeterminate?: boolean;
   id?: string;
