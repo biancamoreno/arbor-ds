@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import { createTheme, themeLight } from '../../../../foundations';
 import { ArborProvider } from '../../../../ecosystem/styled-system';
-import { Text } from './text';
+import { Grid } from './grid';
+import { Text } from '../../text';
 
 const theme = createTheme(themeLight, {});
 
@@ -10,14 +11,16 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   return <ArborProvider theme={theme}>{children}</ArborProvider>;
 }
 
-describe('Text (native)', () => {
+describe('Grid (native)', () => {
   it('renders children', () => {
-    render(<Text>Hello</Text>, { wrapper: Wrapper });
-    expect(screen.getByText('Hello')).toBeTruthy();
-  });
-
-  it('forwards numberOfLines to the underlying native node', () => {
-    render(<Text numberOfLines={2}>Long copy</Text>, { wrapper: Wrapper });
-    expect(screen.getByText('Long copy').props.numberOfLines).toBe(2);
+    render(
+      <Grid>
+        <Text>cell-a</Text>
+        <Text>cell-b</Text>
+      </Grid>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByText('cell-a')).toBeTruthy();
+    expect(screen.getByText('cell-b')).toBeTruthy();
   });
 });
