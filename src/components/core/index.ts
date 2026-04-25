@@ -3,7 +3,6 @@ export * from './center';
 export * from './circle';
 export * from './clickable';
 export * from './container';
-export * from './empty';
 export * from './icon';
 export * from './image';
 export * from './flex';

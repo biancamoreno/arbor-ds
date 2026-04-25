@@ -1,10 +1,34 @@
 # RFC-0006 — Consolidar `isTruncated` e `numberOfLines` em `Text`
 
-**Status**: Draft
+**Status**: Accepted · Implementada em 2026-04-24
 **Autores**: Arquiteto Arbor-DS
 **Data**: 2026-04-24
 **Origem**: R3 · achado em `text.md`
 **PR**: —
+
+---
+
+## Decisão (2026-04-24)
+
+Aceita com **escopo expandido** — a varredura encontrou tentáculos órfãos do mesmo gap em `TypographyProps` (engine), removidos no mesmo commit para evitar drift entre Text e o styled-system base.
+
+**Mudanças aplicadas:**
+
+- ✅ `isTruncated` removida de `TextProps` (`src/components/core/text/interfaces/TextProps.ts`).
+- ✅ Destructuring `isTruncated: _isTruncated` removido de `text.tsx`.
+- ✅ JSDoc adicionado em `numberOfLines` cobrindo cenário de single-line truncate e paridade React Native.
+- ✅ **Engine cleanup:** `isTruncated` e `noOfLines` (também órfão) removidas de `TypographyProps` em `src/ecosystem/styled-system/system/props/typography.ts` — nenhum consumidor real, nenhum lugar do engine consumia essas props.
+- ✅ Sem alias legacy, sem janela de transição (alinha com TD-012). Zero consumidores reais — verificado por grep em `src/`, `playground/`, `stories/`.
+- ✅ **Codemod não publicado** — sem consumidores externos.
+
+**Critérios de aceite:**
+
+- [x] `isTruncated` removido de `TextProps` e `TypographyProps`
+- [x] `noOfLines` órfão removido de `TypographyProps`
+- [x] JSDoc em `numberOfLines` com paridade RN documentada
+- [x] `pnpm test` verde (536/536) · `pnpm typecheck` limpo
+- [ ] _Diferido:_ Story dedicada para `numberOfLines={1}` e `numberOfLines={3}` (R3 follow-up — entra no batch de stories ausentes)
+- [ ] _Diferido:_ Teste cobrindo truncamento (R3 follow-up — entra no batch de testes ausentes em Text)
 
 ---
 

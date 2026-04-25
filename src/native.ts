@@ -35,5 +35,3 @@ export type { TextProps } from './components/core/text';
 
 export { Image } from './components/core/image';
 export type { ImageProps } from './components/core/image';
-
-export { Empty } from './components/core/empty';

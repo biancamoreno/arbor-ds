@@ -1,10 +1,27 @@
 # RFC-0005 — Destino do componente `Empty`
 
-**Status**: Draft
+**Status**: Accepted (parcial — remoção do `Empty`) · Implementada em 2026-04-24
 **Autores**: Arquiteto Arbor-DS
 **Data**: 2026-04-24
 **Origem**: R2 · achado M-R2-5
 **PR**: —
+
+---
+
+## Decisão (2026-04-24)
+
+Aceita com **escopo enxuto**:
+
+- ✅ **Remover `Empty`** — componente atual deletado (`src/components/core/empty/`), exports retirados de `src/components/core/index.ts` e `src/native.ts`. Zero consumidores confirmados (grep em `src/`, `playground/`, `docs/`, `stories/` retornou só a própria definição). Sem janela de transição (alinha com TD-012).
+- 🔜 **`EmptyState` compound** — segregado em **RFC futura** (não bloqueante). Implementação real é trabalho de fase de UX components, não de cleanup paralelo. A proposta de slots (`Illustration`/`Title`/`Description`/`Actions`), recipe e variantes (`align`/`size`) descrita abaixo permanece como referência para essa RFC futura.
+
+**Critérios de aceite atualizados:**
+
+- [x] `src/components/core/empty/` removido
+- [x] Export de `Empty` removido de `src/components/core/index.ts` e `src/native.ts`
+- [x] `pnpm test` verde (536/536) · `pnpm typecheck` limpo
+- [ ] _Diferido para RFC futura:_ `EmptyState` compound (recipe, slots, stories, testes)
+- [ ] _Não aplicável:_ migration guide (zero consumidores)
 
 ---
 

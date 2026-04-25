@@ -14,8 +14,6 @@ Ver [`docs/reviews/_followups.md`](../reviews/_followups.md) para o índice acio
 |---|---|---|---|
 | [RFC-0003](./RFC-0003-consolidacao-aliases-de-props.md) | Consolidação de aliases de props | R1 + R2 | Draft |
 | [RFC-0004](./RFC-0004-grid-cross-platform.md) | `Grid` cross-platform | R2 | Draft |
-| [RFC-0005](./RFC-0005-empty-vs-empty-state.md) | Destino do componente `Empty` | R2 | Draft |
-| [RFC-0006](./RFC-0006-istruncated-vs-numberoflines-em-text.md) | Consolidar `isTruncated` e `numberOfLines` em `Text` | R3 | Draft |
 | [RFC-0007](./RFC-0007-tipagem-generica-de-userecipe.md) | Tipagem genérica do retorno de `useRecipe` | R3 | Draft |
 | [RFC-0011](./RFC-0011-modo-de-renderizacao-explicito-em-image.md) | Modo de renderização explícito em `Image` | R3 | Draft |
 | [RFC-0012](./RFC-0012-loading-e-error-states-em-image.md) | Estados de loading/error em `Image` | R3 | Draft |
@@ -33,6 +31,8 @@ Ver [`docs/reviews/_followups.md`](../reviews/_followups.md) para o índice acio
 | [RFC-0010](./RFC-0010-discriminated-union-decorative-em-icon.md) | Discriminated union `decorative` em `Icon` | R3 | 2026-04-24 | 2026-04-24 | `IconProps` como union: `decorative` discrimina obrigatoriedade de `aria-label`. Warning runtime substituído por compile-time error. |
 | [RFC-0013](./RFC-0013-convencao-naming-de-props-booleanas.md) | Convenção de naming de props booleanas | R5 — gate R6 | 2026-04-24 | 2026-04-24 | API canônica sem `is*` em `Field`/`Dialog`/contexto Accordion. Aliases legados (`isDisabled`/`isRequired`/`isInvalid`/`isOpen`) aceitos com `console.warn` em dev. Todos consumidores internos migrados. |
 | [RFC-0014](./RFC-0014-contrato-canonico-field-aware-components.md) | Contrato canônico `Field.Control` × Field-aware components | R5 — gate R6 | 2026-04-24 | 2026-04-24 | Registry em `FieldContext` (`descriptionRegistered`/`errorRegistered`); slots registram em `useEffect`; `Field.Control` detecta marker `isFieldAware` via `markFieldAware()`; família Input + R6 (Checkbox/Radio/Switch/Select) todos Field-aware. Fecha TD-011. |
+| [RFC-0005](./RFC-0005-empty-vs-empty-state.md) | Destino do componente `Empty` | R2 | 2026-04-24 | 2026-04-24 | Aceita parcial: `Empty` removido (zero consumidores); `EmptyState` compound segregado em RFC futura. |
+| [RFC-0006](./RFC-0006-istruncated-vs-numberoflines-em-text.md) | Consolidar `isTruncated` e `numberOfLines` em `Text` | R3 | 2026-04-24 | 2026-04-24 | `isTruncated` removido de `TextProps` e `TypographyProps` (engine); `noOfLines` órfão removido junto. `numberOfLines` é API canônica única (paridade RN). |
 | [RFC-0015](./RFC-0015-convencao-naming-de-eventos.md) | Convenção de naming de eventos `on{Verbo}Change` (value-only) | R5 — gate R6 | 2026-04-24 | 2026-04-24 | `Checkbox`/`Switch` usam `onCheckedChange`; `Counter` usa `onValueChange`; `Radio`/`RadioCard` ajustaram assinatura para `(checked)` (sem `value`). Sem alias legacy (alinha com TD-012). 536/536 testes verdes. |
 
 ## RFCs rejeitadas

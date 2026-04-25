@@ -2,7 +2,7 @@
 
 > Índice acionável de tudo que ficou em aberto após cada fase de review. Atualizar ao mover itens para "concluído", abrir issue/PR ou rejeitar.
 
-**Última atualização:** 2026-04-24 (pós-RFC-0013/0014 — gate R6 destravado)
+**Última atualização:** 2026-04-24 (RFC-0005 + RFC-0006 implementadas em paralelo a R6 — `Empty` removido, `isTruncated` removido de Text+engine; CONTRIBUTING.md confirmado com 6 convenções + naming RFC-0013/0015)
 
 > Para débito técnico mapeado (decisões de adiar com plano de resolução), ver [`docs/TECH_DEBT.md`](../TECH_DEBT.md).
 
@@ -13,12 +13,12 @@
 | Fase | Fixes pendentes | Issues abertas | RFCs abertas | RFCs implementadas | DoD cumprida? |
 |---|---:|---:|---:|---:|---|
 | R1 | 0 | 6 | 7 | 0 | parcial — issues C3/C4 não viraram código |
-| R2 | 0 | 6 | 3 | 2 (RFC-0001, 0002) | parcial — testes verdes 541/541, faltam stories/testes ausentes |
-| R3 | 0 | 8 | 6 | 1 (RFC-0008) | parcial — testes verdes 541/541, Storybook build não verificado |
+| R2 | 0 | 6 | 2 | 3 (RFC-0001, 0002, 0005 parcial) | parcial — testes verdes 536/536, faltam stories/testes ausentes |
+| R3 | 0 | 8 | 4 | 4 (RFC-0006, 0008, 0009, 0010) | parcial — testes verdes 536/536, Storybook build não verificado |
 | R4 | 0 | 14 | 0 | — | ✅ — bug crítico CR4-1 corrigido, 544/544 verdes |
 | R5 | 0 | 24 | 2 (4 candidatas) | 2 (RFC-0013, 0014) | ✅ — fixes triviais aplicados, dead code removido, FileUpload pt-BR, RFCs do gate R6 implementadas (RFC-0013/0014) |
 
-**Total:** 14 RFCs (`RFC-0001` a `RFC-0014`) — 7 implementadas (0001, 0002, 0008, 0009, 0010, 0013, 0014), 7 em Draft · 58 issues · 0 fixes imediatos pendentes · 2 TD resolvidas (TD-010, TD-011 via RFC-0014).
+**Total:** 15 RFCs (`RFC-0001` a `RFC-0015`) — 9 implementadas (0001, 0002, 0005, 0006, 0008, 0009, 0010, 0013, 0014, 0015), 5 em Draft (0003, 0004, 0007, 0011, 0012) · 58 issues · 0 fixes imediatos pendentes · 4 TDs resolvidas (TD-008, TD-010, TD-011, TD-012).
 
 ---
 
@@ -190,13 +190,13 @@ Todas em **Status: Draft**. Localizadas em `docs/rfcs/`.
 | [RFC-0002](../rfcs/RFC-0002-genericos-em-primitives.md) | Genéricos `<T>` em primitives | R2-B · H-R2-4 | — | **Implemented (2026-04-24)** |
 | [RFC-0003](../rfcs/RFC-0003-consolidacao-aliases-de-props.md) | Consolidação de aliases de props | R2-C · H-R2-5 + R1-H8 | breaking transversal | Draft |
 | [RFC-0004](../rfcs/RFC-0004-grid-cross-platform.md) | `Grid` cross-platform | R2-D · M-R2-6 | parcialmente RFC-0003 | Draft |
-| [RFC-0005](../rfcs/RFC-0005-empty-vs-empty-state.md) | Destino do componente `Empty` | R2-E · M-R2-5 | nada (componente sem consumidor) | Draft |
+| [RFC-0005](../rfcs/RFC-0005-empty-vs-empty-state.md) | Destino do componente `Empty` | R2-E · M-R2-5 | nada | **Implemented parcial (2026-04-24)** — `Empty` removido; `EmptyState` compound em RFC futura |
 
 ### R3
 
 | ID | Título | Origem | Bloqueia | Status |
 |---|---|---|---|---|
-| [RFC-0006](../rfcs/RFC-0006-istruncated-vs-numberoflines-em-text.md) | Consolidar `isTruncated` e `numberOfLines` | R3-A · `text.md` | nada (cleanup local) | Draft |
+| [RFC-0006](../rfcs/RFC-0006-istruncated-vs-numberoflines-em-text.md) | Consolidar `isTruncated` e `numberOfLines` | R3-A · `text.md` | nada | **Implemented (2026-04-24)** — `isTruncated` removido de `TextProps` e `TypographyProps` (engine); `noOfLines` órfão removido junto |
 | [RFC-0007](../rfcs/RFC-0007-tipagem-generica-de-userecipe.md) | Tipagem genérica do retorno de `useRecipe` | R3-B · `text.md` | múltiplos componentes que casteiam recipes | Draft |
 | [RFC-0008](../rfcs/RFC-0008-tapstate-prop-vs-slot-em-clickable.md) | `tapState`: prop vs. slot em `Clickable` | R3-C · `clickable.md` | ~~R4~~ (destravada) | **Implemented c/ recorte (2026-04-24)** |
 | [RFC-0009](../rfcs/RFC-0009-tamanhos-semanticos-em-icon.md) | Tamanhos semânticos para `Icon.size` | R3-D · `icon.md` | — | **Implemented (2026-04-24)** |
@@ -237,16 +237,17 @@ Outras RFCs podem rodar em paralelo a R4–R12.
 
 ---
 
-## Convenções a registrar em CONTRIBUTING.md
+## Convenções registradas em CONTRIBUTING.md ✅
 
-Padrões emergentes nas reviews que **ainda não estão documentados** em CONTRIBUTING.md (verificado em 2026-04-24):
+**Confirmado em 2026-04-24:** todas as 6 convenções emergentes das reviews já estão documentadas em `CONTRIBUTING.md` §Convenções de implementação (§1–§6), além da §7 cobrindo naming de props booleanas (RFC-0013) e eventos (RFC-0015).
 
-1. **Invariantes por último.** Em primitives com contrato semântico, invariantes do componente vão **depois** do spread de `{...props}`. Padrão consolidado em R2-CR2-1 e reincidente em R3-CR3-4.
-2. **Omit das props que o componente controla.** Quando uma prop é invariante (ex: `Center.alignItems`), `Omit<ArborTransformProps, 'alignItems'>` complementa a blindagem em compile-time.
-3. **`displayName` obrigatório** em todo componente público — incluindo os sem `forwardRef`. (R2-CR2-1 / R3-CR3-1)
-4. **`.native.tsx` só quando há divergência real.** Primitives que delegam ao `ArborTransform` não precisam — ele já resolve por plataforma.
-5. **Stories usam apenas componentes do DS.** Sem `<div>`, `<span>`, `<button>` crus; sem `style={{...}}` onde há prop declarativa. (R2-CR2-2 / R3-CR3-3)
-6. **Componentes `platform-split` têm warning de dev** para limitações de plataforma (`Icon.native` para `currentColor`; `Text.native` deveria ter para HTML string). (R3 padrão emergente #4)
+1. ✅ **Invariantes por último** — `CONTRIBUTING.md §1`
+2. ✅ **`Omit` das props que o componente controla** — `CONTRIBUTING.md §2`
+3. ✅ **`displayName` obrigatório** — `CONTRIBUTING.md §3`
+4. ✅ **`.native.tsx` só quando há divergência real** — `CONTRIBUTING.md §4`
+5. ✅ **Stories usam apenas componentes do DS** — `CONTRIBUTING.md §5`
+6. ✅ **Componentes `platform-split` têm warning de dev** — `CONTRIBUTING.md §6`
+7. ✅ **Naming de props (RFC-0013) e eventos (RFC-0015)** — `CONTRIBUTING.md §7`
 
 ---
 

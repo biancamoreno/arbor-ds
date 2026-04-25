@@ -53,14 +53,6 @@ export interface TypographyProps {
    */
   whiteSpace?: ResponsiveValue<CSS.Property.WhiteSpace>;
   /**
-   * Used to visually truncate a text after a number of lines.
-   */
-  noOfLines?: ResponsiveValue<number>;
-  /**
-   * If `true`, it clamps truncate a text after one line.
-   */
-  isTruncated?: ResponsiveValue<boolean>;
-  /**
    * The property sets the kind of decoration that is used on text in an element, such as an underline or overline.
    */
   textDecorationLine?: ResponsiveValue<CSS.Property.TextDecorationLine>;

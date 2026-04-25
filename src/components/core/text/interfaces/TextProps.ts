@@ -7,7 +7,10 @@ import { type ArborTransformProps, type Tags } from '../../../../ecosystem';
  */
 export interface TextProps<T> extends ArborTransformProps {
   variant?: T | ({} & string);
-  isTruncated?: boolean;
+  /**
+   * Trunca o texto após N linhas adicionando ellipsis. Use `1` para single-line truncate.
+   * Mapeia direto para a prop nativa `numberOfLines` em React Native.
+   */
   numberOfLines?: number;
   onLinkPress?: (link: string) => void;
   as?: Extract<

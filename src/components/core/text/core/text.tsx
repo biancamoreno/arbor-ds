@@ -4,7 +4,6 @@ import { type TextProps } from '../interfaces';
 
 export const Text = forwardRef<HTMLElement, TextProps<string>>(function Text({
   variant = 'caption',
-  isTruncated: _isTruncated,
   numberOfLines,
   as = 'p',
   children,
