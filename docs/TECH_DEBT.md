@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-25 (TD-013 resolvido — RFC-0016 implementada: jest multi-project com suite native)
+**Última atualização:** 2026-04-25 (TD-014/015/016 abertos — sweep de R6 follow-ups; gate R7 redigiu 4 RFCs (RFC-0017 a 0020) cobrindo R6-A/D/F/H)
 
 ---
 
@@ -25,8 +25,11 @@
 | [TD-011](#td-011) | Field — sem registry de slots para condicional `aria-describedby` | R5 (Field, CR5-2) | **Resolved (2026-04-24)** | A11y: aria-describedby aponta para id inexistente quando Description ausente | Resolvido por RFC-0014 — FieldContext ganhou `descriptionRegistered`/`errorRegistered` + register/unregister via `useEffect` nos slots Description/Error |
 | [TD-012](#td-012) | Varredura completa de depreciados (Modal, aliases `is*`, flat Checkbox/Tooltip/Drawer, array responsivo) | Pré-release | **Resolved (2026-04-24)** | Surface area dobrada; warnings em runtime; documentação inflada | Removido em 2026-04-24 — sem consumidores externos, sem janela de transição. Ver TD-012 abaixo. |
 | [TD-013](#td-013) | Ambiente de testes para componentes `.native.tsx` ausente | TD-009 (estratégia Field.native) | **Resolved (2026-04-25)** | Drift cross-platform sem trava; bloqueia validação de TD-004/005/009 e R6 native | RFC-0016 implementada — jest multi-project (`web` + `native`) + 13/13 `.native.tsx` cobertos + `scripts/check-platform-contract.js` valida paridade |
+| [TD-014](#td-014) | Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox web) | R6 review (HR6-1) | Open | A11y crítica — WCAG 2.4.7 quebrado | Sweep coordenado: refletir `:focus-visible` do `<input>` oculto via boxShadow no visual desenhado |
+| [TD-015](#td-015) | Slots fantasma `Switch.Track`/`Switch.Thumb` | R6 review (HR6-2) | Open | API mente — slots não-funcionais | Decidir: refactor para slots reais ou tornar Switch elementar (remover slots). Resolver junto com migração de recipe `switch` (RFC-0017). |
+| [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | Open | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Sweep + invariante DS via lint rule custom |
 
-**Total:** 7 dívidas abertas, 5 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 em 2026-04-25).
+**Total:** 10 dívidas abertas, 5 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 em 2026-04-25).
 
 ---
 
@@ -735,6 +738,153 @@ Workaround conhecido em `jest.setup.native.cjs`: pre-resolve dos lazy globals da
 - TD-005 (theming hardcoded em `fab.native`) — agora dá para asserir tokens consumidos.
 - TD-009 (Field unificado) — gaps de paridade já documentados em `field.native.test.tsx` via `describe.skip`.
 - TD-004 (Clickable.native) — refactor com rede de proteção viável.
+
+---
+
+## TD-014 — Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox)
+
+**Origem:** R6 review (HR6-1) · 2026-04-25
+**Status:** Open
+**Severidade:** Alta (a11y — WCAG 2.4.7)
+
+### Contexto
+
+Radio, RadioCard, Switch e Checkbox web usam o mesmo padrão técnico: `<input>` real é `position: absolute; opacity: 0; pointerEvents: none`, e o visual é desenhado por `<Box>`/`<Flex>` custom. **Nada** reflete `:focus-visible` no visual — usuário com teclado não vê onde está.
+
+WCAG 2.4.7 (Focus Visible, AA) exige indicador de foco visível em qualquer keyboard-operable component. Sem isso, formulário inteiro vira inacessível para quem não usa mouse.
+
+### Impacto
+
+- A11y crítica em todos os formulários do produto.
+- Aplica-se a 4 componentes (e qualquer componente futuro que copie o padrão).
+- Não detectado por lint nem CI hoje. Só revisão visual.
+
+### Resolução proposta
+
+**Sweep coordenado**, não fix por componente. Padrão técnico:
+
+```css
+/* CSS-in-JS via styled-system */
+input:focus-visible + .visual {
+  boxShadow: 0 0 0 2px var(--brand-subtle);
+  outline: none;
+}
+```
+
+Em prática, com Arbor styled-system: refletir `:focus-visible` do input oculto via prop `_focusWithin` ou pseudo-prop análoga no `<Flex>` visual. Quando focus-visible no input filho, o ancestor pai aplica boxShadow.
+
+Reaproveita o token `brand.subtle` (já usado para selected state) — coerência visual.
+
+### Critério para fechar
+
+- [ ] Padrão técnico decidido (CSS adjacent sibling × pseudo-prop styled-system).
+- [ ] Aplicado em Radio, RadioCard, Switch, Checkbox web.
+- [ ] Test cobrindo foco visível (assertion via `getComputedStyle` ou snapshot visual no Storybook).
+- [ ] CONTRIBUTING.md menciona padrão para novos componentes com input oculto.
+
+> **Bloqueio cruzado:** RFC-0019 (RadioCard deprecação) reduz escopo a 3 componentes. RFC-0017 (recipes mortas) consolida onde o `state: 'focus'` deve viver na recipe. Ambas vão na mesma janela.
+
+---
+
+## TD-015 — Slots fantasma `Switch.Track` / `Switch.Thumb`
+
+**Origem:** R6 review (HR6-2) · 2026-04-25
+**Status:** Open
+**Severidade:** Média (DX — API mentirosa)
+
+### Contexto
+
+`Switch` web exporta `Switch.Track` e `Switch.Thumb` como compound members. Mas o visual do switch (track + thumb animados) é renderizado **dentro de `SwitchRoot`** independentemente do que o consumidor monta. `<Switch.Track />` adiciona DOM extra inócuo; `<Switch.Thumb />` idem. **Slots não cumprem promessa de composição.**
+
+```tsx
+// Hoje — mentira:
+<Switch>
+  <Switch.Track>
+    <Switch.Thumb />
+  </Switch.Track>
+</Switch>
+// SwitchRoot ignora children e desenha track+thumb internos.
+```
+
+### Impacto
+
+- API documentada não funciona como anunciado.
+- Consumidor que tenta customizar (`<Switch.Track style={{...}}>`) não vê efeito → frustração silenciosa.
+- Inconsistente com Checkbox/Radio/Field que têm slots reais.
+
+### Resolução proposta
+
+Decidir entre:
+
+- **(A) Slots reais.** Refatorar SwitchRoot para renderizar `Switch.Track` e `Switch.Thumb` via children/cloneElement. Permite override visual. Custo: refator interno + atualizar testes + recipe (slot `track`/`thumb` precisa expor variants reais).
+- **(B) Tornar Switch elementar.** Remover `Switch.Track` e `Switch.Thumb` do export. SwitchRoot é único. Mais barato; consumidor que precisa custom passa a usar `<Switch as={CustomImpl}>` (não previsto hoje, RFC dedicada se vier).
+
+### Critério para fechar
+
+- [ ] Decisão (A ou B) tomada com critério (existe demanda real de customização?).
+- [ ] Implementação aplicada.
+- [ ] Recipe `switch` ajustada (RFC-0017 — slots cobrem o que existe).
+- [ ] Stories e MDX atualizados.
+
+> **Bloqueio cruzado:** RFC-0017 (recipes mortas) precisa do conjunto definitivo de slots para migrar `switch`. Resolver TD-015 antes ou junto.
+
+---
+
+## TD-016 — Touch target abaixo de WCAG 44×44
+
+**Origem:** R6 review (R6-I) · 2026-04-25
+**Status:** Open
+**Severidade:** Alta (a11y mobile — WCAG 2.5.5 / SC 2.5.8)
+
+### Contexto
+
+Vários componentes interativos têm área de toque menor que o mínimo WCAG (44×44 CSS pixels). Levantamento atual:
+
+| Componente | Tamanho | Onde |
+|---|---|---|
+| Counter (R5) | sm: 32×32 / md: 40×40 | Botões `−`/`+` |
+| TextInput (R5) | sm: ~32 altura | Touch target só no input field |
+| Switch (R6) | md: 44×24 (track), thumb 20×20 | Pressionar fora do track não conta |
+| Select (R6) | sm: ~32 / md: ~40 | Trigger e items |
+| Select Items (R6) | ~36 altura | Padding 8×16 + fontSize 14 |
+| FAB sm (R4) | 40×40 | Atende em md (56) e lg (72), falha em sm |
+
+### Impacto
+
+- A11y mobile crítica. Usuário com motricidade reduzida ou em mobile usa miss-tap.
+- Aplica em todos os componentes interativos do DS — vira requisito permanente, não fix pontual.
+- Cumulativo: cada componente novo precisa lembrar.
+
+### Resolução proposta
+
+**Sweep + invariante.** Duas frentes:
+
+1. **Fix do existente.** Aumentar tamanhos `sm` para >= 44 onde estão menores. Onde o tamanho visual precisa ficar pequeno (Counter sm, badges), expandir touch target via `padding` invisível ou `::before` overlay (pseudo-prop a definir).
+
+2. **Lint rule custom.** ESLint ou check-platform-contract.js com regra: qualquer componente com `onPress`/`onClick` cujo computed `minHeight` × `minWidth` < 44 emite warning. Não trivial — requer integração com tema. Pode virar fase 2.
+
+### Critério para fechar
+
+- [ ] Fix aplicado nos 6 componentes listados.
+- [ ] Storybook tem story `TouchTarget` por componente provando >= 44 em todos os sizes.
+- [ ] CONTRIBUTING.md adiciona invariante "touch target >= 44 em qualquer Root interativo".
+- [ ] (Opcional) Lint rule implementada.
+
+> Componente novo deve nascer dentro do invariante — se necessário, a recipe (RFC-0017) deve carregar o `min: 44` por default.
+
+---
+
+## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
+
+Mapeamento das demais 3 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.
+
+| ID | Título | Gatilho para abrir RFC |
+|---|---|---|
+| **R6-C** | `RadioGroup` / `CheckboxGroup` / `SwitchGroup` | Primeiro caso de uso real em produto exigindo gestão coletiva (`name` + `value` + accessibility group). Form de checkout multi-opção é candidato natural. |
+| **R6-G** | Render via `Portal` para overlays (Dialog/Drawer/Tooltip/Popover/Menu) | **Antes de R11.** Adoção do `Portal` primitive já implementado nos 5 componentes de overlay. RFC-0020 (Select combobox) faz parte do precedente. |
+| **R6-J** | Indicator visual cross-platform unificado para Checkbox | Primeiro reclamo real de paridade visual web↔native (HR6-8 web `accentColor` vs HR6-9 native `Box -45deg`). Ou quando RFC-0017 migrar `checkbox` recipe e o gap visual se tornar evidente. |
+
+Estas três permanecem registradas em `_followups.md` como candidatas. Se o gatilho ocorrer dentro do prazo de R11/R12, considerar promover.
 
 ---
 

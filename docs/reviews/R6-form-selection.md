@@ -195,6 +195,66 @@ R7 pode iniciar **mesmo com** as RFCs de R6 em draft, **desde que**:
 
 ---
 
+## Gate R7 fechado (2026-04-25)
+
+Trilho de governança da gate cumprido:
+
+### Fixes imediatos aplicados (R6 review → main)
+
+- [x] CR6-1 (Checkbox `name`/`value`)
+- [x] CR6-2 (RadioCard `role` duplicado)
+- [x] HR6-3 (Radio `??` em vez de `||`)
+- [x] MR6-1 (`displayName` sweep)
+- [x] MR6-2 (stories `<div style>` sweep)
+- [x] MR6-3/MR6-4 (Select APIs residuais)
+
+### RFC-0016 (TD-013) executada
+
+`docs/rfcs/RFC-0016-ambiente-de-testes-cross-platform.md` — implementada em três PRs (`85c6e01` / `e02414a` / `e863085`). Suite 72 projects · 640 testes (598 web + 42 native + 3 skip TD-009).
+
+### 4 RFCs R6 redigidas
+
+| ID R6 | RFC | Cobertura |
+|---|---|---|
+| R6-A | [RFC-0017 — Recipes mortas em R6](../rfcs/RFC-0017-recipes-mortas-em-r6.md) | Migrar checkbox/radio/switch/select para `useSlotRecipe` (mesmo playbook de TD-008) |
+| R6-D | [RFC-0019 — RadioCard: deprecar / unificar / alinhar](../rfcs/RFC-0019-radio-card-deprecar-ou-unificar.md) | Recomenda deprecar `RadioCard`; Radio passa a ser canônico |
+| R6-F | [RFC-0020 — Select cumprindo WAI-ARIA combobox](../rfcs/RFC-0020-select-combobox-wai-aria.md) | Refator amplo: activedescendant + item registry + Portal + DismissableLayer + keyboard completo |
+| R6-H | [RFC-0018 — Estratégia native para form web-only](../rfcs/RFC-0018-estrategia-native-form-web-only.md) | Formaliza Radio/RadioCard/Select como `web-only` com guard runtime + critério de promoção |
+
+### 3 follow-ups registrados como TD
+
+| ID R6 | TD | Plano |
+|---|---|---|
+| R6-B | [TD-014](../TECH_DEBT.md#td-014) — Foco visível em inputs ocultos | Sweep coordenado: refletir `:focus-visible` do input no visual |
+| R6-E | [TD-015](../TECH_DEBT.md#td-015) — Slots fantasma Switch.Track/Thumb | Decidir slots reais ou Switch elementar (junto com RFC-0017) |
+| R6-I | [TD-016](../TECH_DEBT.md#td-016) — Touch target < WCAG 44×44 | Sweep + invariante DS (lint rule futura) |
+
+### 3 candidatas catalogadas no backlog (abrir RFC quando gatilho ocorrer)
+
+- **R6-C** — RadioGroup / CheckboxGroup / SwitchGroup. Gatilho: caso de uso real em produto.
+- **R6-G** — Portal para overlays. Gatilho: antes de R11 (Dialog/Drawer/Tooltip/Popover/Menu).
+- **R6-J** — Indicator unificado cross-platform Checkbox. Gatilho: gap visual virar evidente após RFC-0017.
+
+Detalhe em `docs/TECH_DEBT.md` seção "Backlog de RFCs candidatas R6".
+
+### Ordem sugerida de execução
+
+1. **Antes de R7 começar**
+   - RFC-0017 (R6-A — recipes mortas) — limpa terreno para R7 não copiar o erro
+   - RFC-0018 (R6-H — web-only formalizado) — pré-condição arquitetural; curta
+2. **Em paralelo a R7**
+   - RFC-0019 (R6-D — RadioCard) — independente; consome RFC-0017 mas pode ir junto
+   - TD-014 (foco visível) — sweep coordenado pequeno
+   - TD-016 (touch target) — sweep coordenado pequeno
+3. **Pode atravessar R7**
+   - RFC-0020 (R6-F — Select combobox) — peça maior; refator amplo
+4. **Antes de R11**
+   - R6-G (Portal overlays) — abrir RFC formal
+5. **Quando gatilho ocorrer**
+   - R6-C, R6-J, TD-015 (Switch slots) — não bloqueiam nenhuma fase
+
+---
+
 ## Métricas R6
 
 | Componente | LOC | Testes | Stories | Native | Recipe consumida | Field-aware | forwardRef Root |
