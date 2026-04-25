@@ -196,28 +196,6 @@ function resolveStyleObject(rawProps: Record<string, unknown>, theme: Theme): St
   Object.entries(rawProps).forEach(([key, value]) => {
     if (value === undefined || value === null) return;
 
-    if (Array.isArray(value)) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `[arbor-ds] Responsive array syntax for "${key}" is deprecated. Use named object instead: { base, sm, md, lg, xl }.`,
-        );
-      }
-      value.forEach((item, index) => {
-        if (item === undefined || item === null) return;
-        const resolved = createStyle({ [key]: item }, theme);
-        if (index === 0) {
-          applyResolved(resolved);
-          return;
-        }
-
-        const breakpoint = breakpoints[index - 1];
-        if (breakpoint) {
-          applyResolved(resolved, getMediaQuery(breakpoint));
-        }
-      });
-      return;
-    }
-
     if (isResponsiveObject(value)) {
       Object.entries(value as Record<string, unknown>).forEach(([bpKey, bpValue]) => {
         if (bpValue === undefined || bpValue === null) return;

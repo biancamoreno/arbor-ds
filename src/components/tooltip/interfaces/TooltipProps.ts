@@ -20,17 +20,3 @@ export type TooltipContentProps = {
   placement?: TooltipPlacement;
   maxWidth?: string | number;
 };
-
-/**
- * @deprecated Use Tooltip.Root + Tooltip.Trigger + Tooltip.Content instead.
- */
-export interface TooltipProps {
-  children: ReactNode;
-  content: ReactNode;
-  placement?: TooltipPlacement;
-  trigger?: 'hover' | 'click';
-  open?: boolean;
-  defaultOpen?: boolean;
-  disabled?: boolean;
-  maxWidth?: string | number;
-}

@@ -131,7 +131,7 @@ Issues abertas após review consolidada em [`R5-form-base.md`](./R5-form-base.md
 
 **RFCs do gate R6 — Implementadas (2026-04-24):**
 
-- [x] **[RFC-0013](../rfcs/RFC-0013-convencao-naming-de-props-booleanas.md)** — Convenção `is*` × `disabled`/`open`/`required` (HR5-11). `Field`/`Dialog` migrados para API canônica com aliases legados + warning em dev.
+- [x] **[RFC-0013](../rfcs/RFC-0013-convencao-naming-de-props-booleanas.md)** — Convenção `is*` × `disabled`/`open`/`required` (HR5-11). `Field`/`Dialog` migrados para API canônica. Aliases legados (`isDisabled`/`isRequired`/`isInvalid`/`isOpen`) **removidos em 2026-04-24** (sem consumidores externos — sem janela de transição).
 - [x] **[RFC-0014](../rfcs/RFC-0014-contrato-canonico-field-aware-components.md)** — Contrato canônico Field.Control × Field-aware components. `FieldContext` ganhou registry de slots; família Input + R6 (Checkbox/Radio/Switch/Select) marcados `isFieldAware`; Field.Control detecta marker e não duplica wiring. Fechou CR5-2, HR5-4, HR5-14, TD-011.
 
 **F-1 (aria-describedby condicional)** e **I-14 (inputs lendo Field context)** — ambos fechados pela implementação de RFC-0014.

@@ -16,7 +16,7 @@ export interface CheckboxRootProps {
   children: ReactNode;
 }
 
-export interface CheckboxIndicatorProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'checked' | 'onChange' | 'disabled'> {
+export interface CheckboxIndicatorProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'checked' | 'onChange' | 'disabled' | 'size'> {
   style?: React.CSSProperties;
 }
 
@@ -26,13 +26,4 @@ export interface CheckboxLabelProps {
 
 export interface CheckboxDescriptionProps {
   children: ReactNode;
-}
-
-/**
- * @deprecated Use Checkbox.Root compound pattern instead.
- */
-export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
-  label?: ReactNode;
-  description?: ReactNode;
-  indeterminate?: boolean;
 }

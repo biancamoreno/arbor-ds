@@ -187,19 +187,3 @@ describe('Checkbox FieldContext integration', () => {
   });
 });
 
-describe('Checkbox legacy API', () => {
-  it('renders label prop', () => {
-    renderCb(<Checkbox label="Legacy label" onChange={() => {}} />);
-    expect(screen.getByText('Legacy label')).toBeTruthy();
-  });
-
-  it('renders description prop', () => {
-    renderCb(<Checkbox label="L" description="Legacy desc" onChange={() => {}} />);
-    expect(screen.getByText('Legacy desc')).toBeTruthy();
-  });
-
-  it('renders checked state via checked prop', () => {
-    renderCb(<Checkbox checked onChange={() => {}} data-testid="legacy-cb" />);
-    expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(true);
-  });
-});

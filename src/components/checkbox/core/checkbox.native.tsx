@@ -90,12 +90,9 @@ function CheckboxDescription({ children }: CheckboxDescriptionProps) {
 markFieldAware(CheckboxRoot);
 markFieldAware(CheckboxIndicator);
 
-export const Checkbox = Object.assign(
-  function LegacyCheckbox() { return null; },
-  {
-    Root: CheckboxRoot,
-    Indicator: CheckboxIndicator,
-    Label: CheckboxLabel,
-    Description: CheckboxDescription,
-  },
-);
+export const Checkbox = Object.assign(CheckboxRoot, {
+  Root: CheckboxRoot,
+  Indicator: CheckboxIndicator,
+  Label: CheckboxLabel,
+  Description: CheckboxDescription,
+});

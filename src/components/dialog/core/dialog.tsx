@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
 import { DialogContext, type DialogContextValue } from '../context/dialog-context';
 import { DialogTrigger } from '../slots/dialog-trigger';
@@ -9,24 +9,15 @@ import { DialogDescription } from '../slots/dialog-description';
 import { DialogClose } from '../slots/dialog-close';
 import type { DialogRootProps } from '../interfaces/DialogProps';
 
-const IS_DEV = process.env.NODE_ENV !== 'production';
-
 function DialogRoot({
   open: openProp,
-  isOpen: legacyIsOpen,
   defaultOpen = false,
   onOpenChange,
   onClose,
   children,
 }: DialogRootProps) {
-  const warned = useRef(false);
-  if (IS_DEV && legacyIsOpen !== undefined && !warned.current) {
-    console.warn('[Arbor-DS][Dialog] `isOpen` is deprecated; use `open` (RFC-0013).');
-    warned.current = true;
-  }
-
   const [open, setOpen] = useControllableState({
-    value: openProp ?? legacyIsOpen,
+    value: openProp,
     defaultValue: defaultOpen,
     onChange: (next) => {
       onOpenChange?.(next);

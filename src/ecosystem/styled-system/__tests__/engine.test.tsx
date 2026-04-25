@@ -310,17 +310,6 @@ describe('responsivo com objeto nomeado', () => {
     expect(css).toMatch(/padding-top:20px/);
   });
 
-  it('emite console.warn para sintaxe de array deprecated', () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    render(
-      <ArborTransform testID="el" padding={['small', 'medium'] as unknown as never}>
-        content
-      </ArborTransform>,
-      { wrapper: Wrapper },
-    );
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('deprecated'));
-    warnSpy.mockRestore();
-  });
 });
 
 // ─── Pseudo-props ──────────────────────────────────────────────────────────

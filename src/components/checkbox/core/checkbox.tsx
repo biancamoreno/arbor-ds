@@ -10,7 +10,6 @@ import type {
   CheckboxIndicatorProps,
   CheckboxLabelProps,
   CheckboxDescriptionProps,
-  CheckboxProps,
 } from '../interfaces';
 
 function CheckboxRoot({
@@ -113,45 +112,12 @@ function CheckboxDescription({ children }: CheckboxDescriptionProps) {
   );
 }
 
-/**
- * @deprecated Use the compound Checkbox.Root / Checkbox.Indicator / Checkbox.Label pattern.
- */
-const LegacyCheckbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ label, description, indeterminate, checked, disabled, style, onChange, ...props }, ref) => {
-    const handleChange = onChange
-      ? (e: React.ChangeEvent<HTMLInputElement>) => onChange(e)
-      : undefined;
-
-    return (
-      <CheckboxRoot
-        checked={checked}
-        defaultChecked={props.defaultChecked}
-        onChange={handleChange ? (val) => { if (handleChange) { const e = { target: { checked: val } } as React.ChangeEvent<HTMLInputElement>; handleChange(e); } } : undefined}
-        disabled={disabled}
-        indeterminate={indeterminate}
-        id={props.id}
-        name={props.name}
-        value={props.value as string}
-      >
-        <CheckboxIndicator ref={ref} style={style} />
-        {(label || description) && (
-          <Flex as="span" flexDirection="column" gap="2px">
-            {label && <CheckboxLabel>{label}</CheckboxLabel>}
-            {description && <CheckboxDescription>{description}</CheckboxDescription>}
-          </Flex>
-        )}
-      </CheckboxRoot>
-    );
-  },
-);
-
-LegacyCheckbox.displayName = 'Checkbox';
+CheckboxRoot.displayName = 'Checkbox';
 
 markFieldAware(CheckboxRoot);
 markFieldAware(CheckboxIndicator);
-markFieldAware(LegacyCheckbox);
 
-export const Checkbox = Object.assign(LegacyCheckbox, {
+export const Checkbox = Object.assign(CheckboxRoot, {
   Root: CheckboxRoot,
   Indicator: CheckboxIndicator,
   Label: CheckboxLabel,

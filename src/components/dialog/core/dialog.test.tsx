@@ -118,22 +118,6 @@ describe('Dialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('accepts legacy `isOpen` alias and warns (RFC-0013 transition)', () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-    renderDialog(
-      <Dialog.Root isOpen>
-        <Dialog.Content>
-          <Dialog.Title>Legacy</Dialog.Title>
-        </Dialog.Content>
-      </Dialog.Root>,
-    );
-
-    expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isOpen'));
-    warnSpy.mockRestore();
-  });
-
   it('calls onOpenChange when state toggles', () => {
     const onOpenChange = jest.fn();
 

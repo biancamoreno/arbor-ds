@@ -298,66 +298,6 @@ describe('Field.Error', () => {
   });
 });
 
-describe('Field legacy alias props (RFC-0013 transition)', () => {
-  let warnSpy: jest.SpyInstance;
-
-  beforeEach(() => {
-    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    warnSpy.mockRestore();
-  });
-
-  it('accepts isDisabled and warns', () => {
-    renderField(
-      <Field id="legacy" isDisabled>
-        <Field.Control>
-          <input data-testid="ctrl" />
-        </Field.Control>
-      </Field>,
-    );
-    expect((screen.getByTestId('ctrl') as HTMLInputElement).disabled).toBe(true);
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isDisabled'));
-  });
-
-  it('accepts isRequired and warns', () => {
-    renderField(
-      <Field id="legacy" isRequired>
-        <Field.Control>
-          <input data-testid="ctrl" />
-        </Field.Control>
-      </Field>,
-    );
-    expect(screen.getByTestId('ctrl').getAttribute('aria-required')).toBe('true');
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isRequired'));
-  });
-
-  it('accepts isInvalid and warns', () => {
-    renderField(
-      <Field id="legacy" isInvalid>
-        <Field.Error>Err</Field.Error>
-        <Field.Control>
-          <input data-testid="ctrl" />
-        </Field.Control>
-      </Field>,
-    );
-    expect(screen.getByTestId('ctrl').getAttribute('aria-invalid')).toBe('true');
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('isInvalid'));
-  });
-
-  it('canonical prop wins over legacy alias', () => {
-    renderField(
-      <Field id="legacy" disabled={false} isDisabled>
-        <Field.Control>
-          <input data-testid="ctrl" />
-        </Field.Control>
-      </Field>,
-    );
-    expect((screen.getByTestId('ctrl') as HTMLInputElement).disabled).toBe(false);
-  });
-});
-
 describe('Field full composition', () => {
   it('wires label, control, description and error together', () => {
     renderField(

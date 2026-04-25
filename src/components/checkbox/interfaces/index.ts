@@ -3,5 +3,4 @@ export type {
   CheckboxIndicatorProps,
   CheckboxLabelProps,
   CheckboxDescriptionProps,
-  CheckboxProps,
 } from './CheckboxProps';

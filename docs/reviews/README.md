@@ -31,7 +31,7 @@ Componentes são revisados por **dependência arquitetural** (montante → jusan
 | **R8** | Feedback — mensagens | [Alert](./alert.md) · [Toast](./toast.md) · [Tag](./tag.md) · [Chip](./chip.md) | ⏳ pendente |
 | **R9** | Conteúdo | [Avatar](./avatar.md) · [Card](./card.md) · [Accordion](./accordion.md) · [Tabs](./tabs.md) · [Carousel](./carousel.md) | ⏳ pendente |
 | **R10** | Dados | [Table](./table.md) · [Breadcrumb](./breadcrumb.md) · [Pagination](./pagination.md) | ⏳ pendente |
-| **R11** | Overlays | [Dialog](./dialog.md) · [Drawer](./drawer.md) · [Tooltip](./tooltip.md) · [Popover](./popover.md) · [Menu](./menu.md) · ~~Modal~~ *(deprecation)* | ⏳ pendente |
+| **R11** | Overlays | [Dialog](./dialog.md) · [Drawer](./drawer.md) · [Tooltip](./tooltip.md) · [Popover](./popover.md) · [Menu](./menu.md) · ~~Modal~~ *(removido 2026-04-24)* | ⏳ pendente |
 | **R12** | Navegação | [NavBar](./nav-bar.md) · [TabBar](./tab-bar.md) | ⏳ pendente |
 | **R13** | Consolidação sistêmica | RFCs de padrões emergentes · fixes cross-cutting · update de CONTRIBUTING | ⏳ pendente |
 

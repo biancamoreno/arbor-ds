@@ -14,7 +14,6 @@ export * from './drawer';
 export * from './field';
 export * from './input';
 export * from './menu';
-export * from './modal';
 export * from './pagination';
 export * from './popover';
 export * from './progress-bar';

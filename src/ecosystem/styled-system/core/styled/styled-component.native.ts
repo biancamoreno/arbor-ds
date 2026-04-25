@@ -62,23 +62,6 @@ function resolveStyleObjectNative(
   Object.entries(rawProps).forEach(([key, value]) => {
     if (value === undefined || value === null) return;
 
-    if (Array.isArray(value)) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `[arbor-ds] Responsive array syntax for "${key}" is deprecated. Use named object instead: { base, sm, md, lg, xl }.`,
-        );
-      }
-      const index = Math.min(
-        ['base', 'sm', 'md', 'lg', 'xl', '2xl'].indexOf(currentBreakpoint) + 1,
-        value.length - 1,
-      );
-      const item = value[Math.max(0, index)];
-      if (item !== undefined && item !== null) {
-        applyResolved(createStyle({ [key]: item }, theme));
-      }
-      return;
-    }
-
     if (isResponsiveObject(value)) {
       const resolvedVal = getResponsiveValue(value as Record<string, unknown>, currentBreakpoint);
       if (resolvedVal !== undefined && resolvedVal !== null) {

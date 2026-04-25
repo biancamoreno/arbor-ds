@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-24 (pós-RFC-0013/0014 — gate R6 destravado)
+**Última atualização:** 2026-04-24 (TD-008 resolvido — recipe `input` consumida via slot recipe `frame`/`control`)
 
 ---
 
@@ -19,12 +19,14 @@
 | [TD-005](#td-005) | Cores e shadows hardcoded em `.native.tsx` | R4 (FAB) | Open | Theming quebrado em native | Bloqueado por R1-C3 (shadows tematizadas) e tokens de cor consumíveis em RN |
 | [TD-006](#td-006) | Acoplamento bidirecional Button↔ButtonGroup via context | R4 (Button) | Open | Manutenção (Button conhece detalhes de ButtonGroup) | RFC: mover `attachedStyle` para ButtonGroup ou criar variant `attached` em Button via theme recipe |
 | [TD-007](#td-007) | `forwardRef` ausente em camadas pós-core | R4 (Button/ButtonGroup/FAB) | Open | DX + integração com libs externas | Sweep coordenado pós-R6 (quando teremos mais dados sobre o gap em Field/Input/Card etc.) |
-| [TD-008](#td-008) | Recipe `input` morta — substituída por `getFieldFrameStyle` imperativo | R5 (Input) | Open | Theming dinâmico/dark mode/overrides quebrados na família Input | RFC: migrar TextInput/TextArea para consumir slot recipe; padrão a auditar em R6 |
+| [TD-008](#td-008) | Recipe `input` morta — substituída por `getFieldFrameStyle` imperativo | R5 (Input) | **Resolved (2026-04-24)** | Theming dinâmico/dark mode/overrides quebrados na família Input | Migrada para slot recipe `frame`/`control` × `size`/`variant`/`state`; TextInput/TextArea consomem via `useSlotRecipe`; `getFieldFrameStyle`/`getFieldColors`/`getFieldSizeStyles` deletados; FieldShell isolado em `field-shell.tsx` |
 | [TD-009](#td-009) | `Field.native` em divergência arquitetural com web | R5 (Field) | Open | Drift cross-platform; cobertura zero em native | RFC: re-implementar via primitives + `useTheme()` ou aceitar split formal com testes próprios |
 | [TD-010](#td-010) | `input/core/select.tsx` é dead code com anti-patterns | R5 (Input) | **Resolved (2026-04-24)** | Confundia contribuidores; contradizia CLAUDE.md | Removido em 2026-04-24 — `input/core/select.tsx` + `input/interfaces/SelectProps.ts` deletados |
 | [TD-011](#td-011) | Field — sem registry de slots para condicional `aria-describedby` | R5 (Field, CR5-2) | **Resolved (2026-04-24)** | A11y: aria-describedby aponta para id inexistente quando Description ausente | Resolvido por RFC-0014 — FieldContext ganhou `descriptionRegistered`/`errorRegistered` + register/unregister via `useEffect` nos slots Description/Error |
+| [TD-012](#td-012) | Varredura completa de depreciados (Modal, aliases `is*`, flat Checkbox/Tooltip/Drawer, array responsivo) | Pré-release | **Resolved (2026-04-24)** | Surface area dobrada; warnings em runtime; documentação inflada | Removido em 2026-04-24 — sem consumidores externos, sem janela de transição. Ver TD-012 abaixo. |
+| [TD-013](#td-013) | Ambiente de testes para componentes `.native.tsx` ausente | TD-009 (estratégia Field.native) | Open | Drift cross-platform sem trava; bloqueia validação de TD-004/005/009 e R6 native | RFC: jest-expo + @testing-library/react-native ou react-native-web como aproximação |
 
-**Total:** 9 dívidas abertas, 2 resolvidas (TD-010 em 2026-04-24; TD-011 em 2026-04-24 via RFC-0014).
+**Total:** 8 dívidas abertas, 4 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24).
 
 ---
 
@@ -394,8 +396,21 @@ Sweep coordenado em uma sessão dedicada, **após R6** (quando teremos dados com
 ## TD-008 — Recipe `input` morta, substituída por `getFieldFrameStyle` imperativo
 
 **Origem:** R5 review (TextInput/TextArea) · 2026-04-24
-**Status:** Open
+**Status:** **Resolved (2026-04-24)**
 **Severidade:** Alta (theming + arquitetura)
+
+### Resolução
+
+Resolvido em 2026-04-24:
+
+- `theme.components.input` redesenhada como `defineSlotRecipe` com slots `frame` (paddings, border, background, radius, min-height, transition) e `control` (color, fontSize). Variants: `size` (sm/md/lg) × `variant` (default/filled) × `state` (idle/error/disabled). Tokens semânticos resolvidos pelo styled-system; theme switching e `createTheme()` overrides afetam o frame em runtime.
+- `ThemeComponents['input']` em `types.ts` mudou de `RecipeConfig` para `SlotRecipeConfig`.
+- `TextInput` consome `useSlotRecipe('input', { size, variant, state })` e faz spread de `slots.frame` em `ArborTransform` + `slots.control` no `<input>` interno; layout flex (alignItems/gap) fica fora da recipe (concern do consumidor).
+- `TextArea` consome a mesma recipe spreading ambos slots no próprio `<textarea>` (frame + control colapsam num único elemento) — paridade visual garantida sem duplicação.
+- `getFieldFrameStyle`, `getFieldSizeStyles` e `getFieldColors` deletados; `shared.tsx` removido inteiro; `FieldShell` migrado para `field-shell.tsx` próprio usando tokens semânticos diretos (`color="feedback.critical.base"` em vez de blob `style`), eliminando o `eslint-disable react-refresh/only-export-components`.
+- 50 suites / 536 testes verdes; lint clean. Família Input pronta para R6 reaproveitar a mesma recipe (Counter/FileUpload mantidos fora porque têm anatomia distinta — drop zone, stepper).
+
+Critérios originais — todos atendidos.
 
 ### Contexto
 
@@ -482,12 +497,14 @@ Duas opções:
 
 Preferência arquitetural: **(1)**. Reduz superfície e segue o princípio da abstração cross-platform do styled-system. Trade-off: pode revelar gaps no engine para alguns casos (e.g., `htmlFor`/`accessibilityLabelledBy` mapping), que viram trabalho do próprio engine.
 
+**Pré-requisito:** TD-013 (ambiente de testes RN) precisa estar resolvido para fechar TD-009 com cobertura real. Aceitar suite via `react-native-web` como paliativo se TD-013 demorar — mas, nesse caso, registrar nota de cobertura parcial.
+
 ### Critério para fechar
 
 - [ ] RFC redigida e aceita.
 - [ ] `field.native.tsx` re-implementado via primitives (opção 1) **ou** documentado + testado (opção 2).
 - [ ] A11y nativa: Label ↔ Control conectados via `accessibilityLabelledBy`.
-- [ ] Cobertura de testes ≥ 10 cases para versão native.
+- [ ] Cobertura de testes ≥ 10 cases para versão native (depende de TD-013).
 - [ ] Toda mudança futura em `field.tsx` reflete automaticamente em native (opção 1) ou tem teste de paridade (opção 2).
 
 ---
@@ -616,6 +633,91 @@ RFC integrada com **RFC-0014** (Contrato canônico Field.Control × Field-aware 
 - [ ] Field.Control e TextInput condicionam `aria-describedby` e `aria-errormessage`.
 - [ ] Testes adicionados validando a condicional.
 - [ ] axe-core (manual ou CI) limpo nos cases de teste.
+
+---
+
+## TD-012 — Varredura completa de depreciados pré-release
+
+**Origem:** Sessão de cleanup pré-release (2026-04-24)
+**Status:** **Resolved (2026-04-24)**
+**Severidade:** Média
+
+### Contexto
+
+Sem consumidores externos da lib, todo código depreciado mantido "para transição" virou peso morto: dobrava surface area, espalhava warnings de runtime e inflava docs com migrations que ninguém faria. Decisão: remover tudo de uma vez.
+
+### Escopo removido
+
+- **Modal** — componente inteiro (`src/components/modal/` + export raiz + `docs/migration/modal-to-dialog.md`).
+- **Field aliases `is*`** — `isDisabled`/`isRequired`/`isInvalid` em `FieldRootProps` (web + native), incluindo `warnLegacy` e bloco `IS_DEV` correlato. Testes legacy removidos. `docs/migration/field-v0-to-v1.md` apagado.
+- **Dialog alias `isOpen`** — prop legada em `DialogRootProps`, bloco `warned` ref + `console.warn` em `dialog.tsx`. Teste de warning removido.
+- **Checkbox flat API** — `interface CheckboxProps` + wrapper `LegacyCheckbox`; export passou a ser `Object.assign(CheckboxRoot, { Root, Indicator, Label, Description })`. `markFieldAware(LegacyCheckbox)` substituído. Testes flat removidos.
+- **Flat types Tooltip/Drawer** — `interface TooltipProps` e `interface DrawerProps` (sem implementação real); re-exports de `interfaces/index.ts` limpos.
+- **Sintaxe array responsiva no styled-system** — ramo `if (Array.isArray(value))` em `styled-component.ts` e `styled-component.native.ts` removido junto com o `console.warn`. Teste de engine correlato apagado.
+- **Playground** — `Modal` migrado para `Dialog` compound; `<Tooltip content=...>` (uso flat quebrado) migrado para `Tooltip.Root/Trigger/Content`; `<Drawer open=... title=... footer=...>` (props ignoradas pelo compound) migrado para `Drawer.Root/Overlay/Content/Title`; `<Checkbox label=... description=...>` migrado para compound.
+
+### Critério para fechar
+
+- [x] `git grep "@deprecated" -- src/` sem resultados.
+- [x] Tipos públicos `ModalProps`/`CheckboxProps`/`TooltipProps`/`DrawerProps` removidos dos `interfaces/index.ts`.
+- [x] `pnpm test` verde após remoção (esperado: ≈540 testes; ~10 testes legacy removidos).
+- [x] `docs/migration/` reduzido a `universo-maria-adoption-support.md`.
+- [x] Reviews históricos preservados; índice `docs/reviews/README.md` atualiza Modal para `(removido 2026-04-24)`.
+
+### Notas
+
+- **Não tocar:** `RFC-0013` permanece como registro histórico da decisão (RFCs aceitas são imutáveis). Reviews em `docs/reviews/*.md` mencionam `isDisabled`/`isInvalid`/`isRequired` em descrição histórica — preservados como snapshots no tempo.
+- **Fora de escopo:** `innerRef` legado em primitives (TD-001/TD-002) — ainda é o mecanismo válido de ref do `ArborTransform`; remoção exige RFC dedicada.
+
+---
+
+## TD-013 — Ambiente de testes para componentes `.native.tsx` ausente
+
+**Origem:** TD-009 (estratégia Field.native) · 2026-04-24
+**Status:** Open
+**Severidade:** Alta (qualidade cross-platform)
+
+### Contexto
+
+Jest do projeto roda só contra entrypoint web. Componentes `.native.tsx` existentes (`image.native.tsx`, `grid.native.tsx`, `icon.native.tsx`, `text.native.tsx`, `fab.native.tsx`, `field.native.tsx`) têm **zero cobertura de testes** — são revisados por leitura, não por execução.
+
+A causa raiz é decisão tácita da Fase 0: o setup inicial priorizou web e adiou ambiente RN. Nunca foi formalizado, mas o efeito se acumula.
+
+### Impacto
+
+- **Drift cross-platform sem trava.** Refactor em primitives ou no styled-system quebra native silenciosamente; CI não pega.
+- **Bloqueia múltiplos TDs:**
+  - **TD-004** (Clickable.native abstração) — sem testes, refactor é arriscado.
+  - **TD-005** (theming hardcoded em fab.native) — não há como validar que tokens passam a ser lidos corretamente após fix.
+  - **TD-009** (Field unificado) — fechar com cobertura real depende deste.
+- **Bloqueia R6 native.** Checkbox/Radio/Switch/Select native (se forem implementados) entram sem proteção.
+- **Cumulativo.** Cada `.native.tsx` adicionado aumenta a superfície sem testes.
+
+### Resolução proposta
+
+RFC dedicada entre dois caminhos (não mutuamente exclusivos):
+
+1. **jest-expo + @testing-library/react-native** — runtime RN real. Suite separada com convenção `*.native.test.tsx`. Custo: setup, CI matrix (job adicional ou jest-projects), tempo de teste maior.
+
+2. **react-native-web como aproximação** — alias RN → RNW na config Jest atual. Mesma suite roda nos dois caminhos. Custo: cobertura parcial (não pega APIs RN-only nem o bridge a11y específico de RN puro). Vantagem: zero infra nova.
+
+Preferência: **(1) para componentes com lógica RN real** (gestos, animação nativa, primitivas RN crus); **(2) como rede de proteção rápida** para o restante (compounds que só re-renderizam estilo).
+
+Decisão da RFC deve incluir:
+
+- Convenção de naming (`*.native.test.tsx` × dual-target).
+- Estratégia de CI (job único × matrix).
+- Critério para escolher (1) ou (2) por componente.
+- Mocks padronizados (RN modules, gestures, animations).
+
+### Critério para fechar
+
+- [ ] RFC redigida e aceita.
+- [ ] Test runner escolhido configurado em `package.json` + `jest.config.*`.
+- [ ] CI executa suite native em PRs.
+- [ ] Cobertura mínima ≥ 1 teste por arquivo `.native.tsx` existente.
+- [ ] CONTRIBUTING.md exige teste para novos `.native.tsx` (alinhado à decisão).
+- [ ] Documentar mocks padronizados em `docs/TESTING.md`.
 
 ---
 

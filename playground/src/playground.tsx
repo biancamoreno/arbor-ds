@@ -7,10 +7,10 @@ import {
   Checkbox,
   Container,
   Counter,
+  Dialog,
   Drawer,
   Flex,
   Grid,
-  Modal,
   RadioCard,
   SearchInput,
   Select,
@@ -139,11 +139,11 @@ function getValueByPath(source: Record<string, unknown>, path: string) {
 
 function OverviewSection({
   activeTheme,
-  onOpenModal,
+  onOpenDialog,
   onOpenDrawer,
 }: {
   activeTheme: ThemePresetId;
-  onOpenModal: () => void;
+  onOpenDialog: () => void;
   onOpenDrawer: () => void;
 }) {
   const theme = useTheme();
@@ -170,13 +170,16 @@ function OverviewSection({
               A superficie publica ficou restrita a elementos realmente reutilizaveis do sistema.
             </Text>
             <div className="playground-actions">
-              <Button onClick={onOpenModal}>Abrir modal</Button>
+              <Button onClick={onOpenDialog}>Abrir dialog</Button>
               <Button variant="secondary" onClick={onOpenDrawer}>
                 Abrir drawer
               </Button>
-              <Tooltip content="Theme ativo no provider">
-                <span className="playground-inline-chip">{themeMeta[activeTheme].label}</span>
-              </Tooltip>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <span className="playground-inline-chip">{themeMeta[activeTheme].label}</span>
+                </Tooltip.Trigger>
+                <Tooltip.Content>Theme ativo no provider</Tooltip.Content>
+              </Tooltip.Root>
             </div>
           </div>
 
@@ -501,12 +504,13 @@ function ComponentsSection({
               <Badge tone="critical">critical</Badge>
             </Flex>
 
-            <Checkbox
-              checked={compactMode}
-              onChange={(event) => setCompactMode(event.currentTarget.checked)}
-              label="Compact mode"
-              description="Exemplo de estado booleano para densidade de interface."
-            />
+            <Checkbox.Root checked={compactMode} onChange={setCompactMode}>
+              <Checkbox.Indicator />
+              <Flex flexDirection="column" gap="2px">
+                <Checkbox.Label>Compact mode</Checkbox.Label>
+                <Checkbox.Description>Exemplo de estado booleano para densidade de interface.</Checkbox.Description>
+              </Flex>
+            </Checkbox.Root>
 
             <div className="playground-radio-grid">
               <RadioCard
@@ -576,10 +580,10 @@ function ComponentsSection({
 }
 
 function OverlaysSection({
-  onOpenModal,
+  onOpenDialog,
   onOpenDrawer,
 }: {
-  onOpenModal: () => void;
+  onOpenDialog: () => void;
   onOpenDrawer: () => void;
 }) {
   const theme = useTheme();
@@ -590,7 +594,7 @@ function OverlaysSection({
         <article className="playground-panel">
           <div className="playground-section-head">
             <Text as="h2" variant="title2">
-              Modal
+              Dialog
             </Text>
             <Text as="p" variant="body" style={{ color: theme.colors.text.secondary }}>
               Dialogo com titulo, descricao, conteudo e footer.
@@ -601,7 +605,7 @@ function OverlaysSection({
             <Text as="p" variant="body">
               Use para confirmacoes, formularios curtos e interrupcoes focadas.
             </Text>
-            <Button onClick={onOpenModal}>Open modal</Button>
+            <Button onClick={onOpenDialog}>Open dialog</Button>
           </div>
         </article>
 
@@ -637,7 +641,7 @@ function PlaygroundContent({
   setActiveTheme: React.Dispatch<React.SetStateAction<ThemePresetId>>;
 }) {
   const theme = useTheme();
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('theme');
   const [textValue, setTextValue] = React.useState('Arbor DS');
@@ -657,7 +661,7 @@ function PlaygroundContent({
       content: (
         <OverviewSection
           activeTheme={activeTheme}
-          onOpenModal={() => setIsModalOpen(true)}
+          onOpenDialog={() => setIsDialogOpen(true)}
           onOpenDrawer={() => setIsDrawerOpen(true)}
         />
       ),
@@ -694,7 +698,7 @@ function PlaygroundContent({
       label: 'Overlays',
       content: (
         <OverlaysSection
-          onOpenModal={() => setIsModalOpen(true)}
+          onOpenDialog={() => setIsDialogOpen(true)}
           onOpenDrawer={() => setIsDrawerOpen(true)}
         />
       ),
@@ -737,60 +741,62 @@ function PlaygroundContent({
         </div>
       </Container>
 
-      <Modal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        title="Arbor Modal"
-        description="Overlay de referencia para confirmacoes, mensagens ou formularios curtos."
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
+      <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog.Overlay />
+        <Dialog.Content size="md">
+          <Dialog.Title>Arbor Dialog</Dialog.Title>
+          <Dialog.Description>
+            Overlay de referencia para confirmacoes, mensagens ou formularios curtos.
+          </Dialog.Description>
+          <Flex flexDirection="column" gap="small">
+            <Text as="p" variant="body" style={{ color: theme.colors.text.secondary }}>
+              O dialog herda o tema ativo do ArborProvider e demonstra composicao simples com textos e actions.
+            </Text>
+            <Badge tone="success">Theme-aware overlay</Badge>
+          </Flex>
+          <Flex justifyContent="flex-end" gap="small">
+            <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>
               Fechar
             </Button>
-            <Button onClick={() => setIsModalOpen(false)}>Confirmar</Button>
-          </>
-        }
-      >
-        <Flex flexDirection="column" gap="small">
-          <Text as="p" variant="body" style={{ color: theme.colors.text.secondary }}>
-            O modal herda o tema ativo do ArborProvider e demonstra composicao simples com textos e actions.
-          </Text>
-          <Badge tone="success">Theme-aware overlay</Badge>
-        </Flex>
-      </Modal>
+            <Button onClick={() => setIsDialogOpen(false)}>Confirmar</Button>
+          </Flex>
+        </Dialog.Content>
+      </Dialog.Root>
 
-      <Drawer
-        open={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
-        title="Arbor Drawer"
-        description="Painel auxiliar para inspecao de estados do playground."
-        footer={
-          <Button variant="secondary" onClick={() => setIsDrawerOpen(false)}>
-            Fechar painel
-          </Button>
-        }
-      >
-        <div className="playground-stack">
-          <div className="playground-inspector-item">
-            <span>Theme</span>
-            <strong>{themeMeta[activeTheme].label}</strong>
+      <Drawer.Root isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+        <Drawer.Overlay />
+        <Drawer.Content>
+          <Drawer.Title>Arbor Drawer</Drawer.Title>
+          <Text as="p" variant="body" style={{ color: theme.colors.text.secondary }}>
+            Painel auxiliar para inspecao de estados do playground.
+          </Text>
+          <div className="playground-stack">
+            <div className="playground-inspector-item">
+              <span>Theme</span>
+              <strong>{themeMeta[activeTheme].label}</strong>
+            </div>
+            <div className="playground-inspector-item">
+              <span>Search</span>
+              <strong>{searchValue}</strong>
+            </div>
+            <div className="playground-inspector-item">
+              <span>Density</span>
+              <strong>
+                {density} / {counterValue}
+              </strong>
+            </div>
+            <div className="playground-inspector-item">
+              <span>Compact mode</span>
+              <strong>{compactMode ? 'enabled' : 'disabled'}</strong>
+            </div>
           </div>
-          <div className="playground-inspector-item">
-            <span>Search</span>
-            <strong>{searchValue}</strong>
-          </div>
-          <div className="playground-inspector-item">
-            <span>Density</span>
-            <strong>
-              {density} / {counterValue}
-            </strong>
-          </div>
-          <div className="playground-inspector-item">
-            <span>Compact mode</span>
-            <strong>{compactMode ? 'enabled' : 'disabled'}</strong>
-          </div>
-        </div>
-      </Drawer>
+          <Flex justifyContent="flex-end">
+            <Button variant="secondary" onClick={() => setIsDrawerOpen(false)}>
+              Fechar painel
+            </Button>
+          </Flex>
+        </Drawer.Content>
+      </Drawer.Root>
     </div>
   );
 }

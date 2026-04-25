@@ -31,20 +31,3 @@ export type DrawerCloseProps = {
   children?: ReactNode;
   label?: string;
 };
-
-/**
- * @deprecated Use Drawer.Root + Drawer.Content instead.
- * Legado mantido para retrocompatibilidade.
- */
-export interface DrawerProps {
-  open: boolean;
-  title?: ReactNode;
-  description?: ReactNode;
-  children?: ReactNode;
-  footer?: ReactNode;
-  placement?: 'left' | 'right' | 'bottom';
-  size?: 'sm' | 'md' | 'lg';
-  closeLabel?: string;
-  closeOnOverlayClick?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}

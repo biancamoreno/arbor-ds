@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { Flex, Box, Text } from '../../core';
 import { FieldContext, useFieldContext, type FieldContextValue } from '../context/field-context';
 import type {
@@ -9,49 +9,17 @@ import type {
   FieldErrorProps,
 } from '../interfaces/FieldProps';
 
-const IS_DEV = process.env.NODE_ENV !== 'production';
-
-function warnLegacy(prop: string, replacement: string) {
-  if (!IS_DEV) return;
-  console.warn(
-    `[Arbor-DS][Field] \`${prop}\` is deprecated; use \`${replacement}\` (RFC-0013).`,
-  );
-}
-
 function FieldRoot({
   id: idProp,
-  disabled,
-  required,
-  invalid,
-  isDisabled,
-  isRequired,
-  isInvalid,
+  disabled = false,
+  required = false,
+  invalid = false,
   children,
 }: FieldRootProps) {
   const autoId = useId();
   const fieldId = idProp ?? autoId;
   const descriptionId = `${fieldId}-description`;
   const errorId = `${fieldId}-error`;
-
-  const warnedRef = useRef({ disabled: false, required: false, invalid: false });
-  if (IS_DEV) {
-    if (isDisabled !== undefined && !warnedRef.current.disabled) {
-      warnLegacy('isDisabled', 'disabled');
-      warnedRef.current.disabled = true;
-    }
-    if (isRequired !== undefined && !warnedRef.current.required) {
-      warnLegacy('isRequired', 'required');
-      warnedRef.current.required = true;
-    }
-    if (isInvalid !== undefined && !warnedRef.current.invalid) {
-      warnLegacy('isInvalid', 'invalid');
-      warnedRef.current.invalid = true;
-    }
-  }
-
-  const effectiveDisabled = disabled ?? isDisabled ?? false;
-  const effectiveRequired = required ?? isRequired ?? false;
-  const effectiveInvalid = invalid ?? isInvalid ?? false;
 
   const [descriptionRegistered, setDescriptionRegistered] = useState(0);
   const [errorRegistered, setErrorRegistered] = useState(0);
@@ -66,9 +34,9 @@ function FieldRoot({
       fieldId,
       descriptionId,
       errorId,
-      disabled: effectiveDisabled,
-      required: effectiveRequired,
-      invalid: effectiveInvalid,
+      disabled,
+      required,
+      invalid,
       descriptionRegistered: descriptionRegistered > 0,
       errorRegistered: errorRegistered > 0,
       registerDescription,
@@ -80,9 +48,9 @@ function FieldRoot({
       fieldId,
       descriptionId,
       errorId,
-      effectiveDisabled,
-      effectiveRequired,
-      effectiveInvalid,
+      disabled,
+      required,
+      invalid,
       descriptionRegistered,
       errorRegistered,
       registerDescription,

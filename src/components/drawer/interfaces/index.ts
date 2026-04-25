@@ -1,5 +1,4 @@
 export type {
-  DrawerProps,
   DrawerRootProps,
   DrawerTriggerProps,
   DrawerOverlayProps,

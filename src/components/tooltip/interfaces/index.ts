@@ -1,5 +1,4 @@
 export type {
-  TooltipProps,
   TooltipRootProps,
   TooltipTriggerProps,
   TooltipContentProps,
