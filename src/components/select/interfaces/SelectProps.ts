@@ -1,12 +1,6 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export type SelectSize = 'sm' | 'md' | 'lg';
-
-export interface SelectOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
-}
 
 export interface SelectRootProps {
   value?: string;
@@ -15,8 +9,6 @@ export interface SelectRootProps {
   disabled?: boolean;
   id?: string;
   size?: SelectSize;
-  placeholder?: string;
-  style?: CSSProperties;
   children: ReactNode;
 }
 

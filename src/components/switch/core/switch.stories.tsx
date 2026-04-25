@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Box, Flex } from '../../core';
 import { Switch } from './switch';
 
 const meta = {
@@ -27,14 +28,14 @@ export const Default: Story = {
 
 export const WithLabel: Story = {
   render: () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <Flex alignItems="center" gap="8px">
       <Switch.Root id="notif" aria-labelledby="notif-label">
         <Switch.Track>
           <Switch.Thumb />
         </Switch.Track>
       </Switch.Root>
-      <label id="notif-label" htmlFor="notif">Receber notificações</label>
-    </div>
+      <Box as="label" id="notif-label" htmlFor="notif">Receber notificações</Box>
+    </Flex>
   ),
 };
 
@@ -50,25 +51,25 @@ export const Checked: Story = {
 
 export const Disabled: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 16 }}>
+    <Flex gap="16px">
       <Switch.Root disabled aria-label="Desabilitado desligado">
         <Switch.Track><Switch.Thumb /></Switch.Track>
       </Switch.Root>
       <Switch.Root disabled defaultChecked aria-label="Desabilitado ligado">
         <Switch.Track><Switch.Thumb /></Switch.Track>
       </Switch.Root>
-    </div>
+    </Flex>
   ),
 };
 
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+    <Flex gap="16px" alignItems="center">
       {(['sm', 'md', 'lg'] as const).map((size) => (
         <Switch.Root key={size} size={size} aria-label={`Tamanho ${size}`}>
           <Switch.Track><Switch.Thumb /></Switch.Track>
         </Switch.Root>
       ))}
-    </div>
+    </Flex>
   ),
 };

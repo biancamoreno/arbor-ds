@@ -73,8 +73,7 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
           {...rest}
         />
         <Flex
-          aria-checked={isChecked}
-          role="radio"
+          aria-hidden="true"
           width="100%"
           alignItems="flex-start"
           justifyContent="space-between"
@@ -145,5 +144,3 @@ export const RadioCard = React.forwardRef<HTMLInputElement, RadioCardProps>(
 );
 
 RadioCard.displayName = 'RadioCard';
-
-export default RadioCard;

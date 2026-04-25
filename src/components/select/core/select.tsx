@@ -237,6 +237,12 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
   );
 }
 
+SelectRoot.displayName = 'Select.Root';
+SelectTrigger.displayName = 'Select.Trigger';
+SelectValue.displayName = 'Select.Value';
+SelectContent.displayName = 'Select.Content';
+SelectItem.displayName = 'Select.Item';
+
 markFieldAware(SelectRoot);
 markFieldAware(SelectTrigger);
 

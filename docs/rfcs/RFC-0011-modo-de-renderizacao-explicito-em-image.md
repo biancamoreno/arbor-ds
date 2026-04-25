@@ -1,10 +1,10 @@
 # RFC-0011 — Modo de renderização explícito em `Image` (`mode: 'img' | 'background'`)
 
-**Status**: Draft
+**Status**: Implemented (2026-04-24)
 **Autores**: Arquiteto Arbor-DS
 **Data**: 2026-04-24
 **Origem**: R3 · achado em `image.md`
-**PR**: —
+**PR**: implementado em conjunto com RFC-0012
 
 ---
 

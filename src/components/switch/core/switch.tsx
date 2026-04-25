@@ -126,9 +126,13 @@ function SwitchTrack({ children }: { children?: ReactNode }) {
   );
 }
 
+SwitchTrack.displayName = 'Switch.Track';
+
 function SwitchThumb({ style }: { style?: React.CSSProperties }) {
   return <Box as="span" style={style} />;
 }
+
+SwitchThumb.displayName = 'Switch.Thumb';
 
 markFieldAware(SwitchRoot);
 

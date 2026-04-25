@@ -25,7 +25,7 @@ function RadioRoot({
   checked,
   defaultChecked = false,
   onCheckedChange,
-  disabled = false,
+  disabled,
   id: idProp,
   name,
   size = 'md',
@@ -34,7 +34,7 @@ function RadioRoot({
   const autoId = useId();
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
-  const effectiveDisabled = disabled || (fieldCtx?.disabled ?? false);
+  const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const theme = useTheme();
   const sizing = sizeMap[size];
 
@@ -157,6 +157,11 @@ function RadioDescription({ children }: RadioDescriptionProps) {
     </Text>
   );
 }
+
+RadioRoot.displayName = 'Radio.Root';
+RadioIndicator.displayName = 'Radio.Indicator';
+RadioLabel.displayName = 'Radio.Label';
+RadioDescription.displayName = 'Radio.Description';
 
 markFieldAware(RadioRoot);
 

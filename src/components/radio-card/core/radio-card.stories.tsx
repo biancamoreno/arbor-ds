@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Box, Flex } from '../../core';
 import { RadioCard } from './radio-card';
 
 const meta = {
@@ -25,21 +26,23 @@ export const Default: Story = {
 
 export const Group: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 320 }} role="radiogroup" aria-label="Planos">
-      {[
-        { value: 'free', label: 'Gratuito', description: 'Ideal para começar, até 3 projetos.' },
-        { value: 'pro', label: 'Pro — R$ 49/mês', description: 'Projetos ilimitados e suporte prioritário.' },
-        { value: 'enterprise', label: 'Enterprise', description: 'Solução customizada para grandes times.' },
-      ].map((plan) => (
-        <RadioCard
-          key={plan.value}
-          value={plan.value}
-          label={plan.label}
-          description={plan.description}
-          name="plan"
-        />
-      ))}
-    </div>
+    <Box as="div" role="radiogroup" aria-label="Planos" width="320px">
+      <Flex flexDirection="column" gap="12px">
+        {[
+          { value: 'free', label: 'Gratuito', description: 'Ideal para começar, até 3 projetos.' },
+          { value: 'pro', label: 'Pro — R$ 49/mês', description: 'Projetos ilimitados e suporte prioritário.' },
+          { value: 'enterprise', label: 'Enterprise', description: 'Solução customizada para grandes times.' },
+        ].map((plan) => (
+          <RadioCard
+            key={plan.value}
+            value={plan.value}
+            label={plan.label}
+            description={plan.description}
+            name="plan"
+          />
+        ))}
+      </Flex>
+    </Box>
   ),
 };
 
@@ -54,10 +57,10 @@ export const Disabled: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 320 }}>
+    <Flex flexDirection="column" gap="12px" width="320px">
       {(['sm', 'md', 'lg'] as const).map((size) => (
         <RadioCard key={size} value={size} label={`Tamanho ${size}`} size={size} name="size" />
       ))}
-    </div>
+    </Flex>
   ),
 };

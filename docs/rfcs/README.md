@@ -17,6 +17,7 @@ Ver [`docs/reviews/_followups.md`](../reviews/_followups.md) para o índice acio
 | [RFC-0007](./RFC-0007-tipagem-generica-de-userecipe.md) | Tipagem genérica do retorno de `useRecipe` | R3 | Draft |
 | [RFC-0011](./RFC-0011-modo-de-renderizacao-explicito-em-image.md) | Modo de renderização explícito em `Image` | R3 | Draft |
 | [RFC-0012](./RFC-0012-loading-e-error-states-em-image.md) | Estados de loading/error em `Image` | R3 | Draft |
+| [RFC-0016](./RFC-0016-ambiente-de-testes-cross-platform.md) | Ambiente de testes cross-platform | TD-013 | Draft |
 
 ---
 

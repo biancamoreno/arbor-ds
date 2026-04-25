@@ -15,6 +15,8 @@ function CheckboxRoot({
   disabled,
   indeterminate = false,
   id: idProp,
+  name,
+  value,
   children,
 }: CheckboxRootProps) {
   const autoId = useId();
@@ -30,7 +32,15 @@ function CheckboxRoot({
 
   return (
     <CheckboxContext.Provider
-      value={{ isChecked, isIndeterminate: indeterminate, isDisabled: effectiveDisabled, inputId, onChange: setIsChecked }}
+      value={{
+        isChecked,
+        isIndeterminate: indeterminate,
+        isDisabled: effectiveDisabled,
+        inputId,
+        name,
+        value,
+        onChange: setIsChecked,
+      }}
     >
       <Pressable
         onPress={() => !effectiveDisabled && setIsChecked(!isChecked)}
@@ -83,9 +93,16 @@ function CheckboxLabel({ children }: CheckboxLabelProps) {
   return <Text as="span" fontSize="small" color="text.primary">{children}</Text>;
 }
 
+CheckboxLabel.displayName = 'Checkbox.Label';
+
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
   return <Text as="span" fontSize="xsmall" color="text.secondary">{children}</Text>;
 }
+
+CheckboxDescription.displayName = 'Checkbox.Description';
+
+CheckboxRoot.displayName = 'Checkbox';
+CheckboxIndicator.displayName = 'Checkbox.Indicator';
 
 markFieldAware(CheckboxRoot);
 markFieldAware(CheckboxIndicator);

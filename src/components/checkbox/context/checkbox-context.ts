@@ -5,6 +5,8 @@ export type CheckboxContextValue = {
   isIndeterminate: boolean;
   isDisabled: boolean;
   inputId: string;
+  name?: string;
+  value?: string;
   onChange: (checked: boolean) => void;
 };
 

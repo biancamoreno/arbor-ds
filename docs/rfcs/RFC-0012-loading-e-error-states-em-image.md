@@ -1,10 +1,10 @@
 # RFC-0012 — Estados de `loading` e `error` com UI padrão em `Image`
 
-**Status**: Draft
+**Status**: Implemented (2026-04-24)
 **Autores**: Arquiteto Arbor-DS
 **Data**: 2026-04-24
 **Origem**: R3 · achado em `image.md`
-**PR**: —
+**PR**: implementado em conjunto com RFC-0011
 
 ---
 

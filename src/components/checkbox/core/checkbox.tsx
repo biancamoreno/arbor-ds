@@ -19,8 +19,8 @@ function CheckboxRoot({
   disabled,
   indeterminate = false,
   id: idProp,
-  name: _name,
-  value: _value,
+  name,
+  value,
   children,
 }: CheckboxRootProps) {
   const autoId = useId();
@@ -36,7 +36,15 @@ function CheckboxRoot({
 
   return (
     <CheckboxContext.Provider
-      value={{ isChecked, isIndeterminate: indeterminate, isDisabled: effectiveDisabled, inputId, onChange: setIsChecked }}
+      value={{
+        isChecked,
+        isIndeterminate: indeterminate,
+        isDisabled: effectiveDisabled,
+        inputId,
+        name,
+        value,
+        onChange: setIsChecked,
+      }}
     >
       <Flex
         as="label"
@@ -77,6 +85,8 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
       }}
       id={ctx.inputId}
       type="checkbox"
+      name={ctx.name}
+      value={ctx.value}
       checked={ctx.isChecked}
       disabled={ctx.isDisabled}
       aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
@@ -104,6 +114,8 @@ function CheckboxLabel({ children }: CheckboxLabelProps) {
   );
 }
 
+CheckboxLabel.displayName = 'Checkbox.Label';
+
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
   return (
     <Text as="span" fontSize="xsmall" color="text.secondary">
@@ -111,6 +123,8 @@ function CheckboxDescription({ children }: CheckboxDescriptionProps) {
     </Text>
   );
 }
+
+CheckboxDescription.displayName = 'Checkbox.Description';
 
 CheckboxRoot.displayName = 'Checkbox';
 

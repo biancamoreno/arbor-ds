@@ -1,8 +1,8 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform web-only
- * Checkbox que estende HTMLInputElement — usa APIs DOM exclusivas da web.
+ * Checkbox compound props. Web consome `<input type=checkbox>` (APIs DOM);
+ * `checkbox.native.tsx` re-implementa o indicador com `Pressable` + tokens.
  */
 export interface CheckboxRootProps {
   checked?: boolean;

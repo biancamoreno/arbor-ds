@@ -47,6 +47,8 @@ function SwitchRoot({
   );
 }
 
+SwitchRoot.displayName = 'Switch.Root';
+
 markFieldAware(SwitchRoot);
 
 export const Switch = Object.assign(SwitchRoot, {

@@ -5,6 +5,5 @@ export type {
   SelectValueProps,
   SelectContentProps,
   SelectItemProps,
-  SelectOption,
   SelectSize,
 } from './interfaces/SelectProps';

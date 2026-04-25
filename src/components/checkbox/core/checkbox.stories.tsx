@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Flex } from '../../core';
 import { Checkbox } from './checkbox';
 
 const meta = {
@@ -24,10 +25,10 @@ export const WithDescription: Story = {
   render: () => (
     <Checkbox.Root id="newsletter">
       <Checkbox.Indicator />
-      <div>
+      <Flex flexDirection="column">
         <Checkbox.Label>Receber novidades</Checkbox.Label>
         <Checkbox.Description>Enviaremos no máximo 1 e-mail por semana.</Checkbox.Description>
-      </div>
+      </Flex>
     </Checkbox.Root>
   ),
 };
@@ -43,7 +44,7 @@ export const Indeterminate: Story = {
 
 export const Disabled: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <Flex flexDirection="column" gap="8px">
       <Checkbox.Root id="disabled-unchecked" disabled>
         <Checkbox.Indicator />
         <Checkbox.Label>Desabilitado (desmarcado)</Checkbox.Label>
@@ -52,19 +53,19 @@ export const Disabled: Story = {
         <Checkbox.Indicator />
         <Checkbox.Label>Desabilitado (marcado)</Checkbox.Label>
       </Checkbox.Root>
-    </div>
+    </Flex>
   ),
 };
 
 export const Group: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <Flex flexDirection="column" gap="8px">
       {['Opção A', 'Opção B', 'Opção C'].map((opt) => (
         <Checkbox.Root key={opt} id={`group-${opt}`}>
           <Checkbox.Indicator />
           <Checkbox.Label>{opt}</Checkbox.Label>
         </Checkbox.Root>
       ))}
-    </div>
+    </Flex>
   ),
 };

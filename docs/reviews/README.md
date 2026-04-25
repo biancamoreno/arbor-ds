@@ -26,7 +26,7 @@ Componentes são revisados por **dependência arquitetural** (montante → jusan
 | **R3** | Core — cross-platform primitives | [R3 consolidação](./R3-core-cross-platform.md) · [Text](./text.md) · [Clickable](./clickable.md) · [Icon](./icon.md) · [Image](./image.md) | ✅ concluído |
 | **R4** | Botões e triggers | [R4 consolidação](./R4-button-buttongroup-fab.md) · Button · ButtonGroup · FloatingActionButton | ✅ concluído |
 | **R5** | Formulário — base | [R5 consolidação](./R5-form-base.md) · [Field](./field.md) · [Input](./input.md) | ✅ concluído |
-| **R6** | Formulário — seleção | [Checkbox](./checkbox.md) · [Radio](./radio.md) · [RadioCard](./radio-card.md) · [Switch](./switch.md) · [Select](./select.md) | ⏳ pendente |
+| **R6** | Formulário — seleção | [R6 consolidação](./R6-form-selection.md) · [Checkbox](./checkbox.md) · [Radio](./radio.md) · [RadioCard](./radio-card.md) · [Switch](./switch.md) · [Select](./select.md) | ✅ concluído |
 | **R7** | Feedback — indicadores | [Badge](./badge.md) · [Spinner](./spinner.md) · [Skeleton](./skeleton.md) · [ProgressBar](./progress-bar.md) · [ProgressCircle](./progress-circle.md) | ⏳ pendente |
 | **R8** | Feedback — mensagens | [Alert](./alert.md) · [Toast](./toast.md) · [Tag](./tag.md) · [Chip](./chip.md) | ⏳ pendente |
 | **R9** | Conteúdo | [Avatar](./avatar.md) · [Card](./card.md) · [Accordion](./accordion.md) · [Tabs](./tabs.md) · [Carousel](./carousel.md) | ⏳ pendente |
