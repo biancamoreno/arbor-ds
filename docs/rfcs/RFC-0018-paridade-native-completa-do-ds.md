@@ -1,13 +1,15 @@
 # RFC-0018 — Paridade native completa do DS Arbor
 
-**Status**: Draft (onda 1 implementada)
+**Status**: Draft (ondas 1 e 2 implementadas)
 **Autores**: @bia
 **Data**: 2026-04-25
-**PR**: (commit local, sem PR remoto)
+**PR**: (commits locais, sem PR remoto)
 
 **Origem**: Diretriz arquitetural — DS é cross-platform por definição. A tag `@platform web-only` é dívida, não classificação aceita.
 
-> **Onda 1 implementada (2026-04-25)** — `Clickable.native.tsx` criado como wrapper `<Pressable>` + `<Box>`; mapeia API canônica web (`onClick`, `role`, `aria-label`) para API native. 8 cases em `clickable.native.test.tsx` verdes. `fab.native.tsx` migrado como primeiro consumidor (substitui `TouchableOpacity`). [TD-004](../TECH_DEBT.md#td-004) **Resolved**. Demais ondas continuam pendentes — onda 2 (Form base) é o próximo passo.
+> **Onda 1 implementada (2026-04-25)** — `Clickable.native.tsx` criado como wrapper `<Pressable>` + `<Box>`; mapeia API canônica web (`onClick`, `role`, `aria-label`) para API native. 8 cases em `clickable.native.test.tsx` verdes. `fab.native.tsx` migrado como primeiro consumidor (substitui `TouchableOpacity`). [TD-004](../TECH_DEBT.md#td-004) **Resolved**.
+
+> **Onda 2 implementada (2026-04-25)** — Form base completa: `textinput.native.tsx` (9 cases), `textarea.native.tsx` (6), `counter.native.tsx` (6), `field.native.tsx` re-implementado via slot recipe `useSlotRecipe('field')` + injeção de `nativeID`/`accessibilityLabelledBy`/`accessibilityDescribedBy`/`editable` em FieldControl (12 cases, 4 novos da TD-009 sem `.skip`). `FieldContext` ganhou `labelId` (compartilhado web+native). `web-only` no contrato: 12 → 10. [TD-009](../TECH_DEBT.md#td-009) **Resolved**. Próximo passo: onda 3 (Form seleção — Radio/Select).
 
 ---
 

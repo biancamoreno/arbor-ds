@@ -17,6 +17,7 @@ function FieldRoot({
 }: FieldRootProps) {
   const autoId = useId();
   const fieldId = idProp ?? autoId;
+  const labelId = `${fieldId}-label`;
   const descriptionId = `${fieldId}-description`;
   const errorId = `${fieldId}-error`;
 
@@ -34,6 +35,7 @@ function FieldRoot({
   const value = useMemo<FieldContextValue>(
     () => ({
       fieldId,
+      labelId,
       descriptionId,
       errorId,
       disabled,
@@ -48,6 +50,7 @@ function FieldRoot({
     }),
     [
       fieldId,
+      labelId,
       descriptionId,
       errorId,
       disabled,

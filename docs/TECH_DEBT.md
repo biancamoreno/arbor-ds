@@ -20,7 +20,7 @@
 | [TD-006](#td-006) | Acoplamento bidirecional Button↔ButtonGroup via context | R4 (Button) | Open | Manutenção (Button conhece detalhes de ButtonGroup) | RFC: mover `attachedStyle` para ButtonGroup ou criar variant `attached` em Button via theme recipe |
 | [TD-007](#td-007) | `forwardRef` ausente em camadas pós-core | R4 (Button/ButtonGroup/FAB) | Open | DX + integração com libs externas | Sweep coordenado pós-R6 (quando teremos mais dados sobre o gap em Field/Input/Card etc.) |
 | [TD-008](#td-008) | Recipe `input` morta — substituída por `getFieldFrameStyle` imperativo | R5 (Input) | **Resolved (2026-04-24)** | Theming dinâmico/dark mode/overrides quebrados na família Input | Migrada para slot recipe `frame`/`control` × `size`/`variant`/`state`; TextInput/TextArea consomem via `useSlotRecipe`; `getFieldFrameStyle`/`getFieldColors`/`getFieldSizeStyles` deletados; FieldShell isolado em `field-shell.tsx` |
-| [TD-009](#td-009) | `Field.native` em divergência arquitetural com web | R5 (Field) | Open | Drift cross-platform; cobertura zero em native | RFC: re-implementar via primitives + `useTheme()` ou aceitar split formal com testes próprios |
+| [TD-009](#td-009) | `Field.native` em divergência arquitetural com web | R5 (Field) | **Resolved (2026-04-25)** | Drift cross-platform; cobertura zero em native | Re-implementado via opção 1 (RFC-0018 onda 2): `field.native.tsx` consome `useSlotRecipe('field')`; FieldContext ganhou `labelId`; FieldControl injeta `nativeID`/`accessibilityLabelledBy`/`accessibilityState`/`accessibilityDescribedBy`/`editable`; 4 cases de paridade verdes (3 `.skip` removidos) |
 | [TD-010](#td-010) | `input/core/select.tsx` é dead code com anti-patterns | R5 (Input) | **Resolved (2026-04-24)** | Confundia contribuidores; contradizia CLAUDE.md | Removido em 2026-04-24 — `input/core/select.tsx` + `input/interfaces/SelectProps.ts` deletados |
 | [TD-011](#td-011) | Field — sem registry de slots para condicional `aria-describedby` | R5 (Field, CR5-2) | **Resolved (2026-04-24)** | A11y: aria-describedby aponta para id inexistente quando Description ausente | Resolvido por RFC-0014 — FieldContext ganhou `descriptionRegistered`/`errorRegistered` + register/unregister via `useEffect` nos slots Description/Error |
 | [TD-012](#td-012) | Varredura completa de depreciados (Modal, aliases `is*`, flat Checkbox/Tooltip/Drawer, array responsivo) | Pré-release | **Resolved (2026-04-24)** | Surface area dobrada; warnings em runtime; documentação inflada | Removido em 2026-04-24 — sem consumidores externos, sem janela de transição. Ver TD-012 abaixo. |
@@ -28,9 +28,9 @@
 | [TD-014](#td-014) | Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox web) | R6 review (HR6-1) | Open | A11y crítica — WCAG 2.4.7 quebrado | Sweep coordenado: refletir `:focus-visible` do `<input>` oculto via boxShadow no visual desenhado |
 | [TD-015](#td-015) | Slots fantasma `Switch.Track`/`Switch.Thumb` | R6 review (HR6-2) | **Resolved (2026-04-25)** | API mente — slots não-funcionais | RFC-0017 caminho B — `Switch.Track` / `Switch.Thumb` removidos do export; Switch é elementar |
 | [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | Open | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Sweep + invariante DS via lint rule custom |
-| [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | Open | **Crítico** — Promessa do DS quebrada em mobile (Clickable/Button/Input/Radio/Select/Tag/Pagination/Tabs/Breadcrumb/Accordion/Table); Field-aware mistos | RFC-0018 (paridade native completa) — implementação em 6 ondas; primeira é Clickable.native (TD-004) |
+| [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | Open (10 restantes) | **Crítico** — Promessa do DS quebrada em mobile; Field-aware mistos | RFC-0018 (paridade native completa) — onda 1 (Clickable) e onda 2 (Input família) entregues; ondas 3–6 pendentes |
 
-**Total:** 9 dívidas abertas, 7 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-013 e TD-015 em 2026-04-25).
+**Total:** 8 dívidas abertas, 8 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013 e TD-015 em 2026-04-25).
 
 ---
 
@@ -483,8 +483,23 @@ Trade-off: o blob `style={...frameStyle}` é compatível com props HTML arbitrá
 ## TD-009 — `Field.native` em divergência arquitetural com web
 
 **Origem:** R5 review (Field) · 2026-04-24
-**Status:** Open
+**Status:** **Resolved (2026-04-25)** · onda 2 da RFC-0018
 **Severidade:** Alta (cross-platform)
+
+### Resolução
+
+`field.native.tsx` re-implementado via **opção 1** (primitives + slot recipe). Mudanças:
+
+- `FieldContext` ganhou `labelId` (compartilhado web+native; chave para amarração `htmlFor` ↔ `accessibilityLabelledBy`).
+- `field.native.tsx` consome `useSlotRecipe('field')` igual ao web — fim do hardcode (`gap='micro'`, `fontSize='sm'` etc.).
+- `FieldRoot` aceita `style` e o repassa via `Box`.
+- `FieldLabel` emite `nativeID={labelId}`.
+- `FieldControl` clona o filho injetando: `nativeID={fieldId}`, `accessibilityLabelledBy={labelId}`, `accessibilityState={{ disabled }}`, `accessibilityDescribedBy={...}`, `editable={false}` (quando `disabled`). Respeita o marker `isFieldAware` (mesmo contrato que web).
+- `FieldDescription`/`FieldError` emitem `nativeID` correspondente; Error mantém `accessibilityRole='alert'`.
+
+Cobertura: `field.native.test.tsx` agora tem 12 cases verdes (4 novos da TD-009 sem `.skip`); suite total 680/680.
+
+
 
 ### Contexto
 
@@ -902,8 +917,14 @@ Vários componentes interativos têm área de toque menor que o mínimo WCAG (44
 ## TD-017 — `@platform web-only` viola diretriz cross-platform do DS
 
 **Origem:** Diretriz arquitetural (2026-04-25) · formalizada em [RFC-0018](rfcs/RFC-0018-paridade-native-completa-do-ds.md)
-**Status:** Open
+**Status:** Open (em progresso — ondas 1 e 2 fechadas)
 **Severidade:** Crítica (promessa do DS)
+
+**Progresso:**
+- ✅ Onda 1 (2026-04-25, `ced19a3`) — Clickable.native + 8 cases.
+- ✅ Onda 2 (2026-04-25) — TextInput.native (9), TextArea.native (6), Counter.native (6), Field.native unificado (12). Fecha [TD-009](#td-009). `web-only`: 12 → 10.
+- ⏳ Ondas 3–6 pendentes.
+
 
 ### Contexto
 
@@ -943,8 +964,8 @@ A classificação `web-only` não foi decisão deliberada — foi efeito colater
 
 ### Critério para fechar
 
-- [ ] **Onda 1** — Clickable.native implementado + cobertura ≥ 5 cases. Resolve TD-004.
-- [ ] **Onda 2** — TextInput/TextArea/Counter têm `.native.tsx` + suíte. Resolve parte de TD-009.
+- [x] **Onda 1** — Clickable.native implementado + cobertura ≥ 5 cases. Resolve TD-004. (2026-04-25, `ced19a3`)
+- [x] **Onda 2** — TextInput/TextArea/Counter têm `.native.tsx` + suíte. Field.native re-implementado via slot recipe + amarração Label↔Control. Resolve TD-009. (2026-04-25)
 - [ ] **Onda 3** — Radio/Select têm `.native.tsx`; RadioCard removido (após Radio.native paritário); RFC-0019 fechada.
 - [ ] **Ondas 4–5** — Pagination/Tabs/Breadcrumb/Tag/Accordion convertidos.
 - [ ] **Onda 6** — FileUpload/Table com decisão documentada (RFCs próprias).

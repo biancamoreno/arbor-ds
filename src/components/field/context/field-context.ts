@@ -6,6 +6,7 @@ import { createContext, useContext } from 'react';
  */
 export type FieldContextValue = {
   fieldId: string;
+  labelId: string;
   descriptionId: string;
   errorId: string;
   disabled: boolean;

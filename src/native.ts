@@ -35,3 +35,14 @@ export type { TextProps } from './components/core/text';
 
 export { Image } from './components/core/image';
 export type { ImageProps } from './components/core/image';
+
+export { Clickable } from './components/core/clickable';
+
+export { Field } from './components/field';
+
+export { TextInput, TextArea, Counter } from './components/input';
+export type {
+  TextInputProps,
+  TextAreaProps,
+  CounterProps,
+} from './components/input/interfaces';

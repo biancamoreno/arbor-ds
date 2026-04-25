@@ -6,4 +6,5 @@ export interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   rightIcon?: ReactNode;
   clearable?: boolean;
   onValueChange?: (value: string) => void;
+  testID?: string;
 }

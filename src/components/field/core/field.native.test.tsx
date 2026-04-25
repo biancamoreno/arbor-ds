@@ -1,4 +1,5 @@
 import React from 'react';
+import { TextInput } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 import { createTheme, themeLight } from '../../../foundations';
 import { ArborProvider } from '../../../ecosystem/styled-system';
@@ -52,6 +53,15 @@ describe('Field.Label (native)', () => {
     );
     expect(screen.queryByText(/\*/)).toBeNull();
   });
+
+  it('exposes nativeID matching the labelId derived from fieldId', () => {
+    renderField(
+      <Field id="f1">
+        <Field.Label>Nome</Field.Label>
+      </Field>,
+    );
+    expect(screen.getByText('Nome').props.nativeID).toBe('f1-label');
+  });
 });
 
 describe('Field.Description (native)', () => {
@@ -88,22 +98,52 @@ describe('Field.Error (native)', () => {
   });
 });
 
-// TD-009 — divergência arquitetural conhecida.
-// Estes casos descrevem o contrato esperado para paridade com a versão web.
-// Habilitar (remover .skip) quando TD-009 for resolvido.
-describe.skip('Field parity gaps tracked by TD-009 (native)', () => {
-  it('Field.Control should inject nativeID matching fieldId on its child (TD-009)', () => {
-    // No web, Field.Control injeta `id={fieldId}` no controle via slots/control.
-    // Em native, Field.Control hoje é apenas <Box>{children}</Box> — não injeta nada.
+describe('Field.Control parity wiring (native, TD-009)', () => {
+  it('injects nativeID matching fieldId on its child', () => {
+    renderField(
+      <Field id="fc">
+        <Field.Control>
+          <TextInput testID="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByTestId('ctrl').props.nativeID).toBe('fc');
   });
 
-  it('Field.Label should expose accessibilityLabelledBy chain to the control (TD-009)', () => {
-    // Web wirea via htmlFor + slot Field.Control id.
-    // Native ainda não conecta Label ↔ Control via accessibilityLabelledBy.
+  it('connects Label to Control via accessibilityLabelledBy', () => {
+    renderField(
+      <Field id="fc">
+        <Field.Label>Nome</Field.Label>
+        <Field.Control>
+          <TextInput testID="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByTestId('ctrl').props.accessibilityLabelledBy).toBe('fc-label');
   });
 
-  it('Field.Control should inject accessibilityState.disabled when disabled (TD-009)', () => {
-    // Web injeta `disabled` HTML; o equivalente native seria
-    // accessibilityState={{ disabled: true }}.
+  it('injects accessibilityState.disabled and editable=false when disabled', () => {
+    renderField(
+      <Field id="fc" disabled>
+        <Field.Control>
+          <TextInput testID="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    const ctrl = screen.getByTestId('ctrl');
+    expect(ctrl.props.accessibilityState).toEqual({ disabled: true });
+    expect(ctrl.props.editable).toBe(false);
+  });
+
+  it('wires accessibilityDescribedBy when description is registered', () => {
+    renderField(
+      <Field id="fc">
+        <Field.Description>Helper</Field.Description>
+        <Field.Control>
+          <TextInput testID="ctrl" />
+        </Field.Control>
+      </Field>,
+    );
+    expect(screen.getByTestId('ctrl').props['aria-describedby']).toBe('fc-description');
   });
 });

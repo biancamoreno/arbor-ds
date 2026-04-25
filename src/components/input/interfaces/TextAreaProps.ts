@@ -6,4 +6,5 @@ export interface TextAreaProps
     FieldBaseProps {
   showCharCount?: boolean;
   onValueChange?: (value: string) => void;
+  testID?: string;
 }

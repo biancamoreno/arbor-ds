@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import { Flex, Box, Text } from '../../core';
+import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useSlotRecipe } from '../../../ecosystem';
+import { Box, Text } from '../../core';
 import { FieldContext, useFieldContext, type FieldContextValue } from '../context/field-context';
+import { isFieldAwareComponent } from '../utils/is-field-aware';
 import type {
   FieldRootProps,
   FieldLabelProps,
@@ -9,15 +11,27 @@ import type {
   FieldErrorProps,
 } from '../interfaces/FieldProps';
 
+/**
+ * @platform native-ready
+ *
+ * Re-implementação Field unificada (TD-009).
+ * Consome o slot recipe `field` igual ao web; mapeia HTML/ARIA → RN/accessibility:
+ * - `htmlFor` (web) → `accessibilityLabelledBy` (native), via `labelId` no context.
+ * - `aria-describedby`/`aria-errormessage` → `accessibilityDescribedBy` injetado em FieldControl.
+ * - `id` HTML → `nativeID` (label, description, error, control).
+ * - `disabled` → `accessibilityState.disabled` + `editable={false}` quando o filho expõe `editable`.
+ */
 function FieldRoot({
   id: idProp,
   disabled = false,
   required = false,
   invalid = false,
+  style,
   children,
 }: FieldRootProps) {
   const autoId = useId();
   const fieldId = idProp ?? autoId;
+  const labelId = `${fieldId}-label`;
   const descriptionId = `${fieldId}-description`;
   const errorId = `${fieldId}-error`;
 
@@ -25,13 +39,20 @@ function FieldRoot({
   const [errorRegistered, setErrorRegistered] = useState(0);
 
   const registerDescription = useCallback(() => setDescriptionRegistered((n) => n + 1), []);
-  const unregisterDescription = useCallback(() => setDescriptionRegistered((n) => Math.max(0, n - 1)), []);
+  const unregisterDescription = useCallback(
+    () => setDescriptionRegistered((n) => Math.max(0, n - 1)),
+    [],
+  );
   const registerError = useCallback(() => setErrorRegistered((n) => n + 1), []);
   const unregisterError = useCallback(() => setErrorRegistered((n) => Math.max(0, n - 1)), []);
+
+  const slots = useSlotRecipe('field', {});
+  const rootStyles = (slots as Record<string, unknown>).root as Record<string, unknown> | undefined;
 
   const value = useMemo<FieldContextValue>(
     () => ({
       fieldId,
+      labelId,
       descriptionId,
       errorId,
       disabled,
@@ -46,6 +67,7 @@ function FieldRoot({
     }),
     [
       fieldId,
+      labelId,
       descriptionId,
       errorId,
       disabled,
@@ -62,23 +84,24 @@ function FieldRoot({
 
   return (
     <FieldContext.Provider value={value}>
-      <Flex flexDirection="column" gap="micro">
+      <Box {...(rootStyles ?? {})} style={style as never}>
         {children}
-      </Flex>
+      </Box>
     </FieldContext.Provider>
   );
 }
 
 function FieldLabel({ children }: FieldLabelProps) {
   const ctx = useFieldContext();
+  const slots = useSlotRecipe('field', {});
+  const labelStyles = (slots as Record<string, unknown>).label as Record<string, unknown> | undefined;
 
   return (
     <Text
-      as="span"
+      nativeID={ctx?.labelId}
       accessibilityRole="text"
-      fontSize="sm"
-      fontWeight="medium"
       color={ctx?.invalid ? 'feedback.critical.base' : 'text.primary'}
+      {...(labelStyles ?? {})}
     >
       {children}
       {ctx?.required ? ' *' : ''}
@@ -87,11 +110,52 @@ function FieldLabel({ children }: FieldLabelProps) {
 }
 
 function FieldControl({ children }: FieldControlProps) {
-  return <Box>{children}</Box>;
+  const ctx = useFieldContext();
+
+  if (!ctx || !React.isValidElement(children)) {
+    return <>{children}</>;
+  }
+
+  if (isFieldAwareComponent(children.type)) {
+    return <>{children}</>;
+  }
+
+  const { fieldId, labelId, descriptionId, errorId, disabled, invalid, descriptionRegistered, errorRegistered } = ctx;
+
+  const injectedProps: Record<string, unknown> = {
+    nativeID: fieldId,
+    accessibilityLabelledBy: labelId,
+  };
+
+  const a11yState: Record<string, boolean> = {};
+  if (disabled) {
+    a11yState.disabled = true;
+    injectedProps.editable = false;
+  }
+  if (invalid) {
+    injectedProps.accessibilityInvalid = true;
+  }
+  if (Object.keys(a11yState).length > 0) {
+    injectedProps.accessibilityState = a11yState;
+  }
+
+  if (descriptionRegistered) {
+    const describedBy: string[] = [descriptionId];
+    if (invalid && errorRegistered) describedBy.push(errorId);
+    injectedProps['aria-describedby'] = describedBy.join(' ');
+  } else if (invalid && errorRegistered) {
+    injectedProps['aria-describedby'] = errorId;
+  }
+
+  return React.cloneElement(children as React.ReactElement<Record<string, unknown>>, injectedProps);
 }
 
 function FieldDescription({ children }: FieldDescriptionProps) {
   const ctx = useFieldContext();
+  const slots = useSlotRecipe('field', {});
+  const descriptionStyles = (slots as Record<string, unknown>).description as
+    | Record<string, unknown>
+    | undefined;
 
   useEffect(() => {
     if (!ctx) return;
@@ -100,12 +164,7 @@ function FieldDescription({ children }: FieldDescriptionProps) {
   }, [ctx]);
 
   return (
-    <Text
-      as="span"
-      nativeID={ctx?.descriptionId}
-      fontSize="xs"
-      color="text.secondary"
-    >
+    <Text nativeID={ctx?.descriptionId} color="text.secondary" {...(descriptionStyles ?? {})}>
       {children}
     </Text>
   );
@@ -113,6 +172,9 @@ function FieldDescription({ children }: FieldDescriptionProps) {
 
 function FieldError({ children }: FieldErrorProps) {
   const ctx = useFieldContext();
+  const slots = useSlotRecipe('field', {});
+  const errorStyles = (slots as Record<string, unknown>).error as Record<string, unknown> | undefined;
+
   const shouldRender = !ctx || ctx.invalid;
 
   useEffect(() => {
@@ -125,11 +187,10 @@ function FieldError({ children }: FieldErrorProps) {
 
   return (
     <Text
-      as="span"
       nativeID={ctx?.errorId}
       accessibilityRole="alert"
-      fontSize="xs"
       color="feedback.critical.base"
+      {...(errorStyles ?? {})}
     >
       {children}
     </Text>
