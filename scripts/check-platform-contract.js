@@ -183,6 +183,46 @@ if (summary.unknown.length > 0) {
   warn(`\n${summary.unknown.length} componente(s) sem tag @platform — adicione a tag para formalizar o suporte.`);
 }
 
+// ─── Regra 4: todo .native.tsx deve ter .native.test.tsx irmão (RFC-0016) ────
+
+console.log('\n── Verificando paridade .native.tsx ↔ .native.test.tsx ──');
+
+function findNativeImplFiles(dir) {
+  const files = [];
+  if (!existsSync(dir)) return files;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...findNativeImplFiles(fullPath));
+    } else if (
+      entry.isFile() &&
+      entry.name.endsWith('.native.tsx') &&
+      !entry.name.endsWith('.native.test.tsx')
+    ) {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+const nativeImplFiles = findNativeImplFiles(SRC);
+let coveredCount = 0;
+
+for (const implPath of nativeImplFiles) {
+  const testPath = implPath.replace(/\.native\.tsx$/, '.native.test.tsx');
+  const rel = implPath.replace(ROOT, '').replace(/\\/g, '/');
+  if (!existsSync(testPath)) {
+    error(`[.native.tsx sem .native.test.tsx] ${rel}`);
+    error(`  → Esperado: ${testPath.replace(ROOT, '').replace(/\\/g, '/')}`);
+  } else {
+    coveredCount += 1;
+  }
+}
+
+if (nativeImplFiles.length > 0 && coveredCount === nativeImplFiles.length) {
+  ok(`Todos os ${nativeImplFiles.length} arquivos .native.tsx têm .native.test.tsx irmão.`);
+}
+
 // ─── Resultado final ──────────────────────────────────────────────────────────
 
 console.log('');

@@ -194,15 +194,46 @@ O RFC precisa ser aceito antes de iniciar a implementação.
 - API depreciada permanece por 2 minor versions com JSDoc `@deprecated`.
 - Breaking changes de API pública requerem codemod para facilitar a migração.
 
+## Testes cross-platform
+
+A suite Jest roda dois projects (RFC-0016): `web` (jsdom + RNW alias) e `native` (jest-expo + RN). `pnpm test` executa ambos. Detalhes em [`docs/TESTING.md`](docs/TESTING.md).
+
+### Convenção de naming
+
+- `*.test.tsx` — teste **web**. Roda em jsdom.
+- `*.native.test.tsx` — teste **native**. Roda em jest-expo. O resolver pega `.native.tsx` automaticamente quando o teste importa o componente.
+
+Não use `*.web.test.tsx` — web é o default; assimetria reflete a plataforma majoritária.
+
+### Onde testar
+
+| Característica do componente | Web | Native |
+|---|---|---|
+| Re-render só de estilo (delega 100% para `ArborTransform`) | Suficiente | Opcional |
+| Lógica RN-específica (gestos, animação, `Pressable`, `accessibilityRole`/`accessibilityState`) | Recomendado | **Obrigatório** |
+| Compound Field-aware com a11y (`Field`, `Checkbox`, `Switch`, `RadioCard`, `Select`) | **Obrigatório** | **Obrigatório** — paridade de contrato |
+| Divergência arquitetural deliberada (ex.: hardcode em `fab.native.tsx` até TD-004) | n/a | **Obrigatório** — trava a divergência |
+
+`scripts/check-platform-contract.js` falha o build quando um arquivo `.native.tsx` existe sem `.native.test.tsx` irmão. Adicionar `.native.tsx` sem teste não passa em CI.
+
+### Princípios de redação
+
+- **Comportamentais, não snapshot.** Visual regression em RN é problema de Storybook native, fora do escopo do unit.
+- **Asserções por intenção pública** (`getByLabelText`, `getByRole`, `accessibilityState`), não por implementação interna.
+- **Sem mocks de styled-system.** Se o teste falhar porque o styled-system mudou, é exatamente isso que a suite native quer detectar.
+
 ## Scripts úteis
 
 ```bash
-pnpm test               # Todos os testes
-pnpm lint               # ESLint
-pnpm typecheck          # TypeScript
-pnpm build:lib          # Build da biblioteca
-pnpm size               # Verificar budget de bundle
-pnpm storybook          # Docs interativa
-pnpm tokens:validate    # Validar tokens
-pnpm depcheck           # Verificar fronteiras de dependência
+pnpm test                       # Todos os testes (web + native)
+pnpm test -- --selectProjects web    # Só suite web
+pnpm test -- --selectProjects native # Só suite native
+pnpm lint                       # ESLint
+pnpm typecheck                  # TypeScript
+pnpm build:lib                  # Build da biblioteca
+pnpm size                       # Verificar budget de bundle
+pnpm storybook                  # Docs interativa
+pnpm tokens:validate            # Validar tokens
+pnpm depcheck                   # Verificar fronteiras de dependência
+pnpm test:platform-contract     # Paridade .tsx ↔ .native.tsx ↔ .native.test.tsx
 ```

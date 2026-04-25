@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-24 (TD-008 resolvido — recipe `input` consumida via slot recipe `frame`/`control`)
+**Última atualização:** 2026-04-25 (TD-013 resolvido — RFC-0016 implementada: jest multi-project com suite native)
 
 ---
 
@@ -24,9 +24,9 @@
 | [TD-010](#td-010) | `input/core/select.tsx` é dead code com anti-patterns | R5 (Input) | **Resolved (2026-04-24)** | Confundia contribuidores; contradizia CLAUDE.md | Removido em 2026-04-24 — `input/core/select.tsx` + `input/interfaces/SelectProps.ts` deletados |
 | [TD-011](#td-011) | Field — sem registry de slots para condicional `aria-describedby` | R5 (Field, CR5-2) | **Resolved (2026-04-24)** | A11y: aria-describedby aponta para id inexistente quando Description ausente | Resolvido por RFC-0014 — FieldContext ganhou `descriptionRegistered`/`errorRegistered` + register/unregister via `useEffect` nos slots Description/Error |
 | [TD-012](#td-012) | Varredura completa de depreciados (Modal, aliases `is*`, flat Checkbox/Tooltip/Drawer, array responsivo) | Pré-release | **Resolved (2026-04-24)** | Surface area dobrada; warnings em runtime; documentação inflada | Removido em 2026-04-24 — sem consumidores externos, sem janela de transição. Ver TD-012 abaixo. |
-| [TD-013](#td-013) | Ambiente de testes para componentes `.native.tsx` ausente | TD-009 (estratégia Field.native) | Open | Drift cross-platform sem trava; bloqueia validação de TD-004/005/009 e R6 native | RFC: jest-expo + @testing-library/react-native ou react-native-web como aproximação |
+| [TD-013](#td-013) | Ambiente de testes para componentes `.native.tsx` ausente | TD-009 (estratégia Field.native) | **Resolved (2026-04-25)** | Drift cross-platform sem trava; bloqueia validação de TD-004/005/009 e R6 native | RFC-0016 implementada — jest multi-project (`web` + `native`) + 13/13 `.native.tsx` cobertos + `scripts/check-platform-contract.js` valida paridade |
 
-**Total:** 8 dívidas abertas, 4 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24).
+**Total:** 7 dívidas abertas, 5 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 em 2026-04-25).
 
 ---
 
@@ -283,6 +283,8 @@ Caminho intermediário (paliativo): expor `useTheme()` consumível em RN (verifi
 - [ ] `fab.native.tsx` sem cores ou shadows hardcoded.
 - [ ] Mudança de tema reflete visualmente em `fab.native`.
 
+> **Nota (2026-04-25):** TD-013 resolvido via RFC-0016 — agora dá para asserir "tokens consumidos" em `fab.native.test.tsx` quando o paliativo/refactor aterrissar.
+
 ---
 
 ## TD-006 — Acoplamento bidirecional Button↔ButtonGroup via context
@@ -504,7 +506,7 @@ Preferência arquitetural: **(1)**. Reduz superfície e segue o princípio da ab
 - [ ] RFC redigida e aceita.
 - [ ] `field.native.tsx` re-implementado via primitives (opção 1) **ou** documentado + testado (opção 2).
 - [ ] A11y nativa: Label ↔ Control conectados via `accessibilityLabelledBy`.
-- [ ] Cobertura de testes ≥ 10 cases para versão native (depende de TD-013).
+- [x] ~~Cobertura de testes ≥ 10 cases para versão native (depende de TD-013).~~ — base de 7 cases comportamentais em `field.native.test.tsx` + 3 `.skip` documentando os gaps a fechar (TD-013 resolvido em 2026-04-25 via RFC-0016).
 - [ ] Toda mudança futura em `field.tsx` reflete automaticamente em native (opção 1) ou tem teste de paridade (opção 2).
 
 ---
@@ -674,7 +676,7 @@ Sem consumidores externos da lib, todo código depreciado mantido "para transiç
 ## TD-013 — Ambiente de testes para componentes `.native.tsx` ausente
 
 **Origem:** TD-009 (estratégia Field.native) · 2026-04-24
-**Status:** Open
+**Status:** **Resolved (2026-04-25)** — RFC-0016 implementada
 **Severidade:** Alta (qualidade cross-platform)
 
 ### Contexto
@@ -712,12 +714,27 @@ Decisão da RFC deve incluir:
 
 ### Critério para fechar
 
-- [ ] RFC redigida e aceita.
-- [ ] Test runner escolhido configurado em `package.json` + `jest.config.*`.
-- [ ] CI executa suite native em PRs.
-- [ ] Cobertura mínima ≥ 1 teste por arquivo `.native.tsx` existente.
-- [ ] CONTRIBUTING.md exige teste para novos `.native.tsx` (alinhado à decisão).
-- [ ] Documentar mocks padronizados em `docs/TESTING.md`.
+- [x] RFC redigida e aceita — RFC-0016.
+- [x] Test runner escolhido configurado em `package.json` + `jest.config.*` — multi-project com `web` (jsdom + RNW) e `native` (jest-expo).
+- [x] CI executa suite native em PRs — `pnpm test` único, dois projects.
+- [x] Cobertura mínima ≥ 1 teste por arquivo `.native.tsx` existente — 13/13 cobertos.
+- [x] CONTRIBUTING.md exige teste para novos `.native.tsx`.
+- [x] Documentar mocks padronizados em `docs/TESTING.md`.
+
+### Resolução (2026-04-25)
+
+Implementada em três commits:
+
+- **PR1 (`85c6e01`)** — infra Jest multi-project: `jest.config.cjs` raiz + `jest.config.web.cjs` + `jest.config.native.cjs` + `jest.setup.native.cjs` + `test/native-mocks.cjs`.
+- **PR2 (`e02414a`)** — 1 `.native.test.tsx` por `.native.tsx`: 13 arquivos novos, 39 cases comportamentais + 3 cases `.skip` documentando paridade pendente de TD-009. Total da suite: 640 testes (598 web + 42 native + 3 skip).
+- **PR3 (este commit)** — governança: `scripts/check-platform-contract.js` valida paridade `.native.tsx` ↔ `.native.test.tsx`, `CONTRIBUTING.md` documenta convenção, `docs/TESTING.md` criado.
+
+Workaround conhecido em `jest.setup.native.cjs`: pre-resolve dos lazy globals da Expo (`__ExpoImportMetaRegistry`, `TextDecoder`, etc.) — necessário em pnpm para evitar `Runtime._execModule` jogar `outside of the scope of the test code` quando getters disparam `require()` em teardown. Detalhes em `docs/TESTING.md`.
+
+**Desbloqueia:**
+- TD-005 (theming hardcoded em `fab.native`) — agora dá para asserir tokens consumidos.
+- TD-009 (Field unificado) — gaps de paridade já documentados em `field.native.test.tsx` via `describe.skip`.
+- TD-004 (Clickable.native) — refactor com rede de proteção viável.
 
 ---
 
