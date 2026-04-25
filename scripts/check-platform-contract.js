@@ -183,6 +183,18 @@ if (summary.unknown.length > 0) {
   warn(`\n${summary.unknown.length} componente(s) sem tag @platform — adicione a tag para formalizar o suporte.`);
 }
 
+// ─── Regra 3.5: web-only é classificação inválida (RFC-0018 + TD-017) ─────────
+
+if (summary['web-only'] && summary['web-only'].length > 0) {
+  console.log('');
+  warn(`${summary['web-only'].length} componente(s) marcado(s) @platform web-only — classificação inválida pela RFC-0018.`);
+  warn('   Cada um precisa de .native.tsx ou re-classificação para @platform shared.');
+  warn('   Inventário em docs/TECH_DEBT.md (TD-017). Plano em docs/rfcs/RFC-0018-paridade-native-completa-do-ds.md.');
+  for (const comp of summary['web-only']) {
+    warn(`   - ${comp}`);
+  }
+}
+
 // ─── Regra 4: todo .native.tsx deve ter .native.test.tsx irmão (RFC-0016) ────
 
 console.log('\n── Verificando paridade .native.tsx ↔ .native.test.tsx ──');

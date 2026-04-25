@@ -77,7 +77,7 @@ Três caminhos foram avaliados. (A) é o recomendado.
 
 ### Janela de migração
 
-Como a RDS está pré-1.0 e [TD-012](../TECH_DEBT.md#td-012) estabeleceu o padrão "remover sem janela de transição até v1.0", **propõe-se remoção direta**:
+Como a RDS está pré-1.0 e [TD-012](../TECH_DEBT.md#td-012) estabeleceu o padrão "remover sem janela de transição até v1.0", **propõe-se remoção direta** — **com pré-condição de paridade native** (ver bloco abaixo):
 
 - `RadioCard` removido na próxima minor.
 - `RadioCardProps` removido do export público.
@@ -85,6 +85,18 @@ Como a RDS está pré-1.0 e [TD-012](../TECH_DEBT.md#td-012) estabeleceu o padr�
 - Codemod publicado em `scripts/codemods/radio-card-to-radio.js` para usuários internos (playground + casos enterprise).
 
 Se a RDS estivesse pós-1.0 ou tivéssemos consumidor externo conhecido, abriríamos janela de 2 minor com `@deprecated` JSDoc + warning de runtime. Hoje não há demanda para esse caminho.
+
+### Pré-condição: Radio.native disponível
+
+> **Atualização (2026-04-25):** [RFC-0018](RFC-0018-paridade-native-completa-do-ds.md) tornou explícita a diretriz "DS é cross-platform por definição". RadioCard hoje é `web-only`. Deprecá-lo deixaria mobile **sem componente equivalente** se Radio também for `web-only`.
+
+A deprecação só pode ativar quando:
+
+- [ ] **`radio.native.tsx` está implementado e paritário com `radio.tsx`** (RFC-0018, onda 3).
+- [ ] Cobertura: `radio.native.test.tsx` com ≥ 5 cases comportamentais (regra de RFC-0016).
+- [ ] Pelo menos uma tela do `playground/` (Expo) demonstra Radio em uso real iOS + Android.
+
+Sem isso, a deprecação de RadioCard cria regressão de paridade. Codemod fica preparado, mas a remoção do diretório `radio-card/` aguarda Radio.native pronto.
 
 ### Codemod (jscodeshift)
 
@@ -157,9 +169,9 @@ Usuário com `<RadioCard><CustomChild /></RadioCard>` (5–10% restante) precisa
 
 ### Dependência com outras RFCs
 
-- **RFC-0017 (recipes mortas)** deve resolver `radio` recipe **antes** desta — Radio precisa estar consumindo recipe pra que removar RadioCard não regrida theming.
-- **RFC-0018 (web-only)** — Radio mantém `web-only`. Decisão de unificação não muda essa classificação.
-- **RFC futura — RadioGroup (R6-C)** — ganha contrato canônico único como base.
+- **RFC-0017 (recipes mortas)** deve resolver `radio` recipe **antes** desta — Radio precisa estar consumindo recipe pra que remover RadioCard não regrida theming.
+- **RFC-0018 (paridade native completa do DS)** — Radio.native é onda 3 da RFC-0018. **Pré-condição** para esta RFC ser implementada (ver "Pré-condição: Radio.native disponível").
+- **RFC futura — RadioGroup (R6-C)** — ganha contrato canônico único como base, web e native.
 
 ### Não-objetivo
 

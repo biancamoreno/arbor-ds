@@ -237,8 +237,8 @@ Habilita:
 
 ### Dependência com outras RFCs
 
-- **RFC-0017 (recipes mortas)** — esta RFC consome `useSlotRecipe('select', …)`. Aplicar antes ou em paralelo.
-- **RFC-0018 (web-only)** — mantém Select web-only. Não há `select.native.tsx` no escopo.
+- **RFC-0017 (recipes mortas)** — esta RFC consome `useSlotRecipe('select', …)` em web e native. Recipe é cross-platform.
+- **RFC-0018 (paridade native completa)** — Select.native é onda 3 da RFC-0018. Esta RFC inclui o escopo native.
 - **RFC-0019 (RadioCard)** — sem dependência mútua, mas as duas refatoram componentes adjacentes; coordenar PRs.
 
 ### Reaproveitamento de primitives
@@ -256,6 +256,93 @@ Esta RFC **antecipa decisões de R11** (Dialog/Drawer/Tooltip/Popover/Menu) — 
 - **Multi-select** — fora do escopo. RFC dedicada se surgir caso de uso.
 - **Editable combobox** (com input de texto) — fora do escopo. Combobox editável é outro pattern WAI-ARIA, mais complexo.
 - **Async / virtual list** — fora. Item registry assume lista síncrona ≤ ~200 itens.
+
+---
+
+## Escopo native (paridade obrigatória — RFC-0018)
+
+> **Atualização (2026-04-25):** [RFC-0018](RFC-0018-paridade-native-completa-do-ds.md) formaliza que o DS é cross-platform por definição. Esta RFC, originalmente planejada só para web, agora **inclui escopo native** com a mesma API pública.
+
+### UX em mobile ≠ UX em desktop
+
+Combobox web (listbox absolute abaixo do trigger) é UX desktop. Em mobile a expectativa do usuário é diferente:
+
+| Plataforma | UX típica para Select |
+|---|---|
+| iOS | ActionSheet ou modal sliding bottom-up |
+| Android | BottomSheet ou modal full-screen |
+
+Esta RFC adota **modal sliding bottom-up customizado** — paridade visual entre iOS/Android, controle total do styled-system, sem fragmentação. Componente abstrato; a API pública é a mesma de web.
+
+### Modelo native
+
+```tsx
+// Select.native (esboço)
+<Pressable
+  onPress={open}
+  accessibilityRole="combobox"
+  accessibilityState={{ expanded: isOpen, disabled }}
+>
+  <Text>{displayText ?? placeholder}</Text>
+  <Icon name="ChevronDown" decorative />
+</Pressable>
+
+{isOpen && (
+  <Portal>                            {/* portal.native usa RN Modal */}
+    <DismissableLayer onDismiss={close}>  {/* já implementado no ecosystem */}
+      <View
+        accessibilityViewIsModal
+        accessibilityRole="menu"
+        style={bottomSheetStyle}
+      >
+        {items.map((item) => (
+          <Pressable
+            key={item.value}
+            accessibilityRole="menuitemradio"
+            accessibilityState={{ selected: item.value === selectedValue, disabled: item.disabled }}
+            onPress={() => select(item.value)}
+            style={itemStyle}
+          >
+            <Text>{item.displayText}</Text>
+            {item.value === selectedValue && <Icon name="Check" decorative />}
+          </Pressable>
+        ))}
+      </View>
+    </DismissableLayer>
+  </Portal>
+)}
+```
+
+### Diferenças deliberadas web ↔ native
+
+| Aspecto | Web | Native |
+|---|---|---|
+| Render do listbox | `<Portal>` + listbox absolute via `getBoundingClientRect` | `<Portal>` (RN Modal) + `View` em bottom-sheet |
+| Foco | Activedescendant (foco fica no trigger) | `Pressable` itens recebem foco real (modelo nativo) |
+| Keyboard | Setas/Home/End/PageUp/Down/type-ahead via `aria-activedescendant` | `accessibilityActions` para teclado externo (iPad/Android-Bluetooth); navegação por toque é o caminho principal |
+| Indicador de selecionado | `aria-selected` + style do item | `accessibilityState={{ selected }}` + ícone `Check` ao lado do item ativo (afordância visual mobile) |
+| Outside-click | `DismissableLayer` (mousedown listener) | `DismissableLayer` (BackHandler + touch fora do sheet) |
+| Type-ahead | Implementado | **Não implementado em V1** — UX nativa esperada não é tipar; teclado externo é caso-fronteira |
+
+### Item registry — funciona idêntico em web e native
+
+`SelectContext` mantém o registry independentemente de plataforma. Cada `SelectItem` se auto-registra com `{value, displayText, disabled, id}`. `SelectValue` consome o registry para mostrar display-text. Type-ahead (web) usa o mesmo registry.
+
+A11y RN: `accessibilityRole="menuitemradio"` com `accessibilityState={{ selected }}` é o equivalente nativo de `role="option"` + `aria-selected`. Verificado contra TalkBack e VoiceOver.
+
+### Critério de aceite — native (adicional ao web)
+
+- [ ] `select.native.tsx` implementado com Pressable trigger + Portal/Modal + DismissableLayer.
+- [ ] `select.native.test.tsx` com ≥ 8 cases (open/close, select item, controlled value, accessibilityRole, accessibilityState, onValueChange, disabled trigger, item desabilitado).
+- [ ] Pelo menos uma tela do `playground/` (Expo) demonstra Select em produção real iOS + Android.
+- [ ] Visual paritário entre iOS e Android (não usar Picker nativo de plataforma).
+- [ ] `pnpm test:platform-contract` confirma `Select` como `@platform native-ready`, sem `web-only`.
+
+### Não-objetivo native
+
+- **Picker nativo de plataforma** — `<Picker>` RN é radicalmente diferente entre iOS (rolinha) e Android (dropdown). Visual e UX inconsistentes; fora do padrão DS.
+- **Type-ahead via teclado externo no mobile** — V2. Hoje, sem caso de uso forte.
+- **Animações sofisticadas (spring, gesture-driven)** — V2 quando entrar `react-native-reanimated` no DS.
 
 ### Referência
 

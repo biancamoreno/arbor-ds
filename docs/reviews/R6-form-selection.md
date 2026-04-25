@@ -217,9 +217,9 @@ Trilho de governança da gate cumprido:
 | ID R6 | RFC | Cobertura |
 |---|---|---|
 | R6-A | [RFC-0017 — Recipes mortas em R6](../rfcs/RFC-0017-recipes-mortas-em-r6.md) | Migrar checkbox/radio/switch/select para `useSlotRecipe` (mesmo playbook de TD-008) |
-| R6-D | [RFC-0019 — RadioCard: deprecar / unificar / alinhar](../rfcs/RFC-0019-radio-card-deprecar-ou-unificar.md) | Recomenda deprecar `RadioCard`; Radio passa a ser canônico |
-| R6-F | [RFC-0020 — Select cumprindo WAI-ARIA combobox](../rfcs/RFC-0020-select-combobox-wai-aria.md) | Refator amplo: activedescendant + item registry + Portal + DismissableLayer + keyboard completo |
-| R6-H | [RFC-0018 — Estratégia native para form web-only](../rfcs/RFC-0018-estrategia-native-form-web-only.md) | Formaliza Radio/RadioCard/Select como `web-only` com guard runtime + critério de promoção |
+| R6-D | [RFC-0019 — RadioCard: deprecar / unificar / alinhar](../rfcs/RFC-0019-radio-card-deprecar-ou-unificar.md) | Recomenda deprecar `RadioCard`; Radio passa a ser canônico (com Radio.native pronto via RFC-0018) |
+| R6-F | [RFC-0020 — Select cumprindo WAI-ARIA combobox + escopo native](../rfcs/RFC-0020-select-combobox-wai-aria.md) | Web: activedescendant + item registry + Portal + keyboard completo. Native: Select via Modal/BottomSheet com mesma API. |
+| R6-H | [RFC-0018 — Paridade native completa do DS](../rfcs/RFC-0018-paridade-native-completa-do-ds.md) | **Reescrita após diretriz arquitetural (2026-04-25):** DS é cross-platform por definição; `web-only` é bug. Plano em 6 ondas para os 12 componentes hoje em web-only. Originou TD-017. |
 
 ### 3 follow-ups registrados como TD
 
@@ -237,20 +237,28 @@ Trilho de governança da gate cumprido:
 
 Detalhe em `docs/TECH_DEBT.md` seção "Backlog de RFCs candidatas R6".
 
-### Ordem sugerida de execução
+### Ordem sugerida de execução (atualizada 2026-04-25)
+
+A diretriz cross-platform reordenou prioridades. RFC-0018 deixou de ser sub-decisão de R6 e virou plano sistêmico (TD-017). Implementação dela acontece em **paralelo a tudo**, em ondas.
 
 1. **Antes de R7 começar**
    - RFC-0017 (R6-A — recipes mortas) — limpa terreno para R7 não copiar o erro
-   - RFC-0018 (R6-H — web-only formalizado) — pré-condição arquitetural; curta
+   - RFC-0018 onda 1 (Clickable.native — TD-004) — destrava 80% das outras ondas
 2. **Em paralelo a R7**
-   - RFC-0019 (R6-D — RadioCard) — independente; consome RFC-0017 mas pode ir junto
+   - RFC-0017 aplicada por componente (checkbox primeiro, depois switch, depois radio, depois select)
+   - RFC-0018 onda 2 (Form base — TextInput.native, TextArea.native, Counter.native) — destrava TD-009
    - TD-014 (foco visível) — sweep coordenado pequeno
    - TD-016 (touch target) — sweep coordenado pequeno
 3. **Pode atravessar R7**
-   - RFC-0020 (R6-F — Select combobox) — peça maior; refator amplo
-4. **Antes de R11**
+   - RFC-0018 onda 3 (Form seleção — Radio.native, Select.native)
+   - RFC-0019 (R6-D — RadioCard deprecação) — só ativa após Radio.native paritário
+   - RFC-0020 (R6-F — Select combobox + escopo native) — peça maior, web e native em sincronia
+4. **Após R7 / paralelo a R8**
+   - RFC-0018 ondas 4–5 (Pagination, Tabs, Breadcrumb, Tag, Accordion)
+5. **Antes de R11**
    - R6-G (Portal overlays) — abrir RFC formal
-5. **Quando gatilho ocorrer**
+   - RFC-0018 onda 6 (FileUpload, Table) — caso-fronteira
+6. **Quando gatilho ocorrer**
    - R6-C, R6-J, TD-015 (Switch slots) — não bloqueiam nenhuma fase
 
 ---

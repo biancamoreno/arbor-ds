@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-25 (TD-014/015/016 abertos — sweep de R6 follow-ups; gate R7 redigiu 4 RFCs (RFC-0017 a 0020) cobrindo R6-A/D/F/H)
+**Última atualização:** 2026-04-25 (TD-017 aberto — auditoria sistêmica de paridade cross-platform; RFC-0018 reescrita como umbrella de paridade native; RFC-0019/0020 atualizadas para incluir escopo native)
 
 ---
 
@@ -28,8 +28,9 @@
 | [TD-014](#td-014) | Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox web) | R6 review (HR6-1) | Open | A11y crítica — WCAG 2.4.7 quebrado | Sweep coordenado: refletir `:focus-visible` do `<input>` oculto via boxShadow no visual desenhado |
 | [TD-015](#td-015) | Slots fantasma `Switch.Track`/`Switch.Thumb` | R6 review (HR6-2) | Open | API mente — slots não-funcionais | Decidir: refactor para slots reais ou tornar Switch elementar (remover slots). Resolver junto com migração de recipe `switch` (RFC-0017). |
 | [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | Open | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Sweep + invariante DS via lint rule custom |
+| [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | Open | **Crítico** — Promessa do DS quebrada em mobile (Clickable/Button/Input/Radio/Select/Tag/Pagination/Tabs/Breadcrumb/Accordion/Table); Field-aware mistos | RFC-0018 (paridade native completa) — implementação em 6 ondas; primeira é Clickable.native (TD-004) |
 
-**Total:** 10 dívidas abertas, 5 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 em 2026-04-25).
+**Total:** 11 dívidas abertas, 5 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 em 2026-04-25).
 
 ---
 
@@ -871,6 +872,74 @@ Vários componentes interativos têm área de toque menor que o mínimo WCAG (44
 - [ ] (Opcional) Lint rule implementada.
 
 > Componente novo deve nascer dentro do invariante — se necessário, a recipe (RFC-0017) deve carregar o `min: 44` por default.
+
+---
+
+## TD-017 — `@platform web-only` viola diretriz cross-platform do DS
+
+**Origem:** Diretriz arquitetural (2026-04-25) · formalizada em [RFC-0018](rfcs/RFC-0018-paridade-native-completa-do-ds.md)
+**Status:** Open
+**Severidade:** Crítica (promessa do DS)
+
+### Contexto
+
+`CLAUDE.md` declara o Arbor-DS como "fonte única de verdade para interfaces web e mobile". Inventário em 2026-04-25 mostra **12 componentes** marcados `@platform web-only`:
+
+| Categoria | Componentes |
+|---|---|
+| Core interativo | `Clickable` |
+| Form base | `Input` (TextInput, TextArea, Counter, FileUpload) |
+| Form seleção | `Radio`, `RadioCard`, `Select` |
+| Ação | `Button` |
+| Navegação | `Pagination`, `Tabs`, `Breadcrumb` |
+| Conteúdo | `Tag`, `Table`, `Accordion` |
+
+A classificação `web-only` não foi decisão deliberada — foi efeito colateral do path-of-least-resistance (HTML é mais rápido). Sem RFC documentando trade-off, o débito acumulou silenciosamente.
+
+### Impacto
+
+- **Promessa quebrada.** Produto mobile que adota Arbor-DS não consegue construir telas inteiras com o DS. A motivação de existir do DS evapora em mobile.
+- **Drift cumulativo.** Cada componente novo que copia o padrão `<input>`/`<button>`/`<select>` aumenta a fronteira artificial.
+- **Field-aware mistos.** Field tem `.native.tsx`; Input que é Field-aware **não** — Field native fica com integração quebrada.
+- **Surface area mentirosa em entrypoint native.** `src/native.ts` re-exporta seletivamente, mas o entrypoint default (`arbor-ds`) ainda tipa todos. Consumidor RN que importa do default ganha tipos sem componente.
+
+### Resolução proposta
+
+[RFC-0018 — Paridade native completa do DS](rfcs/RFC-0018-paridade-native-completa-do-ds.md). Resumo:
+
+1. **Norma.** A tag `@platform web-only` é classificação **inválida**. Apenas `shared` e `native-ready` são aceitas.
+2. **Plano em 6 ondas:**
+   - **Onda 1 — Clickable.native** (resolve [TD-004](#td-004)). Destrava 80% do trabalho restante.
+   - **Onda 2 — Form base** (TextInput.native, TextArea.native, Counter.native). Destrava [TD-009](#td-009).
+   - **Onda 3 — Form seleção** (Radio.native, Select.native; RadioCard via deprecação RFC-0019).
+   - **Onda 4 — Navegação** (Pagination, Tabs, Breadcrumb).
+   - **Onda 5 — Conteúdo** (Tag, Accordion).
+   - **Onda 6 — Caso-fronteira** (FileUpload, Table) — RFCs dedicadas com decisão sobre deps externas (`expo-document-picker`).
+3. **Auditoria de `shared`.** Validar que componentes hoje `shared` realmente delegam tudo (sem `<input>`/`<button>` HTML cru no `.tsx`).
+
+### Critério para fechar
+
+- [ ] **Onda 1** — Clickable.native implementado + cobertura ≥ 5 cases. Resolve TD-004.
+- [ ] **Onda 2** — TextInput/TextArea/Counter têm `.native.tsx` + suíte. Resolve parte de TD-009.
+- [ ] **Onda 3** — Radio/Select têm `.native.tsx`; RadioCard removido (após Radio.native paritário); RFC-0019 fechada.
+- [ ] **Ondas 4–5** — Pagination/Tabs/Breadcrumb/Tag/Accordion convertidos.
+- [ ] **Onda 6** — FileUpload/Table com decisão documentada (RFCs próprias).
+- [ ] **Auditoria de `shared`** — sweep manual + warning no `check-platform-contract.js` para HTML cru em arquivos `.tsx`.
+- [ ] **Norma aplicada:** `pnpm test:platform-contract` deixa de imprimir warning de `web-only`. A tag `@platform web-only` não existe em nenhum arquivo do `src/`.
+- [ ] **CONTRIBUTING.md** documenta os 2 níveis válidos. Contribuidores entendem que `web-only` é bug.
+
+### Cruzamento com outras dívidas e RFCs
+
+- **TD-004** — Clickable.native = onda 1. Promovido a primeiro item desta auditoria.
+- **TD-005** — fab.native theming hardcoded. Já é `native-ready`; sweep cosmético, não bloqueia esta TD.
+- **TD-009** — Field unificado. Onda 2 destrava (Input ganha `.native.tsx`).
+- **RFC-0017** — recipes consumidas são cross-platform por definição; reforça esta diretriz.
+- **RFC-0019** — só pode ser implementada após Radio.native (onda 3).
+- **RFC-0020** — agora inclui escopo native (Select.native em onda 3).
+
+### Severidade
+
+Maior dívida arquitetural aberta hoje. Vetor de regressão de produto: cada nova fase (R7+) que entra com `web-only` repete o erro. Esta TD precisa estar **claramente visível** em qualquer planejamento de R7+.
 
 ---
 

@@ -108,9 +108,20 @@ export const Box = forwardRef<HTMLElement, BoxProps>(function Box(...) { ... });
 Box.displayName = 'Box';
 ```
 
-### 4. `.native.tsx` só quando há divergência real
+### 4. Cross-platform por definição — sem `web-only`
 
-Primitives que delegam ao `ArborTransform` **não precisam** de `.native.tsx` — o `ArborTransform` já resolve por plataforma via `styled-component.ts` (web) e `styled-component.native.ts` (native). Crie `.native.tsx` apenas quando a implementação **realmente diverge** (ex: `Image` usa `<img>` na web e `<RNImage>` na native).
+**Todo componente público do Arbor-DS funciona em web, iOS e Android.** A tag `@platform web-only` é classificação **inválida** (RFC-0018) — sua presença em qualquer arquivo do `src/` é um bug a corrigir.
+
+Os dois únicos níveis válidos:
+
+| Tag | Significado | Quando usar |
+|---|---|---|
+| `@platform shared` | Mesma implementação `.tsx` em web e native; delega a `ArborTransform` ou primitives shared. | Box, Flex, Center, Card, Badge, etc. |
+| `@platform native-ready` | Implementação dedicada `.native.tsx` por divergência arquitetural ou uso de APIs RN-only. | Text, Image, Field, Checkbox, Switch, Select (após onda 3 da RFC-0018), etc. |
+
+Primitives que delegam 100% ao `ArborTransform` **não precisam** de `.native.tsx` — o engine já resolve por plataforma via `styled-component.ts` (web) e `styled-component.native.ts` (native). Crie `.native.tsx` apenas quando a implementação **realmente diverge** (ex: Field usa `<label>+<input>` na web e `<Pressable>+accessibilityRole` na native).
+
+> **Em migração:** 12 componentes ainda estão em `web-only` ([TD-017](docs/TECH_DEBT.md#td-017)). Pull requests novos não podem introduzir mais. Componentes existentes serão migrados em ondas via [RFC-0018](docs/rfcs/RFC-0018-paridade-native-completa-do-ds.md).
 
 ### 5. Stories usam apenas componentes do DS
 
