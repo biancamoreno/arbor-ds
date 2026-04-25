@@ -2,9 +2,12 @@ import type { MouseEventHandler } from 'react';
 import type { ArborTransformProps } from '../../../../ecosystem';
 
 /**
- * @platform web-only
- * Botão interativo que usa APIs DOM (cursor, border, button element, MouseEventHandler).
- * Para interações nativas use Pressable do React Native ou um componente dedicado.
+ * @platform native-ready
+ * Botão interativo cross-platform.
+ *
+ * - Web (`clickable.tsx`): renderiza tag interativa (`<button>`, `<a>`, ...) via `<Flex as>`.
+ * - Native (`clickable.native.tsx`): envolve `<Pressable>` + `<Box>` interno; mapeia
+ *   `onClick` → `onPress`, `role` → `accessibilityRole`, `aria-label` → `accessibilityLabel`.
  *
  * Para feedback visual de press, componha com `<PressFeedback>` como filho irmão dos children:
  * ```tsx

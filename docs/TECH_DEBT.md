@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-25 (RFC-0017 implementada — TD-015 Resolved via caminho B (Switch elementar); 4 recipes R6 consumidas via `useSlotRecipe`)
+**Última atualização:** 2026-04-25 (RFC-0018 onda 1 — `Clickable.native` criado; TD-004 Resolved; FAB.native migrado)
 
 ---
 
@@ -15,7 +15,7 @@
 | [TD-001](#td-001) | Cast `props.innerRef as Ref<HTMLElement>` em primitives | RFC-0001 | Open | Cosmético (compile-time) | Resolver junto com depreciação de `innerRef` (TD-002) ou em RFC de tipagem do engine |
 | [TD-002](#td-002) | `innerRef` legado sem warning de depreciação | RFC-0001 | Open | DX (consumidores não sabem que API mudou) | RFC dedicada definindo timeline + warning de runtime |
 | [TD-003](#td-003) | `useClickableContext` adiado | RFC-0008 | Open | Funcional (cobre só `:active` puro, não `pressed` controlado) | RFC quando surgir 1º consumidor real (Card hoverable, Chip selecionável) |
-| [TD-004](#td-004) | Componentes `.native.tsx` sem abstração cross-platform | R4 (FAB) | Open | Arquitetural (replicar em N componentes) | RFC sistêmica: definir `Clickable.native` ou similar antes que mais componentes copiem o padrão |
+| [TD-004](#td-004) | Componentes `.native.tsx` sem abstração cross-platform | R4 (FAB) | **Resolved (2026-04-25)** | Arquitetural (replicar em N componentes) | RFC-0018 onda 1 — `Clickable.native` criado (Pressable + Box wrapper); FAB.native migrado como primeiro consumidor |
 | [TD-005](#td-005) | Cores e shadows hardcoded em `.native.tsx` | R4 (FAB) | Open | Theming quebrado em native | Bloqueado por R1-C3 (shadows tematizadas) e tokens de cor consumíveis em RN |
 | [TD-006](#td-006) | Acoplamento bidirecional Button↔ButtonGroup via context | R4 (Button) | Open | Manutenção (Button conhece detalhes de ButtonGroup) | RFC: mover `attachedStyle` para ButtonGroup ou criar variant `attached` em Button via theme recipe |
 | [TD-007](#td-007) | `forwardRef` ausente em camadas pós-core | R4 (Button/ButtonGroup/FAB) | Open | DX + integração com libs externas | Sweep coordenado pós-R6 (quando teremos mais dados sobre o gap em Field/Input/Card etc.) |
@@ -30,7 +30,7 @@
 | [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | Open | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Sweep + invariante DS via lint rule custom |
 | [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | Open | **Crítico** — Promessa do DS quebrada em mobile (Clickable/Button/Input/Radio/Select/Tag/Pagination/Tabs/Breadcrumb/Accordion/Table); Field-aware mistos | RFC-0018 (paridade native completa) — implementação em 6 ondas; primeira é Clickable.native (TD-004) |
 
-**Total:** 10 dívidas abertas, 6 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 e TD-015 em 2026-04-25).
+**Total:** 9 dívidas abertas, 7 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-013 e TD-015 em 2026-04-25).
 
 ---
 
@@ -189,8 +189,20 @@ const isActive = ctxPressed ?? cssActive;
 ## TD-004 — Componentes `.native.tsx` sem abstração cross-platform
 
 **Origem:** R4 review (FAB) · 2026-04-24
-**Status:** Open
+**Status:** **Resolved (2026-04-25)** via RFC-0018 onda 1
 **Severidade:** Alta (arquitetural)
+
+### Resolução
+
+Resolvido em 2026-04-25 (commit local) como onda 1 da RFC-0018 (paridade native completa do DS):
+
+- `src/components/core/clickable/core/clickable.native.tsx` criado — wrapper `<Pressable>` + `<Box>`. API canônica web (`onClick`, `disabled`, `role`, `aria-label`, `testID`) mapeada para a API nativa (`onPress`, `accessibilityRole`, `accessibilityLabel`, `accessibilityState`).
+- Tag `@platform` em `ClickableProps.ts` atualizada de `web-only` para `native-ready`.
+- `clickable.native.test.tsx` adicionado com 8 cases (paridade default role, mapping `role`/`aria-label`, press dispara `onClick`, disabled bloqueia, override de `accessibilityRole`).
+- `fab.native.tsx` migrado de `TouchableOpacity` cru para `<Clickable>`. Primeiro consumidor real, valida o pattern.
+- TD-005 (theming hardcoded em `fab.native`) **continua aberto** — hex literais `#18736A` etc. permanecem; é trabalho de RFC-0018 onda 2 ou TD-005 dedicada (depende de tokens semânticos consumíveis em RN).
+
+Critérios originais — atendidos pela onda 1.
 
 ### Contexto
 

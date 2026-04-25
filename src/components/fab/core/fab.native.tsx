@@ -1,5 +1,5 @@
-import { TouchableOpacity, Text } from 'react-native';
-import { Icon } from '../../core';
+import { Text } from 'react-native';
+import { Clickable, Icon } from '../../core';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 
 const SIZE_MAP = { sm: 40, md: 56, lg: 72 } as const;
@@ -42,32 +42,29 @@ export function FloatingActionButton({
       : {};
 
   return (
-    <TouchableOpacity
-      onPress={disabled ? undefined : onPress}
+    <Clickable
+      onClick={disabled ? undefined : (onPress as unknown as React.MouseEventHandler<HTMLElement>)}
       disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={label ?? ariaLabel}
-      style={[
-        positionStyle,
-        {
-          width: isExtended ? undefined : dim,
-          height: dim,
-          minWidth: dim,
-          borderRadius: 1000,
-          backgroundColor: bg,
-          alignItems: 'center' as const,
-          justifyContent: 'center' as const,
-          flexDirection: 'row' as const,
-          gap: isExtended ? 8 : 0,
-          paddingHorizontal: isExtended ? 16 : 0,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 8,
-          opacity: disabled ? 0.5 : 1,
-        },
-      ]}
+      aria-label={label ?? ariaLabel}
+      style={{
+        ...positionStyle,
+        width: isExtended ? undefined : dim,
+        height: dim,
+        minWidth: dim,
+        borderRadius: 1000,
+        backgroundColor: bg,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        gap: isExtended ? 8 : 0,
+        paddingHorizontal: isExtended ? 16 : 0,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        opacity: disabled ? 0.5 : 1,
+      }}
     >
       <Icon name={icon} size={iconSize} color={fg} decorative />
       {isExtended && (
@@ -75,7 +72,7 @@ export function FloatingActionButton({
           {label}
         </Text>
       )}
-    </TouchableOpacity>
+    </Clickable>
   );
 }
 
