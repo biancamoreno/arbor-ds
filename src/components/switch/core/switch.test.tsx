@@ -165,6 +165,45 @@ describe('Switch FieldContext integration', () => {
   });
 });
 
+describe('Switch slot recipe (RFC-0017)', () => {
+  it('produces different track classNames for sm vs lg (recipe is consumed)', () => {
+    const { unmount } = renderSwitch(<Switch size="sm" aria-label="t-sm" />);
+    const smTrack = (document.querySelector('[aria-hidden="true"]') as HTMLElement).className;
+    unmount();
+
+    renderSwitch(<Switch size="lg" aria-label="t-lg" />);
+    const lgTrack = (document.querySelector('[aria-hidden="true"]') as HTMLElement).className;
+
+    expect(smTrack).not.toEqual(lgTrack);
+  });
+
+  it('createTheme override on switch recipe injects custom styles', () => {
+    const overriddenTheme = createTheme(themeLight, {
+      components: {
+        switch: {
+          slots: ['root', 'track', 'thumb'],
+          base: {
+            track: { borderRadius: 'huge' },
+          },
+          variants: {},
+          defaultVariants: {},
+        },
+      },
+    });
+
+    render(
+      <ArborProvider theme={overriddenTheme}>
+        <Switch aria-label="themed" />
+      </ArborProvider>,
+    );
+
+    const allStyles = Array.from(document.head.querySelectorAll('style'))
+      .map(node => node.textContent ?? '')
+      .join(' ');
+    expect(allStyles).toMatch(/border-radius:\s*32px/);
+  });
+});
+
 describe('Switch sizes', () => {
   it('renders sm size', () => {
     renderSwitch(<Switch size="sm" aria-label="Toggle" />);

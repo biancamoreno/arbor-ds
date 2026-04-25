@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ArborProvider } from '../../../ecosystem/styled-system';
+import { createTheme, themeLight } from '../../../foundations';
 import { Flex } from '../../core';
 import { Checkbox } from './checkbox';
 
@@ -68,4 +70,33 @@ export const Group: Story = {
       ))}
     </Flex>
   ),
+};
+
+export const Theming: Story = {
+  render: () => {
+    const customTheme = createTheme(themeLight, {
+      components: {
+        checkbox: {
+          slots: ['root', 'indicator', 'label', 'description'],
+          base: { indicator: { borderRadius: 'huge' } },
+          variants: {},
+          defaultVariants: {},
+        },
+      },
+    });
+    return (
+      <Flex flexDirection="column" gap="16px">
+        <Checkbox.Root id="theming-default" defaultChecked>
+          <Checkbox.Indicator />
+          <Checkbox.Label>Default theme (radius nano)</Checkbox.Label>
+        </Checkbox.Root>
+        <ArborProvider theme={customTheme}>
+          <Checkbox.Root id="theming-custom" defaultChecked>
+            <Checkbox.Indicator />
+            <Checkbox.Label>Override (radius huge via createTheme)</Checkbox.Label>
+          </Checkbox.Root>
+        </ArborProvider>
+      </Flex>
+    );
+  },
 };

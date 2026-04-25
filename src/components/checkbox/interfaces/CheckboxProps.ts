@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
+import type { CheckboxSize } from '../context/checkbox-context';
 
 /**
  * Checkbox compound props. Web consome `<input type=checkbox>` (APIs DOM);
@@ -10,6 +11,7 @@ export interface CheckboxRootProps {
   onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   indeterminate?: boolean;
+  size?: CheckboxSize;
   id?: string;
   name?: string;
   value?: string;

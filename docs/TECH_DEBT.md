@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-25 (TD-017 aberto — auditoria sistêmica de paridade cross-platform; RFC-0018 reescrita como umbrella de paridade native; RFC-0019/0020 atualizadas para incluir escopo native)
+**Última atualização:** 2026-04-25 (RFC-0017 implementada — TD-015 Resolved via caminho B (Switch elementar); 4 recipes R6 consumidas via `useSlotRecipe`)
 
 ---
 
@@ -26,11 +26,11 @@
 | [TD-012](#td-012) | Varredura completa de depreciados (Modal, aliases `is*`, flat Checkbox/Tooltip/Drawer, array responsivo) | Pré-release | **Resolved (2026-04-24)** | Surface area dobrada; warnings em runtime; documentação inflada | Removido em 2026-04-24 — sem consumidores externos, sem janela de transição. Ver TD-012 abaixo. |
 | [TD-013](#td-013) | Ambiente de testes para componentes `.native.tsx` ausente | TD-009 (estratégia Field.native) | **Resolved (2026-04-25)** | Drift cross-platform sem trava; bloqueia validação de TD-004/005/009 e R6 native | RFC-0016 implementada — jest multi-project (`web` + `native`) + 13/13 `.native.tsx` cobertos + `scripts/check-platform-contract.js` valida paridade |
 | [TD-014](#td-014) | Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox web) | R6 review (HR6-1) | Open | A11y crítica — WCAG 2.4.7 quebrado | Sweep coordenado: refletir `:focus-visible` do `<input>` oculto via boxShadow no visual desenhado |
-| [TD-015](#td-015) | Slots fantasma `Switch.Track`/`Switch.Thumb` | R6 review (HR6-2) | Open | API mente — slots não-funcionais | Decidir: refactor para slots reais ou tornar Switch elementar (remover slots). Resolver junto com migração de recipe `switch` (RFC-0017). |
+| [TD-015](#td-015) | Slots fantasma `Switch.Track`/`Switch.Thumb` | R6 review (HR6-2) | **Resolved (2026-04-25)** | API mente — slots não-funcionais | RFC-0017 caminho B — `Switch.Track` / `Switch.Thumb` removidos do export; Switch é elementar |
 | [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | Open | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Sweep + invariante DS via lint rule custom |
 | [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | Open | **Crítico** — Promessa do DS quebrada em mobile (Clickable/Button/Input/Radio/Select/Tag/Pagination/Tabs/Breadcrumb/Accordion/Table); Field-aware mistos | RFC-0018 (paridade native completa) — implementação em 6 ondas; primeira é Clickable.native (TD-004) |
 
-**Total:** 11 dívidas abertas, 5 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 em 2026-04-25).
+**Total:** 10 dívidas abertas, 6 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-013 e TD-015 em 2026-04-25).
 
 ---
 
@@ -790,8 +790,20 @@ Reaproveita o token `brand.subtle` (já usado para selected state) — coerênci
 ## TD-015 — Slots fantasma `Switch.Track` / `Switch.Thumb`
 
 **Origem:** R6 review (HR6-2) · 2026-04-25
-**Status:** Open
+**Status:** **Resolved (2026-04-25)** via RFC-0017 (caminho B — Switch elementar)
 **Severidade:** Média (DX — API mentirosa)
+
+### Resolução
+
+Resolvido em 2026-04-25 junto com RFC-0017 (recipes mortas R6):
+
+- `SwitchTrack` e `SwitchThumb` removidos do export. `Switch` é agora um componente elementar (`<Switch />` ou `<Switch.Root />`).
+- `SwitchTrackProps` e `SwitchThumbProps` removidos de `interfaces/SwitchProps.ts` e `index.ts`.
+- Stories e playground atualizados (sem aninhamento Track/Thumb).
+- Recipe `switch` mantém slots `root | track | thumb` internamente — usados pelo `SwitchRoot` para desenhar o visual; não expõe composição. Decisão consciente: o consumidor que precisar de visual customizado abrirá RFC dedicada quando o caso de uso surgir.
+- Testes verdes (24/24 web + 5/5 native).
+
+Critérios originais — todos atendidos via caminho B.
 
 ### Contexto
 

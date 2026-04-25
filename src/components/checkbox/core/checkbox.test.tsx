@@ -134,6 +134,64 @@ describe('Checkbox compound anatomy', () => {
   });
 });
 
+describe('Checkbox slot recipe (RFC-0017)', () => {
+  it('accepts size prop without runtime error', () => {
+    renderCb(
+      <Checkbox.Root size="sm" defaultChecked={false} onCheckedChange={() => {}}>
+        <Checkbox.Indicator data-testid="cb" />
+      </Checkbox.Root>,
+    );
+    expect(screen.getByTestId('cb')).toBeTruthy();
+  });
+
+  it('produces different classNames for different sizes (recipe is consumed)', () => {
+    const { unmount } = renderCb(
+      <Checkbox.Root size="sm" defaultChecked={false} onCheckedChange={() => {}}>
+        <Checkbox.Indicator data-testid="cb-sm" />
+      </Checkbox.Root>,
+    );
+    const smClass = (screen.getByTestId('cb-sm') as HTMLInputElement).className;
+    unmount();
+
+    renderCb(
+      <Checkbox.Root size="lg" defaultChecked={false} onCheckedChange={() => {}}>
+        <Checkbox.Indicator data-testid="cb-lg" />
+      </Checkbox.Root>,
+    );
+    const lgClass = (screen.getByTestId('cb-lg') as HTMLInputElement).className;
+
+    expect(smClass).not.toEqual(lgClass);
+  });
+
+  it('createTheme override on checkbox recipe injects custom styles', () => {
+    const overriddenTheme = createTheme(themeLight, {
+      components: {
+        checkbox: {
+          slots: ['root', 'indicator', 'label', 'description'],
+          base: {
+            indicator: { borderRadius: 'huge' },
+          },
+          variants: {},
+          defaultVariants: {},
+        },
+      },
+    });
+
+    render(
+      <ArborProvider theme={overriddenTheme}>
+        <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
+          <Checkbox.Indicator data-testid="cb-themed" />
+        </Checkbox.Root>
+      </ArborProvider>,
+    );
+
+    const allStyles = Array.from(document.head.querySelectorAll('style'))
+      .map(node => node.textContent ?? '')
+      .join(' ');
+    expect(allStyles).toMatch(/border-radius:\s*32px/);
+  });
+});
+
 describe('Checkbox FieldContext integration', () => {
   it('receives aria-describedby from Field context', () => {
     renderCb(

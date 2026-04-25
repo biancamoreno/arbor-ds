@@ -1,24 +1,26 @@
 import { useId } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
 import { RadioContext, useRadioContext } from '../context/radio-context';
-import { transition } from '../../../ecosystem/utils/functions';
+import type { RadioState } from '../context/radio-context';
 import type {
   RadioRootProps,
   RadioIndicatorProps,
   RadioLabelProps,
   RadioDescriptionProps,
-  RadioSize,
 } from '../interfaces/RadioProps';
 
-const sizeMap: Record<RadioSize, { padding: string; titleSize: string; descriptionSize: string }> = {
-  sm: { padding: '12px', titleSize: '14px', descriptionSize: '10px' },
-  md: { padding: '16px', titleSize: '16px', descriptionSize: '12px' },
-  lg: { padding: '20px', titleSize: '20px', descriptionSize: '14px' },
-};
+type RadioSlot = 'root' | 'control' | 'indicator' | 'label' | 'description';
+
+function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): RadioState {
+  if (isDisabled) return 'disabled';
+  if (isInvalid) return 'invalid';
+  if (isChecked) return 'checked';
+  return 'idle';
+}
 
 function RadioRoot({
   value,
@@ -35,8 +37,7 @@ function RadioRoot({
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
-  const theme = useTheme();
-  const sizing = sizeMap[size];
+  const effectiveInvalid = fieldCtx?.invalid ?? false;
 
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
@@ -44,11 +45,17 @@ function RadioRoot({
     onChange: (val) => onCheckedChange?.(val),
   });
 
+  const state = resolveState(effectiveDisabled, effectiveInvalid, isChecked);
+  const slots = useSlotRecipe<RadioSlot>('radio', { size, state });
+
   return (
     <RadioContext.Provider
       value={{
         isChecked,
         isDisabled: effectiveDisabled,
+        isInvalid: effectiveInvalid,
+        size,
+        state,
         inputId,
         value,
         name,
@@ -57,9 +64,8 @@ function RadioRoot({
     >
       <Box
         as="label"
-        width="100%"
+        {...slots.root}
         cursor={effectiveDisabled ? 'not-allowed' : 'pointer'}
-        opacity={effectiveDisabled ? 0.6 : 1}
       >
         <Box
           as="input"
@@ -78,21 +84,7 @@ function RadioRoot({
           opacity={0}
           pointerEvents="none"
         />
-        <Flex
-          aria-hidden="true"
-          width="100%"
-          alignItems="flex-start"
-          justifyContent="space-between"
-          borderRadius="medium"
-          style={{
-            gap: theme.space.small,
-            padding: sizing.padding,
-            border: `1px solid ${isChecked ? theme.colors.brand.base : theme.colors.border.default}`,
-            backgroundColor: isChecked ? theme.colors.brand.subtle : theme.colors.surface.default,
-            boxShadow: isChecked ? `0 0 0 2px ${theme.colors.brand.subtle}` : 'none',
-            transition: transition(['border-color', 'background-color', 'box-shadow'], 'fast'),
-          }}
-        >
+        <Flex aria-hidden="true" {...slots.control}>
           {children}
         </Flex>
       </Box>
@@ -101,61 +93,37 @@ function RadioRoot({
 }
 
 function RadioIndicator({ style }: RadioIndicatorProps) {
-  const theme = useTheme();
   const ctx = useRadioContext();
+  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
 
   return (
-    <Flex
-      as="span"
-      aria-hidden="true"
-      display="inline-flex"
-      alignItems="center"
-      justifyContent="center"
-      width={20}
-      height={20}
-      borderRadius="full"
-      flexShrink={0}
-      style={{
-        border: `1px solid ${ctx.isChecked ? theme.colors.brand.base : theme.colors.border.strong}`,
-        backgroundColor: theme.colors.surface.default,
-        ...style,
-      }}
-    >
+    <Flex as="span" aria-hidden="true" {...slots.indicator} style={style}>
       <Box
         as="span"
         width={10}
         height={10}
         borderRadius="full"
-        style={{
-          backgroundColor: ctx.isChecked ? theme.colors.brand.base : 'transparent',
-          transition: transition(['background-color'], 'fast'),
-        }}
+        backgroundColor={ctx.isChecked ? 'brand.base' : 'transparent'}
+        style={{ transition: 'background-color 0.15s ease' }}
       />
     </Flex>
   );
 }
 
 function RadioLabel({ children }: RadioLabelProps) {
+  const ctx = useRadioContext();
+  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
   return (
-    <Text
-      as="span"
-      color="text.primary"
-      fontSize="small"
-      fontWeight="medium"
-      flex={1}
-      style={{ minWidth: 0 }}
-    >
+    <Text as="span" {...slots.label} style={{ minWidth: 0 }}>
       {children}
     </Text>
   );
 }
 
 function RadioDescription({ children }: RadioDescriptionProps) {
-  return (
-    <Text as="span" color="text.secondary" fontSize="xsmall">
-      {children}
-    </Text>
-  );
+  const ctx = useRadioContext();
+  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
+  return <Text as="span" {...slots.description}>{children}</Text>;
 }
 
 RadioRoot.displayName = 'Radio.Root';

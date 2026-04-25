@@ -166,6 +166,55 @@ describe('Select trigger a11y', () => {
   });
 });
 
+describe('Select slot recipe (RFC-0017)', () => {
+  it('produces different trigger classNames for sm vs lg (recipe is consumed)', () => {
+    const { unmount } = renderSelect(
+      <Select size="sm" defaultValue="">
+        <Select.Trigger><Select.Value placeholder="x" /></Select.Trigger>
+      </Select>,
+    );
+    const smClass = (screen.getByRole('combobox') as HTMLButtonElement).className;
+    unmount();
+
+    renderSelect(
+      <Select size="lg" defaultValue="">
+        <Select.Trigger><Select.Value placeholder="x" /></Select.Trigger>
+      </Select>,
+    );
+    const lgClass = (screen.getByRole('combobox') as HTMLButtonElement).className;
+
+    expect(smClass).not.toEqual(lgClass);
+  });
+
+  it('createTheme override on select recipe injects custom styles', () => {
+    const overriddenTheme = createTheme(themeLight, {
+      components: {
+        select: {
+          slots: ['root', 'trigger', 'value', 'icon', 'content', 'item', 'itemText'],
+          base: {
+            trigger: { borderRadius: 'huge' },
+          },
+          variants: {},
+          defaultVariants: {},
+        },
+      },
+    });
+
+    render(
+      <ArborProvider theme={overriddenTheme}>
+        <Select defaultValue="">
+          <Select.Trigger><Select.Value placeholder="x" /></Select.Trigger>
+        </Select>
+      </ArborProvider>,
+    );
+
+    const allStyles = Array.from(document.head.querySelectorAll('style'))
+      .map(node => node.textContent ?? '')
+      .join(' ');
+    expect(allStyles).toMatch(/border-radius:\s*32px/);
+  });
+});
+
 describe('Select FieldContext integration', () => {
   it('picks up aria-describedby from Field', () => {
     renderSelect(

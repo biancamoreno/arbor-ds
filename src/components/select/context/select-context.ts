@@ -1,11 +1,16 @@
 import { createContext, useContext } from 'react';
+import type { SelectSize } from '../interfaces/SelectProps';
+
+export type SelectState = 'idle' | 'open' | 'invalid' | 'disabled';
 
 export type SelectContextValue = {
   isOpen: boolean;
   selectedValue: string;
   isDisabled: boolean;
+  isInvalid: boolean;
   inputId: string;
-  size: 'sm' | 'md' | 'lg';
+  size: SelectSize;
+  state: SelectState;
   open: () => void;
   close: () => void;
   select: (value: string) => void;

@@ -1,9 +1,15 @@
 import { createContext, useContext } from 'react';
 
+export type CheckboxSize = 'sm' | 'md' | 'lg';
+export type CheckboxState = 'idle' | 'checked' | 'invalid' | 'disabled';
+
 export type CheckboxContextValue = {
   isChecked: boolean;
   isIndeterminate: boolean;
   isDisabled: boolean;
+  isInvalid: boolean;
+  size: CheckboxSize;
+  state: CheckboxState;
   inputId: string;
   name?: string;
   value?: string;

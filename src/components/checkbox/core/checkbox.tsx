@@ -1,10 +1,12 @@
 import React, { useEffect, useId, useRef } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
+import type { CheckboxState } from '../context/checkbox-context';
 import type {
   CheckboxRootProps,
   CheckboxIndicatorProps,
@@ -12,12 +14,22 @@ import type {
   CheckboxDescriptionProps,
 } from '../interfaces';
 
+type CheckboxSlot = 'root' | 'indicator' | 'label' | 'description';
+
+function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): CheckboxState {
+  if (isDisabled) return 'disabled';
+  if (isInvalid) return 'invalid';
+  if (isChecked) return 'checked';
+  return 'idle';
+}
+
 function CheckboxRoot({
   checked,
   defaultChecked = false,
   onCheckedChange,
   disabled,
   indeterminate = false,
+  size = 'md',
   id: idProp,
   name,
   value,
@@ -27,6 +39,7 @@ function CheckboxRoot({
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
+  const effectiveInvalid = fieldCtx?.invalid ?? false;
 
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
@@ -34,12 +47,18 @@ function CheckboxRoot({
     onChange: onCheckedChange,
   });
 
+  const state = resolveState(effectiveDisabled, effectiveInvalid, isChecked || indeterminate);
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size, state });
+
   return (
     <CheckboxContext.Provider
       value={{
         isChecked,
         isIndeterminate: indeterminate,
         isDisabled: effectiveDisabled,
+        isInvalid: effectiveInvalid,
+        size,
+        state,
         inputId,
         name,
         value,
@@ -48,12 +67,8 @@ function CheckboxRoot({
     >
       <Flex
         as="label"
-        display="inline-flex"
-        alignItems="flex-start"
-        gap="10px"
+        {...slots.root}
         cursor={effectiveDisabled ? 'not-allowed' : 'pointer'}
-        opacity={effectiveDisabled ? 0.6 : 1}
-        color="text.primary"
         htmlFor={inputId}
       >
         {children}
@@ -67,6 +82,7 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
   const ctx = useCheckboxContext();
   const fieldCtx = useFieldContext();
   const internalRef = useRef<HTMLInputElement | null>(null);
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
 
   useEffect(() => {
     if (internalRef.current) {
@@ -78,6 +94,7 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
     <Box
       as="input"
       {...props}
+      {...slots.indicator}
       innerRef={(node: HTMLInputElement | null) => {
         internalRef.current = node;
         if (typeof ref === 'function') ref(node);
@@ -94,11 +111,7 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
       aria-invalid={fieldCtx?.invalid || undefined}
       aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => { if (!ctx.isDisabled) ctx.onChange(e.target.checked); }}
-      width={18}
-      height={18}
-      marginTop={2}
       cursor={ctx.isDisabled ? 'not-allowed' : 'pointer'}
-      flexShrink={0}
       style={{ accentColor: theme.colors.interactive.default, ...style }}
     />
   );
@@ -107,21 +120,17 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
 CheckboxIndicator.displayName = 'Checkbox.Indicator';
 
 function CheckboxLabel({ children }: CheckboxLabelProps) {
-  return (
-    <Text as="span" fontSize="small" color="text.primary">
-      {children}
-    </Text>
-  );
+  const ctx = useCheckboxContext();
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
+  return <Text as="span" {...slots.label}>{children}</Text>;
 }
 
 CheckboxLabel.displayName = 'Checkbox.Label';
 
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
-  return (
-    <Text as="span" fontSize="xsmall" color="text.secondary">
-      {children}
-    </Text>
-  );
+  const ctx = useCheckboxContext();
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
+  return <Text as="span" {...slots.description}>{children}</Text>;
 }
 
 CheckboxDescription.displayName = 'Checkbox.Description';

@@ -3,38 +3,29 @@
  * Select compound component — usa APIs DOM e portais exclusivos da web.
  */
 import React, { useId, useRef, useEffect } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState, useDisclosure } from '../../../ecosystem/primitives';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable } from '../../core';
 import { SelectContext, useSelectContext } from '../context/select-context';
+import type { SelectState } from '../context/select-context';
 import type {
   SelectRootProps,
   SelectTriggerProps,
   SelectValueProps,
   SelectContentProps,
   SelectItemProps,
-  SelectSize,
 } from '../interfaces/SelectProps';
 
-const triggerHeight: Record<SelectSize, string> = {
-  sm: '32px',
-  md: '40px',
-  lg: '48px',
-};
+type SelectSlot = 'root' | 'trigger' | 'value' | 'icon' | 'content' | 'item' | 'itemText';
 
-const triggerFontSize: Record<SelectSize, number> = {
-  sm: 12,
-  md: 14,
-  lg: 16,
-};
-
-const triggerPadding: Record<SelectSize, string> = {
-  sm: '0 12px',
-  md: '0 16px',
-  lg: '0 18px',
-};
+function resolveState(isDisabled: boolean, isInvalid: boolean, isOpen: boolean): SelectState {
+  if (isDisabled) return 'disabled';
+  if (isInvalid) return 'invalid';
+  if (isOpen) return 'open';
+  return 'idle';
+}
 
 function SelectRoot({
   value,
@@ -49,6 +40,7 @@ function SelectRoot({
   const fieldCtx = useFieldContext();
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
+  const effectiveInvalid = fieldCtx?.invalid ?? false;
 
   const [selectedValue, setSelectedValue] = useControllableState({
     value,
@@ -63,11 +55,25 @@ function SelectRoot({
     close();
   };
 
+  const state = resolveState(effectiveDisabled, effectiveInvalid, isOpen);
+  const slots = useSlotRecipe<SelectSlot>('select', { size, state });
+
   return (
     <SelectContext.Provider
-      value={{ isOpen, selectedValue, isDisabled: effectiveDisabled, inputId, size, open, close, select }}
+      value={{
+        isOpen,
+        selectedValue,
+        isDisabled: effectiveDisabled,
+        isInvalid: effectiveInvalid,
+        inputId,
+        size,
+        state,
+        open,
+        close,
+        select,
+      }}
     >
-      <Box position="relative" width="100%">
+      <Box {...slots.root} position="relative">
         {children}
       </Box>
     </SelectContext.Provider>
@@ -75,10 +81,10 @@ function SelectRoot({
 }
 
 function SelectTrigger({ children }: SelectTriggerProps) {
-  const theme = useTheme();
   const ctx = useSelectContext();
   const fieldCtx = useFieldContext();
   const ref = useRef<HTMLButtonElement>(null);
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -104,26 +110,13 @@ function SelectTrigger({ children }: SelectTriggerProps) {
       disabled={ctx.isDisabled}
       onClick={() => (ctx.isOpen ? ctx.close() : ctx.open())}
       onKeyDown={handleKeyDown}
-      display="flex"
-      alignItems="center"
-      justifyContent="space-between"
-      width="100%"
-      borderRadius="nano"
+      {...slots.trigger}
       cursor={ctx.isDisabled ? 'not-allowed' : 'pointer'}
-      opacity={ctx.isDisabled ? 0.6 : 1}
       outline="none"
-      style={{
-        height: triggerHeight[ctx.size],
-        padding: triggerPadding[ctx.size],
-        fontSize: triggerFontSize[ctx.size],
-        border: `1px solid ${fieldCtx?.invalid ? theme.colors.feedback.critical.base : theme.colors.border.default}`,
-        backgroundColor: theme.colors.surface.default,
-        color: theme.colors.text.primary,
-        boxSizing: 'border-box',
-      }}
+      style={{ boxSizing: 'border-box' }}
     >
       {children}
-      <Box as="span" aria-hidden="true" style={{ marginLeft: 8, fontSize: 10 }}>
+      <Box as="span" aria-hidden="true" {...slots.icon} marginLeft="micro" fontSize="xsmall">
         {ctx.isOpen ? '▲' : '▼'}
       </Box>
     </Clickable>
@@ -132,18 +125,15 @@ function SelectTrigger({ children }: SelectTriggerProps) {
 
 function SelectValue({ placeholder = 'Select...' }: SelectValueProps) {
   const ctx = useSelectContext();
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
 
   return (
     <Box
       as="span"
-      flex={1}
+      {...slots.value}
       textOverflow="ellipsis"
       whiteSpace="nowrap"
-      style={{
-        textAlign: 'left',
-        overflow: 'hidden',
-        color: ctx.selectedValue ? 'inherit' : undefined,
-      }}
+      style={{ textAlign: 'left', overflow: 'hidden' }}
     >
       {ctx.selectedValue || placeholder}
     </Box>
@@ -151,9 +141,9 @@ function SelectValue({ placeholder = 'Select...' }: SelectValueProps) {
 }
 
 function SelectContent({ children }: SelectContentProps) {
-  const theme = useTheme();
   const ctx = useSelectContext();
   const ref = useRef<HTMLUListElement>(null);
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
 
   useEffect(() => {
     if (!ctx.isOpen) return;
@@ -182,9 +172,8 @@ function SelectContent({ children }: SelectContentProps) {
       as="ul"
       innerRef={ref}
       role="listbox"
+      {...slots.content}
       position="absolute"
-      backgroundColor="surface.default"
-      borderRadius="nano"
       style={{
         top: '100%',
         left: 0,
@@ -193,7 +182,6 @@ function SelectContent({ children }: SelectContentProps) {
         margin: '4px 0 0',
         padding: '4px 0',
         listStyle: 'none',
-        border: `1px solid ${theme.colors.border.default}`,
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         maxHeight: '200px',
         overflowY: 'auto',
@@ -205,9 +193,9 @@ function SelectContent({ children }: SelectContentProps) {
 }
 
 function SelectItem({ value, disabled = false, children }: SelectItemProps) {
-  const theme = useTheme();
   const ctx = useSelectContext();
   const isSelected = ctx.selectedValue === value;
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
 
   return (
     <Flex
@@ -220,17 +208,12 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
         if ((e.key === 'Enter' || e.key === ' ') && !disabled) ctx.select(value);
       }}
       tabIndex={disabled ? -1 : 0}
-      alignItems="center"
+      {...slots.item}
       cursor={disabled ? 'not-allowed' : 'pointer'}
       opacity={disabled ? 0.5 : 1}
-      color="text.primary"
+      backgroundColor={isSelected ? 'brand.subtle' : 'transparent'}
       outline="none"
       userSelect="none"
-      style={{
-        padding: '8px 16px',
-        fontSize: 14,
-        backgroundColor: isSelected ? theme.colors.brand.subtle : 'transparent',
-      }}
     >
       {children}
     </Flex>

@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ArborProvider } from '../../../ecosystem/styled-system';
+import { createTheme, themeLight } from '../../../foundations';
 import { Box, Flex } from '../../core';
 import { Select } from './select';
 
@@ -101,4 +103,39 @@ export const Disabled: Story = {
       </Select.Root>
     </Box>
   ),
+};
+
+export const Theming: Story = {
+  render: () => {
+    const customTheme = createTheme(themeLight, {
+      components: {
+        select: {
+          slots: ['root', 'trigger', 'value', 'icon', 'content', 'item', 'itemText'],
+          base: { trigger: { borderRadius: 'huge' } },
+          variants: {},
+          defaultVariants: {},
+        },
+      },
+    });
+    return (
+      <Flex flexDirection="column" gap="16px" width="280px">
+        <Select.Root defaultValue="react">
+          <Select.Trigger><Select.Value placeholder="Default" /></Select.Trigger>
+          <Select.Content>
+            <Select.Item value="react">React</Select.Item>
+            <Select.Item value="vue">Vue</Select.Item>
+          </Select.Content>
+        </Select.Root>
+        <ArborProvider theme={customTheme}>
+          <Select.Root defaultValue="vue">
+            <Select.Trigger><Select.Value placeholder="Override" /></Select.Trigger>
+            <Select.Content>
+              <Select.Item value="react">React</Select.Item>
+              <Select.Item value="vue">Vue</Select.Item>
+            </Select.Content>
+          </Select.Root>
+        </ArborProvider>
+      </Flex>
+    );
+  },
 };

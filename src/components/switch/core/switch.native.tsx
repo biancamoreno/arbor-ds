@@ -5,6 +5,12 @@ import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import type { SwitchRootProps } from '../interfaces/SwitchProps';
 
+/**
+ * Switch native consome cores via tokens semânticos diretos do theme.
+ * RNSwitch tem API restrita (trackColor / thumbColor) que não aceita o spread completo
+ * dos slots da recipe `switch`. Override via `theme.colors.*` afeta os dois targets;
+ * override via `theme.components.switch` afeta apenas web. Limitação conhecida.
+ */
 function SwitchRoot({
   checked,
   defaultChecked = false,
@@ -15,6 +21,7 @@ function SwitchRoot({
 }: SwitchRootProps) {
   const fieldCtx = useFieldContext();
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
+  const effectiveInvalid = fieldCtx?.invalid ?? false;
   const theme = useTheme();
 
   const [isChecked, setIsChecked] = useControllableState({
@@ -22,6 +29,10 @@ function SwitchRoot({
     defaultValue: defaultChecked,
     onChange: onCheckedChange,
   });
+
+  const trackOnColor = effectiveInvalid
+    ? theme.colors.feedback.critical.base
+    : theme.colors.interactive.default;
 
   return (
     <View
@@ -38,7 +49,7 @@ function SwitchRoot({
         disabled={effectiveDisabled}
         trackColor={{
           false: theme.colors.border.strong,
-          true: theme.colors.interactive.default,
+          true: trackOnColor,
         }}
         thumbColor={theme.colors.surface.default}
       />

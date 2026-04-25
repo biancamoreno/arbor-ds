@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { ArborProvider } from '../../../ecosystem/styled-system';
+import { createTheme, themeLight } from '../../../foundations';
 import { Box, Flex } from '../../core';
 import { Radio } from './radio';
 
@@ -79,4 +81,33 @@ export const Sizes: Story = {
       ))}
     </Flex>
   ),
+};
+
+export const Theming: Story = {
+  render: () => {
+    const customTheme = createTheme(themeLight, {
+      components: {
+        radio: {
+          slots: ['root', 'control', 'indicator', 'label', 'description'],
+          base: { control: { borderRadius: 'huge' } },
+          variants: {},
+          defaultVariants: {},
+        },
+      },
+    });
+    return (
+      <Flex flexDirection="column" gap="16px">
+        <Radio.Root value="default" id="theming-default" defaultChecked>
+          <Radio.Indicator />
+          <Radio.Label>Default theme</Radio.Label>
+        </Radio.Root>
+        <ArborProvider theme={customTheme}>
+          <Radio.Root value="custom" id="theming-custom" defaultChecked>
+            <Radio.Indicator />
+            <Radio.Label>Override (radius huge via createTheme)</Radio.Label>
+          </Radio.Root>
+        </ArborProvider>
+      </Flex>
+    );
+  },
 };

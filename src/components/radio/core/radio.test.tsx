@@ -132,6 +132,55 @@ describe('Radio.Description', () => {
   });
 });
 
+describe('Radio slot recipe (RFC-0017)', () => {
+  it('produces different control classNames for sm vs lg (recipe is consumed)', () => {
+    const { container, unmount } = renderRadio(
+      <Radio value="a" size="sm" defaultChecked={false}>
+        <Radio.Indicator />
+      </Radio>,
+    );
+    const smControl = (container.querySelector('[aria-hidden="true"]') as HTMLElement).className;
+    unmount();
+
+    const { container: container2 } = renderRadio(
+      <Radio value="a" size="lg" defaultChecked={false}>
+        <Radio.Indicator />
+      </Radio>,
+    );
+    const lgControl = (container2.querySelector('[aria-hidden="true"]') as HTMLElement).className;
+
+    expect(smControl).not.toEqual(lgControl);
+  });
+
+  it('createTheme override on radio recipe injects custom styles', () => {
+    const overriddenTheme = createTheme(themeLight, {
+      components: {
+        radio: {
+          slots: ['root', 'control', 'indicator', 'label', 'description'],
+          base: {
+            control: { borderRadius: 'huge' },
+          },
+          variants: {},
+          defaultVariants: {},
+        },
+      },
+    });
+
+    render(
+      <ArborProvider theme={overriddenTheme}>
+        <Radio value="a" defaultChecked={false}>
+          <Radio.Indicator />
+        </Radio>
+      </ArborProvider>,
+    );
+
+    const allStyles = Array.from(document.head.querySelectorAll('style'))
+      .map(node => node.textContent ?? '')
+      .join(' ');
+    expect(allStyles).toMatch(/border-radius:\s*32px/);
+  });
+});
+
 describe('Radio FieldContext integration', () => {
   it('picks up aria-describedby from Field', () => {
     renderRadio(

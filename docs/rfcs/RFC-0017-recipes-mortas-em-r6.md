@@ -1,11 +1,14 @@
 # RFC-0017 — Recipes mortas em R6 (Checkbox / Radio / Switch / Select)
 
-**Status**: Draft
+**Status**: Accepted
 **Autores**: @bia
 **Data**: 2026-04-25
-**PR**: (a abrir)
+**Implementada**: 2026-04-25
+**PR**: (commit local, sem PR remoto)
 
 **Origem**: R6 review (`CR6-6`) · referência precedente: TD-008 (resolvido)
+
+> **Status: Accepted (2026-04-25)** — todas as 4 recipes (`checkbox`, `radio`, `switch`, `select`) consumidas via `useSlotRecipe` em web; native consome onde a abstração permite (Checkbox total; Switch parcial via `theme.colors.*` por limitação do `RNSwitch` primitive). TD-015 fechado pelo caminho B (Switch elementar — `Switch.Track`/`Switch.Thumb` removidos do export). 646 testes verdes (637 → 646 com 9 smoke tests novos). Stories `Theming` adicionadas em cada componente.
 
 ---
 

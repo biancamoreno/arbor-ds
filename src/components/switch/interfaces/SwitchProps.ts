@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 export type SwitchSize = 'sm' | 'md' | 'lg';
+export type SwitchState = 'idle' | 'checked' | 'invalid' | 'disabled';
 
 export interface SwitchRootProps {
   checked?: boolean;
@@ -14,12 +15,4 @@ export interface SwitchRootProps {
   children?: ReactNode;
   'aria-label'?: string;
   'aria-labelledby'?: string;
-}
-
-export interface SwitchTrackProps {
-  children?: ReactNode;
-}
-
-export interface SwitchThumbProps {
-  style?: React.CSSProperties;
 }
