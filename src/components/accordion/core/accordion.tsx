@@ -202,6 +202,11 @@ function AccordionContent({ children, style, ...props }: AccordionContentProps) 
   );
 }
 
+AccordionRoot.displayName = 'Accordion.Root';
+AccordionItem.displayName = 'Accordion.Item';
+AccordionTrigger.displayName = 'Accordion.Trigger';
+AccordionContent.displayName = 'Accordion.Content';
+
 export const Accordion = Object.assign(AccordionRoot, {
   Root: AccordionRoot,
   Item: AccordionItem,

@@ -1,5 +1,5 @@
-import { TouchableOpacity, Platform } from 'react-native';
-import { Box, Flex, Text, Icon } from '../../core';
+import { Platform } from 'react-native';
+import { Box, Flex, Text, Icon, Clickable } from '../../core';
 import { TabBarContext, useTabBar } from './tab-bar-context';
 import type { TabBarProps, TabBarItemProps } from '../interfaces/TabBarProps';
 
@@ -19,16 +19,18 @@ function TabBarItem({ value, icon, label, badge, disabled = false }: TabBarItemP
   const badgeCount = typeof badge === 'number' && badge > 99 ? '99+' : badge === true ? null : badge;
 
   return (
-    <TouchableOpacity
-      onPress={() => { if (!disabled) onChange(value); }}
+    <Clickable
+      onClick={() => { if (!disabled) onChange(value); }}
       disabled={disabled}
       accessibilityRole="tab"
       accessibilityState={{ selected: isActive, disabled }}
       accessibilityLabel={label}
+      flex={1}
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
       style={{
-        flex: 1,
-        alignItems: 'center' as const,
-        justifyContent: 'center' as const,
         paddingVertical: 8,
         paddingHorizontal: 4,
         opacity: disabled ? 0.4 : 1,
@@ -79,7 +81,7 @@ function TabBarItem({ value, icon, label, badge, disabled = false }: TabBarItemP
       >
         {label}
       </Text>
-    </TouchableOpacity>
+    </Clickable>
   );
 }
 

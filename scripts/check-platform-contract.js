@@ -6,6 +6,11 @@
  * 1. Componentes marcados como `native-ready` devem ter arquivo `.native.tsx` correspondente.
  * 2. O entrypoint `src/native.ts` não deve importar arquivos que contenham `@platform web-only`.
  * 3. Componentes `shared` e `native-ready` devem estar presentes em `src/native.ts`.
+ * 4. `@platform web-only` é classificação inválida (RFC-0018). Em modo `--strict`, falha o build.
+ *
+ * Uso:
+ *   node scripts/check-platform-contract.js          # warns sobre web-only
+ *   node scripts/check-platform-contract.js --strict # falha em qualquer web-only (CI)
  */
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
@@ -15,6 +20,8 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const SRC = join(ROOT, 'src');
+
+const STRICT = process.argv.includes('--strict');
 
 let hasError = false;
 
@@ -186,12 +193,30 @@ if (summary.unknown.length > 0) {
 // ─── Regra 3.5: web-only é classificação inválida (RFC-0018 + TD-017) ─────────
 
 if (summary['web-only'] && summary['web-only'].length > 0) {
+  const count = summary['web-only'].length;
+  const banner = '═'.repeat(72);
   console.log('');
-  warn(`${summary['web-only'].length} componente(s) marcado(s) @platform web-only — classificação inválida pela RFC-0018.`);
-  warn('   Cada um precisa de .native.tsx ou re-classificação para @platform shared.');
-  warn('   Inventário em docs/TECH_DEBT.md (TD-017). Plano em docs/rfcs/RFC-0018-paridade-native-completa-do-ds.md.');
+  console.log(`\x1b[33m${banner}\x1b[0m`);
+  console.log(`\x1b[33m  CONTRATO RFC-0018 VIOLADO — ${count} componente(s) @platform web-only\x1b[0m`);
+  console.log(`\x1b[33m${banner}\x1b[0m`);
+  warn('  `@platform web-only` é classificação INVÁLIDA. Critério de aceite da RFC-0018:');
+  warn('  todo componente do DS deve ter paridade native (`shared` ou `native-ready`).');
+  warn('');
+  warn('  Cada item abaixo precisa de uma destas resoluções:');
+  warn('    1. Adicionar `.native.tsx` correspondente + tag `@platform native-ready`.');
+  warn('    2. Confirmar que o engine cobre cross-platform e re-classificar como `shared`.');
+  warn('    3. Abrir RFC dedicada se exigir decisão arquitetural (ex.: peer dep RN-svg).');
+  warn('');
+  warn('  Inventário: docs/TECH_DEBT.md (TD-017)');
+  warn('  Plano: docs/rfcs/RFC-0018-paridade-native-completa-do-ds.md');
+  warn('');
+  warn(`  Componentes em violação (${count}):`);
   for (const comp of summary['web-only']) {
-    warn(`   - ${comp}`);
+    warn(`    × ${comp}`);
+  }
+  console.log(`\x1b[33m${banner}\x1b[0m`);
+  if (STRICT) {
+    error('Modo --strict ativo: classificação web-only é falha de contrato.');
   }
 }
 

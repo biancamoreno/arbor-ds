@@ -179,6 +179,11 @@ function TabsContent({ children, value, style, ...props }: TabsContentProps) {
   );
 }
 
+TabsRoot.displayName = 'Tabs.Root';
+TabsList.displayName = 'Tabs.List';
+TabsTrigger.displayName = 'Tabs.Trigger';
+TabsContent.displayName = 'Tabs.Content';
+
 export const Tabs = Object.assign(TabsRoot, {
   Root: TabsRoot,
   List: TabsList,

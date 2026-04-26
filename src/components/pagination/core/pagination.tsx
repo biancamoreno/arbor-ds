@@ -106,6 +106,14 @@ function PaginationEllipsis({ style, ...props }: PaginationEllipsisProps) {
   );
 }
 
+PaginationRoot.displayName = 'Pagination.Root';
+PaginationList.displayName = 'Pagination.List';
+PaginationItem.displayName = 'Pagination.Item';
+PaginationButton.displayName = 'Pagination.Button';
+PaginationPrev.displayName = 'Pagination.Prev';
+PaginationNext.displayName = 'Pagination.Next';
+PaginationEllipsis.displayName = 'Pagination.Ellipsis';
+
 export const Pagination = Object.assign(PaginationRoot, {
   Root: PaginationRoot,
   List: PaginationList,

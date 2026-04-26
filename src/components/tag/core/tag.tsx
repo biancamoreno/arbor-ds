@@ -15,7 +15,7 @@ function getTagStyle(selected: boolean, tone: TagProps['tone'], theme: ReturnTyp
     : { backgroundColor: theme.colors.surface.default, borderColor: theme.colors.border.default, color: theme.colors.text.primary };
 }
 
-export function Tag({ children, tone = 'neutral', selected = false, style, ...props }: TagProps) {
+function TagComponent({ children, tone = 'neutral', selected = false, style, ...props }: TagProps) {
   const theme = useTheme();
 
   return (
@@ -43,3 +43,6 @@ export function Tag({ children, tone = 'neutral', selected = false, style, ...pr
     </Clickable>
   );
 }
+
+TagComponent.displayName = 'Tag';
+export const Tag = TagComponent;

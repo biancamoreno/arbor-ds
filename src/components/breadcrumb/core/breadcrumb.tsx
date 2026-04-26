@@ -93,6 +93,13 @@ function BreadcrumbSeparator({ children = '/', style, ...props }: BreadcrumbSepa
   );
 }
 
+BreadcrumbRoot.displayName = 'Breadcrumb.Root';
+BreadcrumbList.displayName = 'Breadcrumb.List';
+BreadcrumbItem.displayName = 'Breadcrumb.Item';
+BreadcrumbLink.displayName = 'Breadcrumb.Link';
+BreadcrumbCurrent.displayName = 'Breadcrumb.Current';
+BreadcrumbSeparator.displayName = 'Breadcrumb.Separator';
+
 export const Breadcrumb = Object.assign(BreadcrumbRoot, {
   Root: BreadcrumbRoot,
   List: BreadcrumbList,
