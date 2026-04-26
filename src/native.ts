@@ -47,6 +47,27 @@ export type {
   CounterProps,
 } from './components/input/interfaces';
 
+export { Alert } from './components/alert';
+export type {
+  AlertRootProps,
+  AlertIconProps,
+  AlertTitleProps,
+  AlertDescriptionProps,
+  AlertCloseProps,
+} from './components/alert';
+
+export { Badge } from './components/badge';
+export type { BadgeProps, BadgeAnchorProps } from './components/badge';
+
+export { ProgressBar } from './components/progress-bar';
+export type { ProgressBarProps } from './components/progress-bar';
+
+export { Spinner } from './components/spinner';
+export type { SpinnerProps } from './components/spinner';
+
+export { Skeleton } from './components/skeleton';
+export type { SkeletonProps } from './components/skeleton';
+
 export { Radio } from './components/radio';
 export type {
   RadioRootProps,

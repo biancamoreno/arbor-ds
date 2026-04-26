@@ -1011,6 +1011,73 @@ Maior dívida arquitetural aberta hoje. Vetor de regressão de produto: cada nov
 
 ---
 
+## TD-018 — Feedback indicators web-only de fato (R7)
+
+**Origem:** R7 scoping (2026-04-25) · escopo derivado de [TD-017](#td-017) / [RFC-0018](rfcs/RFC-0018-paridade-native-completa-do-ds.md)
+**Status:** In progress (7.1, 7.2, 7.3 entregues 2026-04-25; 7.4, 7.5 pendentes)
+**Severidade:** Alta (consistência cross-platform — promessa do DS)
+
+### Resolução parcial (2026-04-25)
+
+**Sub-ondas 7.1, 7.2, 7.3 entregues** — 5 dos 7 indicators agora são paritários cross-platform:
+
+1. **7.1 (shared)** — Alert/Badge/ProgressBar mantêm uma única implementação (engine cobre); ganharam `@platform shared` formal na interface + smoke `.native.test.tsx` (Alert: 2 cases, Badge: 3, ProgressBar: 3) + export em `src/native.ts`. ProgressBar `indeterminate` perde animação shimmer em RN (paridade visual aceitável; CSS keyframes não rodam — fica documentado).
+2. **7.2 (Spinner.native)** — `Animated.loop` rotacionando `<Icon LoaderCircle>`; tag `@platform native-ready` + `spinner.native.test.tsx` (4 cases) + export. Guard `process.env.NODE_ENV === 'test'` evita disparar `Animated` no jest (mismatch react/react-native-renderer 19.1 ↔ 19.2).
+3. **7.3 (Skeleton.native)** — `Animated.sequence` em opacity (0.4↔1.0, 700ms cada lado); tag `native-ready` + `skeleton.native.test.tsx` (4 cases) + export. Sem gradient shimmer no MVP (paridade visual aceitável; gradient cross-platform exigiria `expo-linear-gradient`).
+
+**Suite:** 733 → **741 verdes** (+8 cases novos efetivos no contador). 21/21 `.native.tsx` com paridade de testes.
+
+### Contexto
+
+Levantamento dos 7 feedback indicators existentes contra a diretriz cross-platform:
+
+| Componente | Estado web | API hostil a native |
+|---|---|---|
+| Toast | ✅ | `document.getElementById` + `<style>` injetado + `Portal` web |
+| Skeleton | ✅ | `injectKeyframes()` com `document.head` |
+| Spinner | ✅ | `animation: 'arbor-spin ... infinite'` (CSS keyframes) |
+| ProgressCircle | ✅ | `<svg>` direto (RN exige `react-native-svg` ou alternativa) |
+| ProgressBar | ✅ | só `Box` + `transition()` — provável shared, validar |
+| Alert | ✅ | só `Flex/Text/Clickable/Icon` — provável shared, validar |
+| Badge | ✅ | só `Box/Flex` — provável shared, validar |
+
+Nenhum tem tag `@platform` declarada. 4 são web-only de fato (silenciosamente); 3 são shared sem registro.
+
+### Por que isto importa
+
+- Diretriz da memória `feedback_cross_platform_obrigatorio` é explícita: `@platform web-only` é bug, não classificação aceita.
+- Ausência de tag esconde o problema: `check-platform-contract.js` só falha em casos declarados.
+- Toast/Skeleton/Spinner são consumidos em qualquer fluxo de produto (loading, vazio, feedback de ação) — usar o DS no app native sem eles é incompleto.
+- ProgressCircle abre decisão de dependência externa (`react-native-svg`) que merece RFC própria.
+
+### Resolução proposta
+
+Plano em 5 sub-ondas, ordenadas por dependência e custo:
+
+| Sub-onda | Componente | Estratégia | Status |
+|---|---|---|---|
+| **7.1** | Alert / Badge / ProgressBar | tag `@platform shared` + smoke test `.native.test.tsx` por componente | **Done (2026-04-25)** |
+| **7.2** | Spinner.native | `Animated.loop` rotacionando `<Icon>`; tag `native-ready` em interface | **Done (2026-04-25)** |
+| **7.3** | Skeleton.native | `Animated.sequence` em opacity (sem shimmer gradient no MVP); tag `native-ready` em interface | **Done (2026-04-25)** |
+| **7.4** | ProgressCircle.native | **Decisão arquitetural pendente:** (a) `react-native-svg` peer dep opcional, (b) implementação alternativa (View + borderRadius + 4 quadrantes mascarados), (c) deprecar em RN e recomendar ProgressBar. **Exige RFC própria.** | Pending — janela dedicada |
+| **7.5** | Toast.native | RN `Modal` + `Animated` slide bottom-up + `toastStore` reaproveitado (vanilla JS) + `Portal.native` | Pending — janela dedicada |
+
+### Decisão (2026-04-25)
+
+**Esta sessão fecha 7.1 + 7.2 + 7.3** (entrega 5 dos 7 indicators paritários, baixo risco). **7.4 e 7.5 ficam para janelas dedicadas** — 7.4 porque exige decisão de dependência (RFC), 7.5 porque é peça densa (Portal nativo + Modal + Animated).
+
+**Não-objetivo desta TD:** criar Snackbar como componente novo. Toast já cobre o slot semântico; se um caso de uso real exigir variante "snackbar", abrir RFC separada para adicionar `variant`/`placement` no Toast existente.
+
+### Critério para fechar
+
+- [x] Alert / Badge / ProgressBar com `@platform shared` + smoke test `.native` (sub-onda 7.1). (2026-04-25)
+- [x] Spinner.native implementado + suíte (sub-onda 7.2). (2026-04-25)
+- [x] Skeleton.native implementado + suíte (sub-onda 7.3). (2026-04-25)
+- [ ] ProgressCircle.native — RFC própria abrindo decisão `(a)`/`(b)`/`(c)` + implementação (sub-onda 7.4).
+- [ ] Toast.native via Portal nativo + RN Modal + Animated (sub-onda 7.5).
+- [ ] `pnpm test:platform-contract` cobre os 7 sem warnings; nenhum dos 7 fica sem tag `@platform`.
+
+---
 
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
