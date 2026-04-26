@@ -3,8 +3,9 @@ import type { ReactNode } from 'react';
 export type RadioSize = 'sm' | 'md' | 'lg';
 
 /**
- * @platform web-only
- * Radio usa `<input type=radio>` — sem implementação React Native dedicada.
+ * @platform native-ready
+ * Web: `<input type=radio>` invisível + label clicável.
+ * Native: `<Pressable accessibilityRole="radio">` em `radio.native.tsx`.
  */
 export interface RadioRootProps {
   value: string;

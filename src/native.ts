@@ -46,3 +46,22 @@ export type {
   TextAreaProps,
   CounterProps,
 } from './components/input/interfaces';
+
+export { Radio } from './components/radio';
+export type {
+  RadioRootProps,
+  RadioIndicatorProps,
+  RadioLabelProps,
+  RadioDescriptionProps,
+  RadioSize,
+} from './components/radio';
+
+export { Select } from './components/select';
+export type {
+  SelectRootProps,
+  SelectTriggerProps,
+  SelectValueProps,
+  SelectContentProps,
+  SelectItemProps,
+  SelectSize,
+} from './components/select';

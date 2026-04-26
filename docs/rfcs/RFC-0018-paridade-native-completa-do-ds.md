@@ -1,6 +1,6 @@
 # RFC-0018 — Paridade native completa do DS Arbor
 
-**Status**: Draft (ondas 1 e 2 implementadas)
+**Status**: Draft (ondas 1, 2 e 3 implementadas)
 **Autores**: @bia
 **Data**: 2026-04-25
 **PR**: (commits locais, sem PR remoto)
@@ -10,6 +10,8 @@
 > **Onda 1 implementada (2026-04-25)** — `Clickable.native.tsx` criado como wrapper `<Pressable>` + `<Box>`; mapeia API canônica web (`onClick`, `role`, `aria-label`) para API native. 8 cases em `clickable.native.test.tsx` verdes. `fab.native.tsx` migrado como primeiro consumidor (substitui `TouchableOpacity`). [TD-004](../TECH_DEBT.md#td-004) **Resolved**.
 
 > **Onda 2 implementada (2026-04-25)** — Form base completa: `textinput.native.tsx` (9 cases), `textarea.native.tsx` (6), `counter.native.tsx` (6), `field.native.tsx` re-implementado via slot recipe `useSlotRecipe('field')` + injeção de `nativeID`/`accessibilityLabelledBy`/`accessibilityDescribedBy`/`editable` em FieldControl (12 cases, 4 novos da TD-009 sem `.skip`). `FieldContext` ganhou `labelId` (compartilhado web+native). `web-only` no contrato: 12 → 10. [TD-009](../TECH_DEBT.md#td-009) **Resolved**. Próximo passo: onda 3 (Form seleção — Radio/Select).
+
+> **Onda 3 implementada (2026-04-25)** — Form seleção: `radio.native.tsx` (`<Pressable accessibilityRole="radio">` + slot recipe `radio` + amarração `FieldContext` via `nativeID`/`accessibilityLabelledBy`, 10 cases) + `select.native.tsx` (`<Pressable accessibilityRole="combobox">` + `<Modal>` bottom-sheet com overlay click-outside; itens `accessibilityRole="menuitem"` + `accessibilityState.selected`, 13 cases). Interfaces de Radio/Select promovidas para `@platform native-ready`. `src/native.ts` exporta Radio/Select. `web-only` no contrato: 10 → 8. **Destrava [RFC-0019](RFC-0019-radio-card-deprecar-ou-unificar.md) + [RFC-0020](RFC-0020-select-combobox-wai-aria.md)** (escopo native).
 
 ---
 

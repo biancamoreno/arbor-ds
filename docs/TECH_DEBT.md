@@ -989,7 +989,7 @@ A classificação `web-only` não foi decisão deliberada — foi efeito colater
 
 - [x] **Onda 1** — Clickable.native implementado + cobertura ≥ 5 cases. Resolve TD-004. (2026-04-25, `ced19a3`)
 - [x] **Onda 2** — TextInput/TextArea/Counter têm `.native.tsx` + suíte. Field.native re-implementado via slot recipe + amarração Label↔Control. Resolve TD-009. (2026-04-25)
-- [ ] **Onda 3** — Radio/Select têm `.native.tsx`; RadioCard removido (após Radio.native paritário); RFC-0019 fechada.
+- [x] **Onda 3** — Radio.native + Select.native implementados; RadioCard depreciação aguarda RFC-0019. (2026-04-25)
 - [ ] **Ondas 4–5** — Pagination/Tabs/Breadcrumb/Tag/Accordion convertidos.
 - [ ] **Onda 6** — FileUpload/Table com decisão documentada (RFCs próprias).
 - [ ] **Auditoria de `shared`** — sweep manual + warning no `check-platform-contract.js` para HTML cru em arquivos `.tsx`.
@@ -1010,6 +1010,7 @@ A classificação `web-only` não foi decisão deliberada — foi efeito colater
 Maior dívida arquitetural aberta hoje. Vetor de regressão de produto: cada nova fase (R7+) que entra com `web-only` repete o erro. Esta TD precisa estar **claramente visível** em qualquer planejamento de R7+.
 
 ---
+
 
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 

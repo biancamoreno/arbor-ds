@@ -1,6 +1,7 @@
 /**
- * @platform web-only
- * Select compound component — usa APIs DOM e portais exclusivos da web.
+ * @platform native-ready
+ * Select compound: web usa DOM (`<button role=combobox>` + listbox `<ul>`).
+ * Native vive em `select.native.tsx` via `<Modal>` bottom-sheet.
  */
 import React, { useId, useRef, useEffect } from 'react';
 import { useControllableState, useDisclosure } from '../../../ecosystem/primitives';
