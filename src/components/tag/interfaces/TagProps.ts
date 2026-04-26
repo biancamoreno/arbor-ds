@@ -1,8 +1,9 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform web-only
- * Tag interativa que estende HTMLButtonElement — usa APIs DOM exclusivas da web.
+ * @platform native-ready
+ * Tag interativa cross-platform. Web renderiza `<button>`; native delega ao
+ * `Clickable.native` com `accessibilityRole="button"` + `accessibilityState.selected`.
  */
 export interface TagProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   children: ReactNode;

@@ -1,8 +1,9 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform web-only
- * Tabs compostas via slots. Navegação por teclado e semântica ARIA automáticas.
+ * @platform native-ready
+ * Tabs compostas via slots. Web tem navegação por teclado e semântica ARIA automáticas;
+ * native usa `accessibilityRole="tab"/"tablist"` + `accessibilityState.selected` (touch-only).
  */
 export interface TabsRootProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;

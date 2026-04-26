@@ -1,7 +1,10 @@
 import type { AnchorHTMLAttributes, HTMLAttributes, LiHTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform web-only
+ * @platform native-ready
+ *
+ * Breadcrumb compound. Web usa `<nav>`/`<ol>`/`<li>`/`<a>`; native remapeia para
+ * `Box`/`Flex`/`Clickable.native` com `accessibilityRole="link"` e a11y nativa equivalente.
  */
 export interface BreadcrumbRootProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;

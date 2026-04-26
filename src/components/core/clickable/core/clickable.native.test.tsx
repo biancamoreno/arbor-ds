@@ -63,4 +63,20 @@ describe('Clickable (native)', () => {
     );
     expect(screen.getByTestId('cb').props.accessibilityRole).toBe('tab');
   });
+
+  it('merges custom accessibilityState with disabled', () => {
+    render(
+      <Clickable
+        testID="cb"
+        disabled
+        {...({ accessibilityState: { selected: true } } as { accessibilityState: { selected: true } })}
+      >
+        x
+      </Clickable>,
+      { wrapper },
+    );
+    const state = screen.getByTestId('cb').props.accessibilityState;
+    expect(state.selected).toBe(true);
+    expect(state.disabled).toBe(true);
+  });
 });

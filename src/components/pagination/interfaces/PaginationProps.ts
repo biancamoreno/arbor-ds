@@ -1,7 +1,10 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform web-only
+ * @platform native-ready
+ *
+ * Paginação compound. Web usa semântica `<nav>`/`<ul>`/`<li>`/`<button>`; native
+ * remapeia para `Box`/`Flex`/`Clickable.native` com a11y nativa equivalente.
  */
 export interface PaginationRootProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;

@@ -33,9 +33,18 @@ type AccessibilityRoleNative =
   | 'none'
   | 'search';
 
+type AccessibilityStateNative = {
+  selected?: boolean;
+  checked?: boolean | 'mixed';
+  busy?: boolean;
+  expanded?: boolean;
+  disabled?: boolean;
+};
+
 type ClickableNativeOnly = {
   accessibilityRole?: AccessibilityRoleNative;
   accessibilityLabel?: string;
+  accessibilityState?: AccessibilityStateNative;
   testID?: string;
 };
 
@@ -49,6 +58,7 @@ export const Clickable = forwardRef<View, ClickableProps>(function Clickable(pro
     children,
     accessibilityRole,
     accessibilityLabel,
+    accessibilityState,
     as: _ignoredAs,
     innerRef: _ignoredInnerRef,
     ...boxProps
@@ -56,6 +66,7 @@ export const Clickable = forwardRef<View, ClickableProps>(function Clickable(pro
 
   const a11yRole = accessibilityRole ?? (role as AccessibilityRoleNative | undefined) ?? 'button';
   const a11yLabel = accessibilityLabel ?? (ariaLabel as string | undefined);
+  const a11yState: AccessibilityStateNative = { ...(accessibilityState ?? {}), disabled: !!disabled };
 
   const handlePress = (_event: GestureResponderEvent) => {
     if (disabled || !onClick) return;
@@ -68,7 +79,7 @@ export const Clickable = forwardRef<View, ClickableProps>(function Clickable(pro
       onPress={handlePress}
       disabled={!!disabled}
       accessibilityRole={a11yRole}
-      accessibilityState={{ disabled: !!disabled }}
+      accessibilityState={a11yState}
       accessibilityLabel={a11yLabel}
       testID={testID as string | undefined}
     >

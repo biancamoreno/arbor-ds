@@ -86,3 +86,41 @@ export type {
   SelectItemProps,
   SelectSize,
 } from './components/select';
+
+export { Pagination } from './components/pagination';
+export type {
+  PaginationRootProps,
+  PaginationListProps,
+  PaginationItemProps,
+  PaginationButtonProps,
+  PaginationEllipsisProps,
+} from './components/pagination';
+
+export { Tabs } from './components/tabs';
+export type {
+  TabsRootProps,
+  TabsListProps,
+  TabsTriggerProps,
+  TabsContentProps,
+} from './components/tabs';
+
+export { Breadcrumb } from './components/breadcrumb';
+export type {
+  BreadcrumbRootProps,
+  BreadcrumbListProps,
+  BreadcrumbItemProps,
+  BreadcrumbLinkProps,
+  BreadcrumbCurrentProps,
+  BreadcrumbSeparatorProps,
+} from './components/breadcrumb';
+
+export { Tag } from './components/tag';
+export type { TagProps } from './components/tag';
+
+export { Accordion } from './components/accordion';
+export type {
+  AccordionRootProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionContentProps,
+} from './components/accordion';

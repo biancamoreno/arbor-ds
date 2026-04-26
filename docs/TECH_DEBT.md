@@ -1079,6 +1079,59 @@ Plano em 5 sub-ondas, ordenadas por dependência e custo:
 
 ---
 
+## TD-019 — Engine native bloqueia props de a11y `accessibilityElementsHidden` / `importantForAccessibility`
+
+**Origem:** RFC-0018 onda 4 (2026-04-25) — descoberto ao implementar `Pagination.Ellipsis.native` e `Breadcrumb.Separator.native`
+**Status:** Open
+**Severidade:** Média (a11y degradada em separadores/decoradores native; não bloqueia ondas seguintes)
+
+### Contexto
+
+A engine `styled-component.native.ts` consulta `systemBlockForwardProp(prop)` antes de repassar props ao host RN. A função usa a lista `systemBlockedProps = ['accessibilityElementsHidden', 'importantForAccessibility']` retornando `false` (não-forward) para essas duas props.
+
+Resultado: ao escrever no `.native.tsx`:
+
+```tsx
+<Text accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+  /
+</Text>
+```
+
+…a engine come essas props antes de chegarem ao `<Text>` host RN. Em produção, screen readers ainda anunciam o "/" / "›" / "…" (a prop nunca alcança o nó nativo). Em testes, o RN testing-library inspeciona props de **composites** (não só host) e marca a subtree como hidden — quebrando `getByText('/')` em `Breadcrumb.Separator` e `getByText('…')` em `Pagination.Ellipsis`.
+
+A lista parece ter sido criada para impedir warnings em web (props não-padrão em DOM), mas o efeito colateral é zerar a a11y nativa para essas duas props específicas.
+
+### Impacto
+
+- Decoradores visuais (separadores, ellipses, dividers, etc.) não conseguem ser ocultados de screen readers em RN sem patch local com `Pressable`/`View` direto.
+- RFC-0018 onda 4 (Pagination/Tabs/Breadcrumb) entregou Separator/Ellipsis sem hide-from-a11y → screen reader anuncia "Home, /, Produtos" em vez de "Home, Produtos". Aceitável no MVP, regressão de UX vs intenção.
+- Bloqueia outros componentes futuros (dividers em Card, decoradores em Stepper, etc.) de implementar a11y correta.
+
+### Resolução proposta
+
+Tornar a `systemBlockedProps` **plataforma-aware**:
+
+```ts
+// system.blocked.ts
+export const systemBlockedPropsByPlatform = {
+  web: ['accessibilityElementsHidden', 'importantForAccessibility'],  // DOM warnings
+  native: [],  // forwardar — RN aceita
+};
+```
+
+E ajustar `system.ts` para escolher a lista correta por plataforma (engine web vs native).
+
+Outra opção (menor escopo): hard-code no `styled-component.native.ts` que essas duas props **sempre** são forwardadas, ignorando o block list (que vira efetivamente web-only).
+
+### Critério para fechar
+
+- [ ] `accessibilityElementsHidden` e `importantForAccessibility` chegam ao host RN quando passadas em `.native.tsx`.
+- [ ] Continuam bloqueadas no engine web (sem warning DOM).
+- [ ] Reaplicar em `breadcrumb.native.tsx` (Separator) e `pagination.native.tsx` (Ellipsis) — voltar com `accessibilityElementsHidden importantForAccessibility="no-hide-descendants"`.
+- [ ] Smoke tests com `screen.getByText('…', { includeHiddenElements: true })` para validar que a engine deixa passar.
+
+---
+
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
 Mapeamento das demais 3 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.

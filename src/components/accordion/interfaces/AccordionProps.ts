@@ -1,7 +1,11 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform web-only
+ * @platform native-ready
+ *
+ * Accordion compound. Web usa CSS grid + keyboard nav (ArrowUp/Down); native renderiza
+ * Content condicionalmente (`if (!open) return null`) e é touch-only. Trigger expõe
+ * `accessibilityRole="button"` + `accessibilityState.expanded` em ambas plataformas.
  */
 export interface AccordionRootProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
