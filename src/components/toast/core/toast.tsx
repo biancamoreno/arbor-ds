@@ -1,7 +1,6 @@
 import React, { useEffect, useSyncExternalStore } from 'react';
-import { Box, Flex, Text, Clickable } from '../../core';
+import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { Portal } from '../../../ecosystem/primitives';
-import { Icon } from '../../core';
 import { toastStore } from '../store/toast-store';
 import type {
   ToastRootProps,
@@ -11,7 +10,15 @@ import type {
   ToasterProps,
   ToastTone,
   ToastPlacement,
+  ToastItem,
 } from '../interfaces';
+
+/**
+ * @platform shared
+ *
+ * Web: keyframe CSS injetado uma vez (`arbor-toast-in`) + posicionamento via
+ * `position: fixed`. Native: ver `toast.native.tsx`.
+ */
 
 const KEYFRAMES_ID = 'arbor-toast-keyframes';
 
@@ -38,19 +45,33 @@ const TONE_BORDER: Record<ToastTone, string> = {
 };
 
 function getPlacementStyle(placement: ToastPlacement): React.CSSProperties {
-  const base: React.CSSProperties = { position: 'fixed', zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '420px', width: '100%' };
+  const base: React.CSSProperties = {
+    position: 'fixed',
+    zIndex: 9999,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    maxWidth: '420px',
+    width: '100%',
+  };
   const map: Record<ToastPlacement, React.CSSProperties> = {
     'top-left': { ...base, top: '16px', left: '16px' },
     'top-center': { ...base, top: '16px', left: '50%', transform: 'translateX(-50%)' },
     'top-right': { ...base, top: '16px', right: '16px' },
     'bottom-left': { ...base, bottom: '16px', left: '16px', flexDirection: 'column-reverse' },
-    'bottom-center': { ...base, bottom: '16px', left: '50%', transform: 'translateX(-50%)', flexDirection: 'column-reverse' },
+    'bottom-center': {
+      ...base,
+      bottom: '16px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      flexDirection: 'column-reverse',
+    },
     'bottom-right': { ...base, bottom: '16px', right: '16px', flexDirection: 'column-reverse' },
   };
   return map[placement];
 }
 
-function ToastRoot({ children, tone = 'neutral', style, ...props }: ToastRootProps) {
+function ToastRoot({ children, tone = 'neutral', style, testID }: ToastRootProps) {
   injectKeyframes();
   const borderColor = TONE_BORDER[tone];
 
@@ -59,7 +80,7 @@ function ToastRoot({ children, tone = 'neutral', style, ...props }: ToastRootPro
       role="status"
       aria-live={tone === 'critical' ? 'assertive' : 'polite'}
       aria-atomic="true"
-      {...props}
+      data-testid={testID}
       alignItems="flex-start"
       gap="small"
       padding="small"
@@ -80,11 +101,11 @@ function ToastRoot({ children, tone = 'neutral', style, ...props }: ToastRootPro
   );
 }
 
-function ToastTitle({ children, style, ...props }: ToastTitleProps) {
+function ToastTitle({ children, style, testID }: ToastTitleProps) {
   return (
     <Text
       as="p"
-      {...props}
+      data-testid={testID}
       fontWeight="medium"
       fontSize="small"
       color="text.primary"
@@ -95,11 +116,11 @@ function ToastTitle({ children, style, ...props }: ToastTitleProps) {
   );
 }
 
-function ToastDescription({ children, style, ...props }: ToastDescriptionProps) {
+function ToastDescription({ children, style, testID }: ToastDescriptionProps) {
   return (
     <Text
       as="p"
-      {...props}
+      data-testid={testID}
       fontSize="sm"
       color="text.secondary"
       style={{ margin: 0, lineHeight: '20px', ...style }}
@@ -109,14 +130,14 @@ function ToastDescription({ children, style, ...props }: ToastDescriptionProps) 
   );
 }
 
-function ToastClose({ label = 'Fechar', onClose, style, ...props }: ToastCloseProps) {
+function ToastClose({ label = 'Fechar', onClose, style, testID }: ToastCloseProps) {
   return (
     <Clickable
       as="button"
       type="button"
       aria-label={label}
       onClick={onClose}
-      {...props}
+      data-testid={testID}
       display="inline-flex"
       alignItems="center"
       justifyContent="center"
@@ -139,7 +160,7 @@ function ToastClose({ label = 'Fechar', onClose, style, ...props }: ToastClosePr
   );
 }
 
-function ToastItemRenderer({ item }: { item: import('../interfaces').ToastItem }) {
+function ToastItemRenderer({ item }: { item: ToastItem }) {
   useEffect(() => {
     if (!item.duration) return;
     const t = setTimeout(() => toastStore.remove(item.id), item.duration);
@@ -161,17 +182,14 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
   const items = useSyncExternalStore(
     toastStore.subscribe,
     toastStore.getSnapshot,
-    toastStore.getSnapshot
+    toastStore.getSnapshot,
   );
 
   if (items.length === 0) return null;
 
   return (
-    <Portal>
-      <Box
-        aria-label="Notificações"
-        style={getPlacementStyle(placement)}
-      >
+    <Portal mode="overlay">
+      <Box aria-label="Notificações" style={getPlacementStyle(placement)}>
         {items.map((item) => (
           <ToastItemRenderer key={item.id} item={item} />
         ))}
@@ -179,6 +197,12 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
     </Portal>
   );
 }
+
+ToastRoot.displayName = 'Toast.Root';
+ToastTitle.displayName = 'Toast.Title';
+ToastDescription.displayName = 'Toast.Description';
+ToastClose.displayName = 'Toast.Close';
+Toaster.displayName = 'Toaster';
 
 export const Toast = Object.assign(ToastRoot, {
   Root: ToastRoot,

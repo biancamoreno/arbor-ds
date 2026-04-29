@@ -37,4 +37,13 @@ describe('Portal', () => {
     expect(document.body.contains(child)).toBe(true);
     expect(document.body.contains(renderContainer)).toBe(true);
   });
+
+  it('mode="overlay" is a no-op in web — children render the same way as modal', () => {
+    render(
+      <Portal mode="overlay">
+        <div data-testid="overlay-child">overlay content</div>
+      </Portal>,
+    );
+    expect(document.body.contains(screen.getByTestId('overlay-child'))).toBe(true);
+  });
 });
