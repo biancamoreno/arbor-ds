@@ -56,7 +56,7 @@ arbor-ds/
 ### Components
 
 - `core`: primitives de layout e estrutura como `Box`, `Flex`, `Grid`, `Container`, `Text` e afins.
-- `input`, `button`, `checkbox`, `radio-card`, `tag`, `tabs`, `modal`, `drawer`, `tooltip`: componentes base reaproveitaveis.
+- `input`, `button`, `checkbox`, `radio`, `tag`, `tabs`, `modal`, `drawer`, `tooltip`: componentes base reaproveitaveis.
 
 ## Como rodar o playground
 

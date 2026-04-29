@@ -1,11 +1,26 @@
 # RFC-0019 — RadioCard: deprecar / unificar / alinhar
 
-**Status**: Draft
+**Status**: Resolved (Removed) — 2026-04-25
 **Autores**: @bia
 **Data**: 2026-04-25
-**PR**: (a abrir)
 
 **Origem**: R6 review (`HR6-4`, `HR6-5`, `HR6-6`)
+
+---
+
+## Resolução (2026-04-25)
+
+Componente **removido sem janela de depreciação**. Sem consumidores externos (pré-release), o custo de manter `RadioCard` em paralelo a `Radio` superava qualquer ganho. Quem precisar do visual de cartão compõe `Radio.Root` com a estilização desejada via slots/recipe.
+
+**Decisão:** caminho mais radical do que os 3 propostos abaixo (deprecar / unificar / alinhar) — **deletar**.
+
+**Arquivos removidos:** `src/components/radio-card/` (core, interfaces, stories, tests). Export removido de `src/components/index.ts`. Playground migrado para `Radio.Root`.
+
+**Impacto em RFC-0018:** `web-only` cai 1 ponto (RadioCard não conta mais). TD-017 atualizada.
+
+A análise original abaixo permanece como contexto histórico.
+
+---
 
 ---
 

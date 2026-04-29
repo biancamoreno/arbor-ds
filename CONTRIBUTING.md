@@ -193,7 +193,7 @@ onCheckedChange?: (checked: boolean, value: string) => void;
 
 ### 8. Foco visível em componentes com input oculto (WCAG 2.4.7)
 
-Componentes que escondem o `<input>` real (`position:absolute; opacity:0; pointerEvents:none`) e desenham um controle visual próprio (Radio, RadioCard, Switch, Counter, etc.) **devem refletir o `:focus-visible` do input no controle desenhado**. Sem isso, o usuário com teclado não enxerga onde está e o formulário viola WCAG 2.4.7 (AA).
+Componentes que escondem o `<input>` real (`position:absolute; opacity:0; pointerEvents:none`) e desenham um controle visual próprio (Radio, Switch, Counter, etc.) **devem refletir o `:focus-visible` do input no controle desenhado**. Sem isso, o usuário com teclado não enxerga onde está e o formulário viola WCAG 2.4.7 (AA).
 
 Padrão técnico DS:
 
@@ -283,7 +283,7 @@ Não use `*.web.test.tsx` — web é o default; assimetria reflete a plataforma 
 |---|---|---|
 | Re-render só de estilo (delega 100% para `ArborTransform`) | Suficiente | Opcional |
 | Lógica RN-específica (gestos, animação, `Pressable`, `accessibilityRole`/`accessibilityState`) | Recomendado | **Obrigatório** |
-| Compound Field-aware com a11y (`Field`, `Checkbox`, `Switch`, `RadioCard`, `Select`) | **Obrigatório** | **Obrigatório** — paridade de contrato |
+| Compound Field-aware com a11y (`Field`, `Checkbox`, `Switch`, `Radio`, `Select`) | **Obrigatório** | **Obrigatório** — paridade de contrato |
 | Divergência arquitetural deliberada (ex.: hardcode em `fab.native.tsx` até TD-004) | n/a | **Obrigatório** — trava a divergência |
 
 `scripts/check-platform-contract.js` falha o build quando um arquivo `.native.tsx` existe sem `.native.test.tsx` irmão. Adicionar `.native.tsx` sem teste não passa em CI.

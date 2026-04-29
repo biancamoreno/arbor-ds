@@ -67,7 +67,7 @@ Blocos de UI reutilizáveis de alto nível:
 
 - **Primitivos de layout** (`src/components/core/`):
   `Box`, `Flex`, `Grid`, `Container`, `Text`, `Circle`, `Center`, `Square`, `Clickable`, `Image`, `Icon`, `Spacer`, `Empty`
-- **Componentes de formulário**: `Button`, `Checkbox`, `Input`, `RadioCard`, `Switch`
+- **Componentes de formulário**: `Button`, `Checkbox`, `Input`, `Radio`, `Switch`
 - **Componentes de overlay**: `Modal`, `Drawer`, `Tooltip`
 - **Componentes de conteúdo**: `Card`, `Avatar`, `Chip`, `Tag`, `Carousel`, `ProgressBar`, `Tabs`
 

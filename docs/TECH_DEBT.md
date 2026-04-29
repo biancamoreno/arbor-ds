@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-25 (TD-016 Resolved — touch target ≥ 44×44 em Field/Input/Select/Counter/Switch/FAB via `minHeight` em recipes + overlay `::before`)
+**Última atualização:** 2026-04-28 (TD-017 resolvida — RFC-0022 implementada: `Table.native` cross-platform; `web-only` global em 0; suíte 795→803)
 
 ---
 
@@ -28,9 +28,10 @@
 | [TD-014](#td-014) | Foco visível ausente em inputs ocultos (Radio/RadioCard/Switch/Checkbox web) | R6 review (HR6-1) | **Resolved (2026-04-25)** | A11y crítica — WCAG 2.4.7 quebrado | Pseudo-prop `_focusVisibleWithin` (`:has(:focus-visible)`) + `_focusVisible` no Checkbox.Indicator; engine ganhou `outline*`/`boxShadow`; CONTRIBUTING §8 documenta padrão |
 | [TD-015](#td-015) | Slots fantasma `Switch.Track`/`Switch.Thumb` | R6 review (HR6-2) | **Resolved (2026-04-25)** | API mente — slots não-funcionais | RFC-0017 caminho B — `Switch.Track` / `Switch.Thumb` removidos do export; Switch é elementar |
 | [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | **Resolved (2026-04-25)** | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Field/Input/Select recipes com `minHeight: 44` + Counter/Switch com overlay `::before` 44×44; FAB sm 40→44; engine ganhou `content`; CONTRIBUTING §9 documenta padrão |
-| [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | Open (10 restantes) | **Crítico** — Promessa do DS quebrada em mobile; Field-aware mistos | RFC-0018 (paridade native completa) — onda 1 (Clickable) e onda 2 (Input família) entregues; ondas 3–6 pendentes |
+| [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | **Resolved (2026-04-28)** | **Crítico** — Promessa do DS quebrada em mobile; Field-aware mistos | RFC-0018 ondas 1–5 + RFC-0021 (Button) + RFC-0022 (Table) entregues; RadioCard removido (RFC-0019 closed); `tag/core/badge.tsx` duplicata morta deletada; `web-only` global em 0; `check-platform-contract --strict` verde |
+| [TD-019](#td-019) | Engine native bloqueia `accessibilityElementsHidden` / `importantForAccessibility` | RFC-0018 onda 4 | **Resolved (2026-04-28)** | A11y native (separadores/decoradores) | `systemBlockedPropsByPlatform` plataforma-aware; reaplicado em Breadcrumb.Separator e Pagination.Ellipsis |
 
-**Total:** 6 dívidas abertas, 10 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25).
+**Total:** 4 dívidas abertas, 12 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28).
 
 ---
 
@@ -940,13 +941,17 @@ Vários componentes interativos têm área de toque menor que o mínimo WCAG (44
 ## TD-017 — `@platform web-only` viola diretriz cross-platform do DS
 
 **Origem:** Diretriz arquitetural (2026-04-25) · formalizada em [RFC-0018](rfcs/RFC-0018-paridade-native-completa-do-ds.md)
-**Status:** Open (em progresso — ondas 1 e 2 fechadas)
+**Status:** **Resolved (2026-04-28)** — `web-only` global em 0; `check-platform-contract --strict` verde
 **Severidade:** Crítica (promessa do DS)
 
 **Progresso:**
 - ✅ Onda 1 (2026-04-25, `ced19a3`) — Clickable.native + 8 cases.
 - ✅ Onda 2 (2026-04-25) — TextInput.native (9), TextArea.native (6), Counter.native (6), Field.native unificado (12). Fecha [TD-009](#td-009). `web-only`: 12 → 10.
-- ⏳ Ondas 3–6 pendentes.
+- ✅ Onda 3 (2026-04-25) — Radio.native + Select.native; RadioCard depreciação via RFC-0019. `web-only`: 10 → 8.
+- ✅ Onda 4 (2026-04-26) — Pagination/Tabs/Breadcrumb native. `web-only`: 8 → 5.
+- ✅ Onda 5 (2026-04-27) — Tag/Accordion native. `web-only`: 5 → 3.
+- ✅ RFC-0021 (2026-04-25) — Button + IconButton native; RadioCard removido. `web-only`: 3 → 1.
+- ✅ RFC-0022 (2026-04-28) — Table.native (Flex columnar + ScrollView para `scrollable`; `accessibilityRole='header'` em HeaderCell). **Fecha esta TD.** `web-only`: 1 → 0.
 
 
 ### Contexto
@@ -990,11 +995,11 @@ A classificação `web-only` não foi decisão deliberada — foi efeito colater
 - [x] **Onda 1** — Clickable.native implementado + cobertura ≥ 5 cases. Resolve TD-004. (2026-04-25, `ced19a3`)
 - [x] **Onda 2** — TextInput/TextArea/Counter têm `.native.tsx` + suíte. Field.native re-implementado via slot recipe + amarração Label↔Control. Resolve TD-009. (2026-04-25)
 - [x] **Onda 3** — Radio.native + Select.native implementados; RadioCard depreciação aguarda RFC-0019. (2026-04-25)
-- [ ] **Ondas 4–5** — Pagination/Tabs/Breadcrumb/Tag/Accordion convertidos.
-- [ ] **Onda 6** — FileUpload/Table com decisão documentada (RFCs próprias).
-- [ ] **Auditoria de `shared`** — sweep manual + warning no `check-platform-contract.js` para HTML cru em arquivos `.tsx`.
-- [ ] **Norma aplicada:** `pnpm test:platform-contract` deixa de imprimir warning de `web-only`. A tag `@platform web-only` não existe em nenhum arquivo do `src/`.
-- [ ] **CONTRIBUTING.md** documenta os 2 níveis válidos. Contribuidores entendem que `web-only` é bug.
+- [x] **Ondas 4–5** — Pagination/Tabs/Breadcrumb/Tag/Accordion convertidos. (2026-04-26 / 2026-04-27)
+- [x] **RFC-0021/0022** — Button + IconButton + Table cross-platform; RadioCard removido. (2026-04-25 / 2026-04-28)
+- [x] **Norma aplicada:** `node scripts/check-platform-contract.js --strict` verde — a tag `@platform web-only` não existe em nenhum arquivo do `src/`. (2026-04-28)
+- [ ] **Auditoria de `shared`** — sweep manual + warning no `check-platform-contract.js` para HTML cru em arquivos `.tsx` (não bloqueia fechamento; pode virar TD própria se aparecer regressão).
+- [ ] **CONTRIBUTING.md** documenta os 2 níveis válidos (não bloqueia fechamento).
 
 ### Cruzamento com outras dívidas e RFCs
 
@@ -1082,8 +1087,17 @@ Plano em 5 sub-ondas, ordenadas por dependência e custo:
 ## TD-019 — Engine native bloqueia props de a11y `accessibilityElementsHidden` / `importantForAccessibility`
 
 **Origem:** RFC-0018 onda 4 (2026-04-25) — descoberto ao implementar `Pagination.Ellipsis.native` e `Breadcrumb.Separator.native`
-**Status:** Open
+**Status:** **Resolved (2026-04-28)**
 **Severidade:** Média (a11y degradada em separadores/decoradores native; não bloqueia ondas seguintes)
+
+### Resolução (2026-04-28)
+
+1. **`system.blocked.ts`** — `systemBlockedProps` virou `systemBlockedPropsByPlatform: { web: [...], native: [] }`. `systemBlockedProps` continua exportado como alias de `web` (compat).
+2. **`system.ts`** — `systemBlockForwardProp(prop, platform = 'web')` aceita parâmetro de plataforma e consulta a lista correta.
+3. **`styled-component.native.ts`** — passa `'native'` ao chamar `systemBlockForwardProp` no loop de forward de props.
+4. **Reaplicado nos consumidores:** `breadcrumb.native.tsx` (Separator) e `pagination.native.tsx` (Ellipsis) voltaram com `accessibilityElementsHidden importantForAccessibility="no-hide-descendants"`.
+5. **Tests:** `getAllByText('/'/'…')` migrados para `{ includeHiddenElements: true }`; novos casos `queryByText(...)` retornam `null` confirmando que screen readers não anunciam mais os decoradores.
+6. **Suite:** 793 → **795 verdes** (+2).
 
 ### Contexto
 
