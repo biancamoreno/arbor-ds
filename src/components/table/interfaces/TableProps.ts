@@ -1,8 +1,13 @@
 import type { HTMLAttributes, ReactNode, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
 
 /**
- * @platform web-only
- * Tabela semântica minimal. Sem sorting ou paginação embutidos.
+ * @platform native-ready
+ * Tabela semântica minimal. Sem sorting/paginação embutidos.
+ *
+ * Em native: layout columnar com Flex; sem reflow para cards (use composição manual).
+ * Limitações: `colSpan`/`rowSpan`/`scope` são no-op (RN não tem grid span);
+ * `accessibilityRole='table'/'row'/'cell'` não existem na plataforma —
+ * apenas `accessibilityRole='header'` é aplicado em HeaderCell.
  */
 export interface TableRootProps extends TableHTMLAttributes<HTMLTableElement> {
   children: ReactNode;

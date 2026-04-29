@@ -124,3 +124,20 @@ export type {
   AccordionTriggerProps,
   AccordionContentProps,
 } from './components/accordion';
+
+export { Button } from './components/button';
+export { IconButton } from './components/button';
+export type { ButtonProps, ButtonVariant, IconButtonProps } from './components/button';
+
+export { ButtonGroup } from './components/button-group';
+export type { ButtonGroupProps } from './components/button-group';
+
+export { Table } from './components/table';
+export type {
+  TableRootProps,
+  TableHeadProps,
+  TableBodyProps,
+  TableRowProps,
+  TableCellProps,
+  TableHeaderCellProps,
+} from './components/table';
