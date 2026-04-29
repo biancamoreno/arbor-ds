@@ -1,9 +1,13 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform web-only
- * Botão que estende HTMLButtonElement — usa APIs DOM exclusivas da web.
- * Uma implementação React Native será adicionada em fase futura.
+ * @platform native-ready
+ * Botão cross-platform. Web renderiza `<Clickable as="button">`; native compõe
+ * `Clickable.native` (Pressable + Box) com `accessibilityRole="button"` e
+ * `accessibilityState={{ disabled, busy }}`. Loader é o `<Spinner>` em ambas.
+ *
+ * Props específicas de DOM (`type`, `aria-*`) são aceitas pelo tipo (extends
+ * `ButtonHTMLAttributes`) e ignoradas em native — segue o padrão de Tag (RFC-0018 onda 5).
  */
 export interface ButtonVariant {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';

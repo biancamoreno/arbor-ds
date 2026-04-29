@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
-import { Clickable, Icon } from '../../core';
+import { Clickable } from '../../core';
+import { Spinner } from '../../spinner';
 import type { ButtonProps } from '../interfaces';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useButtonGroup, useButtonGroupItem } from '../../button-group/core/button-group-context';
@@ -10,8 +11,6 @@ const buttonSizeMap = {
   md: { paddingInline: '16px', paddingBlock: '8px' },
   lg: { paddingInline: '20px', paddingBlock: '12px' },
 } as const;
-
-const loaderSizeMap = { sm: 14, md: 16, lg: 18 } as const;
 
 export function Button({
   children,
@@ -137,13 +136,7 @@ export function Button({
       {...variantStyles[variant]}
       {...rest}
     >
-      {loading && (
-        <Icon
-          name="LoaderCircle"
-          size={loaderSizeMap[size]}
-          style={{ animation: 'arbor-spin 0.8s linear infinite', flexShrink: 0 }}
-        />
-      )}
+      {loading && <Spinner size="sm" color={variantStyles[variant].color} label="" />}
       {children}
     </Clickable>
   );

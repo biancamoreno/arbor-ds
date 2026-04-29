@@ -44,13 +44,13 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toBeTruthy();
   });
 
-  it('loading exibe LoaderCircle icon e aria-busy', () => {
+  it('loading exibe Spinner e aria-busy', () => {
     const { container } = render(<Button loading>Salvar</Button>, { wrapper });
     expect(screen.getByRole('button').getAttribute('aria-busy')).toBe('true');
     expect(container.querySelector('svg')).toBeTruthy();
   });
 
-  it('loading=false não exibe ícone spinner', () => {
+  it('loading=false não exibe spinner', () => {
     const { container } = render(<Button>Salvar</Button>, { wrapper });
     expect(screen.getByRole('button').getAttribute('aria-busy')).toBeNull();
     expect(container.querySelector('svg')).toBeNull();
