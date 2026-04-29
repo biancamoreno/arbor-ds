@@ -19,7 +19,6 @@ export * from './popover';
 export * from './progress-bar';
 export * from './progress-circle';
 export * from './radio';
-export * from './radio-card';
 export * from './select';
 export * from './skeleton';
 export * from './spinner';

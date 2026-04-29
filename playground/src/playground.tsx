@@ -11,7 +11,7 @@ import {
   Drawer,
   Flex,
   Grid,
-  RadioCard,
+  Radio,
   SearchInput,
   Select,
   Tabs,
@@ -512,24 +512,26 @@ function ComponentsSection({
               </Flex>
             </Checkbox.Root>
 
-            <div className="playground-radio-grid">
-              <RadioCard
+            <Flex flexDirection="column" gap="small">
+              <Radio.Root
                 name="density"
                 value="comfortable"
                 checked={density === 'comfortable'}
-                onCheckedChange={() => setDensity('comfortable')}
-                label="Comfortable"
-                description="Mais espaco entre blocos e leitura relaxada."
-              />
-              <RadioCard
+                onCheckedChange={(checked) => checked && setDensity('comfortable')}
+              >
+                <Radio.Indicator />
+                <Radio.Label>Comfortable</Radio.Label>
+              </Radio.Root>
+              <Radio.Root
                 name="density"
                 value="compact"
                 checked={density === 'compact'}
-                onCheckedChange={() => setDensity('compact')}
-                label="Compact"
-                description="Maior densidade para dashboards e ferramentas."
-              />
-            </div>
+                onCheckedChange={(checked) => checked && setDensity('compact')}
+              >
+                <Radio.Indicator />
+                <Radio.Label>Compact</Radio.Label>
+              </Radio.Root>
+            </Flex>
 
             <Counter label="Density scale" value={counterValue} onValueChange={setCounterValue} min={1} max={8} />
           </div>
