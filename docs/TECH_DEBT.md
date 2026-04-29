@@ -1019,8 +1019,21 @@ Maior dívida arquitetural aberta hoje. Vetor de regressão de produto: cada nov
 ## TD-018 — Feedback indicators web-only de fato (R7)
 
 **Origem:** R7 scoping (2026-04-25) · escopo derivado de [TD-017](#td-017) / [RFC-0018](rfcs/RFC-0018-paridade-native-completa-do-ds.md)
-**Status:** In progress (7.1, 7.2, 7.3 entregues 2026-04-25; 7.4, 7.5 pendentes)
+**Status:** In progress (7.1, 7.2, 7.3 entregues 2026-04-25; 7.4 entregue 2026-04-28; 7.5 pendente)
 **Severidade:** Alta (consistência cross-platform — promessa do DS)
+
+### Resolução parcial (2026-04-28)
+
+**Sub-onda 7.4 (ProgressCircle.native) entregue** via [RFC-0023](rfcs/RFC-0023-progress-circle-native.md):
+
+- Decisão: caminho **(a) reformulado** — `react-native-svg` formalizada como `peerDependency` (`>=13`), movida de `dependencies` (errado) para `peerDependencies`. Custo real adicional de bundle = **0 KB** (Lucide já exige `react-native-svg` como peer; consumidores RN do DS já têm o módulo instalado).
+- `progress-circle.native.tsx`: `Svg` + `Circle` + `Animated.loop` rotacionando o **container** (`Animated.View` com `useNativeDriver: true`), não o `strokeDashoffset` — 60fps na UI thread, paridade visual com web.
+- `ProgressCircleProps` reescrita sem `extends SVGAttributes<SVGSVGElement>` (vazava tipos DOM em consumo native; sweep confirmou zero consumidores afetados).
+- `progress-circle.native.test.tsx` com 14 cases (paridade + extras: tones via `it.each`, `accessibilityValue`, `accessibilityState.busy`, testID).
+- `src/native.ts` exporta `ProgressCircle` + `ProgressCircleProps`.
+- (b) View + borderRadius + máscaras descartado: zero economia de dependência (já paga via Lucide), fidelidade visivelmente inferior, mais código que SVG. (c) Deprecar em RN descartado: quebra paridade do DS sem ROI técnico.
+
+**Suite:** 803 → **817 verdes** (+14 cases). 30/30 `.native.tsx` com paridade de testes.
 
 ### Resolução parcial (2026-04-25)
 
@@ -1064,7 +1077,7 @@ Plano em 5 sub-ondas, ordenadas por dependência e custo:
 | **7.1** | Alert / Badge / ProgressBar | tag `@platform shared` + smoke test `.native.test.tsx` por componente | **Done (2026-04-25)** |
 | **7.2** | Spinner.native | `Animated.loop` rotacionando `<Icon>`; tag `native-ready` em interface | **Done (2026-04-25)** |
 | **7.3** | Skeleton.native | `Animated.sequence` em opacity (sem shimmer gradient no MVP); tag `native-ready` em interface | **Done (2026-04-25)** |
-| **7.4** | ProgressCircle.native | **Decisão arquitetural pendente:** (a) `react-native-svg` peer dep opcional, (b) implementação alternativa (View + borderRadius + 4 quadrantes mascarados), (c) deprecar em RN e recomendar ProgressBar. **Exige RFC própria.** | Pending — janela dedicada |
+| **7.4** | ProgressCircle.native | `Svg`/`Circle` + `Animated.loop` no container (`useNativeDriver: true`); `react-native-svg` formalizada como `peerDependency` (já transitiva via Lucide). [RFC-0023](rfcs/RFC-0023-progress-circle-native.md). | **Done (2026-04-28)** |
 | **7.5** | Toast.native | RN `Modal` + `Animated` slide bottom-up + `toastStore` reaproveitado (vanilla JS) + `Portal.native` | Pending — janela dedicada |
 
 ### Decisão (2026-04-25)
@@ -1078,7 +1091,7 @@ Plano em 5 sub-ondas, ordenadas por dependência e custo:
 - [x] Alert / Badge / ProgressBar com `@platform shared` + smoke test `.native` (sub-onda 7.1). (2026-04-25)
 - [x] Spinner.native implementado + suíte (sub-onda 7.2). (2026-04-25)
 - [x] Skeleton.native implementado + suíte (sub-onda 7.3). (2026-04-25)
-- [ ] ProgressCircle.native — RFC própria abrindo decisão `(a)`/`(b)`/`(c)` + implementação (sub-onda 7.4).
+- [x] ProgressCircle.native — [RFC-0023](rfcs/RFC-0023-progress-circle-native.md) caminho (a) reformulado + implementação (sub-onda 7.4). (2026-04-28)
 - [ ] Toast.native via Portal nativo + RN Modal + Animated (sub-onda 7.5).
 - [ ] `pnpm test:platform-contract` cobre os 7 sem warnings; nenhum dos 7 fica sem tag `@platform`.
 

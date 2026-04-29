@@ -62,6 +62,9 @@ export type { BadgeProps, BadgeAnchorProps } from './components/badge';
 export { ProgressBar } from './components/progress-bar';
 export type { ProgressBarProps } from './components/progress-bar';
 
+export { ProgressCircle } from './components/progress-circle';
+export type { ProgressCircleProps } from './components/progress-circle';
+
 export { Spinner } from './components/spinner';
 export type { SpinnerProps } from './components/spinner';
 

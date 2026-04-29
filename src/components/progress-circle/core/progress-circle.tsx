@@ -10,7 +10,7 @@ export function ProgressCircle({
   tone = 'brand',
   label,
   style,
-  ...props
+  testID,
 }: ProgressCircleProps) {
   const theme = useTheme();
   const clampedProgress = Math.min(100, Math.max(0, progress));
@@ -34,6 +34,7 @@ export function ProgressCircle({
       aria-valuemax={100}
       aria-label={label}
       aria-busy={indeterminate || undefined}
+      data-testid={testID}
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
@@ -43,7 +44,6 @@ export function ProgressCircle({
         animation: indeterminate ? 'arbor-spin 1.2s linear infinite' : undefined,
         ...style,
       }}
-      {...props}
     >
       <circle
         cx={size / 2}
@@ -66,3 +66,5 @@ export function ProgressCircle({
     </svg>
   );
 }
+
+ProgressCircle.displayName = 'ProgressCircle';
