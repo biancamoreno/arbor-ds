@@ -119,7 +119,7 @@ export function createStyledComponent(tag: string) {
         pseudoProps[key] = value;
         return;
       }
-      if (systemBlockForwardProp(key)) {
+      if (systemBlockForwardProp(key, 'native')) {
         const nativeKey = key === 'data-testid' ? 'testID' : key;
         elementProps[nativeKey] = value;
       }

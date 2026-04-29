@@ -83,7 +83,7 @@ describe('Pagination (native)', () => {
     expect(screen.getByLabelText('Página anterior').props.accessibilityState.disabled).toBe(true);
   });
 
-  it('Ellipsis renderiza "…"', () => {
+  it('Ellipsis renderiza "…" (oculto de a11y)', () => {
     render(
       <Pagination>
         <Pagination.List>
@@ -92,7 +92,19 @@ describe('Pagination (native)', () => {
       </Pagination>,
       { wrapper: Wrapper },
     );
-    expect(screen.getByText('…')).toBeTruthy();
+    expect(screen.getByText('…', { includeHiddenElements: true })).toBeTruthy();
+  });
+
+  it('Ellipsis é oculto de screen readers (TD-019)', () => {
+    render(
+      <Pagination>
+        <Pagination.List>
+          <Pagination.Item><Pagination.Ellipsis /></Pagination.Item>
+        </Pagination.List>
+      </Pagination>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.queryByText('…')).toBeNull();
   });
 
   it('Root usa accessibilityLabel customizado', () => {

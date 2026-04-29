@@ -127,6 +127,8 @@ function PaginationEllipsis({ style, ...props }: PaginationEllipsisProps) {
   return (
     <Flex
       {...(props as object)}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
       alignItems="center"
       justifyContent="center"
       height={36}

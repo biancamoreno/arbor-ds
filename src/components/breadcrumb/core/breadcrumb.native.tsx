@@ -102,6 +102,8 @@ function BreadcrumbSeparator({ children = '/', style, ...props }: BreadcrumbSepa
     <Text
       as="span"
       {...(props as object)}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
       color="text.tertiary"
       fontSize="sm"
       style={style}

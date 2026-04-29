@@ -65,12 +65,14 @@ describe('Breadcrumb (native)', () => {
     expect(screen.getByText('Detalhes')).toBeTruthy();
   });
 
-  it('Separator exibe "/" por padrão', () => {
+  it('Separator exibe "/" por padrão (oculto de a11y)', () => {
     render(<BasicBreadcrumb />, { wrapper: Wrapper });
-    expect(screen.getAllByText('/').length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText('/', { includeHiddenElements: true }).length,
+    ).toBeGreaterThan(0);
   });
 
-  it('Separator aceita children customizados', () => {
+  it('Separator aceita children customizados (oculto de a11y)', () => {
     render(
       <Breadcrumb>
         <Breadcrumb.List>
@@ -83,6 +85,11 @@ describe('Breadcrumb (native)', () => {
       </Breadcrumb>,
       { wrapper: Wrapper },
     );
-    expect(screen.getByText('›')).toBeTruthy();
+    expect(screen.getByText('›', { includeHiddenElements: true })).toBeTruthy();
+  });
+
+  it('Separator é oculto de screen readers (TD-019)', () => {
+    render(<BasicBreadcrumb />, { wrapper: Wrapper });
+    expect(screen.queryByText('/')).toBeNull();
   });
 });
