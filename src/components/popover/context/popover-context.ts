@@ -1,10 +1,11 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type MutableRefObject } from 'react';
 
 export type PopoverContextValue = {
   isOpen: boolean;
   open: () => void;
   close: () => void;
   titleId: string;
+  triggerRef: MutableRefObject<HTMLElement | null>;
 };
 
 export const PopoverContext = createContext<PopoverContextValue | null>(null);

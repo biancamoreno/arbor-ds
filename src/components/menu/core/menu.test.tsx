@@ -105,6 +105,29 @@ describe('Menu', () => {
     expect(item.getAttribute('aria-disabled')).toBe('true');
   });
 
+  it('toggles open/close on subsequent trigger clicks', () => {
+    renderMenu(<BasicMenu />);
+
+    const trigger = screen.getByText('Options');
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu')).toBeTruthy();
+
+    fireEvent.click(trigger);
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+
+  it('pointerdown on trigger does not dismiss the open menu', () => {
+    renderMenu(<BasicMenu />);
+
+    const trigger = screen.getByText('Options');
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu')).toBeTruthy();
+
+    fireEvent.pointerDown(trigger);
+    expect(screen.getByRole('menu')).toBeTruthy();
+  });
+
   it('renders menu label', () => {
     renderMenu(
       <Menu.Root defaultOpen>

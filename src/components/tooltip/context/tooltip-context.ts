@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type MutableRefObject } from 'react';
 
 export type TooltipPlacement = 'top' | 'right' | 'bottom' | 'left';
 
@@ -7,6 +7,7 @@ export type TooltipContextValue = {
   open: () => void;
   close: () => void;
   tooltipId: string;
+  triggerRef: MutableRefObject<HTMLElement | null>;
 };
 
 export const TooltipContext = createContext<TooltipContextValue | null>(null);

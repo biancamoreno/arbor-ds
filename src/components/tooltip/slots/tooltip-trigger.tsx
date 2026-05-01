@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box } from '../../core';
+import { mergeRefs } from '../../../ecosystem/utils/functions';
 import { useTooltipContext } from '../context/tooltip-context';
 
 type TooltipTriggerProps = {
@@ -7,10 +8,10 @@ type TooltipTriggerProps = {
   asChild?: boolean;
 };
 
-type AnyProps = Record<string, unknown>;
+type AnyProps = Record<string, unknown> & { ref?: React.Ref<HTMLElement> };
 
 export function TooltipTrigger({ children, asChild = true }: TooltipTriggerProps) {
-  const { open, close, tooltipId } = useTooltipContext();
+  const { open, close, tooltipId, triggerRef } = useTooltipContext();
 
   const child = children as React.ReactElement<AnyProps>;
 
@@ -35,11 +36,15 @@ export function TooltipTrigger({ children, asChild = true }: TooltipTriggerProps
   };
 
   if (asChild) {
-    return React.cloneElement(child, triggerProps);
+    const childRef = (child as React.ReactElement & { ref?: React.Ref<HTMLElement> }).ref;
+    return React.cloneElement(child, {
+      ...triggerProps,
+      ref: mergeRefs<HTMLElement>(triggerRef, childRef),
+    } as AnyProps);
   }
 
   return (
-    <Box as="span" display="inline-flex" {...(triggerProps as Record<string, unknown>)}>
+    <Box as="span" display="inline-flex" innerRef={triggerRef} {...(triggerProps as Record<string, unknown>)}>
       {children}
     </Box>
   );

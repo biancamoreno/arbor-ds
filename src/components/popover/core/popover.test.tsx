@@ -102,6 +102,47 @@ describe('Popover', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('toggles open/close on subsequent trigger clicks', () => {
+    renderPopover(
+      <Popover.Root>
+        <Popover.Trigger asChild>
+          <button type="button">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <p>Popover content</p>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+
+    const trigger = screen.getByText('Open');
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
+    fireEvent.click(trigger);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('pointerdown on trigger does not dismiss the open layer', () => {
+    renderPopover(
+      <Popover.Root>
+        <Popover.Trigger asChild>
+          <button type="button">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <p>Popover content</p>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+
+    const trigger = screen.getByText('Open');
+    fireEvent.click(trigger);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
+    fireEvent.pointerDown(trigger);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+  });
+
   it('renders with defaultOpen=true', () => {
     renderPopover(
       <Popover.Root defaultOpen>

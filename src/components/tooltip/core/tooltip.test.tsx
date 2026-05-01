@@ -118,6 +118,24 @@ describe('Tooltip', () => {
     expect(trigger.getAttribute('aria-describedby')).toBe(tooltip.getAttribute('id'));
   });
 
+  it('renders content in document.body via portal (escapes overflow:hidden ancestor)', () => {
+    renderTooltip(
+      <div data-testid="clip" style={{ overflow: 'hidden', width: 50, height: 50 }}>
+        <Tooltip.Root defaultOpen>
+          <Tooltip.Trigger asChild>
+            <button type="button">Trigger</button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Tooltip text</Tooltip.Content>
+        </Tooltip.Root>
+      </div>,
+    );
+
+    const tooltip = screen.getByRole('tooltip');
+    const clip = screen.getByTestId('clip');
+    expect(clip.contains(tooltip)).toBe(false);
+    expect(document.body.contains(tooltip)).toBe(true);
+  });
+
   it('renders with different placements', () => {
     renderTooltip(
       <Tooltip.Root defaultOpen>

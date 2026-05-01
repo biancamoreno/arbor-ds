@@ -19,6 +19,7 @@ function MenuRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, children }
 
   const [activeIndex, setActiveIndex] = useState(-1);
   const itemCountRef = useRef(0);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const open = useCallback(() => {
     setIsOpen(true);
@@ -45,6 +46,7 @@ function MenuRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, children }
       setActiveIndex,
       itemCount: itemCountRef.current,
       registerItem,
+      triggerRef,
     }}>
       {children}
     </MenuContext.Provider>

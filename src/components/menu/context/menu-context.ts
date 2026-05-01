@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type MutableRefObject } from 'react';
 
 export type MenuContextValue = {
   isOpen: boolean;
@@ -8,6 +8,7 @@ export type MenuContextValue = {
   setActiveIndex: (index: number) => void;
   itemCount: number;
   registerItem: () => number;
+  triggerRef: MutableRefObject<HTMLElement | null>;
 };
 
 export const MenuContext = createContext<MenuContextValue | null>(null);

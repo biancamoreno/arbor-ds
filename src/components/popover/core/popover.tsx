@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
 import { PopoverContext } from '../context/popover-context';
 import { PopoverTrigger } from '../slots/popover-trigger';
@@ -16,11 +16,12 @@ function PopoverRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, childre
   });
 
   const titleId = useLayoutId('popover');
+  const triggerRef = useRef<HTMLElement | null>(null);
   const open = useCallback(() => setIsOpen(true), [setIsOpen]);
   const close = useCallback(() => setIsOpen(false), [setIsOpen]);
 
   return (
-    <PopoverContext.Provider value={{ isOpen, open, close, titleId }}>
+    <PopoverContext.Provider value={{ isOpen, open, close, titleId, triggerRef }}>
       {children}
     </PopoverContext.Provider>
   );

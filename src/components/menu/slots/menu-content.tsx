@@ -5,7 +5,7 @@ import { useMenuContext } from '../context/menu-context';
 import type { MenuContentProps } from '../interfaces/MenuProps';
 
 export function MenuContent({ children, label }: MenuContentProps) {
-  const { isOpen, close, setActiveIndex, activeIndex, itemCount } = useMenuContext();
+  const { isOpen, close, setActiveIndex, activeIndex, itemCount, triggerRef } = useMenuContext();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -23,7 +23,7 @@ export function MenuContent({ children, label }: MenuContentProps) {
 
   return (
     <Portal>
-      <DismissableLayer onDismiss={close}>
+      <DismissableLayer onDismiss={close} excludeRef={triggerRef}>
         <Box
           as="ul"
           role="menu"
