@@ -1,5 +1,9 @@
 import { color as primitiveColor } from '../../primitives';
 
+const lightBrandPrimary = primitiveColor.aqua['60'];
+const lightBrandHover = primitiveColor.aqua['80'];
+const lightBrandActive = primitiveColor.aqua['100'];
+
 export const themeLightColors = {
   background: {
     default: primitiveColor.neutral.white,
@@ -12,12 +16,13 @@ export const themeLightColors = {
     default: primitiveColor.neutral.white,
     highlight: primitiveColor.sandstone['10'],
     raised: primitiveColor.neutral.white,
+    translucent: 'rgba(255, 255, 255, 0.85)',
   },
   border: {
     default: primitiveColor.neutral['30'],
     subtle: primitiveColor.neutral['20'],
     strong: primitiveColor.neutral['50'],
-    interactive: primitiveColor.aqua['60'],
+    interactive: lightBrandPrimary,
   },
   text: {
     primary: primitiveColor.neutral['100'],
@@ -29,20 +34,25 @@ export const themeLightColors = {
   icon: {
     primary: primitiveColor.neutral['100'],
     secondary: primitiveColor.neutral['60'],
-    interactive: primitiveColor.aqua['60'],
+    interactive: lightBrandPrimary,
     disabled: primitiveColor.neutral['30'],
   },
   interactive: {
-    default: primitiveColor.aqua['60'],
-    hover: primitiveColor.aqua['80'],
-    active: primitiveColor.aqua['100'],
+    default: lightBrandPrimary,
+    hover: lightBrandHover,
+    active: lightBrandActive,
     disabled: primitiveColor.neutral['30'],
   },
   brand: {
+    primary: lightBrandPrimary,
+    secondary: primitiveColor.ocean['60'],
+    accent: primitiveColor.emerald['60'],
+    onPrimary: primitiveColor.neutral.white,
+    onSecondary: primitiveColor.neutral.white,
     subtle: primitiveColor.aqua['20'],
     soft: primitiveColor.aqua['40'],
-    base: primitiveColor.aqua['60'],
-    strong: primitiveColor.aqua['80'],
+    base: lightBrandPrimary,
+    strong: lightBrandHover,
   },
   feedback: {
     success: {

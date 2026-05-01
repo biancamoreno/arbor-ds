@@ -1,8 +1,9 @@
-import type { ThemeLight } from './themeLight';
-import type { ThemeDark } from './themeDark';
+import type { BaseTheme } from './base-theme';
+import type { ThemeLightColors } from '../tokens/semantics/color/themeLightColors';
 
-export type ArborTheme = (ThemeLight | ThemeDark) & {
-  mode: 'light' | 'dark';
-  colors: ThemeLight['colors'];
-  components: ThemeLight['components'];
+export type ThemeColors = ThemeLightColors;
+
+export type ArborTheme = BaseTheme & {
+  mode: string;
+  colors: ThemeColors;
 };

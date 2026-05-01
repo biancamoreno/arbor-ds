@@ -367,6 +367,88 @@ return (
 
 [TD-025](docs/TECH_DEBT.md#td-025) registra a porta de saída para o caminho **(a)** com peer dep `expo-document-picker`. Gatilho mensurável: 3+ produtos consumidores documentando necessidade real em < 6 meses, OU 1 caso de produto crítico (KYC, autenticação regulamentada). Sem o gatilho, o placeholder é a decisão arquitetural correta.
 
+## Criando um produto
+
+O Arbor-DS é uma plataforma multi-produto. Cada produto consumidor expressa sua identidade visual via tema, sem precisar editar arquivos do DS. O fluxo canônico:
+
+### 1. Defina a paleta de marca
+
+```ts
+import { createBrandPalette } from 'arbor-ds';
+
+const violetBrand = createBrandPalette({
+  primary:   '#7C3AED',  // identidade dominante
+  secondary: '#0EA5E9',  // identidade secundária (CTA alternativo, links)
+  accent:    '#10B981',  // destaque/realce
+  onPrimary: '#FFFFFF',  // texto/ícone sobre primary
+  onSecondary: '#FFFFFF',
+  // shades derivados (necessários enquanto a derivação automática não chega):
+  subtle: '#EDE9FE',     // bg sutil para hover/selected
+  soft:   '#C4B5FD',     // states intermediários
+  strong: '#5B21B6',     // hover/pressed
+  hover:  '#5B21B6',
+  active: '#4C1D95',
+});
+```
+
+`createBrandPalette()` retorna um objeto com os 11 papéis da camada brand alias. Apenas `primary` é obrigatório — os outros têm fallback para `primary`, mas para um resultado visualmente correto forneça pelo menos `subtle`/`soft`/`strong`/`hover`/`active`.
+
+### 2. Construa o tema do produto
+
+```ts
+import { createTheme, themeLight } from 'arbor-ds';
+
+const productALight = createTheme(themeLight, {
+  mode: 'product-a-light',  // identificador do tema, não modo claro/escuro
+  colors: {
+    brand: violetBrand,
+    interactive: {
+      default: violetBrand.primary,
+      hover:   violetBrand.hover,
+      active:  violetBrand.active,
+    },
+    border: { interactive: violetBrand.primary },
+    icon:   { interactive: violetBrand.primary },
+  },
+});
+```
+
+Os papéis `interactive.*`/`border.interactive`/`icon.interactive` precisam ser overridados explicitamente porque por padrão eles apontam para a primitive `aqua.X`. Esta é a única "ginástica" pendente — uma evolução futura derivará esses 4 papéis automaticamente da `brand.primary`.
+
+### 3. Plugue o tema no Provider
+
+```tsx
+import { ArborProvider } from 'arbor-ds';
+
+export function App() {
+  return (
+    <ArborProvider theme={productALight}>
+      {/* árvore do produto */}
+    </ArborProvider>
+  );
+}
+```
+
+`ArborTheme` é estrutural — o Provider aceita qualquer tema que estenda a base. Não há união fechada de `'light' | 'dark'`.
+
+### Pontos de extensão disponíveis hoje
+
+- **`colors`**: cor identitária + papéis semânticos (`brand`, `interactive`, `border`, `icon`, `text`, `surface`, `background`, `feedback`, `status`).
+- **`radii`**: raios (`none`, `nano`, `small`, `medium`, `large`, `full`).
+- **`space` / `sizes`**: escala de espaçamento (`none`, `nano`, `micro`, `tiny`, `small`, `medium`, `large`, `huge`, `giant`).
+- **`fontSizes`** / **`fontWeights`** / **`lineHeights`** / **`letterSpacings`** / **`fonts`**: voz tipográfica.
+- **`shadows`**: elevação (`sm`/`md`/`lg`/`xl`).
+- **`opacity`** / **`zIndices`** / **`iconSizes`** / **`borderWidths`**.
+- **`components`**: overrides por recipe (`button.variants.primary.backgroundColor`, etc.) para casos onde o produto precisa ajustar a anatomia além da identidade.
+
+### Pontos ainda não themable (RFC-0027 PRs 2 e 3)
+
+- **`motion`**: durações/easings (PR 2).
+- **`focusRing`**: anel de foco (PR 2).
+- **Recipes legadas** (`text`/`button`/`badge`/`card`/`chip`/`avatar`/`alert`/`accordion`/`toast`) ainda capturam alguns valores no module-load (PR 3).
+
+Acompanhe o progresso da [RFC-0027](docs/rfcs/RFC-0027-multi-product-themable-contract.md).
+
 ## Scripts úteis
 
 ```bash

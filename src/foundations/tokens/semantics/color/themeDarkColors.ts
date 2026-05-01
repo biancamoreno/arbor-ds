@@ -1,5 +1,9 @@
 import { color as primitiveColor } from '../../primitives';
 
+const darkBrandPrimary = primitiveColor.aqua['40'];
+const darkBrandHover = primitiveColor.aqua['50'];
+const darkBrandActive = primitiveColor.aqua['70'];
+
 export const themeDarkColors = {
   background: {
     default: primitiveColor.neutral['100'],
@@ -12,6 +16,7 @@ export const themeDarkColors = {
     default: primitiveColor.neutral['90'],
     highlight: primitiveColor.neutral['80'],
     raised: primitiveColor.neutral['70'],
+    translucent: 'rgba(20, 20, 20, 0.85)',
   },
   border: {
     default: primitiveColor.neutral['70'],
@@ -29,16 +34,21 @@ export const themeDarkColors = {
   icon: {
     primary: primitiveColor.neutral.white,
     secondary: primitiveColor.neutral['50'],
-    interactive: primitiveColor.aqua['40'],
+    interactive: darkBrandPrimary,
     disabled: primitiveColor.neutral['70'],
   },
   interactive: {
-    default: primitiveColor.aqua['40'],
-    hover: primitiveColor.aqua['50'],
-    active: primitiveColor.aqua['70'],
+    default: darkBrandPrimary,
+    hover: darkBrandHover,
+    active: darkBrandActive,
     disabled: primitiveColor.neutral['70'],
   },
   brand: {
+    primary: primitiveColor.aqua['50'],
+    secondary: primitiveColor.ocean['40'],
+    accent: primitiveColor.emerald['40'],
+    onPrimary: primitiveColor.neutral['100'],
+    onSecondary: primitiveColor.neutral['100'],
     subtle: primitiveColor.aqua['30'],
     soft: primitiveColor.aqua['40'],
     base: primitiveColor.aqua['50'],
