@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-01 (TD-026 aberta — `focusRing` themable adiado em RFC-0027 PR2; recipes consomem via spread estático, override de tema não chega ao anel de foco)
+**Última atualização:** 2026-05-01 (TD-026 rebaixada para Baixa — gap restante = `outlineWidth/Offset/Style` themable; cor desacoplada via novo alias `focus.ring`)
 
 ---
 
@@ -32,7 +32,7 @@
 | [TD-019](#td-019) | Engine native bloqueia `accessibilityElementsHidden` / `importantForAccessibility` | RFC-0018 onda 4 | **Resolved (2026-04-28)** | A11y native (separadores/decoradores) | `systemBlockedPropsByPlatform` plataforma-aware; reaplicado em Breadcrumb.Separator e Pagination.Ellipsis |
 | [TD-022](#td-022) | `shadows` órfão em `primitives/` + 13 box-shadows inline em componentes/recipes | Diagnóstico multi-produto (B3) | **Resolved (2026-05-01)** | Theming bloqueado para identidade de elevação (produto não conseguia mudar linguagem de sombras sem fork) | `shadows` adicionado ao `baseTheme`; engine ganhou handler `boxShadow`/`shadow` consumindo escala `shadows`; 13 inlines migrados (Dialog/Drawer/Tooltip/Popover/Menu/Toast/Card/Select/FAB/NavBar + recipes Dialog/Drawer/Card no base-theme) |
 | [TD-025](#td-025) | `FileUpload.native` é placeholder; promover para implementação real se demanda materializar | RFC-0026 (PR 2) | Open | DX (consumidor RN precisa integrar lib externa via `children`) | Promover para caminho (a) `expo-document-picker` peer dep quando 3+ produtos consumidores pedirem em < 6 meses |
-| [TD-026](#td-026) | `focusRing` não é themable — recipes consomem via spread estático | RFC-0027 (PR 2) | Open | Theming (anel de foco fixo, produto não consegue ajustar offset/largura/cor da identidade) | Engine de pseudos resolver subprops via scale `focusRing` (ex: `outlineColor: 'focusRing.color'` consulta `theme.focusRing.color`) — RFC dedicada |
+| [TD-026](#td-026) | `focusRing` largura/offset/estilo não são themable (cor já é, via `focus.ring`) | RFC-0027 (PR 2) | Open (Baixa) | Theming (gap residual: produto não consegue ajustar espessura/offset/estilo do anel) | Adiada até gatilho concreto (a11y reforçada WCAG 2.4.11 ou identidade de marca distinta) — caminho preferido: shorthand `_focusRing: 'default' \| 'strong'` resolvido em runtime via `theme.focusRing` |
 
 **Total:** 6 dívidas abertas, 13 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01).
 
@@ -1378,54 +1378,73 @@ Critério mensurável e finito — se nenhum dos dois ocorrer, o placeholder é 
 
 ---
 
-## TD-026 — `focusRing` não é themable
+## TD-026 — `focusRing` largura/offset/estilo não são themable
 
 **Origem:** [RFC-0027](rfcs/RFC-0027-multi-product-themable-contract.md) (PR 2) — 2026-05-01
 **Status:** Open
-**Severidade:** Média
+**Severidade:** Baixa
+**Histórico:** rebaixada de Média → Baixa em 2026-05-01 após análise — cor de foco desacoplada via `focus.ring` semantic alias; gap residual (largura/offset/estilo) não tem demanda real e o custo de abrir é alto.
 
 ### Contexto
-RFC-0027 PR 2 trouxe `motion` para o contrato themable e tornou `transition` runtime-aware via `useTransition()`. `focusRing` ficou de fora.
+RFC-0027 PR 2 trouxe `motion` para o contrato themable e tornou `transition` runtime-aware via `useTransition()`.
 
-Hoje `focusRing` é uma constante local em `src/foundations/theme/base-theme.ts:20-24`:
+Hoje `focusRing` é uma constante local em `src/foundations/theme/base-theme.ts:23-27`:
 
 ```ts
 const focusRing = {
   outline: '2px solid',
-  outlineColor: 'interactive.default',
+  outlineColor: 'focus.ring',  // ← alias semantic dedicado (não mais 'interactive.default')
   outlineOffset: '2px',
 } as const;
 ```
 
-Recipes consomem via spread estático em `_focusVisible: focusRing` (ou `_focusVisibleWithin: focusRing`). Como o spread é resolvido no module-load do `base-theme.ts`, **override de tema não chega ao anel de foco**: produto pode customizar `interactive.default` (e a cor do anel responde, porque é alias string), mas **não consegue ajustar `outline-width`, `outline-offset` ou `outline-style`** sem editar arquivos do DS.
+**O que é themable hoje:** cor do anel via `theme.colors.focus.ring` (alias string resolvido em runtime). Produto consumidor pode override pontual em `createTheme(base, { colors: { focus: { ring: '<cor>' } } })` sem arrastar `interactive.default`.
 
-Tornar isso themable de verdade exige:
-1. Expor `focusRing` como token (`tokens/semantics/focus-ring.ts` + `baseTheme.focusRing`).
-2. Ensinar a engine de pseudos (`_focusVisible`/`_focusVisibleWithin`) a resolver subprops do tipo `'focusRing.width'` via scale `focusRing` — hoje `outlineWidth` resolve via scale `space`/`borderWidths`, não há rota para `focusRing`.
-3. Migrar consumidores das recipes (`checkbox`/`radio`/`switch`/`select.trigger`/...) para a nova API.
+**O que ainda não é themable:** `outlineWidth` (`'2px'`), `outlineOffset` (`'2px'`), `outlineStyle` (`'solid'`). Recipes consomem via spread estático no module-load — override de tema não atinge esses três.
 
-Trabalho não-trivial; preferi adiar para não inflar PR 2.
+### Análise: vale fechar o gap?
+
+**Argumento para deixar como está (Baixa):**
+- Defaults atuais (`2px solid`, `2px offset`, cor `focus.ring`) atendem WCAG 2.4.7 e 2.4.11 (AA) por construção.
+- Benchmark de DSes maduros (Chakra, Radix, Material, Mantine, Tailwind) — nenhum trata largura/offset como axis de identidade de marca; expõem cor e/ou comportamento.
+- Custo de abrir é não-trivial (refactor de engine ou novo shorthand `_focusRing` resolvido em runtime).
+- Risco de a11y: produto pode regredir defaults (1px, dotted, offset zero) sem guard-rail.
+
+**Quando reabrir:**
+- Produto consumidor demonstrar (a) requisito de a11y reforçada (WCAG 2.4.11 enhanced — anel mais grosso/contrastante para baixa visão) ou (b) marca com identidade visual de foco genuinamente distinta dos defaults.
+- Até lá, defaults atendem o contrato.
 
 ### Impacto
-- **Tematização**: produto não consegue ajustar identidade do anel de foco (espessura, offset) — só a cor (que herda de `interactive.default`).
-- **Consistência**: contrato multi-produto fica incompleto — skill lista `focusRing` como parte do contrato themable mínimo.
-- **A11y**: hoje WCAG 2.4.7 está atendido, mas produtos que precisem aumentar contraste de foco (acessibilidade reforçada) não conseguem via tema.
+- **Tematização**: gap residual = anatomia do anel (espessura/offset/estilo) fixa. Cor já é themable.
+- **A11y**: WCAG 2.4.7/2.4.11 (AA) atendidos. Apenas WCAG 2.4.11 (AAA enhanced) potencialmente não-atingível por todos os produtos sem editar DS.
+- **DX**: zero — produto típico não precisa mexer.
 
-### Resolução proposta
-RFC dedicada quando surgir o primeiro caso real de produto querendo ajustar `outlineWidth`/`outlineOffset`. A RFC deve:
-- Adicionar `tokens/semantics/focus-ring.ts` com `{ width, style, color, offset }`.
-- Adicionar `baseTheme.focusRing`.
-- Estender a engine de pseudos para resolver subprops contra `focusRing` (handler novo ou shorthand `_focusRing: 'default'`).
-- Migrar `_focusVisible: focusRing` → API canônica.
+### Resolução proposta (se gatilho disparar)
 
-### Critério para fechar
-- [ ] `baseTheme.focusRing` exposto.
-- [ ] Recipes consomem `focusRing` via alias resolvível em runtime.
-- [ ] Override de `focusRing.width` em produto-B propaga para `outlineWidth` renderizado (teste de matriz).
+Caminho preferido — shorthand resolvido em runtime, sem novo scale:
+
+```ts
+// Em recipe
+indicator: { ..., _focusRing: 'default' }   // ou 'strong'
+
+// Engine reconhece _focusRing como shorthand e expande em render:
+// _focusVisible: theme.focusRing[variant]
+```
+
+`baseTheme.focusRing = { default: { width, offset, style } }` (cor continua via `focus.ring`). Permite múltiplas variantes (denso/touch).
+
+### Critério para fechar (se reaberta)
+- [ ] `baseTheme.focusRing.default` exposto.
+- [ ] Engine reconhece `_focusRing: 'default' | 'strong'` como pseudo-shorthand.
+- [ ] Override de `focusRing.default.width` em produto-B propaga para `outlineWidth` renderizado (teste de matriz).
 - [ ] Suíte verde.
 
 ### Gatilho para começar
-Primeiro caso real de produto consumidor pedindo ajuste de `outlineWidth`/`outlineOffset` via tema — OR — quando RFC-0027 PR 3 quiser fechar gaps remanescentes de identidade.
+**Concreto** — não especular:
+- Pedido formal de produto consumidor por anel mais espesso/distinto via tema; **OR**
+- Auditoria de a11y exigindo WCAG 2.4.11 AAA em produto específico.
+
+Sem gatilho concreto, manter a dívida fria.
 
 ---
 

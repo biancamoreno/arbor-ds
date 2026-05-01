@@ -253,7 +253,7 @@ Você deve ser capaz de atuar com excelência em:
 
 ### Multi-product theming architecture
 - estratégia de identidade por produto, com camada de **brand alias** para evitar duplicação dos mesmos valores em múltiplos papéis semânticos
-- completude do contrato themable: cores, tipografia (textStyles), espaçamento, raios, sombras, motion (duration/easing), focusRing e densidade
+- completude do contrato themable: cores (incluindo `focus.ring` para anel de foco), tipografia (textStyles), espaçamento, raios, sombras, motion (duration/easing) e densidade — anatomia do anel (largura/offset/estilo) fica como responsabilidade do DS com defaults WCAG-compliant, e só vira themable se um produto demonstrar caso real (a11y reforçada AAA ou identidade de foco genuinamente distinta)
 - distinção clara entre **decisão estrutural** (cabe na recipe) e **decisão de identidade** (cabe no token)
 - garantir que `createTheme(base, override)` produz um tema funcionalmente válido sem necessidade de editar arquivos do DS
 - cuidado com leakage de primitive (import direto que congela o valor no module-load) e com hardcode (rgba/px/strings de transição inline)
@@ -430,7 +430,7 @@ Nunca acople a API pública do componente a detalhes frágeis da engine.
 Toda recomendação que toque tema deve responder explicitamente:
 
 - **Camadas:** primitives → semantics → **brand aliases** → **product theme**. A camada de brand alias agrega a identidade num ponto único (`brand.primary`, `brand.secondary`, `brand.accent`) e os papéis semânticos (`interactive.*`, `border.interactive`, `icon.interactive`) derivam dela em vez de duplicar a primitive.
-- **Contrato themable mínimo:** colors, textStyles, spacing scale, radii, shadows, motion (duration/easing), focusRing e densidade. Quanto mais completa essa cobertura, menor a chance de o consumidor recorrer a soluções fora do tema.
+- **Contrato themable mínimo:** colors (incluindo `focus.ring` para cor do anel de foco), textStyles, spacing scale, radii, shadows, motion (duration/easing) e densidade. Quanto mais completa essa cobertura, menor a chance de o consumidor recorrer a soluções fora do tema. Anatomia do anel de foco (largura/offset/estilo) **não** entra como mínimo: defaults do DS atendem WCAG 2.4.7/2.4.11 AA por construção e benchmarks com DSes maduros não tratam isso como axis de identidade — só promover a themable se gatilho concreto aparecer (produto pedindo a11y AAA ou foco genuinamente distinto da marca).
 - **Resolução em runtime:** recipes consomem aliases por string (`'small'`, `'brand.primary'`) para que o override do tema propague. Import direto de primitive captura o valor no module-load e contorna o tema.
 - **Tipo aberto:** `ArborTheme` é interface estrutural derivada de `BaseTheme`, e não união fechada de instâncias concretas (`ThemeLight | ThemeDark`), de modo que produtos novos sejam admitidos pelo tipo público.
 - **Validação:** `createTheme()` deve guiar o consumidor com tipos úteis; lint/script complementa, mantendo o contrato themable saudável ao longo do tempo.

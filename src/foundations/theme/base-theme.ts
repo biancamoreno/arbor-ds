@@ -22,7 +22,7 @@ import type { ThemeComponents } from './types';
 
 const focusRing = {
   outline: '2px solid',
-  outlineColor: 'interactive.default',
+  outlineColor: 'focus.ring',
   outlineOffset: '2px',
 } as const;
 

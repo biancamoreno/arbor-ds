@@ -34,6 +34,7 @@ const productB = createTheme(themeLight as unknown as ArborTheme, {
     },
     border: { interactive: violetBrand.primary },
     icon: { interactive: violetBrand.primary },
+    focus: { ring: violetBrand.primary },
   },
   motion: {
     duration: { fast: '50ms', normal: '120ms' },
@@ -120,5 +121,20 @@ describe('multi-product theming matrix', () => {
 
   it('shadow.color is exposed in theme.colors', () => {
     expect(productB.colors.shadow.color).toBeTruthy();
+  });
+
+  it('focus.ring is independently overridable from interactive.default', () => {
+    const productC = createTheme(themeLight as unknown as ArborTheme, {
+      colors: {
+        interactive: { default: '#ff0000' },
+        focus: { ring: '#00ff00' },
+      },
+    });
+    expect(productC.colors.interactive.default).toBe('#ff0000');
+    expect(productC.colors.focus.ring).toBe('#00ff00');
+  });
+
+  it('focus.ring propagates to product B theme', () => {
+    expect(productB.colors.focus.ring).toBe(violetBrand.primary);
   });
 });

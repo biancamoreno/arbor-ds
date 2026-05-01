@@ -79,6 +79,9 @@ export const themeDarkColors = {
   shadow: {
     color: primitiveColor.neutral['100'],
   },
+  focus: {
+    ring: darkBrandPrimary,
+  },
 };
 
 export type ThemeDarkColors = typeof themeDarkColors;
