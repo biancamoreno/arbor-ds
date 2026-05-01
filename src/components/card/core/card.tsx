@@ -13,15 +13,16 @@ function CardRoot({ children, variant = 'outlined', padding = 'md', style, class
         ? 'arbor-card-clickable'
         : undefined;
 
+  const shadowToken = variant === 'elevated' ? 'md' : 'none';
   const variantStyle: React.CSSProperties = variant === 'elevated'
-    ? { border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }
+    ? { border: 'none' }
     : variant === 'flat'
-      ? { border: 'none', boxShadow: 'none' }
+      ? { border: 'none' }
       : variant === 'hoverable'
-        ? { boxShadow: 'none', transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
+        ? { transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
         : variant === 'clickable'
-          ? { cursor: 'pointer', boxShadow: 'none', transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
-          : { boxShadow: 'none' };
+          ? { cursor: 'pointer', transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
+          : {};
 
   const useBorder = variant !== 'elevated' && variant !== 'flat';
 
@@ -36,6 +37,7 @@ function CardRoot({ children, variant = 'outlined', padding = 'md', style, class
       borderWidth={useBorder ? 1 : 0}
       borderStyle={useBorder ? 'solid' : undefined}
       borderColor={useBorder ? 'border.subtle' : undefined}
+      boxShadow={shadowToken}
       style={{ ...variantStyle, ...style }}
     >
       <Flex

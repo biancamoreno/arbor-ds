@@ -102,6 +102,8 @@ styleMap.set('py', getMultiNumberProp('space', 'paddingTop', 'paddingBottom'));
 styleMap.set('paddingY', getMultiNumberProp('space', 'paddingTop', 'paddingBottom'));
 styleMap.set('rowGap', getSpace);
 styleMap.set('zIndex', getTokenValueByScale('zIndices'));
+styleMap.set('boxShadow', getTokenValueByScale('shadows'));
+styleMap.set('shadow', getCustomProp('boxShadow', 'shadows'));
 styleMap.set('flexDir', getFlexDir);
 styleMap.set('flex', getFlex);
 styleMap.set('color', getColor);

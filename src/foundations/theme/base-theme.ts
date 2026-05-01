@@ -11,6 +11,7 @@ import {
   opacity,
   zIndex,
   fontFamily,
+  shadows,
 } from '../tokens';
 import { defineSlotRecipe } from '../../ecosystem/styled-system/recipes';
 import { transition } from '../../ecosystem/utils/functions/transition';
@@ -384,6 +385,7 @@ const components: ThemeComponents = {
         borderColor: 'border.default',
         backgroundColor: 'surface.default',
         color: 'text.primary',
+        _focusVisible: focusRing,
       },
       value: { flex: 1 },
       icon: { display: 'inline-flex', alignItems: 'center' },
@@ -442,7 +444,7 @@ const components: ThemeComponents = {
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 'large',
-        boxShadow: '0 20px 48px rgba(0,0,0,0.16)',
+        boxShadow: 'xl',
       },
       title: { fontWeight: 'medium' },
       description: {},
@@ -461,7 +463,7 @@ const components: ThemeComponents = {
     slots: ['overlay', 'content', 'title'] as const,
     base: {
       overlay: { position: 'fixed', inset: '0' },
-      content: { position: 'fixed', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 48px rgba(0,0,0,0.16)' },
+      content: { position: 'fixed', display: 'flex', flexDirection: 'column', boxShadow: 'xl' },
       title: { fontWeight: 'medium' },
     },
     variants: {
@@ -516,7 +518,7 @@ const components: ThemeComponents = {
     variants: {
       variant: {
         outlined: { borderWidth: '1px' },
-        elevated: { boxShadow: '0 2px 8px rgba(0,0,0,0.10)' },
+        elevated: { boxShadow: 'md' },
         flat: {},
       },
       padding: {
@@ -615,6 +617,7 @@ export const baseTheme = {
   fonts: fontFamily,
   zIndices: zIndex,
   iconSizes: iconSize,
+  shadows,
   breakpoints: createBreakpoints({
     sm: '640px',
     md: '768px',

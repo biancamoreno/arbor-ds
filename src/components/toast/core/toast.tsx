@@ -90,8 +90,8 @@ function ToastRoot({ children, tone = 'neutral', style, testID }: ToastRootProps
       borderLeftWidth={4}
       borderLeftStyle="solid"
       borderLeftColor={borderColor as never}
+      boxShadow="lg"
       style={{
-        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
         animation: 'arbor-toast-in 0.2s ease forwards',
         ...style,
       }}

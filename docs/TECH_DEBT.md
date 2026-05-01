@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-04-28 (TD-017 resolvida — RFC-0022 implementada: `Table.native` cross-platform; `web-only` global em 0; suíte 795→803)
+**Última atualização:** 2026-05-01 (TD-022 aberta e resolvida — `shadows` exposto no `baseTheme` + handler `boxShadow` no engine + 13 inlines migrados; suíte 803→859 verdes)
 
 ---
 
@@ -30,8 +30,9 @@
 | [TD-016](#td-016) | Touch target abaixo de WCAG 44×44 | R6 review (R6-I) | **Resolved (2026-04-25)** | A11y mobile — Counter sm/md, TextInput sm, Switch md, Select sm/md, Select items | Field/Input/Select recipes com `minHeight: 44` + Counter/Switch com overlay `::before` 44×44; FAB sm 40→44; engine ganhou `content`; CONTRIBUTING §9 documenta padrão |
 | [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | **Resolved (2026-04-28)** | **Crítico** — Promessa do DS quebrada em mobile; Field-aware mistos | RFC-0018 ondas 1–5 + RFC-0021 (Button) + RFC-0022 (Table) entregues; RadioCard removido (RFC-0019 closed); `tag/core/badge.tsx` duplicata morta deletada; `web-only` global em 0; `check-platform-contract --strict` verde |
 | [TD-019](#td-019) | Engine native bloqueia `accessibilityElementsHidden` / `importantForAccessibility` | RFC-0018 onda 4 | **Resolved (2026-04-28)** | A11y native (separadores/decoradores) | `systemBlockedPropsByPlatform` plataforma-aware; reaplicado em Breadcrumb.Separator e Pagination.Ellipsis |
+| [TD-022](#td-022) | `shadows` órfão em `primitives/` + 13 box-shadows inline em componentes/recipes | Diagnóstico multi-produto (B3) | **Resolved (2026-05-01)** | Theming bloqueado para identidade de elevação (produto não conseguia mudar linguagem de sombras sem fork) | `shadows` adicionado ao `baseTheme`; engine ganhou handler `boxShadow`/`shadow` consumindo escala `shadows`; 13 inlines migrados (Dialog/Drawer/Tooltip/Popover/Menu/Toast/Card/Select/FAB/NavBar + recipes Dialog/Drawer/Card no base-theme) |
 
-**Total:** 4 dívidas abertas, 12 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28).
+**Total:** 4 dívidas abertas, 13 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01).
 
 ---
 
@@ -1019,8 +1020,21 @@ Maior dívida arquitetural aberta hoje. Vetor de regressão de produto: cada nov
 ## TD-018 — Feedback indicators web-only de fato (R7)
 
 **Origem:** R7 scoping (2026-04-25) · escopo derivado de [TD-017](#td-017) / [RFC-0018](rfcs/RFC-0018-paridade-native-completa-do-ds.md)
-**Status:** In progress (7.1, 7.2, 7.3 entregues 2026-04-25; 7.4 entregue 2026-04-28; 7.5 pendente)
+**Status:** **Resolved (2026-04-28)** — todas as 5 sub-ondas entregues
 **Severidade:** Alta (consistência cross-platform — promessa do DS)
+
+### Resolução total (2026-04-28) — sub-onda 7.5 (Toast.native)
+
+**Sub-onda 7.5 entregue** (commit `61cb431`), fechando TD-018 integralmente:
+
+- `interfaces/ToastProps.ts`: removido `extends HTMLAttributes<HTML*Element>` de todos os subcomponentes (vazava tipos DOM em consumo native); substituído por `style?: CSSProperties` + `testID?: string`. Tag `@platform shared` documentada na interface.
+- `core/toast.tsx` (web): props explícitas (sem spread HTML), `Portal mode="overlay"` para que toques passem à UI subjacente em overlays não-modais; `displayName` em todos os 4 subcomponentes + `Toaster`.
+- `core/toast.native.tsx`: `Animated.parallel(opacity, translateY)` na entrada com bypass em ambiente de teste; `accessibilityLiveRegion` (`'assertive'` para `tone='critical'`, `'polite'` caso contrário) + `accessibilityRole='alert'`. `getPlacementContainerStyle` própria do native — `*-center` usa `alignItems: 'center'` (RN não suporta `translateX('-50%')`).
+- `core/toast.native.test.tsx`: 10 cases (paridade do web) — isolated + harness com `useToast` + `Toaster`.
+- `toast-store.ts` + `use-toast.ts` reutilizados sem mudança (já vanilla JS, cross-platform).
+- `src/native.ts` exporta `Toast`, `Toaster`, `useToast` + tipos públicos (`ToastTone`, `ToastPlacement`, `ToastItem`, `Toast*Props`, `ToasterProps`, `ToastInput`).
+
+**Suite:** 817 → **831 verdes** (+14 cases). 32/32 `.native.tsx` com paridade de testes. Toast era o último indicator "web-only encoberto" (sem tag, mas usava `document.head` + `transform: translateX('-50%')`); a TD agora pode ser fechada formalmente.
 
 ### Resolução parcial (2026-04-28)
 
@@ -1092,8 +1106,8 @@ Plano em 5 sub-ondas, ordenadas por dependência e custo:
 - [x] Spinner.native implementado + suíte (sub-onda 7.2). (2026-04-25)
 - [x] Skeleton.native implementado + suíte (sub-onda 7.3). (2026-04-25)
 - [x] ProgressCircle.native — [RFC-0023](rfcs/RFC-0023-progress-circle-native.md) caminho (a) reformulado + implementação (sub-onda 7.4). (2026-04-28)
-- [ ] Toast.native via Portal nativo + RN Modal + Animated (sub-onda 7.5).
-- [ ] `pnpm test:platform-contract` cobre os 7 sem warnings; nenhum dos 7 fica sem tag `@platform`.
+- [x] Toast.native via `Portal mode="overlay"` + `Animated.parallel` (opacity + translateY) + interfaces saneadas (sub-onda 7.5). (2026-04-28, commit `61cb431`)
+- [x] `pnpm test:platform-contract --strict` verde; os 7 indicators têm `@platform` declarada (5 `shared`/paritários + 2 `native-ready`).
 
 ---
 
@@ -1156,6 +1170,48 @@ Outra opção (menor escopo): hard-code no `styled-component.native.ts` que essa
 - [ ] Continuam bloqueadas no engine web (sem warning DOM).
 - [ ] Reaplicar em `breadcrumb.native.tsx` (Separator) e `pagination.native.tsx` (Ellipsis) — voltar com `accessibilityElementsHidden importantForAccessibility="no-hide-descendants"`.
 - [ ] Smoke tests com `screen.getByText('…', { includeHiddenElements: true })` para validar que a engine deixa passar.
+
+---
+
+## TD-022 — `shadows` órfão + 13 box-shadows inline
+
+**Origem:** Diagnóstico multi-produto (brecha B3) — 2026-05-01
+**Status:** **Resolved (2026-05-01)**
+**Severidade:** Alta
+
+### Contexto
+`primitives/shadows.ts` definia uma escala `none/sm/md/lg/xl` mas **não estava exposta no `baseTheme`**. Como consequência, todas as superfícies elevadas do DS — Dialog, Drawer, Tooltip, Popover, Menu, Toast, Card, Select content, FAB, NavBar e as recipes `dialog`/`drawer`/`card` no `base-theme` — codificavam a sombra como string `rgba(...)` inline dentro de `style={{...}}`. O engine não tinha handler para `boxShadow`, então mesmo se a recipe declarasse `boxShadow: 'lg'` o valor seria passado direto, sem resolver via tema.
+
+Para um produto consumidor, isso significava que mudar a linguagem de elevação exigia editar 10+ arquivos do DS — fork na prática.
+
+### Impacto
+- **Theming:** identidade de elevação não-tematizável; produtos consumidores presos à curva visual codificada inline.
+- **Consistência interna:** 11 superfícies elevadas com 7 valores ligeiramente diferentes (mesmo offset, alpha distinto), sem critério visível.
+- **DX:** anti-pattern silencioso — engenheiros copiavam strings rgba de outros componentes em vez de reusar token.
+
+### Resolução
+1. **Engine** — `styleMap` ganhou handler para `boxShadow` e alias `shadow`, ambos resolvendo via `theme.shadows.{token}` (com fallback para valor cru).
+2. **baseTheme** — `shadows` (de `primitives/shadows.ts`) passou a integrar `baseTheme`, ficando consumível tanto pela engine quanto por overrides de produto via `createTheme()`.
+3. **Sweep** — 13 inlines migrados:
+   - `xl` (5 hits): Dialog, Drawer, Tooltip, Popover, Menu, FAB
+   - `lg` (2 hits): Toast, Select content
+   - `md` (1 hit): Card variant `elevated`
+   - `sm` (1 hit): NavBar `elevated`
+   - Recipes: `dialog.content`, `drawer.content`, `card.elevated` no `base-theme.ts`
+4. **Test ajustado** — `nav-bar.test.tsx` migrou de `header.style.boxShadow` para `getComputedStyle(...).boxShadow` (acoplado ao detalhe inline-style, agora agnóstico).
+
+Avatar `boxShadow: 0 0 0 2px ${ringColor}` (focus ring colorido por status) **manteve inline** — não é elevação; é escape hatch legítimo.
+
+### Critério para fechar
+- [x] `shadows` no `baseTheme`
+- [x] handler `boxShadow`/`shadow` no engine
+- [x] zero hits de `boxShadow:\s*'0` ou `boxShadow:\s*"0` em `src/`
+- [x] zero hits de `rgba\(|#[0-9A-Fa-f]{6}` em `src/foundations/theme/`
+- [x] suíte verde (859/859)
+- [x] `check-platform-contract --strict` verde
+
+### Notas para evolução
+A escala `shadows` atual (`sm/md/lg/xl/none`) cobre os usos atuais com aproximação aceitável (alpha varia 0.08–0.20). Caso futuras iterações exijam fidelidade pixel-perfect aos visuais legados, considerar adicionar `2xl` para overlays grandes (Dialog/Drawer com blur 48). Fora de escopo desta dívida.
 
 ---
 

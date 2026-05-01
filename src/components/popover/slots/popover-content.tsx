@@ -22,13 +22,13 @@ export function PopoverContent({ children }: PopoverContentProps) {
           borderRadius="medium"
           backgroundColor="surface.raised"
           outline="none"
+          boxShadow="xl"
           style={{
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             minWidth: '200px',
             maxWidth: '360px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
           }}
         >
           {children}

@@ -107,12 +107,13 @@ describe('NavBar', () => {
   it('elevated aplica box-shadow', () => {
     const { container } = render(<NavBar elevated />, { wrapper });
     const header = container.querySelector('header') as HTMLElement;
-    expect(header.style.boxShadow).toBeTruthy();
+    expect(getComputedStyle(header).boxShadow).toBeTruthy();
   });
 
   it('sem elevated não aplica box-shadow', () => {
     const { container } = render(<NavBar />, { wrapper });
     const header = container.querySelector('header') as HTMLElement;
-    expect(header.style.boxShadow).toBeFalsy();
+    const shadow = getComputedStyle(header).boxShadow;
+    expect(shadow === '' || shadow === 'none').toBe(true);
   });
 });

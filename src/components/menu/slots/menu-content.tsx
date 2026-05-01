@@ -34,6 +34,7 @@ export function MenuContent({ children, label }: MenuContentProps) {
           borderRadius="medium"
           backgroundColor="surface.raised"
           paddingY="tiny"
+          boxShadow="xl"
           style={{
             top: '50%',
             left: '50%',
@@ -41,7 +42,6 @@ export function MenuContent({ children, label }: MenuContentProps) {
             minWidth: '180px',
             margin: 0,
             listStyle: 'none',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
             outline: 'none',
           }}
         >

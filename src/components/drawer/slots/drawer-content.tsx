@@ -65,9 +65,9 @@ export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
             gap="small"
             padding="large"
             backgroundColor="surface.raised"
+            boxShadow="xl"
             style={{
               ...getPanelStyle(placement, size),
-              boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
               transform: visible ? 'translate(0)' : SLIDE_HIDDEN[placement],
               transition: transition(['transform'], 'normal', 'decelerate'),
             }}

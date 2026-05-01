@@ -87,6 +87,7 @@ export function FloatingActionButton({
       borderWidth={variant === 'surface' ? 1 : 0}
       borderStyle={variant === 'surface' ? 'solid' : undefined}
       borderColor={variant === 'surface' ? 'border.default' : undefined}
+      boxShadow="xl"
       style={{
         ...positionStyle,
         gap: isExtended ? 8 : 0,
@@ -94,7 +95,6 @@ export function FloatingActionButton({
         height: dim,
         minWidth: dim,
         paddingInline: isExtended ? 16 : 0,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.20)',
         fontFamily: 'inherit',
         ...animStyle,
       }}

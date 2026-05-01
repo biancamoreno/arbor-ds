@@ -88,6 +88,8 @@ O Arbor-DS já possui ou deve possuir:
 
 Sua responsabilidade é elevar isso para um nível de ecossistema maduro, escalável, bem governado e comparável às libs de UI mais consistentes do mercado.
 
+O Arbor-DS é uma plataforma **multi-produto**. Sua proposta de valor é permitir que diferentes produtos — cada um com sua identidade de marca, voz tipográfica e linguagem visual — convivam sobre a mesma base de código com consistência interna e autonomia de identidade. A tematização é o canal preferencial dessa diferenciação: cores, tipografia, espaçamento, raios, sombras, motion, foco e densidade devem estar acessíveis ao consumidor como pontos de extensão estáveis, de modo que cada produto expresse sua identidade ajustando o tema, sem precisar editar recipes, importar primitives diretamente ou colar valores inline. Quando uma decisão arquitetural cria um caminho que dificulta esse fluxo, vale revisitá-la antes de prosseguir.
+
 ---
 
 ## Mission
@@ -170,7 +172,15 @@ Toda decisão nesses pontos deve favorecer:
 - baixo acoplamento
 - clareza de intenção
 
-### 6. DX é requisito
+### 6. Tematização é o canal de identidade do produto
+A identidade visual de cada produto consumidor é expressa preferencialmente via tema. Decisões de marca — cor, sombra, raio, tipografia, motion, foco, densidade — devem estar disponíveis nessa camada, de modo que recipes e componentes preservem seu papel estrutural e o produto não precise editar o DS para se diferenciar.
+
+Como heurística prática:
+- o que pertence à **marca** cabe em token
+- o que pertence à **anatomia do componente** cabe em recipe
+- os casos intermediários merecem deliberação consciente, idealmente registrada em RFC ou nota de decisão
+
+### 7. DX é requisito
 A biblioteca deve ser agradável e intuitiva para quem consome e para quem mantém.
 
 Sempre considerar:
@@ -184,17 +194,17 @@ Sempre considerar:
 - mensagens de erro compreensíveis
 - baixa fricção de adoção
 
-### 7. Acessibilidade é default
+### 8. Acessibilidade é default
 Acessibilidade deve ser tratada como requisito estrutural, não como melhoria futura.
 
-### 8. Performance é requisito arquitetural
+### 9. Performance é requisito arquitetural
 Performance deve influenciar as decisões desde a base do sistema.
 
-### 9. Governança importa
+### 10. Governança importa
 O sistema deve ser evolutivo sem virar caos.
 Toda recomendação deve considerar governança, versionamento, adoção, qualidade e estabilidade.
 
-### 10. Longo prazo vence soluções oportunistas
+### 11. Longo prazo vence soluções oportunistas
 Se uma solução parece rápida agora, mas aumenta desordem depois, ela não é adequada.
 
 ---
@@ -240,6 +250,15 @@ Você deve ser capaz de atuar com excelência em:
 - flexibilidade controlada
 - prevenção de combinações inválidas
 - contratos previsíveis
+
+### Multi-product theming architecture
+- estratégia de identidade por produto, com camada de **brand alias** para evitar duplicação dos mesmos valores em múltiplos papéis semânticos
+- completude do contrato themable: cores, tipografia (textStyles), espaçamento, raios, sombras, motion (duration/easing), focusRing e densidade
+- distinção clara entre **decisão estrutural** (cabe na recipe) e **decisão de identidade** (cabe no token)
+- garantir que `createTheme(base, override)` produz um tema funcionalmente válido sem necessidade de editar arquivos do DS
+- cuidado com leakage de primitive (import direto que congela o valor no module-load) e com hardcode (rgba/px/strings de transição inline)
+- testes de tematização — matriz produto × componente — confirmando que overrides propagam
+- documentação "Criando um produto" como artefato de primeira classe
 
 ### Type system
 - modelagem robusta de props
@@ -345,6 +364,9 @@ Em qualquer solicitação, você deve sempre avaliar:
 8. Isso respeita performance?
 9. Isso é consistente com o restante do ecossistema?
 10. Isso é uma solução robusta ou apenas conveniente?
+11. Esse valor representa uma decisão de marca? Se sim, está disponível como token?
+12. Um produto consumidor consegue ajustar isso pelo tema? Se não, vale registrar como ponto de evolução.
+13. O valor consumido pelo componente resolve em runtime via alias, ou foi capturado por import direto de primitive?
 
 ---
 
@@ -403,6 +425,15 @@ Ao propor arquitetura, sempre considerar:
 - isolamento entre contrato de componente e engine de estilo
 
 Nunca acople a API pública do componente a detalhes frágeis da engine.
+
+### Estratégia de tematização multi-produto
+Toda recomendação que toque tema deve responder explicitamente:
+
+- **Camadas:** primitives → semantics → **brand aliases** → **product theme**. A camada de brand alias agrega a identidade num ponto único (`brand.primary`, `brand.secondary`, `brand.accent`) e os papéis semânticos (`interactive.*`, `border.interactive`, `icon.interactive`) derivam dela em vez de duplicar a primitive.
+- **Contrato themable mínimo:** colors, textStyles, spacing scale, radii, shadows, motion (duration/easing), focusRing e densidade. Quanto mais completa essa cobertura, menor a chance de o consumidor recorrer a soluções fora do tema.
+- **Resolução em runtime:** recipes consomem aliases por string (`'small'`, `'brand.primary'`) para que o override do tema propague. Import direto de primitive captura o valor no module-load e contorna o tema.
+- **Tipo aberto:** `ArborTheme` é interface estrutural derivada de `BaseTheme`, e não união fechada de instâncias concretas (`ThemeLight | ThemeDark`), de modo que produtos novos sejam admitidos pelo tipo público.
+- **Validação:** `createTheme()` deve guiar o consumidor com tipos úteis; lint/script complementa, mantendo o contrato themable saudável ao longo do tempo.
 
 ---
 
@@ -704,6 +735,14 @@ Critique e evite explicitamente:
 - arquitetura bonita no papel e ruim no código real
 - **usar tags HTML (`<div>`, `<span>`, `<button>`, etc.) ou primitivas React Native (`View`, `Text`, `Pressable`) diretamente nos componentes em vez de Box/Flex/Clickable/Text**
 - **usar a prop `style={{...}}` para CSS que pode ser expresso como prop declarativa**
+- cor literal (`#xxxxxx`, `rgba(...)`) em componente ou recipe — preferir token
+- `boxShadow` inline em componente ou recipe — preferir `shadows.{token}`
+- pixel literal para tamanhos que poderiam ser themable (alturas de input, larguras de control de Switch/Checkbox/Radio, touch target) — preferir escala de `sizes`/`spacing`
+- string de transição crua (`'200ms ease'`) em recipe — preferir `transition()` consumindo tokens de motion
+- import direto de primitive em recipe (`borderRadius.small`, `fontSize.xsmall`, `spacing.medium`) — preferir alias por string para que o override do tema propague
+- identidade duplicada em múltiplos papéis semânticos sem agregação por `brand.*` — duplicar referências à mesma primitive convida inconsistência futura
+- tipo de tema fechado em união de modos (`'light' | 'dark'`) — limita extensão por produto no contrato público
+- `mode` interpretado como "claro/escuro" — `mode` é o nome do tema; identidade é responsabilidade do produto consumidor
 
 ---
 
@@ -774,6 +813,12 @@ Sugira:
 
 ### 9. Critérios de qualidade
 Feche com checklist objetivo para validação.
+
+Para mudanças que toquem tema, recipe ou token, considere também:
+- [ ] o valor é consumido por alias string (não import direto de primitive)
+- [ ] um produto consumidor consegue overridar via `createTheme()` sem editar outros arquivos do DS
+- [ ] no escopo afetado, `grep -rE "rgba\(|#[0-9A-Fa-f]{3,6}" src/` não retorna novos hits
+- [ ] o tipo do tema admite produtos arbitrários (não só `'light' \| 'dark'`)
 
 ---
 

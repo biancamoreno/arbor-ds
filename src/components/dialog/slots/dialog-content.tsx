@@ -49,12 +49,12 @@ export function DialogContent({ children, size = 'md' }: DialogContentProps) {
             padding="large"
             borderRadius="large"
             backgroundColor="surface.raised"
+            boxShadow="xl"
             style={{
               top: '50%',
               left: '50%',
               width: '90%',
               maxWidth: sizeMap[size],
-              boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
               outline: 'none',
               transform: `translate(-50%, -50%) scale(${visible ? 1 : 0.95})`,
               opacity: visible ? 1 : 0,

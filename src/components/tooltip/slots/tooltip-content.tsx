@@ -44,11 +44,11 @@ export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: 
       fontSize="xsmall"
       pointerEvents="none"
       opacity={isOpen ? 1 : 0}
+      boxShadow="xl"
       style={{
         maxWidth,
         padding: '8px 12px',
         lineHeight: 1.4,
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.14)',
         whiteSpace: 'nowrap',
         transformOrigin: 'center',
         transition: transition(['opacity', 'transform'], 'fast', 'decelerate'),

@@ -59,6 +59,7 @@ export function NavBar({
       borderBottomWidth={1}
       borderBottomStyle="solid"
       borderBottomColor="border.subtle"
+      boxShadow={elevated ? 'sm' : undefined}
       style={{
         position: 'sticky',
         top: 0,
@@ -68,7 +69,6 @@ export function NavBar({
         backgroundColor: blurred ? 'rgba(255,255,255,0.85)' : theme.colors.background.default,
         backdropFilter: blurred ? 'blur(20px)' : undefined,
         WebkitBackdropFilter: blurred ? 'blur(20px)' : undefined,
-        boxShadow: elevated ? '0 2px 8px rgba(0,0,0,0.08)' : undefined,
         boxSizing: 'border-box',
       }}
     >
