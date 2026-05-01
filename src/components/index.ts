@@ -12,6 +12,7 @@ export * from './core';
 export * from './dialog';
 export * from './drawer';
 export * from './field';
+export * from './file-upload';
 export * from './input';
 export * from './menu';
 export * from './pagination';
