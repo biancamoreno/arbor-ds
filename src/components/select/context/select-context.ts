@@ -3,17 +3,33 @@ import type { SelectSize } from '../interfaces/SelectProps';
 
 export type SelectState = 'idle' | 'open' | 'invalid' | 'disabled';
 
+export type SelectItemEntry = {
+  value: string;
+  displayText: string;
+  disabled: boolean;
+  id: string;
+};
+
 export type SelectContextValue = {
   isOpen: boolean;
   selectedValue: string;
   isDisabled: boolean;
   isInvalid: boolean;
   inputId: string;
+  listboxId: string;
   size: SelectSize;
   state: SelectState;
   open: () => void;
   close: () => void;
   select: (value: string) => void;
+
+  items: SelectItemEntry[];
+  replaceItems: (entries: SelectItemEntry[]) => void;
+  getDisplayText: (value: string) => string | undefined;
+
+  activeIndex: number;
+  setActiveIndex: (index: number) => void;
+  openAtIndex: (index: number) => void;
 };
 
 export const SelectContext = createContext<SelectContextValue | null>(null);

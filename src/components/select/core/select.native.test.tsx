@@ -15,10 +15,11 @@ function BasicSelect(props: {
   value?: string;
   onValueChange?: (v: string) => void;
   disabled?: boolean;
+  defaultValue?: string;
 }) {
   return (
     <Select
-      defaultValue=""
+      defaultValue={props.defaultValue ?? ''}
       value={props.value}
       onValueChange={props.onValueChange}
       disabled={props.disabled}
@@ -75,11 +76,12 @@ describe('Select (native)', () => {
     expect(screen.getByRole('combobox').props.accessibilityState.expanded).toBe(false);
   });
 
-  it('shows selected value after selection', () => {
+  it('shows display-text (not raw value) after selection', () => {
     render(<BasicSelect />, { wrapper: Wrapper });
     fireEvent.press(screen.getByRole('combobox'));
     fireEvent.press(screen.getByText('Banana'));
-    expect(screen.getByText('banana')).toBeTruthy();
+    // SelectValue mostra "Banana" (display-text), não "banana" (value).
+    expect(screen.getByText('Banana')).toBeTruthy();
   });
 
   it('disabled trigger does not open', () => {
@@ -96,14 +98,44 @@ describe('Select (native)', () => {
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
-  it('marks selected item with accessibilityState.selected', () => {
+  it('items expose accessibilityRole="radio"', () => {
     render(<BasicSelect />, { wrapper: Wrapper });
     fireEvent.press(screen.getByRole('combobox'));
-    fireEvent.press(screen.getByText('Apple'));
+    const items = screen.getAllByRole('radio');
+    expect(items.length).toBe(3);
+  });
+
+  it('marks selected item with accessibilityState.selected', () => {
+    render(<BasicSelect defaultValue="apple" />, { wrapper: Wrapper });
     fireEvent.press(screen.getByRole('combobox'));
-    const items = screen.getAllByRole('menuitem');
+    const items = screen.getAllByRole('radio');
     const apple = items.find(item => item.props.accessibilityState?.selected === true);
     expect(apple).toBeDefined();
+  });
+});
+
+describe('Select item registry (native, W1)', () => {
+  it('exposes display-text via SelectValue when value preset and listbox closed', () => {
+    render(<BasicSelect defaultValue="banana" />, { wrapper: Wrapper });
+    // Listbox fechado. O display-text precisa estar disponível mesmo sem ter aberto.
+    expect(screen.getByText('Banana')).toBeTruthy();
+  });
+
+  it('explicit displayText prop overrides extracted text', () => {
+    render(
+      <Select defaultValue="card">
+        <Select.Trigger>
+          <Select.Value placeholder="x" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="card" displayText="Cartão de crédito">
+            Cartão de crédito (raw)
+          </Select.Item>
+        </Select.Content>
+      </Select>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByText('Cartão de crédito')).toBeTruthy();
   });
 });
 

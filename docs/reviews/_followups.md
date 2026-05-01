@@ -214,15 +214,15 @@ Issues abertas após review consolidada em [`R6-form-selection.md`](./R6-form-se
 **Issues — Select:**
 
 - [ ] **SE-7** `forwardRef` em `SelectTrigger`.
-- [ ] **SE-8** Substituir `▲`/`▼` por `<Icon name="ChevronDown" />` com rotação CSS.
-- [ ] **SE-9** Foco visível no trigger.
+- [x] **SE-8** Substituir `▲`/`▼` por `<Icon name="ChevronDown" />` com rotação CSS. (RFC-0020)
+- [x] **SE-9** Foco visível no trigger. (RFC-0020 — `_focusVisible: focusRing` no slot trigger)
 - [ ] **SE-10** Promover `style` declarativas (height/padding/fontSize/border/backgroundColor/color).
 - [ ] **SE-11** `transition()` em open/close + `usePrefersReducedMotion`.
-- [ ] **SE-12** Touch target ≥ 44×44 em `sm`/`md`.
-- [ ] **SE-13** Substituir outside-click manual por `DismissableLayer`.
+- [x] **SE-12** Touch target ≥ 44×44 em `sm`/`md`. (TD-016 + recipe `select`)
+- [x] **SE-13** Substituir outside-click manual por `DismissableLayer`. (RFC-0020 — `Portal` + `DismissableLayer` com `excludeRef={triggerRef}`)
 - [ ] **SE-14** `useOverlayStack` para múltiplos selects.
-- [ ] **SE-15** Stories: `<Field>`, controlado, dark theme, conteúdo longo, portal.
-- [ ] **SE-16** Testes: keyboard (setas/Home/End/type-ahead), focus, RTL, dark theme.
+- [x] **SE-15** Stories: `<Field>`, controlado, dark theme, conteúdo longo, portal. (RFC-0020 — `KeyboardOnly`/`InsideOverflowClip`/`LongList`/`WithFieldContext`/`Theming`)
+- [x] **SE-16** Testes: keyboard (setas/Home/End/type-ahead), focus, RTL, dark theme. (RFC-0020 — 52 cases web + 16 native)
 
 **RFCs candidatas R6 (não bloqueantes para R7, mas decidir antes de R7 fechar):**
 
@@ -231,7 +231,7 @@ Issues abertas após review consolidada em [`R6-form-selection.md`](./R6-form-se
 - [ ] **RFC candidata R6-C: `RadioGroup` / `CheckboxGroup` / `SwitchGroup`** — caso de uso primário (escolha entre N, lista de toggles) hoje exige consumidor montar `<div role="...">` + gerenciar estado coletivo manualmente. Lacuna de produto.
 - [ ] **RFC candidata R6-D: `RadioCard` — deprecar, unificar como `Radio variant="card"` ou alinhar contratos** — duplicação funcional com Radio (mesma intenção, contratos divergentes, manutenção dobrada).
 - [ ] **RFC candidata R6-E: Slots reais ou remoção em `Switch.Track`/`Switch.Thumb`** — slots fantasma hoje. Decidir entre refactor para slot real ou tornar Switch elementar.
-- [ ] **RFC candidata R6-F: Select cumprindo WAI-ARIA "Select-Only Combobox"** — setas/Home/End/type-ahead, focus management completo, `aria-controls`/`aria-activedescendant`, item registry (display × value). **Refatoração ampla — peça mais relevante de R6.**
+- [x] **RFC candidata R6-F: Select cumprindo WAI-ARIA "Select-Only Combobox"** — RFC-0020 implementada (web + native). Activedescendant, item registry, type-ahead com normalize NFD pt-BR, Portal+DismissableLayer com `excludeRef`, focus-visible via recipe.
 - [ ] **RFC candidata R6-G: Render via `Portal` para overlays** — Select.Content + R11 (Dialog/Drawer/Tooltip/Popover/Menu). Definir antes de R11 poupa retrabalho.
 - [ ] **RFC candidata R6-H: Estratégia native para componentes form web-only** — Radio/RadioCard/Select sem `.native.tsx`. Decidir entre re-implementar ou marcar formal `web-only` com guard de import.
 - [ ] **RFC candidata R6-I: Touch target padrão do DS** — invariante WCAG 44×44 mínimo em todos os componentes interativos. Cobre Counter (R5), TextInput sm (R5), Switch md (R6), Select sm/md (R6), items (R6).

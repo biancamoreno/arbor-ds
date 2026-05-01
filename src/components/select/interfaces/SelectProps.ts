@@ -27,5 +27,11 @@ export interface SelectContentProps {
 export interface SelectItemProps {
   value: string;
   disabled?: boolean;
+  /**
+   * Texto plano usado pelo `SelectValue` (display) e por type-ahead. Default: extraído
+   * recursivamente de `children`. Defina explicitamente quando `children` não for trivial
+   * (ex.: contiver `Icon` + texto, ou nodes que não traduzam para string limpa).
+   */
+  displayText?: string;
   children: ReactNode;
 }
