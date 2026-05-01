@@ -76,6 +76,9 @@ export const themeDarkColors = {
     notice: primitiveColor.yellow['40'],
     highlight: primitiveColor.rose['40'],
   },
+  shadow: {
+    color: primitiveColor.neutral['100'],
+  },
 };
 
 export type ThemeDarkColors = typeof themeDarkColors;

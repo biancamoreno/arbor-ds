@@ -124,6 +124,7 @@ function PaginationNext({
 }
 
 function PaginationEllipsis({ style, ...props }: PaginationEllipsisProps) {
+  const theme = useTheme();
   return (
     <Flex
       {...(props as object)}
@@ -134,7 +135,7 @@ function PaginationEllipsis({ style, ...props }: PaginationEllipsisProps) {
       height={36}
       style={{ minWidth: 36, ...style }}
     >
-      <Text as="span" style={{ color: '#9CA3AF', fontSize: 14 }}>
+      <Text as="span" style={{ color: theme.colors.text.disabled, fontSize: 14 }}>
         {'…'}
       </Text>
     </Flex>

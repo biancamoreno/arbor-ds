@@ -66,7 +66,7 @@ export function NavBar({
         gap: 8,
         paddingInline: 8,
         paddingTop: safeAreaTop ? 'env(safe-area-inset-top, 0px)' : 0,
-        backgroundColor: blurred ? 'rgba(255,255,255,0.85)' : theme.colors.background.default,
+        backgroundColor: blurred ? theme.colors.surface.translucent : theme.colors.background.default,
         backdropFilter: blurred ? 'blur(20px)' : undefined,
         WebkitBackdropFilter: blurred ? 'blur(20px)' : undefined,
         boxSizing: 'border-box',

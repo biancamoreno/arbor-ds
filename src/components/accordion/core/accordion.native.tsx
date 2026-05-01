@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useId } from 'react';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type {
   AccordionRootProps,
   AccordionItemProps,
@@ -124,6 +125,7 @@ function AccordionItem({ children, value, disabled = false, style, ...props }: A
 function AccordionTrigger({ children, onClick, style, ...props }: AccordionTriggerProps) {
   const { toggle } = useAccordionNativeContext();
   const { value, open, disabled, triggerId } = useAccordionItemNativeContext();
+  const theme = useTheme();
 
   const handleClick: React.MouseEventHandler<HTMLElement> = (e) => {
     if (disabled) return;
@@ -151,7 +153,7 @@ function AccordionTrigger({ children, onClick, style, ...props }: AccordionTrigg
       <Text
         as="span"
         style={{
-          color: disabled ? '#9CA3AF' : '#1A1A1A',
+          color: disabled ? theme.colors.text.disabled : theme.colors.text.primary,
           fontSize: 14,
           fontWeight: '500',
         }}

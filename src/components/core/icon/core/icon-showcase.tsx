@@ -44,13 +44,15 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
           value={query}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
           padding="8px 12px"
-          border="1px solid #d1d5db"
+          borderWidth="hairline"
+          borderStyle="solid"
+          borderColor="border.default"
           borderRadius="6px"
           fontSize={14}
           width={280}
           style={{ outline: 'none' }}
         />
-        <Text as="span" fontSize={13} color="#6b7280">
+        <Text as="span" fontSize={13} color="text.secondary">
           {filtered.length} de {ALL_NAMES.length} ícones
         </Text>
       </Flex>
@@ -70,14 +72,14 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
             gap="6px"
             padding="12px 8px"
             borderRadius="8px"
-            backgroundColor={copied === name ? '#d1fae5' : 'transparent'}
+            backgroundColor={copied === name ? 'feedback.success.subtle' : 'transparent'}
             transition="background 0.15s"
           >
             <Icon name={name} size={size} color={color} strokeWidth={strokeWidth} decorative />
             <Text
               as="span"
               fontSize={10}
-              color="#6b7280"
+              color="text.secondary"
               textAlign="center"
               lineHeight={1.3}
               style={{ wordBreak: 'break-all' }}

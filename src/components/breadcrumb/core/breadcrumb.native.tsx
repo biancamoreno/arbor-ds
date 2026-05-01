@@ -1,4 +1,5 @@
 import { Box, Flex, Clickable, Text } from '../../core';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type {
   BreadcrumbRootProps,
   BreadcrumbListProps,
@@ -61,6 +62,7 @@ function BreadcrumbItem({ children, style, ...props }: BreadcrumbItemProps) {
 }
 
 function BreadcrumbLink({ children, onClick, style, ...props }: BreadcrumbLinkProps) {
+  const theme = useTheme();
   return (
     <Clickable
       {...(props as object)}
@@ -71,7 +73,7 @@ function BreadcrumbLink({ children, onClick, style, ...props }: BreadcrumbLinkPr
       <Text
         as="span"
         style={{
-          color: '#18736A',
+          color: theme.colors.brand.base,
           fontSize: 14,
         }}
       >

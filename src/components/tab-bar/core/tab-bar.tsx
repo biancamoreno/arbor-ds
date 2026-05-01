@@ -119,7 +119,7 @@ function TabBarRoot({
     left: 0,
     right: 0,
     borderTop: `1px solid ${theme.colors.border.subtle}`,
-    backgroundColor: blurred ? 'rgba(255,255,255,0.85)' : theme.colors.background.default,
+    backgroundColor: blurred ? theme.colors.surface.translucent : theme.colors.background.default,
     backdropFilter: blurred ? 'blur(20px)' : undefined,
     WebkitBackdropFilter: blurred ? 'blur(20px)' : undefined,
     paddingBottom: safeAreaBottom ? 'env(safe-area-inset-bottom, 0px)' : 0,

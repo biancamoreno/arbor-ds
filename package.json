@@ -43,6 +43,7 @@
     "preview": "vite preview --config playground/vite.config.ts",
     "test": "jest",
     "test:platform-contract": "node scripts/check-platform-contract.js",
+    "test:no-color-literal": "node scripts/check-no-color-literal.js",
     "tokens:validate": "node scripts/validate-tokens.js",
     "depcheck": "depcruise src --config .dependency-cruiser.cjs",
     "storybook": "storybook dev -p 6006",

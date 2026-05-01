@@ -1,15 +1,10 @@
 import { Text } from 'react-native';
 import { Clickable, Icon } from '../../core';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 
 const SIZE_MAP = { sm: 40, md: 56, lg: 72 } as const;
 const ICON_SIZE_MAP = { sm: 16, md: 20, lg: 24 } as const;
-
-const VARIANT_COLORS = {
-  primary: { bg: '#18736A', fg: '#FFFFFF' },
-  secondary: { bg: '#E5F4F3', fg: '#1A1A1A' },
-  surface: { bg: '#FFFFFF', fg: '#1A1A1A' },
-} as const;
 
 export function FloatingActionButton({
   icon,
@@ -22,9 +17,15 @@ export function FloatingActionButton({
   onPress,
   'aria-label': ariaLabel,
 }: FloatingActionButtonProps) {
+  const theme = useTheme();
   const dim = SIZE_MAP[size];
   const iconSize = ICON_SIZE_MAP[size];
-  const { bg, fg } = VARIANT_COLORS[variant];
+  const variantColors = {
+    primary: { bg: theme.colors.brand.base, fg: theme.colors.text.inverse },
+    secondary: { bg: theme.colors.brand.subtle, fg: theme.colors.text.primary },
+    surface: { bg: theme.colors.surface.default, fg: theme.colors.text.primary },
+  } as const;
+  const { bg, fg } = variantColors[variant];
   const isExtended = !!label;
 
   if (process.env.NODE_ENV !== 'production' && !label && !ariaLabel) {
@@ -59,7 +60,7 @@ export function FloatingActionButton({
         gap: isExtended ? 8 : 0,
         paddingHorizontal: isExtended ? 16 : 0,
         elevation: 8,
-        shadowColor: '#000',
+        shadowColor: theme.colors.shadow.color,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8,

@@ -16,7 +16,7 @@
 | [TD-002](#td-002) | `innerRef` legado sem warning de depreciação | RFC-0001 | Open | DX (consumidores não sabem que API mudou) | RFC dedicada definindo timeline + warning de runtime |
 | [TD-003](#td-003) | `useClickableContext` adiado | RFC-0008 | Open | Funcional (cobre só `:active` puro, não `pressed` controlado) | RFC quando surgir 1º consumidor real (Card hoverable, Chip selecionável) |
 | [TD-004](#td-004) | Componentes `.native.tsx` sem abstração cross-platform | R4 (FAB) | **Resolved (2026-04-25)** | Arquitetural (replicar em N componentes) | RFC-0018 onda 1 — `Clickable.native` criado (Pressable + Box wrapper); FAB.native migrado como primeiro consumidor |
-| [TD-005](#td-005) | Cores e shadows hardcoded em `.native.tsx` | R4 (FAB) | Open | Theming quebrado em native | Bloqueado por R1-C3 (shadows tematizadas) e tokens de cor consumíveis em RN |
+| [TD-005](#td-005) | Cores e shadows hardcoded em `.native.tsx` | R4 (FAB) | **Resolved (2026-05-01)** | — | Fechado pelo PR 3 da RFC-0027 — `fab.native` agora consome `theme.colors.brand.base/text.inverse/...` via `useTheme()` e `theme.colors.shadow.color` (token novo). |
 | [TD-006](#td-006) | Acoplamento bidirecional Button↔ButtonGroup via context | R4 (Button) | Open | Manutenção (Button conhece detalhes de ButtonGroup) | RFC: mover `attachedStyle` para ButtonGroup ou criar variant `attached` em Button via theme recipe |
 | [TD-007](#td-007) | `forwardRef` ausente em camadas pós-core | R4 (Button/ButtonGroup/FAB) | Open | DX + integração com libs externas | Sweep coordenado pós-R6 (quando teremos mais dados sobre o gap em Field/Input/Card etc.) |
 | [TD-008](#td-008) | Recipe `input` morta — substituída por `getFieldFrameStyle` imperativo | R5 (Input) | **Resolved (2026-04-24)** | Theming dinâmico/dark mode/overrides quebrados na família Input | Migrada para slot recipe `frame`/`control` × `size`/`variant`/`state`; TextInput/TextArea consomem via `useSlotRecipe`; `getFieldFrameStyle`/`getFieldColors`/`getFieldSizeStyles` deletados; FieldShell isolado em `field-shell.tsx` |
@@ -253,8 +253,18 @@ RFC sistêmica definindo:
 ## TD-005 — Cores e shadows hardcoded em `.native.tsx`
 
 **Origem:** R4 review (FAB) · 2026-04-24
-**Status:** Open
+**Status:** Resolved (2026-05-01) · pelo PR 3 da RFC-0027
 **Severidade:** Alta (theming)
+
+### Resolução (2026-05-01)
+
+`fab.native.tsx` migrado para `useTheme()`:
+
+- `VARIANT_COLORS` agora resolve em runtime via `theme.colors.brand.base / text.inverse / brand.subtle / text.primary / surface.default`.
+- `shadowColor` usa `theme.colors.shadow.color` (token novo `colors.shadow.color` exposto em `themeLightColors`/`themeDarkColors` — `primitiveColor.neutral['100']`).
+- Override por produto via `createTheme()` agora propaga corretamente para FAB nativo.
+
+
 
 ### Contexto
 

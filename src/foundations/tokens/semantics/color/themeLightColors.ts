@@ -76,6 +76,9 @@ export const themeLightColors = {
     notice: primitiveColor.yellow['60'],
     highlight: primitiveColor.rose['60'],
   },
+  shadow: {
+    color: primitiveColor.neutral['100'],
+  },
 };
 
 export type ThemeLightColors = typeof themeLightColors;

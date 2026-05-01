@@ -2,6 +2,7 @@ import { useId, useRef, useEffect, useState, useCallback, useMemo, Children, isV
 import { Modal, Pressable, ScrollView } from 'react-native';
 import { useControllableState, useDisclosure } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text, Icon } from '../../core';
@@ -190,6 +191,7 @@ function SelectValue({ placeholder = 'Select...' }: SelectValueProps) {
 function SelectContent({ children }: SelectContentProps) {
   const ctx = useSelectContext();
   const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
+  const theme = useTheme();
 
   const entries = useMemo(() => {
     const list: SelectItemEntry[] = [];
@@ -223,7 +225,7 @@ function SelectContent({ children }: SelectContentProps) {
       <Pressable
         onPress={ctx.close}
         accessibilityLabel="close"
-        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+        style={{ flex: 1, backgroundColor: theme.colors.background.overlay, justifyContent: 'flex-end' }}
       >
         <Pressable onPress={() => {}}>
           <Box {...slots.content} paddingY="small">

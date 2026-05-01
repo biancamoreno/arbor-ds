@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { Box, Flex, Text, Icon, Clickable } from '../../core';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { TabBarContext, useTabBar } from './tab-bar-context';
 import type { TabBarProps, TabBarItemProps } from '../interfaces/TabBarProps';
 
@@ -11,9 +12,12 @@ function getSafeAreaBottom(): number {
 function TabBarItem({ value, icon, label, badge, disabled = false }: TabBarItemProps) {
   const { value: activeValue, onChange } = useTabBar();
   const isActive = value === activeValue;
+  const theme = useTheme();
 
-  const activeColor = '#18736A';
-  const inactiveColor = '#6B7280';
+  const activeColor = theme.colors.brand.base;
+  const inactiveColor = theme.colors.text.secondary;
+  const badgeBg = theme.colors.feedback.critical.base;
+  const badgeFg = theme.colors.text.inverse;
 
   const hasBadge = badge !== undefined && badge !== false && badge !== 0;
   const badgeCount = typeof badge === 'number' && badge > 99 ? '99+' : badge === true ? null : badge;
@@ -54,14 +58,14 @@ function TabBarItem({ value, icon, label, badge, disabled = false }: TabBarItemP
               right: badge === true ? 0 : -6,
               minWidth: badge === true ? 8 : 16,
               height: badge === true ? 8 : 16,
-              backgroundColor: '#E53E3E',
+              backgroundColor: badgeBg,
               paddingHorizontal: badge === true ? 0 : 3,
             }}
           >
             {badgeCount !== null && (
               <Text
                 as="span"
-                style={{ color: '#fff', fontSize: 9, lineHeight: 12, fontWeight: '600' }}
+                style={{ color: badgeFg, fontSize: 9, lineHeight: 12, fontWeight: '600' }}
               >
                 {String(badgeCount)}
               </Text>
