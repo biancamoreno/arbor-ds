@@ -6,4 +6,5 @@ export * from './merge-refs';
 export * from './html-converter';
 export * from './sanitize-html-text';
 export * from './transition';
+export * from './use-transition';
 export * from './truncate-string';

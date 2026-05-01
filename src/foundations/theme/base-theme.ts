@@ -12,6 +12,7 @@ import {
   zIndex,
   fontFamily,
   shadows,
+  motion,
 } from '../tokens';
 import { defineSlotRecipe } from '../../ecosystem/styled-system/recipes';
 import { transition } from '../../ecosystem/utils/functions/transition';
@@ -285,7 +286,7 @@ const components: ThemeComponents = {
         borderWidth: 'hairline',
         borderColor: 'border.default',
         backgroundColor: 'surface.default',
-        transition: 'border-color 0.15s ease, background-color 0.15s ease',
+        transition: transition(['border-color', 'background-color'], 'fast'),
       },
       indicator: {
         display: 'inline-flex',
@@ -337,13 +338,13 @@ const components: ThemeComponents = {
         alignItems: 'center',
         borderRadius: 'full',
         backgroundColor: 'border.strong',
-        transition: 'background-color 0.2s ease',
+        transition: transition('background-color', 'normal'),
       },
       thumb: {
         borderRadius: 'full',
         backgroundColor: 'surface.default',
         flexShrink: 0,
-        transition: 'transform 0.2s ease',
+        transition: transition('transform', 'normal'),
       },
     },
     variants: {
@@ -618,6 +619,7 @@ export const baseTheme = {
   zIndices: zIndex,
   iconSizes: iconSize,
   shadows,
+  motion,
   breakpoints: createBreakpoints({
     sm: '640px',
     md: '768px',

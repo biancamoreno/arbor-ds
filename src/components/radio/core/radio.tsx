@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { useTransition } from '../../../ecosystem/utils/functions/use-transition';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
@@ -95,6 +96,7 @@ function RadioRoot({
 function RadioIndicator({ style }: RadioIndicatorProps) {
   const ctx = useRadioContext();
   const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
+  const transitionFn = useTransition();
 
   return (
     <Flex as="span" aria-hidden="true" {...slots.indicator} style={style}>
@@ -104,7 +106,7 @@ function RadioIndicator({ style }: RadioIndicatorProps) {
         height={10}
         borderRadius="full"
         backgroundColor={ctx.isChecked ? 'brand.base' : 'transparent'}
-        style={{ transition: 'background-color 0.15s ease' }}
+        transition={transitionFn('background-color', 'fast')}
       />
     </Flex>
   );

@@ -1,5 +1,6 @@
 import React, { useId, useState } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useTransition } from '../../../ecosystem/utils/functions/use-transition';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable } from '../../core';
@@ -17,6 +18,7 @@ const CounterBase: React.FC<CounterProps> = ({
   showInput = true,
 }) => {
   const theme = useTheme();
+  const transitionFn = useTransition();
   const fieldCtx = useFieldContext();
   const autoId = useId();
   const inputId = fieldCtx?.fieldId ?? autoId;
@@ -97,6 +99,7 @@ const CounterBase: React.FC<CounterProps> = ({
           cursor={!canDecrement ? 'not-allowed' : 'pointer'}
           position="relative"
           _before={hitTargetOverlay}
+          transition={transitionFn('background-color', 'normal')}
           style={{
             width: sizeMap[size].button,
             height: sizeMap[size].button,
@@ -104,7 +107,6 @@ const CounterBase: React.FC<CounterProps> = ({
             backgroundColor: !canDecrement ? theme.colors.background.subtle : 'white',
             fontSize: sizeMap[size].font,
             color: !canDecrement ? theme.colors.text.tertiary : theme.colors.text.primary,
-            transition: 'background-color 0.2s',
           }}
         >
           −
@@ -166,6 +168,7 @@ const CounterBase: React.FC<CounterProps> = ({
           cursor={!canIncrement ? 'not-allowed' : 'pointer'}
           position="relative"
           _before={hitTargetOverlay}
+          transition={transitionFn('background-color', 'normal')}
           style={{
             width: sizeMap[size].button,
             height: sizeMap[size].button,
@@ -173,7 +176,6 @@ const CounterBase: React.FC<CounterProps> = ({
             backgroundColor: !canIncrement ? theme.colors.background.subtle : 'white',
             fontSize: sizeMap[size].font,
             color: !canIncrement ? theme.colors.text.tertiary : theme.colors.text.primary,
-            transition: 'background-color 0.2s',
           }}
         >
           +
