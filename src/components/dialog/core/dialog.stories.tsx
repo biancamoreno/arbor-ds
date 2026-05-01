@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Dialog } from './dialog';
+import { Box, Text, Clickable } from '../../core';
 
 const meta = {
   title: 'Overlay/Dialog',
@@ -58,6 +59,41 @@ function ControlledDialog() {
 
 export const Controlled: Story = {
   render: () => <ControlledDialog />,
+};
+
+export const InsideOverflowClip: Story = {
+  parameters: { layout: 'fullscreen' },
+  render: () => (
+    <Box padding="large">
+      <Text as="p" color="text.secondary" marginBottom="medium">
+        O container abaixo tem <Text as="code">overflow: hidden</Text> e dimensões reduzidas; o Dialog renderiza via Portal em <Text as="code">document.body</Text> e escapa do clip.
+      </Text>
+      <Box
+        width="220px"
+        height="100px"
+        overflow="hidden"
+        borderWidth="2px"
+        borderStyle="dashed"
+        borderColor="border.subtle"
+        borderRadius="medium"
+        padding="medium"
+      >
+        <Dialog.Root defaultOpen>
+          <Dialog.Trigger asChild>
+            <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default">
+              Abrir
+            </Clickable>
+          </Dialog.Trigger>
+          <Dialog.Overlay />
+          <Dialog.Content>
+            <Dialog.Title>Dialog escapa do clip</Dialog.Title>
+            <Dialog.Description>Renderizado via Portal em document.body.</Dialog.Description>
+            <Dialog.Close label="Fechar" />
+          </Dialog.Content>
+        </Dialog.Root>
+      </Box>
+    </Box>
+  ),
 };
 
 export const Sizes: Story = {

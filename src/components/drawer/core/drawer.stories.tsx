@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Drawer } from './drawer';
+import { Box, Text, Clickable } from '../../core';
 
 const meta = {
   title: 'Overlay/Drawer',
@@ -53,6 +54,41 @@ export const Left: Story = {
         </nav>
       </Drawer.Content>
     </Drawer.Root>
+  ),
+};
+
+export const InsideOverflowClip: Story = {
+  parameters: { layout: 'fullscreen' },
+  render: () => (
+    <Box padding="large">
+      <Text as="p" color="text.secondary" marginBottom="medium">
+        O container abaixo tem <Text as="code">overflow: hidden</Text> e dimensões reduzidas; o Drawer renderiza via Portal em <Text as="code">document.body</Text> e escapa do clip.
+      </Text>
+      <Box
+        width="220px"
+        height="100px"
+        overflow="hidden"
+        borderWidth="2px"
+        borderStyle="dashed"
+        borderColor="border.subtle"
+        borderRadius="medium"
+        padding="medium"
+      >
+        <Drawer.Root defaultOpen>
+          <Drawer.Trigger asChild>
+            <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default">
+              Abrir
+            </Clickable>
+          </Drawer.Trigger>
+          <Drawer.Overlay />
+          <Drawer.Content>
+            <Drawer.Title>Drawer escapa do clip</Drawer.Title>
+            <Text as="p" marginTop="small">Renderizado via Portal em document.body.</Text>
+            <Drawer.Close label="Fechar" />
+          </Drawer.Content>
+        </Drawer.Root>
+      </Box>
+    </Box>
   ),
 };
 

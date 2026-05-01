@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Popover } from './popover';
+import { Box, Text, Clickable } from '../../core';
 
 const meta = {
   title: 'Overlay/Popover',
@@ -27,6 +28,42 @@ export const Default: Story = {
         </div>
       </Popover.Content>
     </Popover.Root>
+  ),
+};
+
+export const InsideOverflowClip: Story = {
+  parameters: { layout: 'fullscreen' },
+  render: () => (
+    <Box padding="large">
+      <Text as="p" color="text.secondary" marginBottom="medium">
+        O container abaixo tem <Text as="code">overflow: hidden</Text>; o Popover renderiza via Portal e escapa do clip.
+      </Text>
+      <Box
+        width="220px"
+        height="80px"
+        overflow="hidden"
+        borderWidth="2px"
+        borderStyle="dashed"
+        borderColor="border.subtle"
+        borderRadius="medium"
+        padding="medium"
+      >
+        <Popover.Root defaultOpen>
+          <Popover.Trigger asChild>
+            <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default">
+              Abrir
+            </Clickable>
+          </Popover.Trigger>
+          <Popover.Content>
+            <Box padding="medium" maxWidth="240px">
+              <Text as="p" fontWeight="bold" marginBottom="small">Popover escapa do clip</Text>
+              <Text as="p" fontSize="small">Renderizado via Portal em document.body.</Text>
+              <Popover.Close label="Fechar" />
+            </Box>
+          </Popover.Content>
+        </Popover.Root>
+      </Box>
+    </Box>
   ),
 };
 

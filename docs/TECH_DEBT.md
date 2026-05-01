@@ -1215,17 +1215,127 @@ A escala `shadows` atual (`sm/md/lg/xl/none`) cobre os usos atuais com aproxima�
 
 ---
 
+## TD-023 — Anchor positioning ausente em Popover/Menu
+
+**Origem:** [RFC-0025](rfcs/RFC-0025-overlays-via-portal.md) (R6-G) — 2026-05-01
+**Status:** Open
+**Severidade:** Baixa
+
+### Contexto
+A G3 da RFC-0025 confirmou que `Tooltip` e `Select` calculam posição via `getBoundingClientRect` do trigger (com listeners `resize`/`scroll` em capture phase) e que `Dialog`/`Drawer` posicionam por convenção (centro/borda do viewport, sem âncora). `Popover` e `Menu` portalizam mas **posicionam fixos no centro do viewport** (`top: 50%; left: 50%; transform: translate(-50%,-50%)`), o que é placeholder herdado da implementação pré-Portal.
+
+Para a maioria dos consumos de Popover/Menu — picker de filtros sob um botão na toolbar, menu de ações ao lado de uma row, etc. — o posicionamento esperado é **ancorado ao trigger**, não centrado no viewport.
+
+### Impacto
+- **DX**: consumidor que usa Popover/Menu para a finalidade canônica (anchor a um botão) precisa hackear via `style` no Content ou abrir mão da semântica.
+- **Visual**: experiência imediatamente percebida como "errada"; nenhum produto sério aceita um menu de ações flutuando no centro da tela.
+- **Sistêmico**: sem um anchor primitive, Popover/Menu/Tooltip/Select duplicam código de cálculo de posição; cada um com versão sutilmente diferente.
+
+### Resolução proposta
+Extrair o pattern de `tooltip-content.tsx` + `select.tsx` para um primitive `useAnchorPosition({ triggerRef, placement, offset })` em `src/ecosystem/primitives/`. Aceitar `placement` (top/right/bottom/left + variantes start/end), recalcular em `resize`/`scroll`/`mutationObserver` opcional.
+
+Aplicar em:
+1. `Popover.Content` (substituir `top:50%/left:50%`)
+2. `Menu.Content` (idem)
+3. Migrar `Tooltip.Content` para o primitive (deduplicação)
+4. Avaliar migrar `Select.SelectContent` para o primitive (idem)
+
+API candidata:
+
+```ts
+const position = useAnchorPosition({
+  triggerRef,
+  placement: 'bottom-start',
+  offset: 8,
+  enabled: isOpen,
+});
+// position: { top, left } | null
+```
+
+### Critério para fechar
+- [ ] Primitive `useAnchorPosition` em `ecosystem/primitives/` com testes próprios.
+- [ ] `Popover.Content` e `Menu.Content` consomem o primitive; aceitar prop `placement`.
+- [ ] `Tooltip.Content` e `Select.SelectContent` migrados (deduplicação).
+- [ ] Stories `AnchoredPlacements` em Popover/Menu mostrando 8 placements.
+- [ ] Consumidor consegue alinhar um Popover ao trigger sem `style` inline.
+
+**Gatilho para começar:** 1º caso real de produto pedindo Popover/Menu ancorado. Até lá, o placeholder centro-do-viewport é aceitável (use cases atuais são showcase Storybook).
+
+---
+
+## TD-024 — Stories do Storybook usam tags HTML e `style` inline
+
+**Origem:** Sessão R6-G G3 (refator das 5 stories `InsideOverflowClip`) — 2026-05-01
+**Status:** Open
+**Severidade:** Baixa (documentação)
+
+### Contexto
+Praticamente todas as stories existentes do Storybook (Dialog/Drawer/Popover/Menu/Tooltip/Card/Button/Input/Field/Tabs/Accordion/Modal/Avatar/Badge/Alert/Toast/etc.) usam tags HTML diretas (`<div>`, `<button>`, `<p>`, `<a>`, `<label>`, `<input type="checkbox">`) com `style={{...}}` inline (`padding`, `borderRadius`, `cursor`, `background`, `color`, `gap`, `display: flex`, etc.). Cores são literais (`#4a90e2`, `#fff`, `#666`), spacings são números mágicos (`8`, `16`, `32`).
+
+A [CLAUDE.md](../CLAUDE.md) define regra absoluta: nenhum componente do DS usa tags HTML puras nem `style` quando há prop declarativa equivalente. Substituir por `Box`/`Flex`/`Text`/`Clickable` com `as` e tokens. Stories são showcase do próprio DS — eat your own dogfood.
+
+### Impacto
+- **DX/credibilidade**: documentação não pratica o que prega. Quem chega ao Storybook copia o pattern visto na story para o próprio código de produto, propagando o anti-pattern.
+- **Tematização**: cores literais (`#4a90e2` etc.) não respondem a override de tema. Trocar a marca via `createTheme()` muda só o componente; os exemplos no Storybook continuam azul-padrão. Falsa demonstração de multi-produto.
+- **Manutenção**: sweep de tokens (renomeação, depreciação) não pega as stories porque elas não consomem tokens.
+- **Severidade baixa**: não afeta runtime, não quebra build, não polui o pacote distribuído (stories ficam fora do bundle). É dívida de documentação.
+
+### Resolução proposta
+Sweep arquivo por arquivo, refatorando para Box/Flex/Text/Clickable + tokens. Pattern:
+
+```tsx
+// Antes
+<div style={{ padding: 16, display: 'flex', gap: 8, color: '#666' }}>
+  <button style={{ padding: '8px 16px', borderRadius: 4, cursor: 'pointer' }}>
+    Texto
+  </button>
+</div>
+
+// Depois
+<Flex padding="medium" gap="small" color="text.secondary">
+  <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default">
+    Texto
+  </Clickable>
+</Flex>
+```
+
+Trabalho incremental, um arquivo `.stories.tsx` por vez. Ordem sugerida (por densidade de violação + visibilidade):
+1. Compounds de overlay (Dialog/Drawer/Popover/Menu/Tooltip) — 4 ainda devem
+2. Form (Field/Input/Checkbox/Radio/Switch/Select)
+3. Feedback (Alert/Toast/Badge/Spinner/ProgressBar/ProgressCircle/Skeleton)
+4. Layout/conteúdo (Card/Avatar/Chip/Tag/Accordion/Tabs/Breadcrumb/Pagination/Table)
+5. Action (Button/ButtonGroup/IconButton/FAB)
+6. Estrutural (NavBar/TabBar)
+
+Para Triggers de compounds, usar `asChild` + `<Clickable as="button">` evita nested-button e mantém ergonomia.
+
+### Critério para fechar
+- [ ] Zero ocorrências de `<div`/`<span`/`<p`/`<button`/`<a` direto em arquivos `*.stories.tsx`.
+- [ ] Zero ocorrências de `style={{` em `*.stories.tsx` (exceto escape hatch documentado: backdropFilter, propriedades vendor-prefixadas, animação ad-hoc).
+- [ ] Zero literais `#xxxxxx`/`rgba(...)` em `*.stories.tsx` — todas as cores via `text.*`/`surface.*`/`border.*`/`brand.*`.
+- [ ] Lint + typecheck verdes.
+- [ ] Sample manual no Storybook após cada lote para confirmar que visual não regrediu.
+
+**Gatilho para começar:** janela dedicada de "developer experience polish" (pode ser ondas curtas — 5–8 stories por vez). Ou linha de base obrigatória antes de adicionar nova story (regra "ao tocar um arquivo `.stories.tsx`, refatorar de uma vez").
+
+### Notas
+- As 5 stories `InsideOverflowClip` adicionadas pela G3 da RFC-0025 já saíram com o pattern correto (Box/Text/Clickable + tokens) — servem de modelo.
+- Decidir se vale lint rule customizada que rejeita JSX intrínseco em arquivos `.stories.tsx` (overhead de regra, mas garante regressão zero).
+
+---
+
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
-Mapeamento das demais 3 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.
+Mapeamento das demais 2 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.
 
 | ID | Título | Gatilho para abrir RFC |
 |---|---|---|
 | **R6-C** | `RadioGroup` / `CheckboxGroup` / `SwitchGroup` | Primeiro caso de uso real em produto exigindo gestão coletiva (`name` + `value` + accessibility group). Form de checkout multi-opção é candidato natural. |
-| **R6-G** | Render via `Portal` para overlays (Dialog/Drawer/Tooltip/Popover/Menu) | **Antes de R11.** Adoção do `Portal` primitive já implementado nos 5 componentes de overlay. RFC-0020 (Select combobox) faz parte do precedente. |
 | **R6-J** | Indicator visual cross-platform unificado para Checkbox | Primeiro reclamo real de paridade visual web↔native (HR6-8 web `accentColor` vs HR6-9 native `Box -45deg`). Ou quando RFC-0017 migrar `checkbox` recipe e o gap visual se tornar evidente. |
 
-Estas três permanecem registradas em `_followups.md` como candidatas. Se o gatilho ocorrer dentro do prazo de R11/R12, considerar promover.
+**R6-G** foi resolvida pela [RFC-0025](rfcs/RFC-0025-overlays-via-portal.md) em 2026-05-01.
+
+Estas duas permanecem registradas em `_followups.md` como candidatas. Se o gatilho ocorrer dentro do prazo de R11/R12, considerar promover.
 
 ---
 
