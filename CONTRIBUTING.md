@@ -294,6 +294,79 @@ Não use `*.web.test.tsx` — web é o default; assimetria reflete a plataforma 
 - **Asserções por intenção pública** (`getByLabelText`, `getByRole`, `accessibilityState`), não por implementação interna.
 - **Sem mocks de styled-system.** Se o teste falhar porque o styled-system mudou, é exatamente isso que a suite native quer detectar.
 
+## FileUpload em RN — caminhos recomendados
+
+Por decisão arquitetural ([RFC-0026](docs/rfcs/RFC-0026-fileupload-caso-fronteira.md)), `FileUpload.native` é um **placeholder visualmente paritário** com o web em estado idle: renderiza a drop zone dashed, **não captura toque** e não abre picker. O bloco de preview (`previewUrl` + `onRemove`) funciona normalmente em ambas as plataformas.
+
+A escolha de lib de captura fica por conta do produto consumidor, porque "upload de arquivo" em mobile raramente é um picker genérico — é câmera, galeria, scanner ou áudio gravado. Cada caso usa lib diferente. O slot `children` permite injetar a integração preferida sem perder o frame visual da drop zone.
+
+### Decidindo a lib
+
+| Caso de uso | Lib recomendada | Notas |
+|---|---|---|
+| Documento genérico (PDF, planilha, .zip) | `expo-document-picker` | Cobre Android/iOS; suporta `multiple`, `type` MIME. |
+| Foto da galeria + foto via câmera | `expo-image-picker` | API única para `launchImageLibraryAsync` e `launchCameraAsync`. Default para fluxos de avatar/perfil. |
+| Captura ao vivo de câmera (preview embedded, scanner, KYC) | `expo-camera` | Quando o produto precisa de viewfinder dentro do app, não dialog do sistema. |
+| Gravação de áudio | `expo-av` | Para upload de voz; combinar com UI custom de waveform/timer. |
+| Bare RN (sem Expo) | `react-native-document-picker` ou `react-native-image-picker` | Comunidade mantida; setup nativo (`pod install`/`gradle sync`). |
+
+A maturidade do ecossistema Expo torna `expo-*` a escolha default em 2026; o DS não bloqueia nenhuma das alternativas.
+
+### Snippet — integração via `children` (Expo, document picker)
+
+```tsx
+import * as DocumentPicker from 'expo-document-picker';
+import { FileUpload, Clickable, Icon, Text } from 'arbor-ds/native';
+
+function ProfileDocumentUpload({ onPick }: { onPick: (uri: string) => void }) {
+  const handlePick = async () => {
+    const result = await DocumentPicker.getDocumentAsync({ type: '*/*', copyToCacheDirectory: true });
+    if (!result.canceled) onPick(result.assets[0].uri);
+  };
+
+  return (
+    <FileUpload>
+      <Clickable
+        onClick={handlePick}
+        accessibilityRole="button"
+        accessibilityLabel="Selecionar documento"
+        flexDirection="column"
+        alignItems="center"
+        gap="micro"
+      >
+        <Icon name="Upload" size="xl" color="text.secondary" decorative />
+        <Text fontSize="small" fontWeight="semibold" color="text.primary">
+          Toque para selecionar um documento
+        </Text>
+      </Clickable>
+    </FileUpload>
+  );
+}
+```
+
+O `FileUpload` envelope mantém o frame visual paritário (border dashed, padding, background). O `children` é um `Clickable` que dispara o picker e é o único elemento interativo — o frame em si não captura toque (por design do placeholder).
+
+### Snippet — preview controlado pelo consumidor
+
+`previewUrl` + `onRemove` funcionam idênticos web↔native. Após o upload concluir, o consumidor passa a URI:
+
+```tsx
+const [uri, setUri] = useState<string | undefined>();
+
+return (
+  <FileUpload
+    previewUrl={uri}
+    onRemove={() => setUri(undefined)}
+  >
+    {/* drop zone customizada (idle) */}
+  </FileUpload>
+);
+```
+
+### Quando esperar implementação real native
+
+[TD-025](docs/TECH_DEBT.md#td-025) registra a porta de saída para o caminho **(a)** com peer dep `expo-document-picker`. Gatilho mensurável: 3+ produtos consumidores documentando necessidade real em < 6 meses, OU 1 caso de produto crítico (KYC, autenticação regulamentada). Sem o gatilho, o placeholder é a decisão arquitetural correta.
+
 ## Scripts úteis
 
 ```bash

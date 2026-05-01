@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-01 (TD-022 aberta e resolvida — `shadows` exposto no `baseTheme` + handler `boxShadow` no engine + 13 inlines migrados; suíte 803→859 verdes)
+**Última atualização:** 2026-05-01 (TD-025 aberta — `FileUpload.native` é placeholder por decisão de RFC-0026; porta de saída para caminho (a) registrada com gatilho mensurável)
 
 ---
 
@@ -31,8 +31,9 @@
 | [TD-017](#td-017) | 12 componentes em `@platform web-only` violam diretriz cross-platform do DS | Diretriz arquitetural (2026-04-25) | **Resolved (2026-04-28)** | **Crítico** — Promessa do DS quebrada em mobile; Field-aware mistos | RFC-0018 ondas 1–5 + RFC-0021 (Button) + RFC-0022 (Table) entregues; RadioCard removido (RFC-0019 closed); `tag/core/badge.tsx` duplicata morta deletada; `web-only` global em 0; `check-platform-contract --strict` verde |
 | [TD-019](#td-019) | Engine native bloqueia `accessibilityElementsHidden` / `importantForAccessibility` | RFC-0018 onda 4 | **Resolved (2026-04-28)** | A11y native (separadores/decoradores) | `systemBlockedPropsByPlatform` plataforma-aware; reaplicado em Breadcrumb.Separator e Pagination.Ellipsis |
 | [TD-022](#td-022) | `shadows` órfão em `primitives/` + 13 box-shadows inline em componentes/recipes | Diagnóstico multi-produto (B3) | **Resolved (2026-05-01)** | Theming bloqueado para identidade de elevação (produto não conseguia mudar linguagem de sombras sem fork) | `shadows` adicionado ao `baseTheme`; engine ganhou handler `boxShadow`/`shadow` consumindo escala `shadows`; 13 inlines migrados (Dialog/Drawer/Tooltip/Popover/Menu/Toast/Card/Select/FAB/NavBar + recipes Dialog/Drawer/Card no base-theme) |
+| [TD-025](#td-025) | `FileUpload.native` é placeholder; promover para implementação real se demanda materializar | RFC-0026 (PR 2) | Open | DX (consumidor RN precisa integrar lib externa via `children`) | Promover para caminho (a) `expo-document-picker` peer dep quando 3+ produtos consumidores pedirem em < 6 meses |
 
-**Total:** 4 dívidas abertas, 13 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01).
+**Total:** 5 dívidas abertas, 13 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01).
 
 ---
 
@@ -1321,6 +1322,48 @@ Para Triggers de compounds, usar `asChild` + `<Clickable as="button">` evita nes
 ### Notas
 - As 5 stories `InsideOverflowClip` adicionadas pela G3 da RFC-0025 já saíram com o pattern correto (Box/Text/Clickable + tokens) — servem de modelo.
 - Decidir se vale lint rule customizada que rejeita JSX intrínseco em arquivos `.stories.tsx` (overhead de regra, mas garante regressão zero).
+
+---
+
+## TD-025 — `FileUpload.native` é placeholder; promover para implementação real se demanda materializar
+
+**Origem:** [RFC-0026](rfcs/RFC-0026-fileupload-caso-fronteira.md) (PR 2) — 2026-05-01
+**Status:** Open
+**Severidade:** Baixa
+
+### Contexto
+A RFC-0026 adotou o caminho **(c)** — `file-upload.native.tsx` exporta um placeholder visualmente paritário ao web em estado idle, **sem** capturar toque para abrir picker. A escolha de lib (`expo-document-picker`, `expo-image-picker`, `expo-camera`, `expo-av`) fica por conta do produto consumidor, integrada via slot `children`.
+
+Critérios que justificaram (c) sobre (a) `expo-document-picker` peer dep:
+
+1. Em mobile, "upload de arquivo" raramente é um picker genérico — é câmera, galeria, scanner, áudio gravado. Cada caso usa lib diferente; forçar uma no DS bloqueia os outros.
+2. Peer dep não-trivial passaria custo para 100% dos consumidores RN, mesmo os que nunca usam FileUpload.
+3. Diversidade de uso real é alta nesta superfície; congelar lib agora seria decisão prematura.
+
+### Impacto
+- **DX (consumidor RN)**: importar `FileUpload` de `arbor-ds/native` não quebra, mas o componente não captura arquivo. Consumidor que precisa de upload nativo real precisa ler o CONTRIBUTING e codar a integração via `children`.
+- **Paridade visual**: estado idle bate com web (mesma drop zone dashed); estado preview/loading também bate (Image + Clickable Remover). Lacuna está só na captura.
+- **Sistêmico**: nenhum. Decisão é local ao componente, não impacta engine, theming, recipe ou contrato cross-platform global.
+
+### Resolução proposta
+Quando o gatilho ocorrer, abrir RFC sucessora promovendo para caminho **(a)**: implementar `file-upload.native.tsx` real via `expo-document-picker` (ou `expo-image-picker` se o caso de uso predominante for imagem) como `peerDependency`. CONTRIBUTING ganha seção de setup (versões compatíveis, comando de install, troubleshooting Expo SDK).
+
+### Critério para fechar
+- [ ] `file-upload.native.tsx` real implementado (sem placeholder).
+- [ ] Peer dep adicionada ao `package.json` com range testado.
+- [ ] `file-upload.native.test.tsx` cobrindo seleção, accept, multiple, maxSize/maxFiles, preview, onRemove.
+- [ ] CONTRIBUTING atualizado com setup nativo + troubleshooting.
+- [ ] Janela de "deprecation window" do placeholder anterior comunicada (≥ 1 release minor).
+- [ ] Suíte verde + `check-platform-contract.js --strict` verde.
+
+### Gatilho para começar
+**3+ produtos consumidores** documentando necessidade de FileUpload nativo real em **< 6 meses** a partir de 2026-05-01, OU 1 caso de produto crítico (autenticação, KYC, onboarding regulamentado) que exija upload real cross-platform.
+
+Critério mensurável e finito — se nenhum dos dois ocorrer, o placeholder é a decisão arquitetural correta e a TD pode ser marcada como **Obsolete** com nota explicando por quê.
+
+### Notas
+- O slot `children` no placeholder permite que o consumidor coloque sua própria integração (`<Pressable onPress={pickWithExpoDocumentPicker}>`) sem perder o frame visual da drop zone — ver CONTRIBUTING §FileUpload em RN.
+- O bloco de preview (`previewUrl` + `onRemove`) **já funciona** em native; a paridade quebrada está só na captura. Promover para (a) é incremento, não refator.
 
 ---
 

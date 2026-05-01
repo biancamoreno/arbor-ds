@@ -47,6 +47,9 @@ export type {
   CounterProps,
 } from './components/input/interfaces';
 
+export { FileUpload } from './components/file-upload';
+export type { FileUploadProps, FileUploadTexts } from './components/file-upload';
+
 export { Alert } from './components/alert';
 export type {
   AlertRootProps,

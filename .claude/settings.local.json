@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Skill(update-config)",
@@ -28,7 +32,21 @@
       "Bash(echo \"Exit code: $?\")",
       "Bash(pnpm typecheck *)",
       "Bash(grep -A 15 \"aceita size sm$\")",
-      "Bash(grep -v \":0$\")"
+      "Bash(grep -v \":0$\")",
+      "Bash(git commit --no-verify -m ' *)",
+      "Bash(git add *)",
+      "Bash(pnpm jest *)",
+      "Bash(pnpm test:platform-contract)",
+      "Bash(cp src/native.ts /tmp/native.ts.full)",
+      "Bash(cp docs/TECH_DEBT.md /tmp/TECH_DEBT.md.full)",
+      "Bash(ls -la /tmp/*.full)",
+      "Bash(grep -n \"TD-018\\\\|^---$\" docs/TECH_DEBT.md)",
+      "Read(//tmp/**)",
+      "Bash(cp /tmp/native.ts.full src/native.ts)",
+      "Bash(cp /tmp/TECH_DEBT.md.full docs/TECH_DEBT.md)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -rn \"tag/core/badge\\\\|tag.*\\\\\\\\bBadge\\\\\\\\b\" src playground --include=\"*.ts\" --include=\"*.tsx\")",
+      "PowerShell(gh run *)"
     ]
   }
 }
