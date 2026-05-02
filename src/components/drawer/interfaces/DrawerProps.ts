@@ -1,6 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import type { DrawerPlacement } from '../context/drawer-context';
 
+/**
+ * @platform shared
+ * Drawer compound construído sobre primitivas cross-platform (`Portal`, `FocusScope`,
+ * `DismissableLayer` — todas com `.native.tsx`). Sem `drawer.native.tsx` dedicado.
+ */
 export type DrawerRootProps = {
   isOpen?: boolean;
   defaultOpen?: boolean;

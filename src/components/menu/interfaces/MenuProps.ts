@@ -1,5 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
 
+/**
+ * @platform shared
+ * Menu compound construído sobre primitivas cross-platform (`Portal`, `FocusScope`,
+ * `DismissableLayer` — todas com `.native.tsx`). Sem `menu.native.tsx` dedicado.
+ */
 export type MenuRootProps = {
   isOpen?: boolean;
   defaultOpen?: boolean;

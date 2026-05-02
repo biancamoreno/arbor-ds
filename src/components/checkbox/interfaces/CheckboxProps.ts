@@ -2,6 +2,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import type { CheckboxSize } from '../context/checkbox-context';
 
 /**
+ * @platform native-ready
  * Checkbox compound props. Web consome `<input type=checkbox>` (APIs DOM);
  * `checkbox.native.tsx` re-implementa o indicador com `Pressable` + tokens.
  */

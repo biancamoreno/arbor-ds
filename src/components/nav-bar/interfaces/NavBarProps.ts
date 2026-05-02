@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
 
+/**
+ * @platform native-ready
+ * Top app bar com slots `start`/`center`/`end`. Web usa `<header>` semântico;
+ * `nav-bar.native.tsx` usa `Box` + safe-area iOS.
+ */
 export interface NavBarProps {
   /** Slot esquerdo — tipicamente um IconButton (voltar, menu, fechar) */
   start?: ReactNode;

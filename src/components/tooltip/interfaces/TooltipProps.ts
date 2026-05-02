@@ -1,6 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import type { TooltipPlacement } from '../context/tooltip-context';
 
+/**
+ * @platform shared
+ * Tooltip compound construído sobre primitivas cross-platform (`Portal`,
+ * `DismissableLayer` — ambas com `.native.tsx`). Sem `tooltip.native.tsx` dedicado.
+ */
 export type TooltipRootProps = {
   isOpen?: boolean;
   defaultOpen?: boolean;

@@ -1,5 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
 
+/**
+ * @platform shared
+ * Dialog compound construído sobre primitivas cross-platform (`Portal`, `FocusScope`,
+ * `DismissableLayer` — todas com `.native.tsx`). Sem `dialog.native.tsx` dedicado.
+ */
 export type DialogRootProps = {
   open?: boolean;
   defaultOpen?: boolean;

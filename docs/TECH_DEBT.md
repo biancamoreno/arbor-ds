@@ -1531,6 +1531,73 @@ API pública preservada: `<Icon name="Check" />` continua válido.
 
 ---
 
+## TD-028 — Overlays tagueados `shared` mas ausentes de `src/native.ts`
+
+**Origem:** Sweep `@platform` — 2026-05-02 (sessão arbor-ds-arch sobre 12 componentes sem tag)
+**Status:** Open
+**Severidade:** Média
+
+### Contexto
+
+O sweep de tags `@platform` classificou 5 overlays como `shared` por usarem exclusivamente primitivas cross-platform (`Portal`, `FocusScope`, `DismissableLayer` — todas com `.native.tsx`):
+
+- `dialog`
+- `drawer`
+- `menu`
+- `popover`
+- `tooltip`
+
+A classificação está arquiteturalmente correta no que se refere às dependências. O problema é o **descompasso entre tag e surface area pública nativa**:
+
+1. Nenhum dos 5 está exportado em `src/native.ts` (entrypoint `arbor-ds/native`).
+2. O conteúdo dos slots (`*-content.tsx`) usa CSS web-only sem fallback: `position: 'fixed'`, `outline: 'none'`, `transition` strings, `transform: translate(-50%, -50%)`. Em RN, esses valores são ignorados ou rejeitados pelo motor de estilo nativo.
+
+A invariante "`@platform web-only` global = 0" da [RFC-0018](rfcs/RFC-0018-paridade-native-completa-do-ds.md) bloqueia re-classificar como `web-only`, e adicionar a `native.ts` na forma atual exporta UX quebrada (modal sem posicionamento centralizado, sem animação de entrada).
+
+### Impacto
+
+- **Promessa parcial cross-platform.** Consumidor RN que espera o comportamento dos overlays do DS (ex: confirmação de exclusão via `Dialog`, menu de ações via `Menu`) precisa reimplementar no produto — exatamente o que o DS deveria evitar.
+- **Tag versus realidade.** `@platform shared` documenta intenção arquitetural, não entrega. Ferramentas que confiam no inventário (`check-platform-contract`, JSDoc sweeps, geradores de docs) reportam cobertura nativa inflada.
+- **Drift de padrão.** Sem RFC unificada, a primeira implementação `.native.tsx` que aparecer (Dialog primeiro? Menu primeiro?) vira default ad-hoc para os outros 4. Risco de 5 abordagens diferentes de overlay nativo no mesmo DS.
+- **Sobreposição com TD-023.** Anchor positioning de `Popover`/`Menu` precisa ser decidido em conjunto com o padrão de overlay nativo — bottom-sheet (Modal RN) não usa anchor.
+
+### Resolução proposta — RFC-0029
+
+Não bloquear o corte do v1.0.0. Após a tag, abrir **RFC-0029 — Overlays native-ready** com escopo único cobrindo os 5 componentes:
+
+1. **Decisão arquitetural única.** Padrão de overlay em RN para o DS:
+   - **Dialog/Drawer** → `Modal` do RN (ou `react-native-modal`) com gesture handler para o Drawer.
+   - **Tooltip** → bottom-sheet leve em mobile (touch não tem hover). Avaliar se faz sentido manter o componente em RN ou degradar para `aria-label`/`accessibilityHint`.
+   - **Menu/Popover** → bottom-sheet (mobile não tem viewport pra anchor positioning confortável). Endereça [TD-023](#td-023) por inversão.
+2. **Implementação onda única** dos 5 `.native.tsx` aplicando o padrão decidido — evita o drift descrito acima.
+3. **Adição a `src/native.ts`** apenas após `.native.tsx` + suíte completos.
+4. **Reclassificação** dos 5 para `@platform native-ready` quando os critérios acima forem atendidos.
+
+Precedentes do próprio repo: `Select.native` (Modal bottom-sheet, RFC-0020) e `Toast.native` (Portal + Animated, PR2 Toast.native).
+
+### Critério para fechar
+
+- [ ] RFC-0029 redigida com decisão única sobre padrão de overlay em RN.
+- [ ] `dialog.native.tsx`, `drawer.native.tsx`, `menu.native.tsx`, `popover.native.tsx`, `tooltip.native.tsx` implementados aplicando o padrão.
+- [ ] Suíte `.native.test.tsx` para cada (paridade conforme RFC-0016).
+- [ ] Os 5 exportados em `src/native.ts`.
+- [ ] Tag `@platform` reclassificada de `shared` para `native-ready` nos respectivos `*Props.ts`.
+- [ ] `pnpm test:platform-contract --strict` verde.
+- [ ] [TD-023](#td-023) revisitada — RFC-0029 pode resolver por inversão (bottom-sheet em mobile dispensa anchor) ou explicitamente deferir só o caso web.
+
+### Cruzamento com outras dívidas e RFCs
+
+- **RFC-0018** — RFC-0029 é o capítulo final da paridade native que faltou cobrir (overlays foram excluídos do escopo original).
+- **RFC-0025** — overlays via Portal (web). RFC-0029 estende a decisão para native sem regredir a estratégia web.
+- **TD-023** — anchor positioning de Popover/Menu. Possivelmente resolvida por inversão de padrão.
+- **TD-024** — stories de Storybook usam tags HTML cruas em alguns overlays; sweep cosmético independente, mas pode ser anexado à RFC-0029 se a janela coincidir.
+
+### Severidade
+
+Média — não bloqueia v1.0.0 (surface area atual do `native.ts` é coerente com o que realmente funciona). Vira Alta no momento em que o primeiro produto adotar `arbor-ds/native` e precisar de overlays — o gap fica visível imediatamente.
+
+---
+
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
 Mapeamento das demais 2 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.

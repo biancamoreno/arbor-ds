@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react';
 import type { IconName } from '../../core/icon';
 
+/**
+ * @platform native-ready
+ * Bottom tab bar; `tab-bar.native.tsx` posiciona com safe-area iOS e usa
+ * `Clickable.native` para o press feedback nos itens.
+ */
 export interface TabBarProps {
   value: string;
   onChange: (value: string) => void;

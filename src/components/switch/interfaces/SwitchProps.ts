@@ -3,6 +3,11 @@ import type { ReactNode } from 'react';
 export type SwitchSize = 'sm' | 'md' | 'lg';
 export type SwitchState = 'idle' | 'checked' | 'invalid' | 'disabled';
 
+/**
+ * @platform native-ready
+ * Web consome `<input type=checkbox role=switch>` com slot recipe;
+ * `switch.native.tsx` re-implementa track/thumb com `Pressable` + Animated.
+ */
 export interface SwitchRootProps {
   checked?: boolean;
   defaultChecked?: boolean;
