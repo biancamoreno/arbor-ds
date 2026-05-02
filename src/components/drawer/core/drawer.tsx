@@ -34,6 +34,27 @@ function DrawerRoot({
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de drawer (painel lateral). `Drawer.Root` controla a abertura via
+ * `isOpen`/`onClose` e o lado pelo `placement` (`'left'`/`'right'`/`'top'`/
+ * `'bottom'`, default `'right'`). `Trigger` abre, `Overlay` é o backdrop,
+ * `Content` é o painel montado em `Portal`, `Close` fecha programaticamente.
+ *
+ * @example
+ * <Drawer placement="right">
+ *   <Drawer.Trigger>Filtros</Drawer.Trigger>
+ *   <Drawer.Overlay />
+ *   <Drawer.Content>
+ *     <Drawer.Title>Filtros</Drawer.Title>
+ *     ...
+ *     <Drawer.Close>Fechar</Drawer.Close>
+ *   </Drawer.Content>
+ * </Drawer>
+ *
+ * @see {@link DrawerRootProps}
+ */
 export const Drawer = Object.assign(DrawerRoot, {
   Root: DrawerRoot,
   Trigger: DrawerTrigger,

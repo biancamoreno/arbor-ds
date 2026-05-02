@@ -53,6 +53,29 @@ function MenuRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, children }
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de menu de ações. `Menu.Root` mantém `isOpen`/`activeIndex` para
+ * navegação por teclado; itens auto-registram-se no contexto via
+ * `registerItem` (definindo `activeIndex` ao abrir). `Trigger` é o botão que
+ * abre o menu; `Content` é a lista montada em `Portal`; `Item` representa
+ * uma ação clicável; `Separator` divide grupos visualmente; `Label` é
+ * cabeçalho não-interativo de seção.
+ *
+ * @example
+ * <Menu>
+ *   <Menu.Trigger>Mais</Menu.Trigger>
+ *   <Menu.Content>
+ *     <Menu.Label>Ações</Menu.Label>
+ *     <Menu.Item onSelect={duplicate}>Duplicar</Menu.Item>
+ *     <Menu.Separator />
+ *     <Menu.Item onSelect={remove}>Excluir</Menu.Item>
+ *   </Menu.Content>
+ * </Menu>
+ *
+ * @see {@link MenuRootProps}
+ */
 export const Menu = Object.assign(MenuRoot, {
   Root: MenuRoot,
   Trigger: MenuTrigger,

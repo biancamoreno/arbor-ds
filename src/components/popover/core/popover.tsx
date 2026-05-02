@@ -27,6 +27,27 @@ function PopoverRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, childre
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de popover — painel não-modal ancorado ao trigger. Diferente de
+ * `Dialog`, não bloqueia interação com a UI subjacente: clicar fora apenas
+ * fecha (via `DismissableLayer`). `Popover.Root` mantém `isOpen`/`onClose`
+ * controlado ou uncontrolled. `Trigger` ancora o conteúdo; `Content` é o
+ * painel posicionado próximo ao trigger e montado em `Portal`; `Close` fecha
+ * programaticamente.
+ *
+ * @example
+ * <Popover>
+ *   <Popover.Trigger>Detalhes</Popover.Trigger>
+ *   <Popover.Content>
+ *     ...
+ *     <Popover.Close>Fechar</Popover.Close>
+ *   </Popover.Content>
+ * </Popover>
+ *
+ * @see {@link PopoverRootProps}
+ */
 export const Popover = Object.assign(PopoverRoot, {
   Root: PopoverRoot,
   Trigger: PopoverTrigger,

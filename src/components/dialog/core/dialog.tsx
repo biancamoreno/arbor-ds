@@ -38,6 +38,30 @@ function DialogRoot({
   return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de diálogo modal (RFC-0014). `Dialog.Root` mantém `open`/`setOpen`
+ * controlado ou uncontrolled e gera IDs (`titleId`/`descriptionId`) que
+ * `Dialog.Content` usa para `aria-labelledby`/`aria-describedby`. `Trigger`
+ * é o controle que abre o diálogo; `Overlay` é o backdrop dismissable;
+ * `Content` é o painel modal montado em `Portal`; `Close` fecha
+ * programaticamente. Usa nomenclatura canônica `open` (não `isOpen`) — ver
+ * RFC-0014.
+ *
+ * @example
+ * <Dialog>
+ *   <Dialog.Trigger>Abrir</Dialog.Trigger>
+ *   <Dialog.Overlay />
+ *   <Dialog.Content>
+ *     <Dialog.Title>Confirmar exclusão</Dialog.Title>
+ *     <Dialog.Description>Esta ação é irreversível.</Dialog.Description>
+ *     <Dialog.Close>Cancelar</Dialog.Close>
+ *   </Dialog.Content>
+ * </Dialog>
+ *
+ * @see {@link DialogRootProps}
+ */
 export const Dialog = Object.assign(DialogRoot, {
   Root: DialogRoot,
   Trigger: DialogTrigger,

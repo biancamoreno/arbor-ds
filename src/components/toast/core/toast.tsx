@@ -205,6 +205,19 @@ ToastDescription.displayName = 'Toast.Description';
 ToastClose.displayName = 'Toast.Close';
 Toaster.displayName = 'Toaster';
 
+/**
+ * @platform shared
+ *
+ * Compound de toast — notificação efêmera disparada via store. `Toast` em si
+ * raramente é montado direto; o uso canônico é disparar mensagens com
+ * `useToast().toast(input)`, e a renderização real fica por conta de um
+ * `<Toaster />` montado uma única vez na raiz da aplicação. Os slots
+ * (`Toast.Root`/`Title`/`Description`/`Close`) existem para customização do
+ * layout dentro da render-prop do `Toaster`.
+ *
+ * @see {@link ToastRootProps}
+ * @see {@link ToasterProps}
+ */
 export const Toast = Object.assign(ToastRoot, {
   Root: ToastRoot,
   Title: ToastTitle,
@@ -212,4 +225,12 @@ export const Toast = Object.assign(ToastRoot, {
   Close: ToastClose,
 });
 
+/**
+ * @platform shared
+ *
+ * Container que escuta o `toastStore` e renderiza os toasts ativos via
+ * `Portal` (`mode='overlay'` — toques passam pela UI subjacente em áreas
+ * transparentes). Monte uma única vez na raiz da aplicação. `placement`
+ * controla onde o stack aparece (default `'bottom-right'`).
+ */
 export { Toaster };

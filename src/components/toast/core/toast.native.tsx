@@ -227,6 +227,17 @@ ToastDescription.displayName = 'Toast.Description';
 ToastClose.displayName = 'Toast.Close';
 Toaster.displayName = 'Toaster';
 
+/**
+ * @platform native
+ *
+ * Compound de toast em React Native — equivalente nativo do `Toast` web.
+ * Mesmo padrão de uso: dispare via `useToast().toast(input)` e monte um único
+ * `<Toaster />` na raiz da aplicação. Animação de entrada via
+ * `Animated.Value` (Portal mode `'overlay'`).
+ *
+ * @see {@link ToastRootProps}
+ * @see {@link ToasterProps}
+ */
 export const Toast = Object.assign(ToastRoot, {
   Root: ToastRoot,
   Title: ToastTitle,
@@ -234,4 +245,10 @@ export const Toast = Object.assign(ToastRoot, {
   Close: ToastClose,
 });
 
+/**
+ * @platform native
+ *
+ * `Toaster` em React Native: escuta o `toastStore` e renderiza os toasts
+ * ativos via `Portal` mode `'overlay'`. Monte uma única vez na raiz do app.
+ */
 export { Toaster };

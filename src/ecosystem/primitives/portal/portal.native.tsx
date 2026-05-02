@@ -14,6 +14,19 @@ type PortalProps = {
   mode?: PortalMode;
 };
 
+/**
+ * @platform native
+ *
+ * Equivalente do `Portal` web em React Native: monta `children` dentro de um
+ * `<Modal transparent>` em tela cheia. RN não tem `createPortal` real, então
+ * `<Modal>` é o único caminho para escapar da hierarquia da árvore atual e
+ * sobrepor a tela. `mode` controla o `pointerEvents` do `<View>` interno —
+ * `'modal'` (default) bloqueia toques na UI subjacente (Dialog/Drawer/Menu);
+ * `'overlay'` deixa toques passarem em áreas transparentes (Toast/Tooltip/
+ * Popover).
+ *
+ * @see {@link PortalMode}
+ */
 export function Portal({ children, mode = 'modal' }: PortalProps): React.ReactElement {
   return (
     <Modal transparent visible animationType="none" statusBarTranslucent onRequestClose={() => {}}>
