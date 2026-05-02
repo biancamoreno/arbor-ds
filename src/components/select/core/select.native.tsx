@@ -17,21 +17,6 @@ import type {
   SelectItemProps,
 } from '../interfaces/SelectProps';
 
-/**
- * @platform native-ready
- *
- * Select nativo: trigger é `<Pressable accessibilityRole="combobox">`; o conteúdo
- * é apresentado em um `<Modal>` bottom-sheet do RN. A semântica de listbox é
- * adaptada — itens usam `accessibilityRole="radio"` com `accessibilityState.selected`
- * (RN não aceita `menuitemradio` da ARIA; `radio` é o equivalente nativo para
- * "escolha única dentro de um grupo").
- *
- * Item registry, display-text e chevron Icon são compartilhados com web (W1 da
- * RFC-0020). O registry é populado pela enumeração JSX dentro de SelectContent
- * — SelectItem só renderiza UI; não registra. Isso evita dupla montagem quando
- * o Modal abre/fecha.
- */
-
 type SelectSlot = 'root' | 'trigger' | 'value' | 'icon' | 'content' | 'item' | 'itemText';
 
 function resolveState(isDisabled: boolean, isInvalid: boolean, isOpen: boolean): SelectState {
@@ -274,6 +259,21 @@ SelectItem.displayName = 'Select.Item';
 markFieldAware(SelectRoot);
 markFieldAware(SelectTrigger);
 
+/**
+ * @platform native
+ *
+ * `Select` em React Native: trigger é `<Pressable accessibilityRole="combobox">`
+ * e o conteúdo é apresentado num `<Modal>` bottom-sheet RN. A semântica de
+ * listbox é adaptada — itens usam `accessibilityRole="radio"` com
+ * `accessibilityState.selected` (RN não aceita `menuitemradio`; `radio` é o
+ * equivalente para "escolha única dentro de um grupo"). Item registry,
+ * display-text e chevron `Icon` são compartilhados com web (W1 da RFC-0020).
+ * O registry é populado pela enumeração JSX dentro de `Select.Content` —
+ * `Select.Item` só renderiza UI; não registra (evita dupla montagem ao
+ * abrir/fechar o Modal).
+ *
+ * @see {@link SelectRootProps}
+ */
 export const Select = Object.assign(SelectRoot, {
   Root: SelectRoot,
   Trigger: SelectTrigger,

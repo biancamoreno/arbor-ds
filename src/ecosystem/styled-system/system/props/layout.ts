@@ -43,7 +43,7 @@ export interface LayoutProps {
    */
   height?: ResponsiveValue<Token<Theme['sizes']> | CSS.Property.Height | number>;
   /**
-   * The CSS `height` property
+   * The CSS `max-height` property
    */
   maxHeight?: ResponsiveValue<Token<Theme['sizes']> | CSS.Property.MaxHeight | number>;
   /**

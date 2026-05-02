@@ -4,6 +4,16 @@ import { markFieldAware } from '../../field/utils/is-field-aware';
 import type { SearchInputProps } from '../interfaces';
 import { TextInput } from './textinput';
 
+/**
+ * @platform shared
+ *
+ * `TextInput` pré-configurado com `type="search"` e ícone de lupa à esquerda.
+ * Dispara `onSearch(value)` quando o usuário pressiona Enter (sem debounce
+ * embutido — para busca incremental, use `onValueChange`). Encadeia `onKeyDown`
+ * antes do handler interno para permitir intercepção do consumidor.
+ *
+ * @see {@link SearchInputProps}
+ */
 export const SearchInput = markFieldAware(
   React.forwardRef<HTMLInputElement, SearchInputProps>(
     ({ onSearch, onKeyDown, ...props }, ref) => (

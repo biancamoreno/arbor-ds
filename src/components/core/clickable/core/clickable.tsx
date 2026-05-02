@@ -4,6 +4,17 @@ import { type ClickableProps } from '../interfaces';
 
 const NATIVELY_INTERACTIVE = new Set(['button', 'a']);
 
+/**
+ * @platform shared
+ *
+ * Bloco interativo do DS — substituto para `<button>`/`<a>` quando se quer um
+ * elemento "clicável" com props styled-system. `as` default é `'button'`; ao
+ * trocar por uma tag não-interativa (ex.: `'div'`, `'span'`) é obrigatório
+ * passar `role` para preservar a a11y (em desenvolvimento, um `console.warn`
+ * lembra). Usa `Flex` por baixo, então aceita layout direto via props.
+ *
+ * @see {@link ClickableProps}
+ */
 export const Clickable = forwardRef<HTMLElement, ClickableProps>(function Clickable(
   { as = 'button', onClick, ...props },
   ref,

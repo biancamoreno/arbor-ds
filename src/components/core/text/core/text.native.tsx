@@ -2,6 +2,15 @@ import { forwardRef } from 'react';
 import { ArborTransform, useRecipe } from '../../../../ecosystem';
 import { type TextProps } from '../interfaces';
 
+/**
+ * @platform native
+ *
+ * Implementação React Native do `Text`: `numberOfLines` é forwardado direto
+ * para o `<Text>` nativo (não há line-clamp via CSS). HTML inline não é
+ * parseado em native — strings com tags são renderizadas como texto bruto.
+ *
+ * @see {@link TextProps}
+ */
 export const Text = forwardRef<unknown, TextProps<string>>(function Text({
   variant = 'caption',
   numberOfLines,

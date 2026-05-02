@@ -6,6 +6,19 @@ import { Box, Flex, Clickable, Icon } from '../../core';
 import type { TextInputProps } from '../interfaces';
 import { FieldShell } from './field-shell';
 
+/**
+ * @platform shared
+ *
+ * Input de texto Field-aware. Quando aninhado dentro de `<Field>`, herda
+ * `disabled`/`invalid`/`required` do `FieldContext` e cabeia
+ * `aria-describedby`/`aria-errormessage`. Standalone (sem `Field`), aceita
+ * `label`/`helperText`/`error` e renderiza um `FieldShell` interno. Suporta
+ * `leftIcon`/`rightIcon` (qualquer nó React, normalmente `<Icon>`) e
+ * `clearable` (botão `X` aparece quando há `value`). Use `onValueChange` para
+ * receber a string já desencapsulada do evento.
+ *
+ * @see {@link TextInputProps}
+ */
 export const TextInput = markFieldAware(
   React.forwardRef<HTMLInputElement, TextInputProps>(
     (

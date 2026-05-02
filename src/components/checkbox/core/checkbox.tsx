@@ -140,6 +140,25 @@ CheckboxRoot.displayName = 'Checkbox';
 markFieldAware(CheckboxRoot);
 markFieldAware(CheckboxIndicator);
 
+/**
+ * @platform shared
+ *
+ * Compound de checkbox controlado/uncontrolled. `Root` distribui o estado
+ * (`checked`/`indeterminate`/`disabled`/`invalid`) via `CheckboxContext` para
+ * `Indicator` (input nativo estilizado), `Label` e `Description`. Field-aware:
+ * herda `disabled` e `invalid` do `<Field>` quando aninhado. Use
+ * `onCheckedChange(checked)` para receber a mudança já desencapsulada do
+ * evento; `indeterminate` representa estado terciário (mais usado em
+ * tree-checkboxes).
+ *
+ * @example
+ * <Checkbox checked={agree} onCheckedChange={setAgree}>
+ *   <Checkbox.Indicator />
+ *   <Checkbox.Label>Aceito os termos</Checkbox.Label>
+ * </Checkbox>
+ *
+ * @see {@link CheckboxRootProps}
+ */
 export const Checkbox = Object.assign(CheckboxRoot, {
   Root: CheckboxRoot,
   Indicator: CheckboxIndicator,

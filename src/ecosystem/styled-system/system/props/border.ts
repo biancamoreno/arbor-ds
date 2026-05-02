@@ -163,8 +163,8 @@ export interface BorderProps {
    */
   roundedLeft?: ResponsiveValue<Token<Theme['radii']>>;
   /**
-   * When direction is `ltr`, `roundedEnd` is equivalent to `borderRightRadius`.
-   * When direction is `rtl`, `roundedEnd` is equivalent to `borderLeftRadius`.
+   * When direction is `ltr`, `roundedStart` is equivalent to `borderLeftRadius`.
+   * When direction is `rtl`, `roundedStart` is equivalent to `borderRightRadius`.
    */
   roundedStart?: ResponsiveValue<Token<Theme['radii']>>;
   /**

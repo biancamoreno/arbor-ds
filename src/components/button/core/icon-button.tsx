@@ -7,6 +7,16 @@ const iconButtonSizeMap = {
   lg: { width: '48px', height: '48px', padding: 0 },
 } as const;
 
+/**
+ * @platform shared
+ *
+ * `Button` quadrado que recebe apenas um ícone via `children`. Tamanho fixo por
+ * size token (`sm` 32px / `md` 40px / `lg` 48px) e formato controlado por
+ * `shape` (`circle` — default, `square`). Reutiliza variantes/loading/disabled
+ * do `Button`.
+ *
+ * @see {@link IconButtonProps}
+ */
 export function IconButton({
   children,
   size = 'md',

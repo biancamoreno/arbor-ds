@@ -5,17 +5,6 @@ import { Spinner } from '../../spinner';
 import { useButtonGroup, useButtonGroupItem } from '../../button-group/core/button-group-context';
 import type { ButtonProps } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Button nativo: `Clickable.native` com `accessibilityRole="button"` +
- * `accessibilityState={{ disabled, busy }}`. Loader via `<Spinner>` cross.
- *
- * Children string envoltos em `<Text>` (RN não renderiza string solta dentro de View).
- * `type`, `aria-*`, `cursor` e `transition` são aceitos pelo tipo e ignorados aqui
- * (não têm semântica em RN).
- */
-
 const buttonSizeMap = {
   sm: { paddingHorizontal: 12, paddingVertical: 4, fontSize: 14 },
   md: { paddingHorizontal: 16, paddingVertical: 8, fontSize: 14 },
@@ -127,6 +116,18 @@ function getAttachedStyle(
   };
 }
 
+/**
+ * @platform native
+ *
+ * `Button` em React Native: `Clickable.native` com
+ * `accessibilityRole="button"` + `accessibilityState={{ disabled, busy }}`.
+ * Loader via `<Spinner>` (cross-platform). Strings em `children` são
+ * envolvidas em `<Text>` (RN não renderiza string solta dentro de View).
+ * Props `type`, `aria-*`, `cursor` e `transition` são aceitas pela tipagem
+ * cross-platform e ignoradas aqui.
+ *
+ * @see {@link ButtonProps}
+ */
 export function Button({
   children,
   variant = 'primary',

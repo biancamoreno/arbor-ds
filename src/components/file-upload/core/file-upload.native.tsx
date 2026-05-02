@@ -13,21 +13,6 @@ const DEFAULT_TEXTS: Required<FileUploadTexts> = {
   removeLabel: 'Remover',
 };
 
-/**
- * @platform shared
- *
- * Placeholder informativo (RFC-0026, caminho c). Não captura toque nem abre picker:
- * a escolha de lib (expo-document-picker, expo-image-picker, expo-camera, expo-av)
- * fica por conta do consumidor. O slot `children` permite substituir o conteúdo
- * inteiro da drop zone para encaixar a integração de picker preferida sem perder
- * o frame visual paritário com o web.
- *
- * Quando `previewUrl` é fornecido, renderiza o bloco de preview normalmente —
- * preview + remove independem de picker e cabem na paridade cross-platform.
- *
- * TD-025: se 3+ produtos consumidores pedirem implementação real, promover para
- * caminho (a) com `expo-document-picker` peer dep.
- */
 const FileUploadNativeBase: React.FC<FileUploadProps> = ({
   loading,
   previewUrl,
@@ -128,4 +113,20 @@ const FileUploadNativeBase: React.FC<FileUploadProps> = ({
 
 FileUploadNativeBase.displayName = 'FileUpload';
 
+/**
+ * @platform native
+ *
+ * `FileUpload` em React Native — placeholder informativo (RFC-0026, caminho c).
+ * Não captura toque nem abre picker: a escolha de lib
+ * (`expo-document-picker`, `expo-image-picker`, `expo-camera`, `expo-av`) fica
+ * por conta do consumidor. O slot `children` permite substituir o conteúdo
+ * inteiro da drop zone para encaixar a integração de picker preferida sem
+ * perder o frame visual paritário com o web. Quando `previewUrl` é fornecido,
+ * renderiza preview + remove normalmente (independem de picker).
+ *
+ * TD-025: se 3+ produtos consumidores pedirem implementação real, promover
+ * para caminho (a) com `expo-document-picker` peerDep.
+ *
+ * @see {@link FileUploadProps}
+ */
 export const FileUpload = markFieldAware(FileUploadNativeBase);

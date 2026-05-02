@@ -61,6 +61,17 @@ function renderErrorFallback(errorFallback: ImageErrorFallback): ReactNode {
   return errorFallback;
 }
 
+/**
+ * @platform native
+ *
+ * Implementação React Native do `Image`: usa `<RNImage>` (modo `img`) ou
+ * `<RNImageBackground>` (modo `background`). `width`/`height` aceitam apenas
+ * número ou percentual (`'50%'`); outros valores CSS são ignorados pela
+ * tipagem nativa. Os fallbacks de `loading`/`error` ficam em camada absoluta
+ * sobre o `<RNImage>` quando aplicáveis.
+ *
+ * @see {@link ImageProps}
+ */
 export const Image = forwardRef<unknown, ImageProps>(function Image(props, ref) {
   const {
     source,

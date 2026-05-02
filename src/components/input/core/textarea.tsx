@@ -6,6 +6,17 @@ import { Box, Flex, Text } from '../../core';
 import type { TextAreaProps } from '../interfaces';
 import { FieldShell } from './field-shell';
 
+/**
+ * @platform shared
+ *
+ * Área de texto multi-linha Field-aware. Mesmo modelo de cabeamento que
+ * `TextInput` (herda do `FieldContext` quando aninhado em `<Field>`,
+ * `FieldShell` standalone). `rows` define a altura inicial; `maxLength` limita
+ * caracteres e, combinado com `showCharCount`, exibe contador
+ * `<atual> / <máx>` abaixo do controle (cor crítica acima de 90% do limite).
+ *
+ * @see {@link TextAreaProps}
+ */
 export const TextArea = markFieldAware(
   React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     (

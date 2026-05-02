@@ -12,15 +12,6 @@ import { Box, Clickable, Icon } from '../../core';
 import type { TextInputProps } from '../interfaces';
 import { FieldShell } from './field-shell';
 
-/**
- * @platform native-ready
- *
- * Wrapper sobre `<TextInput>` RN com a mesma API pública do TextInput web.
- * - `onChange` (synthetic ChangeEvent) e `onValueChange` (string puro) são suportados.
- * - `type` HTML mapeia para `keyboardType`/`secureTextEntry` RN.
- * - Frame outer recebe `slots.frame` via Box; controle interno é `<TextInput>` com style RN resolvido.
- */
-
 const keyboardTypeMap: Record<string, KeyboardTypeOptions> = {
   email: 'email-address',
   number: 'numeric',
@@ -139,4 +130,16 @@ const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(function Text
 
 TextInputComponent.displayName = 'TextInput';
 
+/**
+ * @platform native
+ *
+ * `TextInput` em React Native: wrapper sobre `<TextInput>` RN com a mesma API
+ * pública do equivalente web. `onChange` (synthetic ChangeEvent) e
+ * `onValueChange` (string) são ambos suportados; `type` HTML mapeia para
+ * `keyboardType`/`secureTextEntry` RN. Frame externo é um `Box` consumindo
+ * `slots.frame`; o controle interno é o `<TextInput>` nativo com style
+ * resolvido.
+ *
+ * @see {@link TextInputProps}
+ */
 export const TextInput = markFieldAware(TextInputComponent);

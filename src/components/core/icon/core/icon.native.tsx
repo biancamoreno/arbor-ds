@@ -8,6 +8,16 @@ function resolveSize(size: IconSize): number {
   return iconSizeTokens[size];
 }
 
+/**
+ * @platform native
+ *
+ * Implementação React Native do `Icon`. Resolve `color: 'currentColor'` para
+ * `theme.colors.text.primary` (RN não herda cor por padrão) e mapeia
+ * `decorative`/`aria-label` para `accessibilityElementsHidden`/
+ * `accessibilityLabel`.
+ *
+ * @see {@link IconProps}
+ */
 export function Icon(props: IconProps) {
   const {
     name,

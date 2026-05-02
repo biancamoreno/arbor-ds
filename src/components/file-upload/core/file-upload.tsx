@@ -221,4 +221,16 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
 
 FileUploadBase.displayName = 'FileUpload';
 
+/**
+ * @platform shared
+ *
+ * Componente de upload de arquivo Field-aware (RFC-0026). Web combina
+ * `<input type="file" hidden>` com dropzone (`dragAndDrop`, default `true`),
+ * preview de imagem quando `previewUrl` existe e fallback de loading.
+ * Validações de cliente: `accept` (MIME), `maxSize` (bytes, default 5 MB),
+ * `maxFiles` (default `5`, requer `multiple`). Textos podem ser customizados
+ * via `texts` (parcial — aplica defaults aos não fornecidos).
+ *
+ * @see {@link FileUploadProps}
+ */
 export const FileUpload = markFieldAware(FileUploadBase);

@@ -22,9 +22,15 @@ export interface PaginationItemProps extends HTMLAttributes<HTMLLIElement> {
 
 export interface PaginationButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
-  /** Marca a página como atual */
+  /**
+   * Marca o botão como a página atual. Aplica `aria-current="page"` e o estado
+   * visual selecionado.
+   */
   isActive?: boolean;
-  /** @default "Carregando" */
+  /**
+   * Texto acessível do botão. Use quando `children` for apenas numérico/icônico
+   * para descrever a ação (ex.: `"Ir para a página 3"`, `"Próxima página"`).
+   */
   'aria-label'?: string;
 }
 

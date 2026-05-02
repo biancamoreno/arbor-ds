@@ -11,16 +11,6 @@ import type {
   FieldErrorProps,
 } from '../interfaces/FieldProps';
 
-/**
- * @platform native-ready
- *
- * Re-implementação Field unificada (TD-009).
- * Consome o slot recipe `field` igual ao web; mapeia HTML/ARIA → RN/accessibility:
- * - `htmlFor` (web) → `accessibilityLabelledBy` (native), via `labelId` no context.
- * - `aria-describedby`/`aria-errormessage` → `accessibilityDescribedBy` injetado em FieldControl.
- * - `id` HTML → `nativeID` (label, description, error, control).
- * - `disabled` → `accessibilityState.disabled` + `editable={false}` quando o filho expõe `editable`.
- */
 function FieldRoot({
   id: idProp,
   disabled = false,
@@ -203,6 +193,20 @@ FieldControl.displayName = 'Field.Control';
 FieldDescription.displayName = 'Field.Description';
 FieldError.displayName = 'Field.Error';
 
+/**
+ * @platform native
+ *
+ * `Field` em React Native (TD-009 — implementação unificada). Consome o mesmo
+ * slot recipe `field` do web e mapeia HTML/ARIA para o equivalente RN:
+ * - `htmlFor` → `accessibilityLabelledBy` (via `labelId` no context).
+ * - `aria-describedby`/`aria-errormessage` → `accessibilityDescribedBy`
+ *   injetado em `FieldControl`.
+ * - `id` HTML → `nativeID` em label, description, error e control.
+ * - `disabled` → `accessibilityState.disabled` + `editable={false}` para
+ *   filhos que expõem `editable`.
+ *
+ * @see {@link FieldRootProps}
+ */
 export const Field = Object.assign(FieldRoot, {
   Root: FieldRoot,
   Label: FieldLabel,

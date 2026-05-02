@@ -5,12 +5,6 @@ import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import type { SwitchRootProps } from '../interfaces/SwitchProps';
 
-/**
- * Switch native consome cores via tokens semânticos diretos do theme.
- * RNSwitch tem API restrita (trackColor / thumbColor) que não aceita o spread completo
- * dos slots da recipe `switch`. Override via `theme.colors.*` afeta os dois targets;
- * override via `theme.components.switch` afeta apenas web. Limitação conhecida.
- */
 function SwitchRoot({
   checked,
   defaultChecked = false,
@@ -62,6 +56,18 @@ SwitchRoot.displayName = 'Switch.Root';
 
 markFieldAware(SwitchRoot);
 
+/**
+ * @platform native
+ *
+ * `Switch` em React Native: usa `<RNSwitch>` (API restrita —
+ * `trackColor`/`thumbColor`) consumindo cores diretamente de `theme.colors.*`,
+ * já que o spread completo dos slots da recipe `switch` não é aceito pelo
+ * componente nativo. Limitação conhecida: override via `theme.components.switch`
+ * afeta apenas web; para customizar visual de switch nos dois targets, use
+ * tokens semânticos de cor.
+ *
+ * @see {@link SwitchRootProps}
+ */
 export const Switch = Object.assign(SwitchRoot, {
   Root: SwitchRoot,
 });

@@ -187,4 +187,16 @@ const CounterBase: React.FC<CounterProps> = ({
 
 CounterBase.displayName = 'Counter';
 
+/**
+ * @platform shared
+ *
+ * Stepper numérico Field-aware. Botões de incremento/decremento com touch
+ * target garantido (44×44 via overlay `::before`), input central editável por
+ * default (`showInput` `true`) ou apenas display (`showInput` `false`).
+ * `step` controla o salto (default `1`); `min`/`max` (default `0` e `999`)
+ * fazem clamp tanto via setas quanto via blur do input. Quando aninhado em
+ * `<Field>`, herda `disabled` e cabeia `aria-*`.
+ *
+ * @see {@link CounterProps}
+ */
 export const Counter = markFieldAware(CounterBase);

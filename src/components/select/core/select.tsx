@@ -530,6 +530,28 @@ SelectItem.displayName = 'Select.Item';
 markFieldAware(SelectRoot);
 markFieldAware(SelectTrigger);
 
+/**
+ * @platform shared
+ *
+ * Compound de select acessível (RFC-0020). Web implementa o padrão WAI-ARIA
+ * "Select-Only Combobox" — o trigger é um `<button role="combobox">` que
+ * controla um listbox `<ul>` montado em `Portal`; o foco real fica no trigger
+ * e o item ativo é apontado por `aria-activedescendant`. Suporta navegação
+ * por setas/Home/End/PageUp/PageDown e type-ahead (NFD-normalizado, timeout
+ * 500ms). Native usa `<Modal>` bottom-sheet (`select.native.tsx`).
+ * Field-aware: herda `disabled`/`invalid`/`required` do `<Field>`.
+ *
+ * @example
+ * <Select value={state} onValueChange={setState}>
+ *   <Select.Trigger><Select.Value placeholder="Estado" /></Select.Trigger>
+ *   <Select.Content>
+ *     <Select.Item value="sp">São Paulo</Select.Item>
+ *     <Select.Item value="rj">Rio de Janeiro</Select.Item>
+ *   </Select.Content>
+ * </Select>
+ *
+ * @see {@link SelectRootProps}
+ */
 export const Select = Object.assign(SelectRoot, {
   Root: SelectRoot,
   Trigger: SelectTrigger,

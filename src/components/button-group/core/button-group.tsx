@@ -3,6 +3,17 @@ import { Flex } from '../../core';
 import type { ButtonGroupProps } from '../interfaces/ButtonGroupProps';
 import { ButtonGroupContext, ButtonGroupItemContext } from './button-group-context';
 
+/**
+ * @platform shared
+ *
+ * Container que agrupa botões e propaga via context: `orientation`
+ * (`horizontal`/`vertical`), `attached` (botões conjugados sem gap, com bordas
+ * colapsadas), `spacing` (gap quando não-attached) e `isDisabled` (desabilita
+ * todos os filhos). Requer `aria-label` ou `aria-labelledby` para
+ * acessibilidade — em desenvolvimento, ausência dispara `console.warn`.
+ *
+ * @see {@link ButtonGroupProps}
+ */
 export function ButtonGroup({
   children,
   orientation = 'horizontal',

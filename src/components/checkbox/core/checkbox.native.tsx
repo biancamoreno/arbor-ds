@@ -116,6 +116,17 @@ CheckboxIndicator.displayName = 'Checkbox.Indicator';
 markFieldAware(CheckboxRoot);
 markFieldAware(CheckboxIndicator);
 
+/**
+ * @platform native
+ *
+ * `Checkbox` em React Native: `Pressable` + `Box` interno como indicator
+ * customizado (RN não tem `<input type="checkbox">`). `accessibilityRole`
+ * `'checkbox'` + `accessibilityState.checked` espelham o estado para leitor
+ * de tela. `indeterminate` é refletido como `'mixed'` em
+ * `accessibilityState.checked`.
+ *
+ * @see {@link CheckboxRootProps}
+ */
 export const Checkbox = Object.assign(CheckboxRoot, {
   Root: CheckboxRoot,
   Indicator: CheckboxIndicator,

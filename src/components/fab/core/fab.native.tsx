@@ -6,6 +6,16 @@ import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 const SIZE_MAP = { sm: 40, md: 56, lg: 72 } as const;
 const ICON_SIZE_MAP = { sm: 16, md: 20, lg: 24 } as const;
 
+/**
+ * @platform native
+ *
+ * `FloatingActionButton` em React Native: usa `Clickable.native` posicionado
+ * absolutamente dentro da tela (sem `position: fixed` — RN não suporta;
+ * `position: 'absolute'` é colocado pelo container do app). Sem animação de
+ * entrada nem `prefers-reduced-motion` — a versão simplificada do FAB web.
+ *
+ * @see {@link FloatingActionButtonProps}
+ */
 export function FloatingActionButton({
   icon,
   label,

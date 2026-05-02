@@ -6,13 +6,6 @@ import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable, Text } from '../../core';
 import type { CounterProps } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Composição Clickable.native (botões −/+) + display do valor (Text ou TextInput numérico).
- * - showInput=true (default) → TextInput numérico editável.
- * - showInput=false → display somente leitura via Text.
- */
 const sizeMap = {
   sm: { button: 24, font: 'xsmall' as const },
   md: { button: 32, font: 'small' as const },
@@ -162,4 +155,14 @@ const CounterBase: React.FC<CounterProps> = ({
 
 CounterBase.displayName = 'Counter';
 
+/**
+ * @platform native
+ *
+ * `Counter` em React Native: `Clickable.native` (botões −/+) + display do
+ * valor (`<Text>` ou `<TextInput numeric>`). `showInput=true` (default)
+ * exibe input numérico editável; `showInput=false` exibe apenas o valor.
+ * Mesma semântica de `min`/`max`/`step`/`disabled` do web.
+ *
+ * @see {@link CounterProps}
+ */
 export const Counter = markFieldAware(CounterBase);

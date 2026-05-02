@@ -76,6 +76,27 @@ function FieldRoot({
 
 FieldRoot.displayName = 'Field.Root';
 
+/**
+ * @platform shared
+ *
+ * Compound canônico de campo de formulário (RFC-0013/0014). `Field.Root`
+ * estabelece um `FieldContext` com IDs auto-gerados (`labelId`/`descriptionId`/
+ * `errorId`) que os slots compound consomem para cabear `aria-labelledby`/
+ * `aria-describedby`/`aria-errormessage` corretamente em web e
+ * `accessibility*` em native. Os states `disabled`/`required`/`invalid`
+ * cascateiam para qualquer descendente Field-aware (TextInput, TextArea,
+ * Counter, Checkbox, Radio, Switch, Select, FileUpload).
+ *
+ * @example
+ * <Field invalid={!!error} required>
+ *   <Field.Label>Email</Field.Label>
+ *   <Field.Control><TextInput type="email" /></Field.Control>
+ *   {hint && <Field.Description>{hint}</Field.Description>}
+ *   {error && <Field.Error>{error}</Field.Error>}
+ * </Field>
+ *
+ * @see {@link FieldRootProps}
+ */
 export const Field = Object.assign(FieldRoot, {
   Root: FieldRoot,
   Label: FieldLabel,

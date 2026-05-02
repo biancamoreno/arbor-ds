@@ -3,18 +3,6 @@ import { Pressable, type View, type GestureResponderEvent } from 'react-native';
 import { Box } from '../../box';
 import type { ClickableProps } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Wrapper `<Pressable>` + `<Box>` que mantém a API pública alinhada com a versão web:
- * - `onClick` é executado no `onPress` do Pressable.
- * - `role` mapeia para `accessibilityRole` (default `'button'`).
- * - `aria-label` mapeia para `accessibilityLabel`.
- * - `disabled` bloqueia o press e propaga em `accessibilityState`.
- *
- * Props styled-system são spreadadas no `<Box>` interno; gestures e a11y vivem no Pressable.
- * `as` e `innerRef` são aceitos por compatibilidade com a tipagem cross-platform e ignorados em native.
- */
 type AccessibilityRoleNative =
   | 'button'
   | 'link'
@@ -48,6 +36,22 @@ type ClickableNativeOnly = {
   testID?: string;
 };
 
+/**
+ * @platform native
+ *
+ * Wrapper `<Pressable>` + `<Box>` que preserva a API pública do `Clickable`
+ * web em React Native:
+ * - `onClick` é disparado pelo `onPress` do Pressable.
+ * - `role` mapeia para `accessibilityRole` (default `'button'`).
+ * - `aria-label` mapeia para `accessibilityLabel`.
+ * - `disabled` bloqueia o press e propaga em `accessibilityState`.
+ *
+ * Props styled-system são spreadadas no `<Box>` interno; gestures e a11y
+ * vivem no Pressable. `as` e `innerRef` são aceitos pela tipagem
+ * cross-platform e ignorados em native.
+ *
+ * @see {@link ClickableProps}
+ */
 export const Clickable = forwardRef<View, ClickableProps>(function Clickable(props, ref) {
   const {
     onClick,

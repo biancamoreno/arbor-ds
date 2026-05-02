@@ -85,6 +85,19 @@ function renderErrorFallback(errorFallback: ImageErrorFallback): ReactNode {
   return errorFallback;
 }
 
+/**
+ * @platform shared
+ *
+ * Componente de imagem cross-platform com discriminated union de modo
+ * (`mode: 'img'` — default — usa `<img>`; `mode: 'background'` usa
+ * `background-image` num container e aceita `children`). Gerencia
+ * `loading`/`loaded`/`error` internamente e permite customizar fallbacks
+ * (`fallback`: skeleton padrão, `'none'`, ou nó React; `errorFallback`: ícone
+ * `ImageOff` padrão, `'none'`, ou nó React). Web pré-carrega o `src` via
+ * `Image()` no modo background para acionar `onLoad`/`onError` corretamente.
+ *
+ * @see {@link ImageProps}
+ */
 export const Image = forwardRef<HTMLElement, ImageProps>(function Image(props, ref) {
   const {
     source,

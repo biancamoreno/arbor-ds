@@ -8,6 +8,18 @@ import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 const SIZE_MAP = { sm: 44, md: 56, lg: 72 } as const;
 const ICON_SIZE_MAP = { sm: 16, md: 20, lg: 24 } as const;
 
+/**
+ * @platform shared
+ *
+ * Floating Action Button (FAB) — botão flutuante posicionado por `position`
+ * (`bottom-right` default, `bottom-left`, `bottom-center`, `none`) com `offset`
+ * customizável. Quando `label` é informado vira FAB extended (ícone + texto).
+ * Anima a entrada com `scale`+`opacity` (`animateOnMount`, default `true`) e
+ * respeita `prefers-reduced-motion`. `aria-label` é obrigatório quando não há
+ * `label` visível — em desenvolvimento, ausência dispara `console.warn`.
+ *
+ * @see {@link FloatingActionButtonProps}
+ */
 export function FloatingActionButton({
   icon,
   label,

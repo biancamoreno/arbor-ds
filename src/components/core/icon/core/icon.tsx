@@ -7,6 +7,17 @@ function resolveSize(size: IconSize): number {
   return iconSizeTokens[size];
 }
 
+/**
+ * @platform shared
+ *
+ * Componente de ícone do DS. Renderiza um glifo do `iconMap` curado (RFC-0028)
+ * pelo nome (`name`) e resolve `size` por token semântico
+ * (`xsmall`/`small`/`medium`/`large`/`xlarge`/`hero`) ou número absoluto. Por
+ * default é decorativo (`aria-hidden`); para ícones com significado próprio,
+ * passe `decorative={false}` e um `aria-label` descritivo.
+ *
+ * @see {@link IconProps}
+ */
 export function Icon(props: IconProps) {
   const {
     name,

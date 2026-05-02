@@ -135,6 +135,24 @@ RadioDescription.displayName = 'Radio.Description';
 
 markFieldAware(RadioRoot);
 
+/**
+ * @platform shared
+ *
+ * Compound de radio button controlado/uncontrolled. `Root` agrupa input
+ * nativo + slots visuais e distribui o estado via `RadioContext`. A prop
+ * `value` é obrigatória (identifica este radio dentro do grupo via `name`).
+ * Use `onCheckedChange(checked)` para receber transições para `true` (radios
+ * não desmarcam ao clicar de novo). Field-aware: herda `disabled`/`invalid`
+ * do `<Field>` quando aninhado.
+ *
+ * @example
+ * <Radio value="standard" name="shipping" checked={mode === 'standard'} onCheckedChange={() => setMode('standard')}>
+ *   <Radio.Indicator />
+ *   <Radio.Label>Entrega padrão</Radio.Label>
+ * </Radio>
+ *
+ * @see {@link RadioRootProps}
+ */
 export const Radio = Object.assign(RadioRoot, {
   Root: RadioRoot,
   Indicator: RadioIndicator,

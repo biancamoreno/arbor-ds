@@ -1,3 +1,11 @@
+/**
+ * @platform shared
+ *
+ * Implementação web do compound `Toast` + `Toaster`. Estratégia: keyframe CSS
+ * (`arbor-toast-in`) injetado uma única vez no `document.head` + posicionamento
+ * via `position: fixed` controlado por `placement`. A versão native fica em
+ * `toast.native.tsx` (Animated.Value + Portal `mode="overlay"`).
+ */
 import React, { useEffect, useSyncExternalStore } from 'react';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { Portal } from '../../../ecosystem/primitives';
@@ -12,13 +20,6 @@ import type {
   ToastPlacement,
   ToastItem,
 } from '../interfaces';
-
-/**
- * @platform shared
- *
- * Web: keyframe CSS injetado uma vez (`arbor-toast-in`) + posicionamento via
- * `position: fixed`. Native: ver `toast.native.tsx`.
- */
 
 const KEYFRAMES_ID = 'arbor-toast-keyframes';
 

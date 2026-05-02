@@ -11,14 +11,6 @@ import { Box, Flex, Text } from '../../core';
 import type { TextAreaProps } from '../interfaces';
 import { FieldShell } from './field-shell';
 
-/**
- * @platform native-ready
- *
- * Wrapper sobre `<TextInput multiline>` RN com a mesma API pública do TextArea web.
- * - `rows` mapeia para `numberOfLines` (Android) + altura mínima derivada.
- * - `showCharCount` + `maxLength` permanecem semânticos iguais ao web.
- */
-
 const fontSizeBySize = { sm: 'xsmall', md: 'small', lg: 'medium' } as const;
 
 type RNStyle = NonNullable<RNTextInputProps['style']>;
@@ -135,4 +127,14 @@ const TextAreaComponent = forwardRef<RNTextInput, TextAreaProps>(function TextAr
 
 TextAreaComponent.displayName = 'TextArea';
 
+/**
+ * @platform native
+ *
+ * `TextArea` em React Native: `<TextInput multiline>` RN com a mesma API
+ * pública do equivalente web. `rows` mapeia para `numberOfLines` (Android) +
+ * altura mínima derivada. `showCharCount` + `maxLength` mantêm a mesma
+ * semântica do web.
+ *
+ * @see {@link TextAreaProps}
+ */
 export const TextArea = markFieldAware(TextAreaComponent);

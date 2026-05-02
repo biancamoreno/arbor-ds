@@ -112,6 +112,18 @@ SwitchRoot.displayName = 'Switch.Root';
 
 markFieldAware(SwitchRoot);
 
+/**
+ * @platform shared
+ *
+ * Toggle on/off com semântica `role="switch"`. Renderiza input nativo escondido
+ * (para suporte a teclado e formulário) sobreposto a um track + thumb visuais
+ * com transição animada. Field-aware: herda `disabled`/`invalid` do `<Field>`.
+ * Use `onCheckedChange(checked)` para reagir ao toggle. Como o controle não
+ * tem label visual embutido, passe `aria-label` ou `aria-labelledby` quando
+ * standalone.
+ *
+ * @see {@link SwitchRootProps}
+ */
 export const Switch = Object.assign(SwitchRoot, {
   Root: SwitchRoot,
 });

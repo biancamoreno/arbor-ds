@@ -17,4 +17,14 @@ const FlexComponent = forwardRef<HTMLElement, FlexProps>(function Flex(props, re
 });
 
 FlexComponent.displayName = 'Flex';
+/**
+ * @platform shared
+ *
+ * `Box` com `display: flex` aplicado por default e atalho `flexDir` para
+ * `flexDirection`. Use sempre que precisar compor itens em linha ou coluna —
+ * preferível a `<Box display="flex">` por intenção mais clara e por aceitar
+ * todos os atalhos de flex.
+ *
+ * @see {@link FlexProps}
+ */
 export const Flex = memo(FlexComponent);

@@ -14,18 +14,6 @@ import type {
   RadioDescriptionProps,
 } from '../interfaces/RadioProps';
 
-/**
- * @platform native-ready
- *
- * Radio nativo: `<Pressable>` exterior carrega a semântica `accessibilityRole="radio"`
- * + `accessibilityState.checked/disabled`. Slots `root` e `control` são consumidos via
- * `useSlotRecipe('radio', { size, state })`, mantendo paridade visual com a versão web.
- *
- * Limitações conhecidas:
- * - `_focusVisibleWithin` é pseudo-prop sem efeito em native (não há `:has`).
- * - Indicador interno usa cor sólida (transition CSS não cruza para RN).
- */
-
 type RadioSlot = 'root' | 'control' | 'indicator' | 'label' | 'description';
 
 function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): RadioState {
@@ -126,6 +114,17 @@ RadioDescription.displayName = 'Radio.Description';
 
 markFieldAware(RadioRoot);
 
+/**
+ * @platform native
+ *
+ * `Radio` em React Native: `<Pressable>` exterior com `accessibilityRole="radio"`
+ * + `accessibilityState.checked/disabled`. Slots `root` e `control` consomem
+ * `useSlotRecipe('radio', { size, state })`, mantendo paridade visual com web.
+ * Limitações: `_focusVisibleWithin` é no-op (RN não tem `:has`); o indicador
+ * interno usa cor sólida (transition CSS não cruza para RN).
+ *
+ * @see {@link RadioRootProps}
+ */
 export const Radio = Object.assign(RadioRoot, {
   Root: RadioRoot,
   Indicator: RadioIndicator,

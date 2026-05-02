@@ -12,6 +12,17 @@ const buttonSizeMap = {
   lg: { paddingInline: '20px', paddingBlock: '12px' },
 } as const;
 
+/**
+ * @platform shared
+ *
+ * Botão primário do DS. Quatro variantes (`primary`/`secondary`/`ghost`/`danger`)
+ * e três tamanhos (`sm`/`md`/`lg`); `loading` exibe `Spinner` à esquerda do
+ * texto e desabilita interação. Quando renderizado dentro de `ButtonGroup`,
+ * detecta `attached` e colapsa os raios do canto interno automaticamente para
+ * formar um conjunto contíguo.
+ *
+ * @see {@link ButtonProps}
+ */
 export function Button({
   children,
   variant = 'primary',
