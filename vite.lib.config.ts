@@ -1,12 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import dts from 'vite-plugin-dts'
 import { fileURLToPath } from 'url'
 import { resolve } from 'path'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
-  plugins: [react()],
+  publicDir: false,
+  plugins: [
+    react(),
+    dts({
+      tsconfigPath: resolve(__dirname, 'tsconfig.lib.json'),
+      entryRoot: resolve(__dirname, 'src'),
+      outDir: resolve(__dirname, 'dist'),
+      insertTypesEntry: false,
+      copyDtsFiles: false,
+    }),
+  ],
   build: {
     lib: {
       entry: {
@@ -18,7 +29,17 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', 'react-dom', 'react-native', 'react-native-web'],
+      external: [
+        'react',
+        'react/jsx-runtime',
+        'react-dom',
+        'react-native',
+        'react-native-web',
+        'react-native-svg',
+        /^react-native-svg\//,
+        'lucide-react',
+        'lucide-react-native',
+      ],
       output: {
         globals: {
           react: 'React',

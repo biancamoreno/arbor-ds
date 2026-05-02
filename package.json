@@ -17,20 +17,30 @@
   "type": "module",
   "main": "dist/components.cjs",
   "module": "dist/components.js",
+  "types": "dist/components/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "exports": {
     ".": {
+      "types": "./dist/components/index.d.ts",
       "import": "./dist/components.js",
       "require": "./dist/components.cjs"
     },
     "./native": {
-      "import": "./dist/native.js",
-      "types": "./dist/native.d.ts"
+      "types": "./dist/native.d.ts",
+      "import": "./dist/native.js"
     },
     "./foundations": {
+      "types": "./dist/foundations/index.d.ts",
       "import": "./dist/foundations.js",
       "require": "./dist/foundations.cjs"
     },
     "./ecosystem": {
+      "types": "./dist/ecosystem/index.d.ts",
       "import": "./dist/ecosystem.js",
       "require": "./dist/ecosystem.cjs"
     }
@@ -53,6 +63,8 @@
     "prepare": "husky"
   },
   "peerDependencies": {
+    "lucide-react": ">=1",
+    "lucide-react-native": ">=1",
     "react": ">=18",
     "react-dom": ">=18",
     "react-native": ">=0.72",
@@ -60,6 +72,12 @@
     "react-native-web": ">=0.19"
   },
   "peerDependenciesMeta": {
+    "lucide-react": {
+      "optional": true
+    },
+    "lucide-react-native": {
+      "optional": true
+    },
     "react-native-svg": {
       "optional": false
     }
@@ -91,6 +109,8 @@
     "husky": "^9.1.7",
     "jest": "^30.2.0",
     "jest-expo": "^54.0.17",
+    "lucide-react": "^1.8.0",
+    "lucide-react-native": "^1.8.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-native": "^0.84.0",
@@ -101,10 +121,7 @@
     "storybook": "^10.3.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2"
-  },
-  "dependencies": {
-    "lucide-react": "^1.8.0",
-    "lucide-react-native": "^1.8.0"
+    "vite": "^7.1.2",
+    "vite-plugin-dts": "^5.0.0"
   }
 }
