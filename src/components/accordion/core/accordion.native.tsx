@@ -9,18 +9,6 @@ import type {
   AccordionContentProps,
 } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Accordion nativo simplificado:
- * - Sem keyboard nav (touch-only).
- * - Sem animação CSS grid (web usa `gridTemplateRows`); native renderiza Content
- *   apenas quando `open === true`. Animated pode ser adicionado depois sem quebra de API.
- * - Trigger via `Clickable.native` com `accessibilityRole="button"` +
- *   `accessibilityState={{ expanded, disabled }}`.
- * - Chevron alterna entre `ChevronDown` (fechado) e `ChevronUp` (aberto) — sem rotate CSS.
- */
-
 interface AccordionNativeContextValue {
   openValues: string[];
   toggle: (value: string) => void;
@@ -186,6 +174,21 @@ AccordionItem.displayName = 'Accordion.Item';
 AccordionTrigger.displayName = 'Accordion.Trigger';
 AccordionContent.displayName = 'Accordion.Content';
 
+/**
+ * @platform native
+ *
+ * `Accordion` em React Native — versão simplificada do compound web:
+ * - Sem keyboard nav (touch-only).
+ * - Sem animação CSS grid (web usa `gridTemplateRows`); native renderiza
+ *   `Content` apenas quando `open === true`. `Animated` pode ser adicionado
+ *   depois sem quebra de API.
+ * - Trigger via `Clickable.native` com `accessibilityRole='button'` +
+ *   `accessibilityState={{ expanded, disabled }}`.
+ * - Chevron alterna entre `ChevronDown` (fechado) e `ChevronUp` (aberto) —
+ *   sem rotate CSS.
+ *
+ * @see {@link AccordionRootProps}
+ */
 export const Accordion = Object.assign(AccordionRoot, {
   Root: AccordionRoot,
   Item: AccordionItem,

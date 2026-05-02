@@ -9,15 +9,6 @@ import type {
   BreadcrumbSeparatorProps,
 } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Breadcrumb cross-platform. Web usa `<nav>`/`<ol>`/`<li>`/`<a>`; native remapeia para
- * `Box`/`Flex`/`Clickable.native` com `accessibilityRole="link"` no Link e
- * `accessibilityState={{ selected: true }}` no Current (RN não tem `aria-current`).
- * Separator é hidden de a11y via `accessibilityElementsHidden` + `importantForAccessibility`.
- */
-
 function BreadcrumbRoot({ children, label = 'Navegação estrutural', style, ...props }: BreadcrumbRootProps) {
   return (
     <Box
@@ -122,6 +113,17 @@ BreadcrumbLink.displayName = 'Breadcrumb.Link';
 BreadcrumbCurrent.displayName = 'Breadcrumb.Current';
 BreadcrumbSeparator.displayName = 'Breadcrumb.Separator';
 
+/**
+ * @platform native
+ *
+ * `Breadcrumb` em React Native. Web usa `<nav>`/`<ol>`/`<li>`/`<a>`; native
+ * remapeia para `Box`/`Flex`/`Clickable.native` com `accessibilityRole='link'`
+ * no `Link` e `accessibilityState={{ selected: true }}` no `Current` (RN não
+ * tem `aria-current`). `Separator` é escondido de a11y via
+ * `accessibilityElementsHidden` + `importantForAccessibility`.
+ *
+ * @see {@link BreadcrumbRootProps}
+ */
 export const Breadcrumb = Object.assign(BreadcrumbRoot, {
   Root: BreadcrumbRoot,
   List: BreadcrumbList,

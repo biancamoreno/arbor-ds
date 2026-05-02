@@ -7,10 +7,15 @@ import { SIZE_MAP } from '../internal/sizes';
 import type { SpinnerProps } from '../interfaces';
 
 /**
- * @platform native-ready
+ * @platform native
  *
- * Rotação contínua via `Animated.loop` interpolando 0..1 → 0deg..360deg.
- * Sem keyframes CSS — paridade visual com o web (`spinner.tsx`).
+ * `Spinner` em React Native: rotação contínua via `Animated.loop`
+ * interpolando 0..1 → 0deg..360deg (sem keyframes CSS — paridade visual com
+ * o web). `accessibilityRole='progressbar'` + `accessibilityLabel` para
+ * leitores de tela. Em ambiente de teste a animação é resolvida
+ * instantaneamente.
+ *
+ * @see {@link SpinnerProps}
  */
 export function Spinner({ size = 'md', color, label = 'Carregando', style, ...props }: SpinnerProps) {
   const theme = useTheme();

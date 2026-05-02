@@ -103,6 +103,24 @@ function CardMedia({ children, style, ...props }: CardSectionProps) {
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de cartão. `Card.Root` aceita `variant` para controlar a aparência
+ * (`outlined`/`elevated`/`flat`/`hoverable`/`clickable`). Slots disponíveis:
+ * `Header`, `Body`, `Footer`, `Media`. Use `variant="clickable"` apenas com
+ * `onClick` + `aria-label` definidos.
+ *
+ * @example
+ * <Card variant="elevated">
+ *   <Card.Media><Image src={url} alt="" /></Card.Media>
+ *   <Card.Header>Plano Plus</Card.Header>
+ *   <Card.Body>Recursos avançados…</Card.Body>
+ *   <Card.Footer><Button>Assinar</Button></Card.Footer>
+ * </Card>
+ *
+ * @see {@link CardRootProps}
+ */
 export const Card = Object.assign(CardRoot, {
   Root: CardRoot,
   Header: CardHeader,

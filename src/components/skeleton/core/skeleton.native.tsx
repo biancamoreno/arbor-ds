@@ -31,6 +31,16 @@ function SkeletonLine({
   );
 }
 
+/**
+ * @platform native
+ *
+ * `Skeleton` em React Native: pulsação `opacity` via `Animated.loop` em vez
+ * do shimmer linear do web (RN não tem `background-image: linear-gradient`).
+ * `accessibilityRole='progressbar'` + `accessibilityLabel`; passe
+ * `label=false` para `accessibilityElementsHidden`.
+ *
+ * @see {@link SkeletonProps}
+ */
 export function Skeleton({
   lines,
   width,

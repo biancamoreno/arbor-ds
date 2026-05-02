@@ -135,4 +135,23 @@ function TabBarRoot({
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Bottom tab bar — barra de navegação inferior (padrão mobile, mas também
+ * usável em web). `TabBar.Root` controla `value` (item ativo) e
+ * `onChange(value)`. `TabBar.Item` é cada aba clicável (ícone + label) com
+ * `value` único; quando `value` casa com o do `Root`, fica ativa
+ * (`aria-selected`). Em mobile, posicione fixo no rodapé via container do
+ * app.
+ *
+ * @example
+ * <TabBar value={tab} onChange={setTab}>
+ *   <TabBar.Item value="home" icon="Home">Início</TabBar.Item>
+ *   <TabBar.Item value="search" icon="Search">Buscar</TabBar.Item>
+ *   <TabBar.Item value="profile" icon="User">Perfil</TabBar.Item>
+ * </TabBar>
+ *
+ * @see {@link TabBarRootProps}
+ */
 export const TabBar = Object.assign(TabBarRoot, { Item: TabBarItem });

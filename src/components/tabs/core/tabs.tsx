@@ -184,6 +184,27 @@ TabsList.displayName = 'Tabs.List';
 TabsTrigger.displayName = 'Tabs.Trigger';
 TabsContent.displayName = 'Tabs.Content';
 
+/**
+ * @platform shared
+ *
+ * Compound de tabs (abas). `Tabs.Root` controla o `value` ativo
+ * (controlled/uncontrolled) e `orientation` (`horizontal`/`vertical`).
+ * `Tabs.List` (com `role="tablist"`) agrupa os `Tabs.Trigger` (cada um com
+ * seu `value`); `Tabs.Content` é o painel revelado quando `value` casa com
+ * o trigger ativo. Suporta navegação por teclado (setas, Home/End) em web.
+ *
+ * @example
+ * <Tabs defaultValue="overview">
+ *   <Tabs.List>
+ *     <Tabs.Trigger value="overview">Visão geral</Tabs.Trigger>
+ *     <Tabs.Trigger value="reviews">Avaliações</Tabs.Trigger>
+ *   </Tabs.List>
+ *   <Tabs.Content value="overview">…</Tabs.Content>
+ *   <Tabs.Content value="reviews">…</Tabs.Content>
+ * </Tabs>
+ *
+ * @see {@link TabsRootProps}
+ */
 export const Tabs = Object.assign(TabsRoot, {
   Root: TabsRoot,
   List: TabsList,

@@ -115,4 +115,14 @@ function TabBarRoot({
   );
 }
 
+/**
+ * @platform native
+ *
+ * `TabBar` em React Native — bottom tab bar com `paddingBottom` derivado da
+ * safe area inferior (suporta iPhone com notch/home indicator). Itens via
+ * `Clickable.native` com `accessibilityRole='tab'` +
+ * `accessibilityState={{ selected }}`.
+ *
+ * @see {@link TabBarRootProps}
+ */
 export const TabBar = Object.assign(TabBarRoot, { Item: TabBarItem });

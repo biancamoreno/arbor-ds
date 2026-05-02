@@ -38,6 +38,15 @@ function getTagColors(selected: boolean, tone: TagProps['tone'], theme: ReturnTy
       };
 }
 
+/**
+ * @platform native
+ *
+ * `Tag` em React Native — `Clickable.native` com mesmo modelo visual do web.
+ * Suporta `tone` (`neutral`/`brand`) e `selected` (preenchimento sólido vs.
+ * outline). `disabled` bloqueia o press e propaga em `accessibilityState`.
+ *
+ * @see {@link TagProps}
+ */
 export function Tag({ children, tone = 'neutral', selected = false, disabled, style, ...props }: TagProps) {
   const theme = useTheme();
   const colors = getTagColors(selected, tone, theme);

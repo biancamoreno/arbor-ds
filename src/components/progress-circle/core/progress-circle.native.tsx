@@ -9,13 +9,15 @@ import type { ProgressCircleProps } from '../interfaces';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 /**
- * @platform native-ready
+ * @platform native
  *
- * Indeterminado: rotaciona o container (`Animated.View`) com `useNativeDriver`.
- * Determinístico: aplica `strokeDashoffset` no `<Circle>`, com rotação estática
- * `-90deg` no container para alinhar o início do arco no topo.
+ * `ProgressCircle` em React Native renderizado via `react-native-svg`.
+ * Indeterminado: rotaciona o container `Animated.View` com `useNativeDriver`.
+ * Determinístico: aplica `strokeDashoffset` no `<Circle>`, com rotação
+ * estática `-90deg` no container para alinhar o início do arco no topo. Em
+ * ambiente de teste a animação é desligada.
  *
- * Em test env, a animação é desligada (segue padrão do Spinner.native).
+ * @see {@link ProgressCircleProps}
  */
 export function ProgressCircle({
   progress,

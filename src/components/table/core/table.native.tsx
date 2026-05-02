@@ -10,19 +10,6 @@ import type {
   TableHeaderCellProps,
 } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Table cross-platform. Web usa `<table>/<thead>/<tbody>/<tr>/<td>/<th>`; native
- * remapeia para `Flex` columnar/row com bordas controladas via `TableSectionContext`
- * (Head aplica `borderBottomWidth: 2`, Body aplica `1` em cada Row).
- *
- * Limitações em native: `colSpan`/`rowSpan`/`scope` são no-op (RN não tem grid span);
- * roles `'table'/'row'/'cell'/'columnheader'` não existem na plataforma — apenas
- * `accessibilityRole='header'` é aplicado em HeaderCell.
- *
- * Para tabelas largas em mobile, prefira `scrollable` (envolve em `ScrollView` horizontal).
- */
 
 type TableSection = 'head' | 'body' | 'none';
 const TableSectionContext = createContext<TableSection>('none');
@@ -148,6 +135,22 @@ TableRow.displayName = 'Table.Row';
 TableCell.displayName = 'Table.Cell';
 TableHeaderCell.displayName = 'Table.HeaderCell';
 
+/**
+ * @platform native
+ *
+ * `Table` em React Native (RFC-0022). Remapeia
+ * `<table>/<thead>/<tbody>/<tr>/<td>/<th>` para `Flex` columnar/row, com
+ * bordas controladas via `TableSectionContext` (`Head` aplica
+ * `borderBottomWidth: 2`, `Body` aplica `1` em cada `Row`).
+ *
+ * Limitações: `colSpan`/`rowSpan`/`scope` são no-op (RN não tem grid span);
+ * roles `'table'`/`'row'`/`'cell'`/`'columnheader'` não existem na
+ * plataforma — apenas `accessibilityRole='header'` é aplicado em
+ * `HeaderCell`. Para tabelas largas em mobile, mantenha `scrollable=true`
+ * (envolve em `ScrollView` horizontal).
+ *
+ * @see {@link TableRootProps}
+ */
 export const Table = Object.assign(TableRoot, {
   Root: TableRoot,
   Head: TableHead,

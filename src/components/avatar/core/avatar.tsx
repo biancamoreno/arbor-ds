@@ -152,10 +152,35 @@ function AvatarGroup({ children, max, size = 'md', style, ...props }: AvatarGrou
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de avatar circular. `Avatar.Root` controla tamanho (`size`) e
+ * shape; `Avatar.Image` carrega o `src` e ativa `Avatar.Fallback` (iniciais ou
+ * conteúdo customizado) quando a imagem falha ou demora a carregar
+ * (`delayMs`). Use `AvatarGroup` para empilhar avatares com `+N` quando
+ * excede `max`.
+ *
+ * @example
+ * <Avatar size="md">
+ *   <Avatar.Image src={user.photo} alt={user.name} />
+ *   <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
+ * </Avatar>
+ *
+ * @see {@link AvatarRootProps}
+ */
 export const Avatar = Object.assign(AvatarRoot, {
   Root: AvatarRoot,
   Image: AvatarImage,
   Fallback: AvatarFallback,
 });
 
+/**
+ * @platform shared
+ *
+ * Empilha múltiplos `Avatar` lado a lado com sobreposição negativa. Quando o
+ * número de filhos excede `max`, exibe um avatar contador com `+N`.
+ *
+ * @see {@link AvatarGroupProps}
+ */
 export { AvatarGroup };

@@ -8,6 +8,16 @@ function getSafeAreaTop(): number {
   return 0;
 }
 
+/**
+ * @platform native
+ *
+ * `NavBar` em React Native — top app bar com padding-top derivado da safe
+ * area por plataforma (`44` em iOS, `24` em Android). Sem `backdropFilter`
+ * (RN não suporta) — `blurred` é no-op aqui. Mesmos slots do equivalente
+ * web (`start`/`center`/`title`/`end`).
+ *
+ * @see {@link NavBarProps}
+ */
 export function NavBar({
   start,
   end,

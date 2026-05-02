@@ -207,6 +207,26 @@ AccordionItem.displayName = 'Accordion.Item';
 AccordionTrigger.displayName = 'Accordion.Trigger';
 AccordionContent.displayName = 'Accordion.Content';
 
+/**
+ * @platform shared
+ *
+ * Compound de accordion (sanfona expansível). `Accordion.Root` aceita
+ * `type='single'` (apenas um item aberto por vez; `value: string`) ou
+ * `type='multiple'` (vários abertos; `value: string[]`). Cada `Accordion.Item`
+ * tem `value` único; `Accordion.Trigger` é o botão que toggle, e
+ * `Accordion.Content` é o painel revelado (com transição de altura em web e
+ * render-condicional + chevron rotativo em native).
+ *
+ * @example
+ * <Accordion type="single" defaultValue="faq-1">
+ *   <Accordion.Item value="faq-1">
+ *     <Accordion.Trigger>Como cancelar?</Accordion.Trigger>
+ *     <Accordion.Content>Acesse Configurações…</Accordion.Content>
+ *   </Accordion.Item>
+ * </Accordion>
+ *
+ * @see {@link AccordionRootProps}
+ */
 export const Accordion = Object.assign(AccordionRoot, {
   Root: AccordionRoot,
   Item: AccordionItem,

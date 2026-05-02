@@ -114,6 +114,29 @@ PaginationPrev.displayName = 'Pagination.Prev';
 PaginationNext.displayName = 'Pagination.Next';
 PaginationEllipsis.displayName = 'Pagination.Ellipsis';
 
+/**
+ * @platform shared
+ *
+ * Compound de paginação. `Pagination.Root` é um `<nav aria-label>` (default
+ * `"Paginação"`). Estrutura: `Root > List > Item* > Button|Prev|Next|Ellipsis`.
+ * Use `Button` para páginas numeradas (com `isActive` na atual), `Prev`/`Next`
+ * para navegação direcional e `Ellipsis` para indicar ranges omitidos. O
+ * compound não controla o estado da página — o consumidor decide qual
+ * botão é `isActive` e responde aos `onClick`.
+ *
+ * @example
+ * <Pagination>
+ *   <Pagination.List>
+ *     <Pagination.Item><Pagination.Prev onClick={prev} /></Pagination.Item>
+ *     <Pagination.Item><Pagination.Button onClick={() => goTo(1)}>1</Pagination.Button></Pagination.Item>
+ *     <Pagination.Item><Pagination.Button isActive>2</Pagination.Button></Pagination.Item>
+ *     <Pagination.Item><Pagination.Ellipsis /></Pagination.Item>
+ *     <Pagination.Item><Pagination.Next onClick={next} /></Pagination.Item>
+ *   </Pagination.List>
+ * </Pagination>
+ *
+ * @see {@link PaginationRootProps}
+ */
 export const Pagination = Object.assign(PaginationRoot, {
   Root: PaginationRoot,
   List: PaginationList,

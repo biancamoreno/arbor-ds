@@ -129,6 +129,25 @@ function AlertClose({ label = 'Fechar', style, ...props }: AlertCloseProps) {
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de alerta — banner persistente para mensagens de status
+ * (informação, sucesso, aviso, crítico). `Alert.Root` controla `tone` (afeta
+ * borda colorida + ícone default + cor do título). Slots: `Icon` (substitui
+ * o ícone tone-default), `Title`, `Description`, `Close` (botão `X`
+ * dismissable). Para notificações efêmeras automáticas, prefira `Toast`.
+ *
+ * @example
+ * <Alert tone="warning">
+ *   <Alert.Icon />
+ *   <Alert.Title>Atenção</Alert.Title>
+ *   <Alert.Description>Sua sessão expira em 5 minutos.</Alert.Description>
+ *   <Alert.Close onClose={dismiss} />
+ * </Alert>
+ *
+ * @see {@link AlertRootProps}
+ */
 export const Alert = Object.assign(AlertRoot, {
   Root: AlertRoot,
   Icon: AlertIcon,

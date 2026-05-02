@@ -3,6 +3,17 @@ import { ProgressBar } from '../../progress-bar';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type { NavBarProps } from '../interfaces/NavBarProps';
 
+/**
+ * @platform shared
+ *
+ * Top app bar — barra superior de navegação. Slots `start` (botões à
+ * esquerda, ex.: voltar/menu), `center` ou `title` (conteúdo central) e
+ * `end` (ações à direita). `elevated` adiciona `boxShadow`; `blurred` aplica
+ * `backdropFilter` (web). `progress` (0-100) renderiza um `ProgressBar` na
+ * parte inferior — útil para indicar carregamento de página.
+ *
+ * @see {@link NavBarProps}
+ */
 export function NavBar({
   start,
   end,

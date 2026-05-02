@@ -127,6 +127,24 @@ function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de chip — pílula compacta para filtros, tags selecionáveis ou
+ * pequenas ações. `Chip.Root` controla `tone`, `size`, `selected` e
+ * `disabled`; slots `Label`, `Icon` e `Remove` (botão `X` clicável).
+ * Diferente de `Tag`, `Chip` é tipicamente interativo (selecionável ou
+ * removível).
+ *
+ * @example
+ * <Chip selected={isActive} onClick={toggle}>
+ *   <Chip.Icon><Icon name="Tag" /></Chip.Icon>
+ *   <Chip.Label>Em estoque</Chip.Label>
+ *   <Chip.Remove onClick={onRemove} />
+ * </Chip>
+ *
+ * @see {@link ChipRootProps}
+ */
 export const Chip = Object.assign(ChipRoot, {
   Root: ChipRoot,
   Label: ChipLabel,

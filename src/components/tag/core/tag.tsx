@@ -45,4 +45,15 @@ function TagComponent({ children, tone = 'neutral', selected = false, style, ...
 }
 
 TagComponent.displayName = 'Tag';
+/**
+ * @platform shared
+ *
+ * Pílula clicável simples — variante elementar do `Chip`. Suporta `tone`
+ * (`neutral`/`brand`) e `selected` (alterna preenchimento sólido vs.
+ * outline). Diferente de `Chip`, não é compound: o conteúdo é flat. Use
+ * para tags filtráveis em listas, badges de status interativos ou pílulas
+ * de seleção simples.
+ *
+ * @see {@link TagProps}
+ */
 export const Tag = TagComponent;

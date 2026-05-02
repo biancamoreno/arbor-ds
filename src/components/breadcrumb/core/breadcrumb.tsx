@@ -100,6 +100,29 @@ BreadcrumbLink.displayName = 'Breadcrumb.Link';
 BreadcrumbCurrent.displayName = 'Breadcrumb.Current';
 BreadcrumbSeparator.displayName = 'Breadcrumb.Separator';
 
+/**
+ * @platform shared
+ *
+ * Compound de breadcrumb (trilha de navegação). `Breadcrumb.Root` é um
+ * `<nav aria-label>` com `label` default `"Navegação estrutural"`. Estrutura
+ * canônica: `Root > List > Item* > Link|Current + Separator`. Use `Link` em
+ * todos os níveis menos o último (a página atual), que recebe `Current` com
+ * `aria-current="page"`. `Separator` é tipicamente um chevron — passe
+ * `children` para customizar.
+ *
+ * @example
+ * <Breadcrumb>
+ *   <Breadcrumb.List>
+ *     <Breadcrumb.Item><Breadcrumb.Link href="/">Início</Breadcrumb.Link></Breadcrumb.Item>
+ *     <Breadcrumb.Separator />
+ *     <Breadcrumb.Item><Breadcrumb.Link href="/produtos">Produtos</Breadcrumb.Link></Breadcrumb.Item>
+ *     <Breadcrumb.Separator />
+ *     <Breadcrumb.Item><Breadcrumb.Current>Tênis</Breadcrumb.Current></Breadcrumb.Item>
+ *   </Breadcrumb.List>
+ * </Breadcrumb>
+ *
+ * @see {@link BreadcrumbRootProps}
+ */
 export const Breadcrumb = Object.assign(BreadcrumbRoot, {
   Root: BreadcrumbRoot,
   List: BreadcrumbList,

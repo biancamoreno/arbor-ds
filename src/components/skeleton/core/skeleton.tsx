@@ -34,6 +34,17 @@ function SkeletonLine({ width, height, borderRadius, style, ...rest }: LineProps
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Placeholder animado de carregamento (shimmer linear). Use `lines` para
+ * gerar um stack de linhas com largura decrescente; sem `lines`, renderiza
+ * um único bloco com `width`/`height`/`borderRadius` informados. `label` é
+ * texto SR-only — passe `false` para suprimir e marcar como `aria-hidden`
+ * (útil quando há outro indicador anunciando o loading).
+ *
+ * @see {@link SkeletonProps}
+ */
 export function Skeleton({
   lines,
   width,

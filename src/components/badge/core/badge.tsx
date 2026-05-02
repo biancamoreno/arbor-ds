@@ -102,6 +102,23 @@ function BadgeAnchor({ children, badge, placement = 'top-right', style, ...props
 
 BadgeAnchor.displayName = 'Badge.Anchor';
 
+/**
+ * @platform shared
+ *
+ * Compound de badge — pequeno indicador numérico/textual. Standalone exibe
+ * apenas o conteúdo; junto com `Badge.Anchor` posiciona-se sobreposto a um
+ * elemento âncora (ícone, avatar). `Badge.Root` controla `tone`, `variant`
+ * (`solid`/`subtle`) e `size`.
+ *
+ * @example
+ * // Badge sobre um avatar:
+ * <Badge.Anchor>
+ *   <Avatar><Avatar.Image src={url} /></Avatar>
+ *   <Badge tone="critical">3</Badge>
+ * </Badge.Anchor>
+ *
+ * @see {@link BadgeRootProps}
+ */
 export const Badge = Object.assign(BadgeRoot, {
   Root: BadgeRoot,
   Anchor: BadgeAnchor,

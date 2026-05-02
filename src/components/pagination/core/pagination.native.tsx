@@ -8,17 +8,6 @@ import type {
   PaginationEllipsisProps,
 } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Paginação cross-platform. A versão native:
- * - Usa `Box`/`Flex` para wrappers (sem semântica de `<nav>`/`<ul>`/`<li>` — RN não tem equivalente).
- * - Mapeia `aria-label` → `accessibilityLabel` no wrapper.
- * - `Pagination.Button` usa `Clickable.native` com `accessibilityRole="button"` e
- *   `accessibilityState={{ selected: isActive, disabled }}` para anunciar página atual.
- * - `Pagination.Ellipsis` usa `accessibilityElementsHidden`/`importantForAccessibility="no-hide-descendants"`.
- */
-
 function PaginationRoot({ children, label = 'Paginação', style, ...props }: PaginationRootProps) {
   return (
     <Box
@@ -150,6 +139,21 @@ PaginationPrev.displayName = 'Pagination.Prev';
 PaginationNext.displayName = 'Pagination.Next';
 PaginationEllipsis.displayName = 'Pagination.Ellipsis';
 
+/**
+ * @platform native
+ *
+ * `Pagination` em React Native:
+ * - `Box`/`Flex` para wrappers (sem semântica de `<nav>`/`<ul>`/`<li>` — RN
+ *   não tem equivalente).
+ * - `aria-label` mapeia para `accessibilityLabel` no wrapper.
+ * - `Pagination.Button` via `Clickable.native` com `accessibilityRole='button'`
+ *   + `accessibilityState={{ selected: isActive, disabled }}` para anunciar
+ *   página atual.
+ * - `Pagination.Ellipsis` é escondido de a11y via
+ *   `accessibilityElementsHidden`/`importantForAccessibility='no-hide-descendants'`.
+ *
+ * @see {@link PaginationRootProps}
+ */
 export const Pagination = Object.assign(PaginationRoot, {
   Root: PaginationRoot,
   List: PaginationList,

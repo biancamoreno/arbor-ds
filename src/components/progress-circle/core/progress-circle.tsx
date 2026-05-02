@@ -3,6 +3,18 @@ import { transition } from '../../../ecosystem/utils/functions';
 import { getToneColor } from '../internal/colors';
 import type { ProgressCircleProps } from '../interfaces';
 
+/**
+ * @platform shared
+ *
+ * Indicador circular de progresso renderizado em SVG. `progress` é
+ * percentual 0-100 (clampado). `indeterminate` ativa rotação contínua
+ * quando o progresso não é determinável. `size` em px (default `48`),
+ * `strokeWidth` controla a espessura da circunferência (default `4`).
+ * `tone` (`brand`/`success`/`warning`/`critical`/`info`) define a cor do
+ * traço. `label` é texto SR-only.
+ *
+ * @see {@link ProgressCircleProps}
+ */
 export function ProgressCircle({
   progress,
   indeterminate = false,

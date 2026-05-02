@@ -9,17 +9,6 @@ import type {
   TabsContentProps,
 } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Tabs nativo simplificado:
- * - Sem navegação por teclado (paradigma touch-only).
- * - `TabsList` recebe `accessibilityRole="tablist"` no `<Flex>` (engine repassa para `<View>`).
- * - `TabsTrigger` usa `Clickable.native` com `accessibilityRole="tab"` +
- *   `accessibilityState={{ selected, disabled }}`.
- * - `TabsContent` usa `accessibilityLabelledBy` apontando para o `nativeID` do trigger ativo,
- *   já que RN não tem role `tabpanel`.
- */
 
 interface TabsNativeContextValue {
   activeValue: string;
@@ -168,6 +157,19 @@ TabsList.displayName = 'Tabs.List';
 TabsTrigger.displayName = 'Tabs.Trigger';
 TabsContent.displayName = 'Tabs.Content';
 
+/**
+ * @platform native
+ *
+ * `Tabs` em React Native — versão simplificada do compound web:
+ * - Sem navegação por teclado (paradigma touch-only).
+ * - `Tabs.List` recebe `accessibilityRole='tablist'`.
+ * - `Tabs.Trigger` via `Clickable.native` com `accessibilityRole='tab'` +
+ *   `accessibilityState={{ selected, disabled }}`.
+ * - `Tabs.Content` usa `accessibilityLabelledBy` apontando para o `nativeID`
+ *   do trigger ativo (RN não tem role `tabpanel`).
+ *
+ * @see {@link TabsRootProps}
+ */
 export const Tabs = Object.assign(TabsRoot, {
   Root: TabsRoot,
   List: TabsList,

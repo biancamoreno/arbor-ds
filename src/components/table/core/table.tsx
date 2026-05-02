@@ -95,6 +95,35 @@ function TableHeaderCell({ children, style, ...props }: TableHeaderCellProps) {
   );
 }
 
+/**
+ * @platform shared
+ *
+ * Compound de tabela. Estrutura: `Root > Head > Row > HeaderCell* + Body >
+ * Row* > Cell*`. Em web renderiza tags HTML semânticas (`<table>`, `<thead>`,
+ * `<tbody>`, `<tr>`, `<th>`, `<td>`); em native usa Flex columnar +
+ * `ScrollView` (RFC-0022 — RN não tem CSS table). `Root.scrollable` (default
+ * `true`) permite scroll horizontal quando o conteúdo excede o container.
+ *
+ * @example
+ * <Table>
+ *   <Table.Head>
+ *     <Table.Row>
+ *       <Table.HeaderCell>Nome</Table.HeaderCell>
+ *       <Table.HeaderCell>Status</Table.HeaderCell>
+ *     </Table.Row>
+ *   </Table.Head>
+ *   <Table.Body>
+ *     {rows.map(r => (
+ *       <Table.Row key={r.id}>
+ *         <Table.Cell>{r.name}</Table.Cell>
+ *         <Table.Cell>{r.status}</Table.Cell>
+ *       </Table.Row>
+ *     ))}
+ *   </Table.Body>
+ * </Table>
+ *
+ * @see {@link TableRootProps}
+ */
 export const Table = Object.assign(TableRoot, {
   Root: TableRoot,
   Head: TableHead,
