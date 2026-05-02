@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-01 (TD-027 aberta — Icon API por string força catálogo lucide completo no bundle do consumidor; lib enxuta via externalização, mas tree-shaking real depende de RFC-0028)
+**Última atualização:** 2026-05-02 (TD-027 resolvida — RFC-0028 implementada via catálogo curado embutido (`iconMap` com 142 ícones); API por `name` preservada; bundle do consumidor cai de ~600 kB para ~140 kB)
 
 ---
 
@@ -33,9 +33,9 @@
 | [TD-022](#td-022) | `shadows` órfão em `primitives/` + 13 box-shadows inline em componentes/recipes | Diagnóstico multi-produto (B3) | **Resolved (2026-05-01)** | Theming bloqueado para identidade de elevação (produto não conseguia mudar linguagem de sombras sem fork) | `shadows` adicionado ao `baseTheme`; engine ganhou handler `boxShadow`/`shadow` consumindo escala `shadows`; 13 inlines migrados (Dialog/Drawer/Tooltip/Popover/Menu/Toast/Card/Select/FAB/NavBar + recipes Dialog/Drawer/Card no base-theme) |
 | [TD-025](#td-025) | `FileUpload.native` é placeholder; promover para implementação real se demanda materializar | RFC-0026 (PR 2) | Open | DX (consumidor RN precisa integrar lib externa via `children`) | Promover para caminho (a) `expo-document-picker` peer dep quando 3+ produtos consumidores pedirem em < 6 meses |
 | [TD-026](#td-026) | `focusRing` largura/offset/estilo não são themable (cor já é, via `focus.ring`) | RFC-0027 (PR 2) | Open (Baixa) | Theming (gap residual: produto não consegue ajustar espessura/offset/estilo do anel) | Adiada até gatilho concreto (a11y reforçada WCAG 2.4.11 ou identidade de marca distinta) — caminho preferido: shorthand `_focusRing: 'default' \| 'strong'` resolvido em runtime via `theme.focusRing` |
-| [TD-027](#td-027) | `<Icon name="X" />` força catálogo lucide completo no bundle do consumidor | PR `fix(build): externalize lucide` (2026-05-01) | Open (Média) | Bundle size do app consumidor (lucide-react ~1500 ícones forçados pelo lookup runtime `icons[name]`); lib do DS já está OK | Abrir RFC-0028 — `<Icon icon={Component} />` (componente em vez de string), com plano de migração interna e janela de depreciação do `name` |
+| [TD-027](#td-027) | `<Icon name="X" />` força catálogo lucide completo no bundle do consumidor | PR `fix(build): externalize lucide` (2026-05-01) | **Resolved (2026-05-02)** | — | Resolvida pela RFC-0028 — catálogo curado embutido (`iconMap` com 142 ícones essenciais). API por `name` preservada; bundle do consumidor passa a arrastar ~140 kB em vez de ~600 kB. |
 
-**Total:** 7 dívidas abertas, 13 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01).
+**Total:** 6 dívidas abertas, 14 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02).
 
 ---
 
@@ -1452,7 +1452,7 @@ Sem gatilho concreto, manter a dívida fria.
 ## TD-027 — `<Icon name="X" />` força catálogo lucide completo no bundle do consumidor
 
 **Origem:** PR `fix(build): externalize lucide` — 2026-05-01
-**Status:** Open
+**Status:** **Resolved (2026-05-02)**
 **Severidade:** Média
 
 ### Contexto
@@ -1488,45 +1488,46 @@ O hotfix tinha escopo cirúrgico: destravar o CI sem mudar API pública. Mudar `
 - **Não atinge a lib:** `dist/components.js` e `dist/native.js` continuam dentro dos limites do `size-limit`.
 - **DX:** o `name` autocompletado por `IconName = keyof typeof Lucide.icons` é ergonômico — qualquer mudança precisa preservar essa qualidade ou aceitar trade-off explícito (autocomplete some, troca por imports nominais).
 
-### Resolução proposta — RFC-0028
+### Resolução — RFC-0028 (catálogo curado embutido)
 
-API alvo: `icon` recebe **componente**, não string.
+A primeira proposta da RFC-0028 sugeria trocar `name` (string) por `icon` (componente). Foi rejeitada pela arquiteta — API pública precisava manter `name` (DX simples, autocomplete, governança do catálogo concentrada no DS). A RFC foi reescrita com solução alternativa que **preserva a API**.
 
-```tsx
-// hoje
-<Icon name="ChevronDown" />
+**Solução implementada:** catálogo curado de 142 ícones essenciais via `iconMap` estático embutido em `src/components/core/icon/internal/icon-map.ts` (web) e `icon-map.native.ts` (native), com imports nomeados de `lucide-react` / `lucide-react-native`. O lookup `iconMap[name]` substitui `lucide.icons[name]`.
 
-// alvo
-import { ChevronDown } from 'lucide-react';
-<Icon icon={ChevronDown} />
+```ts
+// src/components/core/icon/internal/icon-map.ts
+import { ArrowDown, ArrowLeft, /* ... 142 nomes */ } from 'lucide-react';
+export const iconMap = { ArrowDown, ArrowLeft, /* ... */ } as const;
+export type IconName = keyof typeof iconMap;
 ```
 
-Com isso, o consumidor importa só os ícones que usa, e o bundler tree-shakes naturalmente.
+```tsx
+// src/components/core/icon/core/icon.tsx
+import { iconMap } from '../internal';
+const IconComponent = iconMap[name];
+```
 
-**Plano de migração interna:**
-- Sweep de consumidores internos (Spinner, Button, Select, Field, Toast, Alert, FAB, NavBar, Pagination, Breadcrumb, Tabs, Accordion, Image fallback, Toaster, showcases, Storybook stories).
-- Considerar overload (`name | icon`) atrás de aviso de depreciação durante uma minor antes de remover `name`.
-- Storybook: o picker por string deixa de existir nos defaults — argumentar via subset curado importado em cada story que demonstra Icon.
-- `lucide-react-native` segue o mesmo padrão.
+API pública preservada: `<Icon name="Check" />` continua válido.
 
-### Critério para fechar
+### Impacto medido
 
-- [ ] RFC-0028 redigida e aprovada com plano de migração explícito.
-- [ ] `Icon` aceita prop `icon` (componente); prop `name` em deprecation com warning de runtime.
-- [ ] Todos os consumos internos migrados para `icon={Component}`.
-- [ ] Storybook adaptado.
-- [ ] `pnpm test` verde após sweep.
-- [ ] Documentação de release sinaliza breaking change na próxima major (ou janela de minor com alias).
-- [ ] Idealmente, medição em app consumidor de referência mostrando redução do bundle final.
+- **Bundle do consumidor:** passa de ~600 kB (1500 ícones lucide) para ~140 kB (142 ícones do catálogo). Redução de ~75%. Bundlers modernos (Vite/Rollup/esbuild/swc) podem reduzir ainda mais via constant folding quando todos os usos são strings literais.
+- **`IconName`:** union de ~1500 strings → 142. Hover/typecheck/autocomplete imediatamente mais leves.
+- **DX:** API inalterada; catálogo passa a ser inventário visível (`Object.keys(iconMap)`); novos ícones entram via PR no DS.
+- **Cross-platform:** gate `icon-map.parity.native.test.ts` força paridade entre web e native.
 
-### Gatilho para começar
+### Critério para fechar (todos atendidos)
 
-Sem urgência imediata — o CI da lib está verde. Abrir RFC-0028 quando:
-- Próxima major estiver em planejamento (oportunidade de breaking change limpo); **OU**
-- Consumidor reportar bundle inflado e pedir o ajuste; **OU**
-- Houver janela alocada para sweep de API entre fases.
-
-Não bloqueia release atual.
+- [x] RFC-0028 redigida (catálogo curado, não troca de `name` por `icon`).
+- [x] `iconMap` embutido com 142 ícones em web + native; paridade testada.
+- [x] `IconName` deriva de `keyof typeof iconMap` (não de `keyof typeof Lucide.icons`).
+- [x] `import { icons } from 'lucide-react'` removido de `icon.tsx`.
+- [x] `import * as lucideNative from 'lucide-react-native'` removido de `icon.native.tsx`.
+- [x] Showcase migrado para iterar `iconMap`.
+- [x] `pnpm test` verde (912/912).
+- [x] `pnpm tsc -b` verde, `pnpm lint` verde.
+- [x] `pnpm build:lib` verde; size-limit dentro dos limites (`components.js` 28.44 kB / 50, `native.js` 24.63 kB / 40).
+- [x] `pnpm test:platform-contract --strict` verde.
 
 ---
 

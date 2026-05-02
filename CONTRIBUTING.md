@@ -461,6 +461,47 @@ export function App() {
 
 Acompanhe o progresso da [RFC-0027](docs/rfcs/RFC-0027-multi-product-themable-contract.md).
 
+## Icon — catálogo curado
+
+API:
+
+```tsx
+import { Icon } from 'arbor-ds';
+
+<Icon name="Check" size="medium" />
+<Icon name="ChevronDown" size="small" decorative />
+<Icon name="CircleAlert" decorative={false} aria-label="Erro" />
+```
+
+`<Icon>` aceita apenas nomes do **catálogo curado** do DS (~140 ícones essenciais), não o catálogo completo do `lucide-react`. O catálogo é mantido em:
+
+- `src/components/core/icon/internal/icon-map.ts` (web — `lucide-react`)
+- `src/components/core/icon/internal/icon-map.native.ts` (native — `lucide-react-native`)
+
+Esse desenho ([RFC-0028](docs/rfcs/RFC-0028-icon-componente-em-vez-de-string.md)) é o que permite o tree-shake do bundle do consumidor: o lookup contra um objeto literal estático elimina ícones não usados em build-time. Lookup contra `lucide.icons` arrastaria ~1500 ícones (~600 kB) para o app.
+
+### Adicionar um ícone novo
+
+1. Verifique o nome em [lucide.dev](https://lucide.dev) (PascalCase: `ArrowLeft`, `CheckCheck`).
+2. Adicione o import nomeado em **ambos** os arquivos (`icon-map.ts` e `icon-map.native.ts`), na seção temática apropriada (Navigation, Status, Actions, User/Auth, Communication, Files, E-commerce, Rating, Time, Media, UI/Theme, Layout, Tech, Highlight).
+3. Adicione a chave correspondente em `iconMap` (mesma seção).
+4. Rode `pnpm test -- icon-map.parity` — o gate cross-platform deve passar.
+
+A curadoria é deliberada: ícones precisam ter aplicação clara em produto. Ícones muito específicos de domínio (ex: `Pizza`, `Croissant`) ficam fora — produto que precisa abre PR justificando.
+
+### Tamanho
+
+Aceita token semântico (`xsmall`/`small`/`medium`/`large`/`xlarge`/`hero`) ou número bruto (escape hatch).
+
+| Token | px | Uso |
+|---|---|---|
+| `xsmall` | 12 | inline em texto pequeno |
+| `small` | 16 | buttons sm, chips, tags |
+| `medium` | 20 | default — buttons md, inputs, alerts |
+| `large` | 24 | buttons lg, headers de section |
+| `xlarge` | 32 | hero icons em cards |
+| `hero` | 48 | empty states, onboarding |
+
 ## Scripts úteis
 
 ```bash
