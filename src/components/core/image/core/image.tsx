@@ -68,7 +68,7 @@ function ShimmerPlaceholder() {
 function ErrorPlaceholder() {
   return (
     <Center width="100%" height="100%" backgroundColor="background.subtle">
-      <Icon name="ImageOff" size="lg" decorative={false} aria-label="Imagem indisponível" />
+      <Icon name="ImageOff" size="large" decorative={false} aria-label="Imagem indisponível" />
     </Center>
   );
 }

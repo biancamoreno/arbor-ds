@@ -10,7 +10,7 @@ export const SearchInput = markFieldAware(
       <TextInput
         ref={ref}
         type="search"
-        leftIcon={<Icon name="Search" size="sm" decorative />}
+        leftIcon={<Icon name="Search" size="small" decorative />}
         onKeyDown={(event) => {
           onKeyDown?.(event);
           if (event.key === 'Enter') {

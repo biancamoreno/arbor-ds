@@ -368,7 +368,7 @@ function SelectTrigger({ children }: SelectTriggerProps) {
           transform: ctx.isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
         }}
       >
-        <Icon name="ChevronDown" size="sm" decorative />
+        <Icon name="ChevronDown" size="small" decorative />
       </Box>
     </Clickable>
   );

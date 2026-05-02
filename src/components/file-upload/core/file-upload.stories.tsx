@@ -118,7 +118,7 @@ export const CustomDropZone: Story = {
     <Box width="420px">
       <FileUpload>
         <Flex flexDirection="column" alignItems="center" gap="micro">
-          <Icon name="FileImage" size="xl" color="brand.base" decorative />
+          <Icon name="FileImage" size="xlarge" color="brand.base" decorative />
           <Text as="p" fontSize="small" fontWeight="semibold" color="text.primary">
             Solte sua foto de perfil aqui
           </Text>

@@ -68,7 +68,7 @@ function AlertIcon({ children, style, ...props }: AlertIconProps) {
       color={colors.icon as never}
       style={style}
     >
-      {children ?? <Icon name={TONE_ICON[tone]} size="md" />}
+      {children ?? <Icon name={TONE_ICON[tone]} size="medium" />}
     </Flex>
   );
 }
@@ -124,7 +124,7 @@ function AlertClose({ label = 'Fechar', style, ...props }: AlertCloseProps) {
         ...style,
       }}
     >
-      <Icon name="X" size="sm" />
+      <Icon name="X" size="small" />
     </Clickable>
   );
 }

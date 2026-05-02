@@ -122,7 +122,7 @@ function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
         ...style,
       }}
     >
-      <Icon name="X" size="xs" />
+      <Icon name="X" size="xsmall" />
     </Clickable>
   );
 }

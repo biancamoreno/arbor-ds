@@ -160,7 +160,7 @@ function AccordionTrigger({ children, onClick, style, ...props }: AccordionTrigg
       >
         {children}
       </Text>
-      <Icon name={open ? 'ChevronUp' : 'ChevronDown'} size="sm" decorative />
+      <Icon name={open ? 'ChevronUp' : 'ChevronDown'} size="small" decorative />
     </Clickable>
   );
 }

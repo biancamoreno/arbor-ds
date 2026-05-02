@@ -140,7 +140,7 @@ function ToastClose({ label = 'Fechar', onClose, style, testID }: ToastCloseProp
       borderRadius="nano"
       style={{ marginLeft: 'auto', ...(style as object) } as never}
     >
-      <Icon name="X" size="sm" />
+      <Icon name="X" size="small" />
     </Clickable>
   );
 }

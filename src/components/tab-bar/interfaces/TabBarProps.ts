@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { IconName } from '../../core/icon/interfaces/IconName';
+import type { IconName } from '../../core/icon';
 
 export interface TabBarProps {
   value: string;

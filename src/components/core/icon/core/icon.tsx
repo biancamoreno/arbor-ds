@@ -1,6 +1,5 @@
-import { icons } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { iconSize as iconSizeTokens } from '../../../../foundations';
+import { iconMap } from '../internal';
 import type { IconProps, IconSize } from '../interfaces/IconProps';
 
 function resolveSize(size: IconSize): number {
@@ -11,7 +10,7 @@ function resolveSize(size: IconSize): number {
 export function Icon(props: IconProps) {
   const {
     name,
-    size = 'md',
+    size = 'medium',
     color = 'currentColor',
     strokeWidth = 1.75,
     decorative,
@@ -19,11 +18,11 @@ export function Icon(props: IconProps) {
   const ariaLabel = (props as { 'aria-label'?: string })['aria-label'];
   const isDecorative = decorative !== false;
 
-  const LucideIconComponent = icons[name] as LucideIcon | undefined;
-  if (!LucideIconComponent) return null;
+  const IconComponent = iconMap[name];
+  if (!IconComponent) return null;
 
   return (
-    <LucideIconComponent
+    <IconComponent
       size={resolveSize(size)}
       color={color}
       strokeWidth={strokeWidth}

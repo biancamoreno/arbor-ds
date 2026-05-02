@@ -81,7 +81,7 @@ const FileUploadNativeBase: React.FC<FileUploadProps> = ({
           fontSize="small"
         >
           <Flex alignItems="center" gap="micro">
-            <Icon name="X" size="sm" color={criticalColor} decorative />
+            <Icon name="X" size="small" color={criticalColor} decorative />
             <Text fontSize="small" color="feedback.critical.base">
               {t.removeLabel}
             </Text>
@@ -109,14 +109,14 @@ const FileUploadNativeBase: React.FC<FileUploadProps> = ({
       {children ??
         (loading ? (
           <>
-            <Icon name="LoaderCircle" size="xl" color={iconColor} decorative />
+            <Icon name="LoaderCircle" size="xlarge" color={iconColor} decorative />
             <Text fontSize="small" color="text.secondary">
               {t.uploading}
             </Text>
           </>
         ) : (
           <>
-            <Icon name="Upload" size="xl" color={iconColor} decorative />
+            <Icon name="Upload" size="xlarge" color={iconColor} decorative />
             <Text fontSize="small" color="text.secondary">
               {t.dropZone}
             </Text>

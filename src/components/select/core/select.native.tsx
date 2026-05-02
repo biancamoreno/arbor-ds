@@ -169,7 +169,7 @@ function SelectTrigger({ children }: SelectTriggerProps) {
       <Flex {...slots.trigger}>
         {children}
         <Box {...slots.icon} marginLeft="micro">
-          <Icon name="ChevronDown" size="sm" decorative />
+          <Icon name="ChevronDown" size="small" decorative />
         </Box>
       </Flex>
     </Pressable>
@@ -257,7 +257,7 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
         <Text {...slots.itemText}>{children}</Text>
         {isSelected ? (
           <Box marginLeft="micro">
-            <Icon name="Check" size="sm" decorative />
+            <Icon name="Check" size="small" decorative />
           </Box>
         ) : null}
       </Flex>

@@ -1,7 +1,6 @@
-import * as lucideNative from 'lucide-react-native';
-import type { LucideIcon } from 'lucide-react-native';
 import { iconSize as iconSizeTokens } from '../../../../foundations';
 import { useTheme } from '../../../../ecosystem/styled-system/adapters';
+import { iconMap } from '../internal/icon-map.native';
 import type { IconProps, IconSize } from '../interfaces/IconProps';
 
 function resolveSize(size: IconSize): number {
@@ -12,7 +11,7 @@ function resolveSize(size: IconSize): number {
 export function Icon(props: IconProps) {
   const {
     name,
-    size = 'md',
+    size = 'medium',
     color = 'currentColor',
     strokeWidth = 1.75,
     decorative,
@@ -21,11 +20,11 @@ export function Icon(props: IconProps) {
   const isDecorative = decorative !== false;
   const theme = useTheme();
 
-  const LucideIconComponent = (lucideNative as Record<string, unknown>)[name] as LucideIcon | undefined;
-  if (!LucideIconComponent) return null;
+  const IconComponent = iconMap[name];
+  if (!IconComponent) return null;
 
   return (
-    <LucideIconComponent
+    <IconComponent
       size={resolveSize(size)}
       color={color === 'currentColor' ? theme.colors.text.primary : color}
       strokeWidth={strokeWidth}

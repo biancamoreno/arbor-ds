@@ -155,7 +155,7 @@ function ToastClose({ label = 'Fechar', onClose, style, testID }: ToastCloseProp
         ...style,
       }}
     >
-      <Icon name="X" size="sm" />
+      <Icon name="X" size="small" />
     </Clickable>
   );
 }

@@ -1,17 +1,17 @@
 import type { CSSProperties } from 'react';
 import type { IconSizeToken } from '../../../../foundations';
-import type { IconName } from './IconName';
+import type { IconName } from '../internal';
 
 /**
- * Tamanho do ícone. Aceita token semântico (`'xs'`–`'hero'`) ou número bruto (escape hatch).
+ * Tamanho do ícone. Aceita token semântico (`'xsmall'`–`'hero'`) ou número bruto (escape hatch).
  *
  * Tokens recomendados (RFC-0009):
- * - `xs` (12px): inline em texto pequeno.
- * - `sm` (16px): buttons sm, chips, tags.
- * - `md` (20px) — default: buttons md, inputs, alerts.
- * - `lg` (24px): buttons lg, headers de section.
- * - `xl` (32px): hero icons.
- * - `hero` (48px): empty states, onboarding.
+ * - `xsmall` (12px): inline em texto pequeno.
+ * - `small`  (16px): buttons sm, chips, tags.
+ * - `medium` (20px) — default: buttons md, inputs, alerts.
+ * - `large`  (24px): buttons lg, headers de section.
+ * - `xlarge` (32px): hero icons.
+ * - `hero`   (48px): empty states, onboarding.
  *
  * Usar `number` apenas quando nenhum token cabe (avatar custom, ajuste de pixel-fit).
  */
@@ -56,10 +56,11 @@ type IconDefaultProps = IconBaseProps & {
  * Discriminated union (RFC-0010): TypeScript força `aria-label` quando `decorative={false}`.
  *
  * ```tsx
- * <Icon name="check" />                                        // ✅ decorativo (default)
- * <Icon name="check" decorative />                             // ✅ explicitamente decorativo
- * <Icon name="check" decorative={false} aria-label="Sucesso" />// ✅ semântico
- * <Icon name="check" decorative={false} />                     // ❌ erro de tipo
+ * <Icon name="Check" />                                        // ✅ decorativo (default)
+ * <Icon name="Check" decorative />                             // ✅ explicitamente decorativo
+ * <Icon name="Check" decorative={false} aria-label="Sucesso" />// ✅ semântico
+ * <Icon name="Check" decorative={false} />                     // ❌ erro de tipo
  * ```
  */
 export type IconProps = IconDecorativeProps | IconSemanticProps | IconDefaultProps;
+export type { IconName };

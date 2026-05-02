@@ -95,7 +95,7 @@ export const TextInput = markFieldAware(
               flexShrink={0}
               color="text.tertiary"
             >
-              <Icon name="X" size="sm" />
+              <Icon name="X" size="small" />
             </Clickable>
           )}
           {rightIcon && (

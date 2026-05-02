@@ -1,4 +1,4 @@
-import type { IconName } from '../../core/icon/interfaces/IconName';
+import type { IconName } from '../../core/icon';
 
 export interface FloatingActionButtonProps {
   icon: IconName;

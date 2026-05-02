@@ -164,7 +164,7 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
       <Text as="span">{children}</Text>
       <Icon
         name="ChevronDown"
-        size="sm"
+        size="small"
         style={{
           transition: transition(['transform'], 'fast'),
           transform: open ? 'rotate(180deg)' : 'rotate(0deg)',

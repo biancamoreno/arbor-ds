@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
-import { icons } from 'lucide-react';
 import { Icon } from './icon';
+import { iconMap } from '../internal';
 import { Box } from '../../box';
 import { Flex } from '../../flex';
 import { Text } from '../../text';
 import { Clickable } from '../../clickable';
-import type { IconName } from '../interfaces/IconName';
+import type { IconName } from '../internal';
 
-const ALL_NAMES = Object.keys(icons) as IconName[];
+const ALL_NAMES = Object.keys(iconMap) as IconName[];
 
 function toKebab(name: string): string {
   return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
@@ -35,31 +35,32 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
   }, []);
 
   return (
-    <Box fontFamily="sans-serif" padding="24px">
-      <Flex alignItems="center" gap="12px" marginBottom="20px">
+    <Box fontFamily="sans-serif" padding="large">
+      <Flex alignItems="center" gap="tiny" marginBottom="medium">
         <Box
           as="input"
           type="text"
           placeholder="Buscar ícone..."
           value={query}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-          padding="8px 12px"
+          padding="micro"
+          paddingX="tiny"
           borderWidth="hairline"
           borderStyle="solid"
           borderColor="border.default"
-          borderRadius="6px"
-          fontSize={14}
+          borderRadius="micro"
+          fontSize="sm"
           width={280}
           style={{ outline: 'none' }}
         />
-        <Text as="span" fontSize={13} color="text.secondary">
+        <Text as="span" fontSize="xs" color="text.secondary">
           {filtered.length} de {ALL_NAMES.length} ícones
         </Text>
       </Flex>
 
       <Box
         display="grid"
-        gap="4px"
+        gap="nano"
         style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))' }}
       >
         {filtered.map((name) => (
@@ -69,16 +70,16 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
             onClick={() => handleCopy(name)}
             flexDirection="column"
             alignItems="center"
-            gap="6px"
-            padding="12px 8px"
-            borderRadius="8px"
+            gap="nano"
+            padding="micro"
+            paddingX="micro"
+            borderRadius="micro"
             backgroundColor={copied === name ? 'feedback.success.subtle' : 'transparent'}
-            transition="background 0.15s"
           >
             <Icon name={name} size={size} color={color} strokeWidth={strokeWidth} decorative />
             <Text
               as="span"
-              fontSize={10}
+              fontSize="xsmall"
               color="text.secondary"
               textAlign="center"
               lineHeight={1.3}

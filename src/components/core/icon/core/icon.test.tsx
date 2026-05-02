@@ -44,7 +44,7 @@ describe('Icon', () => {
   });
 
   it('resolves semantic size token "xs" to 12px', () => {
-    const { container } = render(<Icon name="Check" size="xs" />);
+    const { container } = render(<Icon name="Check" size="xsmall" />);
     const svg = container.querySelector('svg');
     expect(svg?.getAttribute('width')).toBe('12');
   });

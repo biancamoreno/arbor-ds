@@ -121,7 +121,7 @@ const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(function Text
       />
       {clearable && value ? (
         <Clickable accessibilityLabel="Limpar" onClick={() => emitChange('')}>
-          <Icon name="X" size="sm" />
+          <Icon name="X" size="small" />
         </Clickable>
       ) : null}
       {rightIcon ? <Box>{rightIcon}</Box> : null}
