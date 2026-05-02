@@ -1,16 +1,16 @@
 import { render, screen } from '@testing-library/react';
-import { ArborProvider } from '../../ecosystem/styled-system';
-import { Button } from '../../components/button';
-import { Switch } from '../../components/switch';
-import { Card } from '../../components/card';
-import { Badge } from '../../components/badge';
-import { Avatar } from '../../components/avatar';
-import { Chip } from '../../components/chip';
-import { Spinner } from '../../components/spinner';
-import { themeLight } from './themeLight';
-import { createTheme } from './create-theme';
-import { createBrandPalette } from './create-brand-palette';
-import type { ArborTheme } from './Theme';
+import { ArborProvider } from '../ecosystem/styled-system';
+import { Button } from '../components/button';
+import { Switch } from '../components/switch';
+import { Card } from '../components/card';
+import { Badge } from '../components/badge';
+import { Avatar } from '../components/avatar';
+import { Chip } from '../components/chip';
+import { Spinner } from '../components/spinner';
+import { themeLight } from '../foundations/theme/themeLight';
+import { createTheme } from '../foundations/theme/create-theme';
+import { createBrandPalette } from '../foundations/theme/create-brand-palette';
+import type { ArborTheme } from '../foundations/theme/Theme';
 
 const violetBrand = createBrandPalette({
   primary: '#7C3AED',

@@ -16,9 +16,10 @@ import {
   controlSize,
   dialogSize,
 } from '../tokens';
-import { defineSlotRecipe } from '../../ecosystem/styled-system/recipes';
-import { transition } from '../../ecosystem/utils/functions/transition';
-import type { ThemeComponents } from './types';
+import { transition } from './transition';
+import type { ThemeComponents, SlotRecipeConfig } from './types';
+
+const defineSlotRecipe = <T extends SlotRecipeConfig>(config: T): T => config;
 
 const focusRing = {
   outline: '2px solid',
