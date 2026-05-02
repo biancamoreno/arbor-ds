@@ -1,9 +1,8 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Flex } from '../../core';
 import { Icon } from '../../core';
+import { SIZE_MAP } from '../internal/sizes';
 import type { SpinnerProps } from '../interfaces';
-
-const SIZE_MAP = { sm: 16, md: 24, lg: 40 } as const;
 
 export function Spinner({ size = 'md', color, label = 'Carregando', style, ...props }: SpinnerProps) {
   const theme = useTheme();
@@ -18,10 +17,10 @@ export function Spinner({ size = 'md', color, label = 'Carregando', style, ...pr
       display="inline-flex"
       alignItems="center"
       justifyContent="center"
+      color={strokeColor}
       style={{
         width: px,
         height: px,
-        color: strokeColor,
         animation: 'arbor-spin 0.8s linear infinite',
         ...style,
       }}
@@ -31,3 +30,5 @@ export function Spinner({ size = 'md', color, label = 'Carregando', style, ...pr
     </Flex>
   );
 }
+
+Spinner.displayName = 'Spinner';

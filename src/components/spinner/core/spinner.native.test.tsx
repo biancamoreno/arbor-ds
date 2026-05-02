@@ -34,4 +34,8 @@ describe('Spinner (native)', () => {
     render(<Spinner color="#ff0000" label="Cor" />, { wrapper: Wrapper });
     expect(screen.getByLabelText('Cor')).toBeTruthy();
   });
+
+  it('exposes displayName', () => {
+    expect(Spinner.displayName).toBe('Spinner');
+  });
 });

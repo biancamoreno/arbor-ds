@@ -16,27 +16,30 @@ function SkeletonLine({
   borderRadius,
   style,
   pulse,
-}: Omit<SkeletonProps, 'lines'> & { pulse: Animated.Value }) {
+}: Omit<SkeletonProps, 'lines' | 'label'> & { pulse: Animated.Value }) {
   const theme = useTheme();
 
   const lineStyle: ViewStyle = {
     width: (typeof width === 'number' ? width : (width ?? '100%')) as ViewStyle['width'],
     height: (typeof height === 'number' ? height : (height ?? 16)) as ViewStyle['height'],
-    borderRadius:
-      typeof borderRadius === 'number'
-        ? borderRadius
-        : (borderRadius ?? (Number(theme.radii.nano) || 4)) as ViewStyle['borderRadius'],
+    borderRadius: borderRadius ?? theme.radii.nano,
     backgroundColor: theme.colors.background.subtle,
   };
 
   return (
-    <Animated.View
-      style={[lineStyle, { opacity: pulse }, style as ViewStyle]}
-    />
+    <Animated.View style={[lineStyle, { opacity: pulse }, style as ViewStyle]} />
   );
 }
 
-export function Skeleton({ lines, width, height, borderRadius, style, ...props }: SkeletonProps) {
+export function Skeleton({
+  lines,
+  width,
+  height,
+  borderRadius,
+  label = 'Carregando',
+  style,
+  ...props
+}: SkeletonProps) {
   const pulse = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
@@ -61,14 +64,18 @@ export function Skeleton({ lines, width, height, borderRadius, style, ...props }
     return () => animation.stop();
   }, [pulse]);
 
+  const a11yProps =
+    label === false
+      ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
+      : { accessibilityRole: 'progressbar' as const, accessibilityLabel: label };
+
   if (lines && lines > 1) {
     return (
       <Flex
-        accessibilityRole="progressbar"
-        accessibilityLabel="Carregando"
         flexDirection="column"
         gap="tiny"
         style={style}
+        {...a11yProps}
         {...props}
       >
         {Array.from({ length: lines }, (_, i) => (
@@ -85,12 +92,7 @@ export function Skeleton({ lines, width, height, borderRadius, style, ...props }
   }
 
   return (
-    <Flex
-      accessibilityRole="progressbar"
-      accessibilityLabel="Carregando"
-      style={style}
-      {...props}
-    >
+    <Flex style={style} {...a11yProps} {...props}>
       <SkeletonLine
         width={width}
         height={height}
@@ -100,3 +102,5 @@ export function Skeleton({ lines, width, height, borderRadius, style, ...props }
     </Flex>
   );
 }
+
+Skeleton.displayName = 'Skeleton';

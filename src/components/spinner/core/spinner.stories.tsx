@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Flex } from '../../core';
 import { Spinner } from './spinner';
 
 const meta = {
@@ -22,11 +23,11 @@ export const Default: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+    <Flex gap="medium" alignItems="center">
       <Spinner size="sm" />
       <Spinner size="md" />
       <Spinner size="lg" />
-    </div>
+    </Flex>
   ),
 };
 

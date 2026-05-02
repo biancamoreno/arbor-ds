@@ -16,6 +16,7 @@ const REDUCED_MOTION_CSS =
 const GLOBAL_CSS = `
 @keyframes arbor-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes arbor-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes arbor-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes arbor-progress-indeterminate {
   0% { left: -35%; right: 100%; }
   60% { left: 100%; right: -90%; }

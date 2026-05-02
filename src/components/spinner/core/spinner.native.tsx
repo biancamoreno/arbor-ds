@@ -3,6 +3,7 @@ import { Animated, Easing } from 'react-native';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Flex } from '../../core';
 import { Icon } from '../../core';
+import { SIZE_MAP } from '../internal/sizes';
 import type { SpinnerProps } from '../interfaces';
 
 /**
@@ -11,8 +12,6 @@ import type { SpinnerProps } from '../interfaces';
  * Rotação contínua via `Animated.loop` interpolando 0..1 → 0deg..360deg.
  * Sem keyframes CSS — paridade visual com o web (`spinner.tsx`).
  */
-const SIZE_MAP = { sm: 16, md: 24, lg: 40 } as const;
-
 export function Spinner({ size = 'md', color, label = 'Carregando', style, ...props }: SpinnerProps) {
   const theme = useTheme();
   const px = SIZE_MAP[size];
@@ -53,3 +52,5 @@ export function Spinner({ size = 'md', color, label = 'Carregando', style, ...pr
     </Flex>
   );
 }
+
+Spinner.displayName = 'Spinner';

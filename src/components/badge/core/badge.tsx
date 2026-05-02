@@ -59,15 +59,15 @@ function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'md'
       borderRadius="full"
       borderWidth={1}
       borderStyle="solid"
+      backgroundColor={colors.bg}
+      color={colors.text}
+      borderColor={colors.border}
       fontWeight="medium"
       style={{
         padding,
         fontSize,
         lineHeight: 1.4,
         whiteSpace: 'nowrap',
-        backgroundColor: colors.bg,
-        color: colors.text,
-        borderColor: colors.border,
         ...style,
       }}
     >
@@ -75,6 +75,8 @@ function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'md'
     </Flex>
   );
 }
+
+BadgeRoot.displayName = 'Badge';
 
 function BadgeAnchor({ children, badge, placement = 'top-right', style, ...props }: BadgeAnchorProps) {
   const placementStyle: Record<NonNullable<BadgeAnchorProps['placement']>, React.CSSProperties> = {
@@ -97,6 +99,8 @@ function BadgeAnchor({ children, badge, placement = 'top-right', style, ...props
     </Box>
   );
 }
+
+BadgeAnchor.displayName = 'Badge.Anchor';
 
 export const Badge = Object.assign(BadgeRoot, {
   Root: BadgeRoot,

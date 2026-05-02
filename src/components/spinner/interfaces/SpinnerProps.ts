@@ -1,16 +1,20 @@
-import type { HTMLAttributes } from 'react';
+import type { CSSProperties } from 'react';
+import type { SpinnerSize } from '../internal/sizes';
 
 /**
  * @platform native-ready
  * Indicador de carregamento indeterminado.
  *
- * - Web (`spinner.tsx`): keyframes CSS (`@keyframes arbor-spin`).
+ * - Web (`spinner.tsx`): keyframes CSS (`@keyframes arbor-spin` injetado pelo `ArborProvider`).
  * - Native (`spinner.native.tsx`): `Animated.loop` rotacionando o Icon.
  */
-export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
-  size?: 'sm' | 'md' | 'lg';
-  /** Substitui a cor padrão do stroke */
+export interface SpinnerProps {
+  size?: SpinnerSize;
+  /** Substitui a cor padrão do stroke (default: `theme.colors.brand.base`) */
   color?: string;
   /** @default "Carregando" */
   label?: string;
+  /** Escape hatch para CSS não coberto pelo sistema */
+  style?: CSSProperties;
+  className?: string;
 }

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Box, Flex } from '../../core';
 import { Badge } from './badge';
 
 const meta = {
@@ -25,39 +26,46 @@ export const Default: Story = {
 
 export const AllTones: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+    <Flex gap="small" flexWrap="wrap">
       {(['neutral', 'brand', 'success', 'warning', 'critical', 'info'] as const).map((tone) => (
         <Badge key={tone} tone={tone}>{tone}</Badge>
       ))}
-    </div>
+    </Flex>
   ),
 };
 
 export const Subtle: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+    <Flex gap="small" flexWrap="wrap">
       {(['neutral', 'brand', 'success', 'warning', 'critical', 'info'] as const).map((tone) => (
         <Badge key={tone} tone={tone} variant="subtle">{tone}</Badge>
       ))}
-    </div>
+    </Flex>
   ),
 };
 
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    <Flex gap="small" alignItems="center">
       <Badge size="sm" tone="brand">SM</Badge>
       <Badge size="md" tone="brand">MD</Badge>
-    </div>
+    </Flex>
   ),
 };
 
 export const WithAnchor: Story = {
   render: () => (
     <Badge.Anchor badge={<Badge tone="critical" size="sm">3</Badge>}>
-      <div style={{ width: 40, height: 40, background: '#eee', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        🔔
-      </div>
+      <Flex
+        width={40}
+        height={40}
+        backgroundColor="background.subtle"
+        borderRadius="medium"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Box as="span">🔔</Box>
+      </Flex>
     </Badge.Anchor>
   ),
 };

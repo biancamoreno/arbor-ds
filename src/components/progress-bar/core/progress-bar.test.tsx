@@ -73,4 +73,8 @@ describe('ProgressBar', () => {
     render(<ProgressBar progress={0} indeterminate />, { wrapper });
     expect(screen.getByRole('progressbar').getAttribute('aria-busy')).toBe('true');
   });
+
+  it('expõe displayName', () => {
+    expect(ProgressBar.displayName).toBe('ProgressBar');
+  });
 });

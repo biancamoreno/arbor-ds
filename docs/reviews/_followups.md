@@ -1,8 +1,8 @@
-# Follow-ups consolidados — R1, R2, R3, R4, R5, R6
+# Follow-ups consolidados — R1, R2, R3, R4, R5, R6, R7
 
 > Índice acionável de tudo que ficou em aberto após cada fase de review. Atualizar ao mover itens para "concluído", abrir issue/PR ou rejeitar.
 
-**Última atualização:** 2026-04-24 (R6 fixes imediatos aplicados — CR6-1/CR6-2/HR6-3 + sweep displayName/stories + limpeza Select APIs residuais + JSDocs + RadioCard default export removido; 598/598 testes verdes, lint limpo)
+**Última atualização:** 2026-05-02 (R7 fechado — 5 reviews + 10 fixes imediatos aplicados em sweep coletivo; 923/923 verdes; consolidado em [`R7-feedback-indicadores.md`](./R7-feedback-indicadores.md))
 
 > Para débito técnico mapeado (decisões de adiar com plano de resolução), ver [`docs/TECH_DEBT.md`](../TECH_DEBT.md).
 
@@ -18,8 +18,9 @@
 | R4 | 0 | 14 | 0 | — | ✅ — bug crítico CR4-1 corrigido, 544/544 verdes |
 | R5 | 0 | 24 | 2 (4 candidatas) | 2 (RFC-0013, 0014) | ✅ — fixes triviais aplicados, dead code removido, FileUpload pt-BR, RFCs do gate R6 implementadas (RFC-0013/0014) |
 | R6 | 0 | 30+ | 0 (6 candidatas) | — | ✅ — review documentada + fixes triviais aplicados (598/598) |
+| R7 | 2 (PB-4, PB-5) | ~12 (B-3/4/5/12/count, PC-15/PB-clamp, label/tones/motion sweep, B-anchor-a11y) | 1 candidata (SP-1 size naming) | — | ✅ — 5 reviews + 10 fixes em sweep coletivo, 923/923 verdes |
 
-**Total:** 15 RFCs (`RFC-0001` a `RFC-0015`) — 11 implementadas (0001, 0002, 0005, 0006, 0008, 0009, 0010, 0011, 0012, 0013, 0014, 0015), 3 em Draft (0003, 0004, 0007) · ~90 issues · 0 fixes imediatos pendentes · 4 TDs resolvidas (TD-008, TD-010, TD-011, TD-012).
+**Total:** 15 RFCs (`RFC-0001` a `RFC-0015`) — 11 implementadas (0001, 0002, 0005, 0006, 0008, 0009, 0010, 0011, 0012, 0013, 0014, 0015), 3 em Draft (0003, 0004, 0007) · ~100 issues · 2 fixes pendentes (R7: PB-4, PB-5) · 4 TDs resolvidas (TD-008, TD-010, TD-011, TD-012).
 
 ---
 

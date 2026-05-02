@@ -30,4 +30,18 @@ describe('Skeleton (native)', () => {
     render(<Skeleton width="50%" borderRadius={8} />, { wrapper: Wrapper });
     expect(screen.getByLabelText('Carregando')).toBeTruthy();
   });
+
+  it('accepts custom label', () => {
+    render(<Skeleton label="Aguarde" />, { wrapper: Wrapper });
+    expect(screen.getByLabelText('Aguarde')).toBeTruthy();
+  });
+
+  it('label={false} hides from accessibility tree', () => {
+    render(<Skeleton label={false} />, { wrapper: Wrapper });
+    expect(screen.queryByLabelText('Carregando')).toBeNull();
+  });
+
+  it('exposes displayName', () => {
+    expect(Skeleton.displayName).toBe('Skeleton');
+  });
 });

@@ -59,4 +59,8 @@ describe('Spinner', () => {
     render(<Spinner />, { wrapper });
     expect(screen.getByRole('status').style.animation).toContain('arbor-spin');
   });
+
+  it('expõe displayName', () => {
+    expect(Spinner.displayName).toBe('Spinner');
+  });
 });

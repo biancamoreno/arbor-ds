@@ -74,4 +74,9 @@ describe('Badge', () => {
     render(<Badge style={{ opacity: 0.5 }}>X</Badge>, { wrapper });
     expect(screen.getByText('X').style.opacity).toBe('0.5');
   });
+
+  it('expõe displayName em Badge e Badge.Anchor', () => {
+    expect(Badge.displayName).toBe('Badge');
+    expect(Badge.Anchor.displayName).toBe('Badge.Anchor');
+  });
 });

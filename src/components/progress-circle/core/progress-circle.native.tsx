@@ -3,6 +3,7 @@ import { Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { getToneColor } from '../internal/colors';
 import type { ProgressCircleProps } from '../interfaces';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -35,12 +36,7 @@ export function ProgressCircle({
     ? circumference * 0.75
     : circumference * (1 - clamped / 100);
 
-  const fillColor: Record<NonNullable<ProgressCircleProps['tone']>, string> = {
-    brand: theme.colors.brand.base,
-    success: theme.colors.feedback.success.base,
-    warning: theme.colors.feedback.warning.base,
-    critical: theme.colors.feedback.critical.base,
-  };
+  const traceColor = getToneColor(tone, theme);
 
   const rotation = useRef(new Animated.Value(0)).current;
 
@@ -95,7 +91,7 @@ export function ProgressCircle({
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke={fillColor[tone]}
+          stroke={traceColor}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={`${circumference}`}

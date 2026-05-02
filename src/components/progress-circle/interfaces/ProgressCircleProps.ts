@@ -1,7 +1,7 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties } from 'react';
 
 /**
- * @platform shared
+ * @platform native-ready
  *
  * Indicador de progresso circular (0–100) ou indeterminado.
  *
@@ -26,8 +26,6 @@ export interface ProgressCircleProps {
   label?: string;
   /** Escape hatch para overrides finos. Aplicado ao `<svg>` (web) ou container `Animated.View` (native). */
   style?: CSSProperties;
-  /** Slot opcional reservado para futura label central — hoje não-renderizado. */
-  children?: ReactNode;
   /** Test id forwardado para a raiz do componente. */
   testID?: string;
 }

@@ -60,4 +60,25 @@ describe('Skeleton', () => {
     render(<Skeleton data-testid="skel" />, { wrapper });
     expect(screen.getByTestId('skel')).toBeTruthy();
   });
+
+  it('aceita label custom', () => {
+    render(<Skeleton label="Aguarde" />, { wrapper });
+    expect(screen.getByLabelText('Aguarde')).toBeTruthy();
+  });
+
+  it('label={false} suprime role e marca aria-hidden (single)', () => {
+    render(<Skeleton label={false} data-testid="skel" />, { wrapper });
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.getByTestId('skel').getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('label={false} suprime role e marca aria-hidden (multi-line)', () => {
+    render(<Skeleton label={false} lines={3} data-testid="multi" />, { wrapper });
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.getByTestId('multi').getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('expõe displayName', () => {
+    expect(Skeleton.displayName).toBe('Skeleton');
+  });
 });

@@ -46,7 +46,18 @@
       "Bash(cp /tmp/TECH_DEBT.md.full docs/TECH_DEBT.md)",
       "Bash(echo \"exit: $?\")",
       "Bash(grep -rn \"tag/core/badge\\\\|tag.*\\\\\\\\bBadge\\\\\\\\b\" src playground --include=\"*.ts\" --include=\"*.tsx\")",
-      "PowerShell(gh run *)"
+      "PowerShell(gh run *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(pnpm test:no-color-literal)",
+      "PowerShell(& \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run list --limit 8)",
+      "PowerShell(& \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run list --limit 5)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://registry.npmjs.org/arbor-ds)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://registry.npmjs.org/@arbor-ui/core)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://registry.npmjs.org/@arbor-ui%2Fcore)",
+      "Bash(curl -sI https://biancamoreno.github.io/arbor-ds/)",
+      "Bash(curl -s https://biancamoreno.github.io/arbor-ds/)",
+      "Bash(pnpm test:platform-contract --strict)",
+      "Bash(curl *)"
     ]
   }
 }
