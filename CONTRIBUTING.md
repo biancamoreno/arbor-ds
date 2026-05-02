@@ -55,10 +55,22 @@ O arquivo gerado em `.changeset/` deve ser commitado junto com as alterações.
 
 ## Fluxo de release
 
-1. PRs são mergeados para `main`.
-2. O `changesets/action` acumula changesets e abre um PR de release automaticamente.
-3. O time faz review e faz merge do PR de release.
-4. O CI executa `pnpm changeset publish` → publica no npm + cria tag no GitHub.
+O workflow `release.yml` é **tag-gated** — push em `main` não publica. Para publicar uma nova versão:
+
+1. PRs com changesets são mergeados para `main`.
+2. Quando for hora de release, alguém com permissão roda localmente:
+   ```bash
+   pnpm changeset version   # consome changesets pendentes, bumpa versão, atualiza CHANGELOG
+   git add . && git commit -m "chore: version packages"
+   git push origin main
+   ```
+3. Em seguida, cria-se a tag e faz-se o push:
+   ```bash
+   git tag -a v<x.y.z> -m "Release v<x.y.z>"
+   git push origin v<x.y.z>
+   ```
+4. O push da tag dispara o workflow `Release`, que executa `pnpm changeset publish` → publica `arbor-ds` no npm.
+5. Alternativamente, o release pode ser disparado manualmente via Actions UI (`workflow_dispatch`).
 
 ## Definition of Done (por componente)
 
