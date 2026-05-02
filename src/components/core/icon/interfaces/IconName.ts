@@ -1,3 +1,3 @@
-import { icons } from 'lucide-react';
+import type * as Lucide from 'lucide-react';
 
-export type IconName = keyof typeof icons;
+export type IconName = keyof typeof Lucide.icons;

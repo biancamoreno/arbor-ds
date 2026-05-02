@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-01 (TD-026 rebaixada para Baixa — gap restante = `outlineWidth/Offset/Style` themable; cor desacoplada via novo alias `focus.ring`)
+**Última atualização:** 2026-05-01 (TD-027 aberta — Icon API por string força catálogo lucide completo no bundle do consumidor; lib enxuta via externalização, mas tree-shaking real depende de RFC-0028)
 
 ---
 
@@ -33,8 +33,9 @@
 | [TD-022](#td-022) | `shadows` órfão em `primitives/` + 13 box-shadows inline em componentes/recipes | Diagnóstico multi-produto (B3) | **Resolved (2026-05-01)** | Theming bloqueado para identidade de elevação (produto não conseguia mudar linguagem de sombras sem fork) | `shadows` adicionado ao `baseTheme`; engine ganhou handler `boxShadow`/`shadow` consumindo escala `shadows`; 13 inlines migrados (Dialog/Drawer/Tooltip/Popover/Menu/Toast/Card/Select/FAB/NavBar + recipes Dialog/Drawer/Card no base-theme) |
 | [TD-025](#td-025) | `FileUpload.native` é placeholder; promover para implementação real se demanda materializar | RFC-0026 (PR 2) | Open | DX (consumidor RN precisa integrar lib externa via `children`) | Promover para caminho (a) `expo-document-picker` peer dep quando 3+ produtos consumidores pedirem em < 6 meses |
 | [TD-026](#td-026) | `focusRing` largura/offset/estilo não são themable (cor já é, via `focus.ring`) | RFC-0027 (PR 2) | Open (Baixa) | Theming (gap residual: produto não consegue ajustar espessura/offset/estilo do anel) | Adiada até gatilho concreto (a11y reforçada WCAG 2.4.11 ou identidade de marca distinta) — caminho preferido: shorthand `_focusRing: 'default' \| 'strong'` resolvido em runtime via `theme.focusRing` |
+| [TD-027](#td-027) | `<Icon name="X" />` força catálogo lucide completo no bundle do consumidor | PR `fix(build): externalize lucide` (2026-05-01) | Open (Média) | Bundle size do app consumidor (lucide-react ~1500 ícones forçados pelo lookup runtime `icons[name]`); lib do DS já está OK | Abrir RFC-0028 — `<Icon icon={Component} />` (componente em vez de string), com plano de migração interna e janela de depreciação do `name` |
 
-**Total:** 6 dívidas abertas, 13 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01).
+**Total:** 7 dívidas abertas, 13 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01).
 
 ---
 
@@ -1445,6 +1446,87 @@ indicator: { ..., _focusRing: 'default' }   // ou 'strong'
 - Auditoria de a11y exigindo WCAG 2.4.11 AAA em produto específico.
 
 Sem gatilho concreto, manter a dívida fria.
+
+---
+
+## TD-027 — `<Icon name="X" />` força catálogo lucide completo no bundle do consumidor
+
+**Origem:** PR `fix(build): externalize lucide` — 2026-05-01
+**Status:** Open
+**Severidade:** Média
+
+### Contexto
+
+O hotfix de tamanho da lib (PR de 2026-05-01) externalizou `lucide-react`, `lucide-react-native` e `react-native-svg` do build do DS. Os bundles `dist/components.js` e `dist/native.js` voltaram aos limites do `size-limit` porque essas peers não são mais embutidas — o consumidor as resolve via seu próprio `node_modules`.
+
+Esse fix endereça o tamanho **da lib**, não o tamanho **do app que consome a lib**.
+
+### O problema que sobrou
+
+A API atual do `Icon` recebe `name: string` e faz lookup runtime contra o dicionário `icons` da lucide:
+
+```tsx
+// src/components/core/icon/core/icon.tsx
+import { icons } from 'lucide-react';
+export function Icon({ name, ...rest }) {
+  const Component = icons[name];
+  return <Component {...rest} />;
+}
+```
+
+Como o nome é resolvido em runtime, o bundler do consumidor (Vite, Webpack, Metro) **não consegue tree-shakar** — qualquer ícone pode ser referenciado, então todo o catálogo lucide entra no bundle final do app.
+
+`lucide-react` tem ~1500 ícones. O custo no app consumidor é de dezenas a centenas de kB minified+gzip — opaco para nós, porque `size-limit` mede `dist/*.js` da lib.
+
+### Por que não foi resolvido na sessão de implementação
+
+O hotfix tinha escopo cirúrgico: destravar o CI sem mudar API pública. Mudar `Icon` para receber componente quebra **todos** os consumos internos (Spinner, Button, Select, Field, Toast, Alert, showcases, Storybook) e quebra contrato público — exige RFC dedicada com plano de migração e janela de depreciação.
+
+### Impacto
+
+- **Bundle size do consumidor:** todo app que importa `arbor-ds` carrega ~1500 ícones lucide, mesmo usando 5–10. Estimativa conservadora: 80–150 kB minified+gzip extras no JS shipping.
+- **Não atinge a lib:** `dist/components.js` e `dist/native.js` continuam dentro dos limites do `size-limit`.
+- **DX:** o `name` autocompletado por `IconName = keyof typeof Lucide.icons` é ergonômico — qualquer mudança precisa preservar essa qualidade ou aceitar trade-off explícito (autocomplete some, troca por imports nominais).
+
+### Resolução proposta — RFC-0028
+
+API alvo: `icon` recebe **componente**, não string.
+
+```tsx
+// hoje
+<Icon name="ChevronDown" />
+
+// alvo
+import { ChevronDown } from 'lucide-react';
+<Icon icon={ChevronDown} />
+```
+
+Com isso, o consumidor importa só os ícones que usa, e o bundler tree-shakes naturalmente.
+
+**Plano de migração interna:**
+- Sweep de consumidores internos (Spinner, Button, Select, Field, Toast, Alert, FAB, NavBar, Pagination, Breadcrumb, Tabs, Accordion, Image fallback, Toaster, showcases, Storybook stories).
+- Considerar overload (`name | icon`) atrás de aviso de depreciação durante uma minor antes de remover `name`.
+- Storybook: o picker por string deixa de existir nos defaults — argumentar via subset curado importado em cada story que demonstra Icon.
+- `lucide-react-native` segue o mesmo padrão.
+
+### Critério para fechar
+
+- [ ] RFC-0028 redigida e aprovada com plano de migração explícito.
+- [ ] `Icon` aceita prop `icon` (componente); prop `name` em deprecation com warning de runtime.
+- [ ] Todos os consumos internos migrados para `icon={Component}`.
+- [ ] Storybook adaptado.
+- [ ] `pnpm test` verde após sweep.
+- [ ] Documentação de release sinaliza breaking change na próxima major (ou janela de minor com alias).
+- [ ] Idealmente, medição em app consumidor de referência mostrando redução do bundle final.
+
+### Gatilho para começar
+
+Sem urgência imediata — o CI da lib está verde. Abrir RFC-0028 quando:
+- Próxima major estiver em planejamento (oportunidade de breaking change limpo); **OU**
+- Consumidor reportar bundle inflado e pedir o ajuste; **OU**
+- Houver janela alocada para sweep de API entre fases.
+
+Não bloqueia release atual.
 
 ---
 
