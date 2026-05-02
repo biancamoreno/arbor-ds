@@ -3,16 +3,9 @@ name: Docs
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -30,17 +23,3 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:lib
       - run: pnpm build:storybook
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./storybook-static
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
