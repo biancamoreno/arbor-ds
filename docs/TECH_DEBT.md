@@ -2193,38 +2193,34 @@ Caminho alternativo (se RFC-0038 atrasar): remover `pill` do tipo público e do 
 ## TD-040 — Engine não suporta `inert` apesar de ser HTML padrão Baseline
 
 **Origem:** RFC-0034 rev. 2 (2026-05-03)
-**Status:** Open
-**Severidade:** Baixa (escopo cirúrgico, mas bloqueia PR1 da RFC-0034)
+**Status:** **Resolved (2026-05-03)**
+**Severidade:** Baixa (escopo cirúrgico, mas bloqueava PR1 da RFC-0034)
 
 ### Contexto
 
-`grep -r "inert" src/ecosystem/styled-system` retorna 0 hits. A engine não tipa nem propaga o atributo HTML `inert`, embora ele esteja em Baseline 2024 (Safari 15.5+, Chrome 102+, Firefox 112+) e seja a forma canônica de remover uma subárvore do tab-order **e** do screen reader simultaneamente.
+`grep -r "inert" src/ecosystem/styled-system` retornava 0 hits. A leitura inicial foi: "engine não suporta `inert`". Investigação do `systemBlockForwardProp` mostrou que a engine usa **allowlist invertida** — qualquer prop que não seja style ou pseudo é forwarded por padrão. `inert` no web já chegava ao DOM sem mudança alguma; o que faltava era apenas (a) bloqueio explícito em native (para não vazar atributo HTML para `View` do RN) e (b) testes documentando o suporte.
 
-O fallback histórico (`aria-hidden="true"` + `tabIndex={-1}` em todos os descendentes focáveis) exige varredura `querySelectorAll` em runtime, é mais frágil (precisa cobrir todos os elementos focáveis: `a, button, input, textarea, select, [tabindex]`) e quebra quando o consumidor injeta widgets focáveis customizados.
-
-A RFC-0034 (Carousel) precisa marcar slides fora da janela visível como `inert`. Sem suporte na engine, PR1 cai no fallback.
+A RFC-0034 (Carousel) precisa marcar slides fora da janela visível como `inert`.
 
 ### Impacto
 
-- **A11y.** Slides ocultos do Carousel — e qualquer overlay/painel com semântica similar — dependem de fallback frágil até a engine suportar `inert`.
-- **DX.** Consumidores que precisam aplicar `inert` em qualquer subárvore via `Box` hoje precisam usar `style={{}}` (ou pior, `dangerouslySetInnerHTML`) para contornar.
-- **Performance.** Fallback custa varredura DOM + N writes de `tabIndex/aria-hidden` por slide a cada mudança de `activeIndex`.
+- **A11y.** Slides ocultos do Carousel — e qualquer overlay/painel com semântica similar — agora podem usar `inert` direto, sem fallback `aria-hidden + tabIndex=-1`.
+- **DX.** `<Box inert>` funciona com a tipagem aberta de `ArborTransformProps<Record<string, unknown>>`. Tipagem fechada via `HTMLAttributes` continua fora de escopo (mexeria em surface inteira; abrir RFC se gatilho aparecer).
 
-### Resolução proposta
+### Resolução
 
-1. Adicionar `inert?: boolean` ao tipo de props do engine (categoria de props HTML/A11y).
-2. Propagação direta para o DOM (sem transformação): `inert ? '' : undefined` no atributo (HTML boolean attribute).
-3. Em native, ignorar (já existe `accessibilityElementsHidden` + `importantForAccessibility` cobrindo o caso, e a RFC-0018 já trata).
-4. Teste unitário: `<Box inert>...</Box>` renderiza `<div inert>`.
+1. ✅ Adicionado `'inert'` em `systemBlockedPropsByPlatform.native` (`src/ecosystem/styled-system/system/system.blocked.ts`) — bloqueia o forward para `View` em RN.
+2. ✅ Teste em `engine.test.tsx`: `<ArborTransform inert>` propaga `inert` ao DOM no web.
+3. ✅ Teste novo em `system.test.ts`: cobertura de `systemBlockForwardProp` para `inert` (web forwarded, native blocked) + sanity para style props e a11y native.
+4. ✅ Web já funcionava; no-op em native garantido pelo bloqueio.
 
-Estimativa: ~30 minutos. Sem migração de consumidor (atributo novo).
+**Nota corretiva:** a premissa original ("engine não suporta `inert`") estava errada — a allowlist invertida da engine sempre permitiu. A correção real foi cirúrgica (1 linha em blocked + testes).
 
 ### Critério para fechar
 
-- [ ] `inert?: boolean` tipado em `Box`/`Flex`/etc. via engine.
-- [ ] Renderiza como atributo HTML válido em web; no-op em native.
-- [ ] Teste unitário verde.
-- [ ] RFC-0034 PR1 consome `inert` sem fallback.
+- [x] `inert` propagado no web via engine; no-op em native via blocked list.
+- [x] Testes verdes (`engine.test.tsx` + `system.test.ts`, +6 testes; suite total 1030/1030).
+- [ ] RFC-0034 PR1 consome `inert` sem fallback (será verificado no PR1).
 
 ---
 

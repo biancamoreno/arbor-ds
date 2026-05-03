@@ -273,6 +273,16 @@ describe('props não-estilo', () => {
     });
     expect(screen.getByTestId('el').props.padding).toBeUndefined();
   });
+
+  it('forwarda inert ao elemento (HTML Baseline 2024)', () => {
+    render(
+      <ArborTransform testID="el" inert>
+        content
+      </ArborTransform>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByTestId('el').props.inert).toBe(true);
+  });
 });
 
 // ─── Responsivo (objeto nomeado) ──────────────────────────────────────────
