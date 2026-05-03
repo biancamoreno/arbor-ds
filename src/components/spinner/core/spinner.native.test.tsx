@@ -22,11 +22,11 @@ describe('Spinner (native)', () => {
   });
 
   it('renders all sizes without crashing', () => {
-    const { rerender } = render(<Spinner size="sm" label="A" />, { wrapper: Wrapper });
+    const { rerender } = render(<Spinner size="small" label="A" />, { wrapper: Wrapper });
     expect(screen.getByLabelText('A')).toBeTruthy();
-    rerender(<Spinner size="md" label="B" />);
+    rerender(<Spinner size="medium" label="B" />);
     expect(screen.getByLabelText('B')).toBeTruthy();
-    rerender(<Spinner size="lg" label="C" />);
+    rerender(<Spinner size="large" label="C" />);
     expect(screen.getByLabelText('C')).toBeTruthy();
   });
 

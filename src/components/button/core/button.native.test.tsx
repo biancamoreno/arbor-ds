@@ -61,7 +61,7 @@ describe('Button (native)', () => {
   });
 
   it('aceita sizes sem quebrar', () => {
-    const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
+    const sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
     sizes.forEach((size) => {
       const { unmount } = render(<Button size={size}>{size}</Button>, { wrapper: Wrapper });
       expect(screen.getByText(size)).toBeTruthy();

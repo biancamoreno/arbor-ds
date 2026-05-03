@@ -62,8 +62,8 @@ describe('IconButton (native)', () => {
     expect(screen.getByRole('button')).toBeTruthy();
   });
 
-  it('aceita sizes sm/md/lg', () => {
-    const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
+  it('aceita sizes small/medium/large', () => {
+    const sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
     sizes.forEach((size) => {
       const { unmount } = render(
         <IconButton aria-label={size} size={size}>

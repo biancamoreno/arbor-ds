@@ -6,12 +6,12 @@ import { useDialogContext } from '../context/dialog-context';
 import type { DialogContentProps } from '../interfaces/DialogProps';
 
 const sizeMap = {
-  sm: '420px',
-  md: '560px',
-  lg: '720px',
+  small: '420px',
+  medium: '560px',
+  large: '720px',
 } as const;
 
-export function DialogContent({ children, size = 'md' }: DialogContentProps) {
+export function DialogContent({ children, size = 'medium' }: DialogContentProps) {
   const { open, setOpen, titleId, descriptionId } = useDialogContext();
   const close = () => setOpen(false);
 

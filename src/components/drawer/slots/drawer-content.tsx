@@ -6,8 +6,8 @@ import { useDrawerContext } from '../context/drawer-context';
 import type { DrawerContentProps } from '../interfaces/DrawerProps';
 import type { DrawerPlacement } from '../context/drawer-context';
 
-const widthMap = { sm: '320px', md: '420px', lg: '560px' } as const;
-const heightMap = { sm: '240px', md: '320px', lg: '420px' } as const;
+const widthMap = { small: '320px', medium: '420px', large: '560px' } as const;
+const heightMap = { small: '240px', medium: '320px', large: '420px' } as const;
 
 function getPanelStyle(placement: DrawerPlacement, size: NonNullable<DrawerContentProps['size']>): React.CSSProperties {
   const shared: React.CSSProperties = { position: 'fixed', display: 'flex', flexDirection: 'column', outline: 'none' };
@@ -31,7 +31,7 @@ const SLIDE_HIDDEN: Record<DrawerPlacement, string> = {
   top: 'translateY(-100%)',
 };
 
-export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
+export function DrawerContent({ children, size = 'medium' }: DrawerContentProps) {
   const { open, setOpen, placement, titleId } = useDrawerContext();
 
   const [mounted, setMounted] = useState(open);

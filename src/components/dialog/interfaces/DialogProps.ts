@@ -24,7 +24,7 @@ export type DialogOverlayProps = {
 
 export type DialogContentProps = {
   children: ReactNode;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
 };
 
 export type DialogTitleProps = {

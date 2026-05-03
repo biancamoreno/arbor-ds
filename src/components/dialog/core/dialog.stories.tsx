@@ -22,7 +22,7 @@ export const Default: Story = {
         </button>
       </Dialog.Trigger>
       <Dialog.Overlay />
-      <Dialog.Content size="md">
+      <Dialog.Content size="medium">
         <Dialog.Title>Confirmar ação</Dialog.Title>
         <Dialog.Description>
           Tem certeza que deseja continuar? Esta ação não pode ser desfeita.
@@ -99,7 +99,7 @@ export const InsideOverflowClip: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 8 }}>
-      {(['sm', 'md', 'lg'] as const).map((size) => (
+      {(['small', 'medium', 'large'] as const).map((size) => (
         <Dialog.Root key={size} defaultOpen={false}>
           <Dialog.Trigger>
             <button style={{ padding: '8px 12px', borderRadius: 4, cursor: 'pointer' }}>

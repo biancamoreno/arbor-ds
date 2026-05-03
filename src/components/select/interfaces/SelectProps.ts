@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
  * Tamanho do compound `Select`. Mapeia para densidade de padding e fontSize
  * dos slots `trigger`/`item` na recipe `select`.
  */
-export type SelectSize = 'sm' | 'md' | 'lg';
+export type SelectSize = 'small' | 'medium' | 'large';
 
 /**
  * @platform shared
@@ -45,7 +45,7 @@ export interface SelectRootProps {
   id?: string;
   /**
    * Tamanho do compound (afeta densidade do trigger e dos itens).
-   * @default 'md'
+   * @default 'medium'
    */
   size?: SelectSize;
   /**

@@ -4,7 +4,7 @@ import type { HTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react';
  * @platform shared
  */
 export interface AvatarRootProps extends HTMLAttributes<HTMLSpanElement> {
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
   /** Forma do avatar */
   shape?: 'circle' | 'square';
   children: ReactNode;

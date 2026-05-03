@@ -7,16 +7,16 @@ import { useButtonGroup, useButtonGroupItem } from '../../button-group/core/butt
 import { transition } from '../../../ecosystem/utils/functions';
 
 const buttonSizeMap = {
-  sm: { paddingInline: '12px', paddingBlock: '4px' },
-  md: { paddingInline: '16px', paddingBlock: '8px' },
-  lg: { paddingInline: '20px', paddingBlock: '12px' },
+  small: { paddingInline: '12px', paddingBlock: '4px' },
+  medium: { paddingInline: '16px', paddingBlock: '8px' },
+  large: { paddingInline: '20px', paddingBlock: '12px' },
 } as const;
 
 /**
  * @platform shared
  *
  * Botão primário do DS. Quatro variantes (`primary`/`secondary`/`ghost`/`danger`)
- * e três tamanhos (`sm`/`md`/`lg`); `loading` exibe `Spinner` à esquerda do
+ * e três tamanhos (`small`/`medium`/`large`); `loading` exibe `Spinner` à esquerda do
  * texto e desabilita interação. Quando renderizado dentro de `ButtonGroup`,
  * detecta `attached` e colapsa os raios do canto interno automaticamente para
  * formar um conjunto contíguo.
@@ -26,7 +26,7 @@ const buttonSizeMap = {
 export function Button({
   children,
   variant = 'primary',
-  size = 'md',
+  size = 'medium',
   loading = false,
   disabled = false,
   onClick,
@@ -136,7 +136,7 @@ export function Button({
       data-arbor-focusable=""
       style={{
         ...buttonSizeMap[size],
-        fontSize: size === 'lg' ? theme.fontSizes.medium : theme.fontSizes.small,
+        fontSize: size === 'large' ? theme.fontSizes.medium : theme.fontSizes.small,
         fontWeight: theme.fontWeights.medium,
         lineHeight: 1,
         transition: transition(['background-color', 'border-color', 'opacity', 'filter', 'transform'], 'fast'),
@@ -147,7 +147,7 @@ export function Button({
       {...variantStyles[variant]}
       {...rest}
     >
-      {loading && <Spinner size="sm" color={variantStyles[variant].color} label="" />}
+      {loading && <Spinner size="small" color={variantStyles[variant].color} label="" />}
       {children}
     </Clickable>
   );

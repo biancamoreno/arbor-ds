@@ -8,7 +8,7 @@ const meta = {
   parameters: { layout: 'centered' },
   argTypes: {
     variant: { control: { type: 'select' }, options: ['outlined', 'elevated', 'flat'] },
-    padding: { control: { type: 'select' }, options: ['none', 'sm', 'md', 'lg'] },
+    padding: { control: { type: 'select' }, options: ['none', 'small', 'medium', 'large'] },
   },
 } satisfies Meta<typeof Card>;
 
@@ -17,7 +17,7 @@ type Story = StoryObj;
 
 export const Outlined: Story = {
   render: () => (
-    <Card variant="outlined" padding="md" style={{ width: 320 }}>
+    <Card variant="outlined" padding="medium" style={{ width: 320 }}>
       <Card.Header>
         <strong>Título do card</strong>
       </Card.Header>
@@ -33,7 +33,7 @@ export const Outlined: Story = {
 
 export const Elevated: Story = {
   render: () => (
-    <Card variant="elevated" padding="md" style={{ width: 320 }}>
+    <Card variant="elevated" padding="medium" style={{ width: 320 }}>
       <Card.Header>
         <strong>Card elevado</strong>
       </Card.Header>
@@ -46,7 +46,7 @@ export const Elevated: Story = {
 
 export const Flat: Story = {
   render: () => (
-    <Card variant="flat" padding="md" style={{ width: 320 }}>
+    <Card variant="flat" padding="medium" style={{ width: 320 }}>
       <Card.Header>
         <strong>Card plano</strong>
       </Card.Header>
@@ -61,7 +61,7 @@ export const AllVariants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 16 }}>
       {(['outlined', 'elevated', 'flat'] as const).map((variant) => (
-        <Card key={variant} variant={variant} padding="md" style={{ width: 200 }}>
+        <Card key={variant} variant={variant} padding="medium" style={{ width: 200 }}>
           <Card.Header><strong>{variant}</strong></Card.Header>
           <Card.Body>Conteúdo do card</Card.Body>
         </Card>

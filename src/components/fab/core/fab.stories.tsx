@@ -12,7 +12,7 @@ const meta = {
     onPress: () => {},
   },
   argTypes: {
-    size: { control: { type: 'radio' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'radio' }, options: ['small', 'medium', 'large'] },
     variant: { control: { type: 'radio' }, options: ['primary', 'secondary', 'surface'] },
     position: {
       control: { type: 'select' },
@@ -64,9 +64,9 @@ export const Sizes: Story = {
         gap="16px"
         alignItems="flex-end"
       >
-        <FloatingActionButton icon="Plus" size="sm" position="none" onPress={() => {}} aria-label="Pequeno" />
-        <FloatingActionButton icon="Plus" size="md" position="none" onPress={() => {}} aria-label="Médio" />
-        <FloatingActionButton icon="Plus" size="lg" position="none" onPress={() => {}} aria-label="Grande" />
+        <FloatingActionButton icon="Plus" size="small" position="none" onPress={() => {}} aria-label="Pequeno" />
+        <FloatingActionButton icon="Plus" size="medium" position="none" onPress={() => {}} aria-label="Médio" />
+        <FloatingActionButton icon="Plus" size="large" position="none" onPress={() => {}} aria-label="Grande" />
       </Flex>
     </PageWrapper>
   ),

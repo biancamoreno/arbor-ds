@@ -6,9 +6,9 @@ import { useButtonGroup, useButtonGroupItem } from '../../button-group/core/butt
 import type { ButtonProps } from '../interfaces';
 
 const buttonSizeMap = {
-  sm: { paddingHorizontal: 12, paddingVertical: 4, fontSize: 14 },
-  md: { paddingHorizontal: 16, paddingVertical: 8, fontSize: 14 },
-  lg: { paddingHorizontal: 20, paddingVertical: 12, fontSize: 16 },
+  small: { paddingHorizontal: 12, paddingVertical: 4, fontSize: 14 },
+  medium: { paddingHorizontal: 16, paddingVertical: 8, fontSize: 14 },
+  large: { paddingHorizontal: 20, paddingVertical: 12, fontSize: 16 },
 } as const;
 
 function getVariantColors(variant: NonNullable<ButtonProps['variant']>, theme: ReturnType<typeof useTheme>) {
@@ -131,7 +131,7 @@ function getAttachedStyle(
 export function Button({
   children,
   variant = 'primary',
-  size = 'md',
+  size = 'medium',
   loading = false,
   disabled = false,
   onClick,
@@ -185,7 +185,7 @@ export function Button({
         ...(style as ViewStyle),
       }}
     >
-      {loading && <Spinner size="sm" color={colors.color} label="" />}
+      {loading && <Spinner size="small" color={colors.color} label="" />}
       {typeof children === 'string' ? (
         <Text
           as="span"

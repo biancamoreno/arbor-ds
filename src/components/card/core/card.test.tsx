@@ -49,8 +49,8 @@ describe('Card', () => {
     expect(screen.getByText('X')).toBeTruthy();
   });
 
-  it('aceita padding lg', () => {
-    render(<Card padding="lg"><Card.Body>X</Card.Body></Card>, { wrapper });
+  it('aceita padding large', () => {
+    render(<Card padding="large"><Card.Body>X</Card.Body></Card>, { wrapper });
     expect(screen.getByText('X')).toBeTruthy();
   });
 

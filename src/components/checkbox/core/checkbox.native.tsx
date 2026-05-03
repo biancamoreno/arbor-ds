@@ -24,7 +24,7 @@ function CheckboxRoot({
   onCheckedChange,
   disabled,
   indeterminate = false,
-  size = 'md',
+  size = 'medium',
   id: idProp,
   name,
   value,

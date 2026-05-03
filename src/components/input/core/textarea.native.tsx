@@ -11,7 +11,7 @@ import { Box, Flex, Text } from '../../core';
 import type { TextAreaProps } from '../interfaces';
 import { FieldShell } from './field-shell';
 
-const fontSizeBySize = { sm: 'xsmall', md: 'small', lg: 'medium' } as const;
+const fontSizeBySize = { small: 'xsmall', medium: 'small', large: 'medium' } as const;
 
 type RNStyle = NonNullable<RNTextInputProps['style']>;
 
@@ -19,7 +19,7 @@ const TextAreaComponent = forwardRef<RNTextInput, TextAreaProps>(function TextAr
   const {
     label,
     error,
-    size = 'md',
+    size = 'medium',
     variant = 'default',
     helperText,
     disabled,

@@ -23,7 +23,7 @@ describe('Counter', () => {
 });
 
 describe('Counter accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
-  it.each(['sm', 'md', 'lg'] as const)('buttons carry 44x44 hit-area overlay in size %s', size => {
+  it.each(['small', 'medium', 'large'] as const)('buttons carry 44x44 hit-area overlay in size %s', size => {
     renderCounter(<Counter value={1} size={size} />);
     const decBtn = screen.getByRole('button', { name: 'Decrementar' });
     const btnClass = decBtn.className.split(' ').pop()!;

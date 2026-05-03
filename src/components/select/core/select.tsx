@@ -82,7 +82,7 @@ function SelectRoot({
   onValueChange,
   disabled,
   id: idProp,
-  size = 'md',
+  size = 'medium',
   children,
 }: SelectRootProps) {
   const autoId = useId();

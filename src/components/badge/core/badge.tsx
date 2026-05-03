@@ -16,10 +16,10 @@ function getBadgeColors(
   return { bg, text, border };
 }
 
-function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'md', style, ...props }: BadgeProps) {
+function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'medium', style, ...props }: BadgeProps) {
   const theme = useTheme();
   const colors = getBadgeColors(tone, variant, theme);
-  const padding = size === 'sm' ? '2px 6px' : '3px 8px';
+  const padding = size === 'small' ? '2px 6px' : '3px 8px';
   const fontSize = theme.fontSizes.xsmall;
 
   return (

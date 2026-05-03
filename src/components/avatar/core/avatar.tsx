@@ -10,14 +10,14 @@ import type {
 } from '../interfaces';
 
 const SIZE_PX: Record<NonNullable<AvatarRootProps['size']>, number> = {
-  xs: 24,
-  sm: 32,
-  md: 40,
-  lg: 48,
-  xl: 64,
+  xsmall: 24,
+  small: 32,
+  medium: 40,
+  large: 48,
+  xlarge: 64,
 };
 
-function AvatarRoot({ size = 'md', shape = 'circle', children, style, ...props }: AvatarRootProps) {
+function AvatarRoot({ size = 'medium', shape = 'circle', children, style, ...props }: AvatarRootProps) {
   const [imageStatus, setImageStatus] = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
   const px = SIZE_PX[size];
 
@@ -93,7 +93,7 @@ function AvatarFallback({ children, delayMs = 0, style, ...props }: AvatarFallba
   );
 }
 
-function AvatarGroup({ children, max, size = 'md', style, ...props }: AvatarGroupProps) {
+function AvatarGroup({ children, max, size = 'medium', style, ...props }: AvatarGroupProps) {
   const theme = useTheme();
   const childArray = Children.toArray(children).filter(isValidElement);
   const visible = max !== undefined ? childArray.slice(0, max) : childArray;
@@ -162,7 +162,7 @@ function AvatarGroup({ children, max, size = 'md', style, ...props }: AvatarGrou
  * excede `max`.
  *
  * @example
- * <Avatar size="md">
+ * <Avatar size="medium">
  *   <Avatar.Image src={user.photo} alt={user.name} />
  *   <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
  * </Avatar>

@@ -101,7 +101,7 @@ function TabsList({ children, variant = 'underline', fullWidth = false, style, .
   );
 }
 
-function TabsTrigger({ children, value, size = 'md', disabled, style, ...props }: TabsTriggerProps) {
+function TabsTrigger({ children, value, size = 'medium', disabled, style, ...props }: TabsTriggerProps) {
   const theme = useTheme();
   const { activeValue, setActive, registerTrigger, unregisterTrigger, focusNext, focusPrev, orientation } =
     useTabsContext();
@@ -141,13 +141,13 @@ function TabsTrigger({ children, value, size = 'md', disabled, style, ...props }
       cursor={disabled ? 'not-allowed' : 'pointer'}
       opacity={disabled ? 0.5 : 1}
       style={{
-        padding: size === 'sm' ? '8px 12px' : '10px 16px',
+        padding: size === 'small' ? '8px 12px' : '10px 16px',
         border: 'none',
         borderBottom: `2px solid ${isActive ? theme.colors.brand.base : 'transparent'}`,
         borderRadius: 0,
         backgroundColor: 'transparent',
         color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
-        fontSize: size === 'sm' ? theme.fontSizes.xsmall : theme.fontSizes.small,
+        fontSize: size === 'small' ? theme.fontSizes.xsmall : theme.fontSizes.small,
         fontWeight: isActive ? theme.fontWeights.medium : theme.fontWeights.regular,
         whiteSpace: 'nowrap',
         transition: transition(['color', 'border-color'], 'fast'),

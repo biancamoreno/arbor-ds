@@ -40,12 +40,12 @@ export const WithTitle: Story = {
       <NavBar
         title="Detalhes do produto"
         start={
-          <IconButton aria-label="Voltar" variant="ghost" size="sm">
+          <IconButton aria-label="Voltar" variant="ghost" size="small">
             <Icon name="ArrowLeft" size={20} decorative />
           </IconButton>
         }
         end={
-          <IconButton aria-label="Mais opções" variant="ghost" size="sm">
+          <IconButton aria-label="Mais opções" variant="ghost" size="small">
             <Icon name="EllipsisVertical" size={20} decorative />
           </IconButton>
         }
@@ -75,13 +75,13 @@ export const WithProgress: Story = {
                 <IconButton
                   aria-label="Etapa anterior"
                   variant="ghost"
-                  size="sm"
+                  size="small"
                   onClick={() => setStep((s) => s - 1)}
                 >
                   <Icon name="ArrowLeft" size={20} decorative />
                 </IconButton>
               ) : (
-                <IconButton aria-label="Fechar" variant="ghost" size="sm">
+                <IconButton aria-label="Fechar" variant="ghost" size="small">
                   <Icon name="X" size={20} decorative />
                 </IconButton>
               )
@@ -109,7 +109,7 @@ export const StartOnly: Story = {
       <NavBar
         title="Carrinho"
         start={
-          <IconButton aria-label="Voltar" variant="ghost" size="sm">
+          <IconButton aria-label="Voltar" variant="ghost" size="small">
             <Icon name="ArrowLeft" size={20} decorative />
           </IconButton>
         }
@@ -127,7 +127,7 @@ export const EndOnly: Story = {
       <NavBar
         title="Notificações"
         end={
-          <IconButton aria-label="Marcar todas como lidas" variant="ghost" size="sm">
+          <IconButton aria-label="Marcar todas como lidas" variant="ghost" size="small">
             <Icon name="CheckCheck" size={20} decorative />
           </IconButton>
         }
@@ -146,7 +146,7 @@ export const Elevated: Story = {
         title="Com elevação"
         elevated
         start={
-          <IconButton aria-label="Voltar" variant="ghost" size="sm">
+          <IconButton aria-label="Voltar" variant="ghost" size="small">
             <Icon name="ArrowLeft" size={20} decorative />
           </IconButton>
         }
@@ -171,7 +171,7 @@ export const Blurred: Story = {
         title="Glass effect"
         blurred
         start={
-          <IconButton aria-label="Voltar" variant="ghost" size="sm">
+          <IconButton aria-label="Voltar" variant="ghost" size="small">
             <Icon name="ArrowLeft" size={20} decorative />
           </IconButton>
         }

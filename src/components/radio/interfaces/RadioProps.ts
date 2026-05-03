@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type RadioSize = 'sm' | 'md' | 'lg';
+export type RadioSize = 'small' | 'medium' | 'large';
 
 /**
  * @platform native-ready

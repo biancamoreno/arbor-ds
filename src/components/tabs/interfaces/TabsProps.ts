@@ -23,7 +23,7 @@ export interface TabsTriggerProps extends ButtonHTMLAttributes<HTMLButtonElement
   children: ReactNode;
   /** Identificador único desta tab — deve coincidir com TabsContent value */
   value: string;
-  size?: 'sm' | 'md';
+  size?: 'small' | 'medium';
 }
 
 export interface TabsContentProps extends HTMLAttributes<HTMLDivElement> {

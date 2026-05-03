@@ -22,8 +22,8 @@ interface ChipBaseProps {
   children: ReactNode;
   /** @default 'subtle' */
   variant?: 'filled' | 'outlined' | 'subtle';
-  /** @default 'md' */
-  size?: 'sm' | 'md';
+  /** @default 'medium' */
+  size?: 'small' | 'medium';
   disabled?: boolean;
   /** Conjunto canônico `FeedbackTone` (RFC-0032). @default 'neutral' */
   tone?: FeedbackTone;

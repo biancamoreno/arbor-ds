@@ -10,7 +10,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
   argTypes: {
-    size: { control: { type: 'select' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
     disabled: { control: 'boolean' },
   },
 } satisfies Meta<typeof Switch>;
@@ -47,7 +47,7 @@ export const Disabled: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex gap="16px" alignItems="center">
-      {(['sm', 'md', 'lg'] as const).map((size) => (
+      {(['small', 'medium', 'large'] as const).map((size) => (
         <Switch key={size} size={size} aria-label={`Tamanho ${size}`} />
       ))}
     </Flex>

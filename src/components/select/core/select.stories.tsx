@@ -12,7 +12,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
   argTypes: {
-    size: { control: { type: 'select' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
     disabled: { control: 'boolean' },
   },
 } satisfies Meta<typeof Select>;
@@ -75,7 +75,7 @@ export const WithDisabledItem: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex flexDirection="column" gap="12px">
-      {(['sm', 'md', 'lg'] as const).map((size) => (
+      {(['small', 'medium', 'large'] as const).map((size) => (
         <Box key={size} width="280px">
           <Select.Root size={size}>
             <Select.Trigger>

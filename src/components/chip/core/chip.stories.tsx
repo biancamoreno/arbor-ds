@@ -11,7 +11,7 @@ const meta = {
   parameters: { layout: 'centered' },
   argTypes: {
     variant: { control: { type: 'select' }, options: ['filled', 'outlined', 'subtle'] },
-    size: { control: { type: 'select' }, options: ['sm', 'md'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium'] },
     tone: { control: { type: 'select' }, options: ['neutral', 'brand', 'success', 'warning', 'critical', 'info'] },
     disabled: { control: 'boolean' },
   },

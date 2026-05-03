@@ -4,7 +4,7 @@ import { transition } from '../../../ecosystem/utils/functions';
 import { getFeedbackToneColor } from '../../../foundations';
 import type { ProgressBarProps } from '../interfaces';
 
-const HEIGHT_MAP = { sm: 4, md: 8, lg: 12 } as const;
+const HEIGHT_MAP = { small: 4, medium: 8, large: 12 } as const;
 
 /**
  * @platform shared
@@ -13,7 +13,7 @@ const HEIGHT_MAP = { sm: 4, md: 8, lg: 12 } as const;
  * `indeterminate` ativa animação contínua quando o progresso não é
  * determinável. `tone` controla a cor do preenchimento
  * (`brand`/`success`/`warning`/`critical`/`info`); `size` define a altura
- * (`sm` 4px, `md` 8px, `lg` 12px). `label` é texto SR-only para leitores.
+ * (`small` 4px, `medium` 8px, `large` 12px). `label` é texto SR-only para leitores.
  *
  * @see {@link ProgressBarProps}
  */
@@ -21,7 +21,7 @@ export function ProgressBar({
   progress,
   indeterminate = false,
   label,
-  size = 'md',
+  size = 'medium',
   tone = 'brand',
   style,
   ...props

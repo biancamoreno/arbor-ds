@@ -151,27 +151,27 @@ const components: ThemeComponents = {
         ghost: { backgroundColor: 'transparent' },
       },
       size: {
-        sm: {
-          height: 'control.sm',
+        small: {
+          height: 'control.small',
           paddingLeft: 'small',
           paddingRight: 'small',
           fontSize: 'sm',
         },
-        md: {
-          height: 'control.md',
+        medium: {
+          height: 'control.medium',
           paddingLeft: 'medium',
           paddingRight: 'medium',
           fontSize: 'small',
         },
-        lg: {
-          height: 'control.lg',
+        large: {
+          height: 'control.large',
           paddingLeft: 'large',
           paddingRight: 'large',
           fontSize: 'md',
         },
       },
     },
-    defaultVariants: { variant: 'primary', size: 'md' },
+    defaultVariants: { variant: 'primary', size: 'medium' },
   },
 
   field: defineSlotRecipe({
@@ -184,12 +184,12 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { control: { minHeight: '44px' } },
-        md: { control: { minHeight: '44px' } },
-        lg: { control: { minHeight: '48px' } },
+        small: { control: { minHeight: '44px' } },
+        medium: { control: { minHeight: '44px' } },
+        large: { control: { minHeight: '48px' } },
       },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'medium' },
   }),
 
   input: defineSlotRecipe({
@@ -208,15 +208,15 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: {
+        small: {
           frame: { minHeight: '44px', paddingInline: '12px', paddingBlock: '6px' },
           control: { fontSize: 'xsmall' },
         },
-        md: {
+        medium: {
           frame: { minHeight: '44px', paddingInline: '16px', paddingBlock: '8px' },
           control: { fontSize: 'small' },
         },
-        lg: {
+        large: {
           frame: { minHeight: '48px', paddingInline: '18px', paddingBlock: '10px' },
           control: { fontSize: 'medium' },
         },
@@ -231,7 +231,7 @@ const components: ThemeComponents = {
         disabled: { frame: { opacity: 0.6 } },
       },
     },
-    defaultVariants: { size: 'md', variant: 'default', state: 'idle' },
+    defaultVariants: { size: 'medium', variant: 'default', state: 'idle' },
   }),
 
   checkbox: defineSlotRecipe({
@@ -254,9 +254,9 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { indicator: { width: '16px', height: '16px' }, label: { fontSize: 'xsmall' } },
-        md: { indicator: { width: '18px', height: '18px' }, label: { fontSize: 'small' } },
-        lg: { indicator: { width: '20px', height: '20px' }, label: { fontSize: 'medium' } },
+        small: { indicator: { width: '16px', height: '16px' }, label: { fontSize: 'xsmall' } },
+        medium: { indicator: { width: '18px', height: '18px' }, label: { fontSize: 'small' } },
+        large: { indicator: { width: '20px', height: '20px' }, label: { fontSize: 'medium' } },
       },
       state: {
         idle: {},
@@ -267,7 +267,7 @@ const components: ThemeComponents = {
         disabled: { root: { opacity: 0.6 } },
       },
     },
-    defaultVariants: { size: 'md', state: 'idle' },
+    defaultVariants: { size: 'medium', state: 'idle' },
   }),
 
   radio: defineSlotRecipe({
@@ -308,9 +308,9 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { control: { padding: 'tiny' }, label: { fontSize: 'xsmall' } },
-        md: { control: { padding: 'small' }, label: { fontSize: 'small' } },
-        lg: { control: { padding: 'medium' }, label: { fontSize: 'medium' } },
+        small: { control: { padding: 'tiny' }, label: { fontSize: 'xsmall' } },
+        medium: { control: { padding: 'small' }, label: { fontSize: 'small' } },
+        large: { control: { padding: 'medium' }, label: { fontSize: 'medium' } },
       },
       state: {
         idle: {},
@@ -322,7 +322,7 @@ const components: ThemeComponents = {
         disabled: { root: { opacity: 0.6 } },
       },
     },
-    defaultVariants: { size: 'md', state: 'idle' },
+    defaultVariants: { size: 'medium', state: 'idle' },
   }),
 
   switch: defineSlotRecipe({
@@ -352,15 +352,15 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: {
+        small: {
           track: { width: '36px', height: '20px', paddingLeft: '2px', paddingRight: '2px' },
           thumb: { width: '16px', height: '16px' },
         },
-        md: {
+        medium: {
           track: { width: '44px', height: '24px', paddingLeft: '2px', paddingRight: '2px' },
           thumb: { width: '20px', height: '20px' },
         },
-        lg: {
+        large: {
           track: { width: '52px', height: '28px', paddingLeft: '2px', paddingRight: '2px' },
           thumb: { width: '24px', height: '24px' },
         },
@@ -372,7 +372,7 @@ const components: ThemeComponents = {
         disabled: { root: { opacity: 0.6 } },
       },
     },
-    defaultVariants: { size: 'md', state: 'idle' },
+    defaultVariants: { size: 'medium', state: 'idle' },
   }),
 
   select: defineSlotRecipe({
@@ -411,17 +411,17 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: {
+        small: {
           trigger: { minHeight: '44px', paddingLeft: 'tiny', paddingRight: 'tiny', fontSize: 'xsmall' },
           item: { minHeight: '44px' },
           value: { fontSize: 'xsmall' },
         },
-        md: {
+        medium: {
           trigger: { minHeight: '44px', paddingLeft: 'small', paddingRight: 'small', fontSize: 'small' },
           item: { minHeight: '44px' },
           value: { fontSize: 'small' },
         },
-        lg: {
+        large: {
           trigger: { minHeight: '48px', paddingLeft: 'small', paddingRight: 'small', fontSize: 'medium' },
           item: { minHeight: '44px' },
           value: { fontSize: 'medium' },
@@ -434,7 +434,7 @@ const components: ThemeComponents = {
         disabled: { trigger: { opacity: 0.6 } },
       },
     },
-    defaultVariants: { size: 'md', state: 'idle' },
+    defaultVariants: { size: 'medium', state: 'idle' },
   }),
 
   dialog: defineSlotRecipe({
@@ -455,12 +455,12 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { content: { maxWidth: 'dialog.sm', padding: 'medium' } },
-        md: { content: { maxWidth: 'dialog.md', padding: 'large' } },
-        lg: { content: { maxWidth: 'dialog.lg', padding: 'large' } },
+        small: { content: { maxWidth: 'dialog.small', padding: 'medium' } },
+        medium: { content: { maxWidth: 'dialog.medium', padding: 'large' } },
+        large: { content: { maxWidth: 'dialog.large', padding: 'large' } },
       },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'medium' },
   }),
 
   drawer: defineSlotRecipe({
@@ -472,12 +472,12 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { content: { padding: 'small' } },
-        md: { content: { padding: 'medium' } },
-        lg: { content: { padding: 'large' } },
+        small: { content: { padding: 'small' } },
+        medium: { content: { padding: 'medium' } },
+        large: { content: { padding: 'large' } },
       },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'medium' },
   }),
 
   tooltip: defineSlotRecipe({
@@ -505,11 +505,11 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { padding: '2px 6px', fontSize: 'xsmall' },
-        md: { padding: '3px 8px', fontSize: 'xsmall' },
+        small: { padding: '2px 6px', fontSize: 'xsmall' },
+        medium: { padding: '3px 8px', fontSize: 'xsmall' },
       },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'medium' },
   },
 
   card: {
@@ -527,12 +527,12 @@ const components: ThemeComponents = {
       },
       padding: {
         none: { padding: 'none' },
-        sm: { padding: 'tiny' },
-        md: { padding: 'medium' },
-        lg: { padding: 'large' },
+        small: { padding: 'tiny' },
+        medium: { padding: 'medium' },
+        large: { padding: 'large' },
       },
     },
-    defaultVariants: { variant: 'outlined', padding: 'md' },
+    defaultVariants: { variant: 'outlined', padding: 'medium' },
   },
 
   chip: {
@@ -545,11 +545,11 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        sm: { padding: '3px 8px', fontSize: 'xsmall' },
-        md: { padding: '5px 12px', fontSize: 'sm' },
+        small: { padding: '3px 8px', fontSize: 'xsmall' },
+        medium: { padding: '5px 12px', fontSize: 'sm' },
       },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'medium' },
   },
 
   avatar: defineSlotRecipe({
@@ -561,14 +561,14 @@ const components: ThemeComponents = {
     },
     variants: {
       size: {
-        xs: { root: { width: '24px', height: '24px' }, fallback: { fontSize: 'xsmall' } },
-        sm: { root: { width: '32px', height: '32px' }, fallback: { fontSize: 'xsmall' } },
-        md: { root: { width: '40px', height: '40px' }, fallback: { fontSize: 'sm' } },
-        lg: { root: { width: '48px', height: '48px' }, fallback: { fontSize: 'small' } },
-        xl: { root: { width: '64px', height: '64px' }, fallback: { fontSize: 'md' } },
+        xsmall: { root: { width: '24px', height: '24px' }, fallback: { fontSize: 'xsmall' } },
+        small: { root: { width: '32px', height: '32px' }, fallback: { fontSize: 'xsmall' } },
+        medium: { root: { width: '40px', height: '40px' }, fallback: { fontSize: 'sm' } },
+        large: { root: { width: '48px', height: '48px' }, fallback: { fontSize: 'small' } },
+        xlarge: { root: { width: '64px', height: '64px' }, fallback: { fontSize: 'md' } },
       },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'medium' },
   }),
 
   alert: defineSlotRecipe({

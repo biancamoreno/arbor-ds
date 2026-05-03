@@ -4,9 +4,9 @@ import type { IconButtonProps } from '../interfaces';
 import { Button } from './button.native';
 
 const iconButtonSizeMap = {
-  sm: { width: 32, height: 32 },
-  md: { width: 40, height: 40 },
-  lg: { width: 48, height: 48 },
+  small: { width: 32, height: 32 },
+  medium: { width: 40, height: 40 },
+  large: { width: 48, height: 48 },
 } as const;
 
 /**
@@ -21,7 +21,7 @@ const iconButtonSizeMap = {
  */
 export function IconButton({
   children,
-  size = 'md',
+  size = 'medium',
   shape = 'circle',
   style,
   ...props

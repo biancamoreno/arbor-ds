@@ -16,7 +16,7 @@ export interface ProgressBarProps {
   indeterminate?: boolean;
   /** Texto descritivo para leitores de tela */
   label?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
   /**
    * Subset de `FeedbackTone` excluindo `neutral` — cinza sobre cinza não
    * comunica progresso (justificativa em CONTRIBUTING.md §"Feedback tones").

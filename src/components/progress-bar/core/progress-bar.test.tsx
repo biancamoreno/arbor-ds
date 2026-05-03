@@ -44,13 +44,13 @@ describe('ProgressBar', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0');
   });
 
-  it('aceita size sm', () => {
-    render(<ProgressBar progress={50} size="sm" />, { wrapper });
+  it('aceita size small', () => {
+    render(<ProgressBar progress={50} size="small" />, { wrapper });
     expect(screen.getByRole('progressbar').style.height).toBe('4px');
   });
 
-  it('aceita size lg', () => {
-    render(<ProgressBar progress={50} size="lg" />, { wrapper });
+  it('aceita size large', () => {
+    render(<ProgressBar progress={50} size="large" />, { wrapper });
     expect(screen.getByRole('progressbar').style.height).toBe('12px');
   });
 

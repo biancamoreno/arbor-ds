@@ -9,9 +9,9 @@ import type { SwitchRootProps, SwitchSize, SwitchState } from '../interfaces/Swi
 type SwitchSlot = 'root' | 'track' | 'thumb';
 
 const trackGeometry: Record<SwitchSize, { width: number; thumb: number; padding: number }> = {
-  sm: { width: 36, thumb: 16, padding: 2 },
-  md: { width: 44, thumb: 20, padding: 2 },
-  lg: { width: 52, thumb: 24, padding: 2 },
+  small: { width: 36, thumb: 16, padding: 2 },
+  medium: { width: 44, thumb: 20, padding: 2 },
+  large: { width: 52, thumb: 24, padding: 2 },
 };
 
 function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): SwitchState {
@@ -29,7 +29,7 @@ function SwitchRoot({
   id: idProp,
   name,
   value,
-  size = 'md',
+  size = 'medium',
   children,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,

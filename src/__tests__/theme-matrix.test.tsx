@@ -67,7 +67,7 @@ describe('multi-product theming matrix', () => {
   });
 
   it('Spinner renders within product B without crashing', () => {
-    render(<Spinner size="md" label="loading" />, { wrapper: Wrapper });
+    render(<Spinner size="medium" label="loading" />, { wrapper: Wrapper });
     expect(screen.getByLabelText('loading')).toBeTruthy();
   });
 
@@ -108,15 +108,15 @@ describe('multi-product theming matrix', () => {
   });
 
   it('density tokens are exposed in theme.sizes.control', () => {
-    expect(productB.sizes.control.sm).toBe('32px');
-    expect(productB.sizes.control.md).toBe('40px');
-    expect(productB.sizes.control.lg).toBe('48px');
+    expect(productB.sizes.control.small).toBe('32px');
+    expect(productB.sizes.control.medium).toBe('40px');
+    expect(productB.sizes.control.large).toBe('48px');
   });
 
   it('density tokens are exposed in theme.sizes.dialog', () => {
-    expect(productB.sizes.dialog.sm).toBe('420px');
-    expect(productB.sizes.dialog.md).toBe('560px');
-    expect(productB.sizes.dialog.lg).toBe('720px');
+    expect(productB.sizes.dialog.small).toBe('420px');
+    expect(productB.sizes.dialog.medium).toBe('560px');
+    expect(productB.sizes.dialog.large).toBe('720px');
   });
 
   it('shadow.color is exposed in theme.colors', () => {

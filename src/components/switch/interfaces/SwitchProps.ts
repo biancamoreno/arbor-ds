@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type SwitchSize = 'sm' | 'md' | 'lg';
+export type SwitchSize = 'small' | 'medium' | 'large';
 export type SwitchState = 'idle' | 'checked' | 'invalid' | 'disabled';
 
 /**

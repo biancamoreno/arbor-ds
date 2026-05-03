@@ -23,7 +23,7 @@ export const TextArea = markFieldAware(
       {
         label,
         error,
-        size = 'md',
+        size = 'medium',
         variant = 'default',
         helperText,
         disabled,

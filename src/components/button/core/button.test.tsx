@@ -34,13 +34,13 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toBeTruthy();
   });
 
-  it('size sm renderiza', () => {
-    render(<Button size="sm">Sm</Button>, { wrapper });
+  it('size small renderiza', () => {
+    render(<Button size="small">Sm</Button>, { wrapper });
     expect(screen.getByRole('button')).toBeTruthy();
   });
 
-  it('size lg renderiza', () => {
-    render(<Button size="lg">Lg</Button>, { wrapper });
+  it('size large renderiza', () => {
+    render(<Button size="large">Lg</Button>, { wrapper });
     expect(screen.getByRole('button')).toBeTruthy();
   });
 

@@ -738,14 +738,14 @@ function PlaygroundContent({
           </header>
 
           <main className="playground-main">
-            <Tabs items={tabItems} variant="pill" size="sm" />
+            <Tabs items={tabItems} variant="pill" size="small" />
           </main>
         </div>
       </Container>
 
       <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog.Overlay />
-        <Dialog.Content size="md">
+        <Dialog.Content size="medium">
           <Dialog.Title>Arbor Dialog</Dialog.Title>
           <Dialog.Description>
             Overlay de referencia para confirmacoes, mensagens ou formularios curtos.

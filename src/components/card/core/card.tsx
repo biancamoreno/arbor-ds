@@ -3,9 +3,9 @@ import { Box, Flex } from '../../core';
 import { transition } from '../../../ecosystem/utils/functions';
 import type { CardRootProps, CardSectionProps } from '../interfaces';
 
-const PADDING_MAP = { none: '0', sm: '12px', md: '16px', lg: '24px' } as const;
+const PADDING_MAP = { none: '0', small: '12px', medium: '16px', large: '24px' } as const;
 
-function CardRoot({ children, variant = 'outlined', padding = 'md', style, className, ...props }: CardRootProps) {
+function CardRoot({ children, variant = 'outlined', padding = 'medium', style, className, ...props }: CardRootProps) {
   const extraClass =
     variant === 'hoverable'
       ? 'arbor-card-hoverable'

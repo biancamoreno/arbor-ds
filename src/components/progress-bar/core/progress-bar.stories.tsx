@@ -9,7 +9,7 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: {
     progress: { control: { type: 'range', min: 0, max: 100, step: 1 } },
-    size: { control: { type: 'select' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
     tone: { control: { type: 'select' }, options: ['brand', 'success', 'warning', 'critical'] },
     label: { control: 'text' },
   },
@@ -35,9 +35,9 @@ export const AllTones: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex flexDirection="column" gap="small" width={400}>
-      <ProgressBar progress={50} size="sm" label="SM" />
-      <ProgressBar progress={50} size="md" label="MD" />
-      <ProgressBar progress={50} size="lg" label="LG" />
+      <ProgressBar progress={50} size="small" label="Small" />
+      <ProgressBar progress={50} size="medium" label="Medium" />
+      <ProgressBar progress={50} size="large" label="Large" />
     </Flex>
   ),
 };

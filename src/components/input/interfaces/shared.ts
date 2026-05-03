@@ -2,7 +2,7 @@
  * Tamanho dos campos da família Input (`TextInput`, `TextArea`, `Counter`).
  * Mapeia para densidade de padding e fontSize na recipe `input`.
  */
-export type FieldSize = 'sm' | 'md' | 'lg';
+export type FieldSize = 'small' | 'medium' | 'large';
 
 /**
  * Aparência base dos campos da família Input.
@@ -32,7 +32,7 @@ export interface FieldBaseProps {
   error?: string;
   /**
    * Tamanho do controle.
-   * @default 'md'
+   * @default 'medium'
    */
   size?: FieldSize;
   /**

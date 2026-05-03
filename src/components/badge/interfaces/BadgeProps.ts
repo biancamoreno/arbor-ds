@@ -13,7 +13,7 @@ export interface BadgeProps {
   tone?: FeedbackTone;
   /** Preenchimento sólido vs. suave */
   variant?: 'solid' | 'subtle';
-  size?: 'sm' | 'md';
+  size?: 'small' | 'medium';
   /** Escape hatch para CSS não coberto pelo sistema */
   style?: CSSProperties;
   className?: string;

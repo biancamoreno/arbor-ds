@@ -19,7 +19,7 @@ const keyboardTypeMap: Record<string, KeyboardTypeOptions> = {
   url: 'url',
 };
 
-const fontSizeBySize = { sm: 'xsmall', md: 'small', lg: 'medium' } as const;
+const fontSizeBySize = { small: 'xsmall', medium: 'small', large: 'medium' } as const;
 
 type RNStyle = NonNullable<RNTextInputProps['style']>;
 
@@ -27,7 +27,7 @@ const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(function Text
   const {
     label,
     error,
-    size = 'md',
+    size = 'medium',
     variant = 'default',
     leftIcon,
     rightIcon,

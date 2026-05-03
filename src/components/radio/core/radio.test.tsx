@@ -135,7 +135,7 @@ describe('Radio.Description', () => {
 describe('Radio slot recipe (RFC-0017)', () => {
   it('produces different control classNames for sm vs lg (recipe is consumed)', () => {
     const { container, unmount } = renderRadio(
-      <Radio value="a" size="sm" defaultChecked={false}>
+      <Radio value="a" size="small" defaultChecked={false}>
         <Radio.Indicator />
       </Radio>,
     );
@@ -143,7 +143,7 @@ describe('Radio slot recipe (RFC-0017)', () => {
     unmount();
 
     const { container: container2 } = renderRadio(
-      <Radio value="a" size="lg" defaultChecked={false}>
+      <Radio value="a" size="large" defaultChecked={false}>
         <Radio.Indicator />
       </Radio>,
     );

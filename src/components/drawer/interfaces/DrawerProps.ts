@@ -25,7 +25,7 @@ export type DrawerOverlayProps = {
 
 export type DrawerContentProps = {
   children: ReactNode;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
 };
 
 export type DrawerTitleProps = {

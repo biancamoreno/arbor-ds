@@ -31,9 +31,9 @@ export interface CounterProps {
   label?: string;
   /**
    * Tamanho do controle (afeta dimensão dos botões e do input central).
-   * @default 'md'
+   * @default 'medium'
    */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
   /**
    * Desabilita o controle inteiro. Em `<Field>`, prefira passar `disabled` no
    * `Field.Root`.

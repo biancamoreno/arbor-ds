@@ -3,8 +3,8 @@ import { Clickable, Icon } from '../../core';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 
-const SIZE_MAP = { sm: 40, md: 56, lg: 72 } as const;
-const ICON_SIZE_MAP = { sm: 16, md: 20, lg: 24 } as const;
+const SIZE_MAP = { small: 40, medium: 56, large: 72 } as const;
+const ICON_SIZE_MAP = { small: 16, medium: 20, large: 24 } as const;
 
 /**
  * @platform native
@@ -19,7 +19,7 @@ const ICON_SIZE_MAP = { sm: 16, md: 20, lg: 24 } as const;
 export function FloatingActionButton({
   icon,
   label,
-  size = 'md',
+  size = 'medium',
   variant = 'primary',
   position = 'bottom-right',
   offset,

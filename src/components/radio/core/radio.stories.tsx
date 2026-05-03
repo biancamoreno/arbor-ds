@@ -10,7 +10,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
   argTypes: {
-    size: { control: { type: 'select' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
     disabled: { control: 'boolean' },
   },
 } satisfies Meta<typeof Radio>;
@@ -73,7 +73,7 @@ export const Disabled: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex flexDirection="column" gap="8px">
-      {(['sm', 'md', 'lg'] as const).map((size) => (
+      {(['small', 'medium', 'large'] as const).map((size) => (
         <Radio.Root key={size} value={size} id={`size-${size}`} size={size}>
           <Radio.Indicator />
           <Radio.Label>Tamanho {size}</Radio.Label>

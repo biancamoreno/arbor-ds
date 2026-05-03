@@ -167,11 +167,11 @@ describe('Switch FieldContext integration', () => {
 
 describe('Switch slot recipe (RFC-0017)', () => {
   it('produces different track classNames for sm vs lg (recipe is consumed)', () => {
-    const { unmount } = renderSwitch(<Switch size="sm" aria-label="t-sm" />);
+    const { unmount } = renderSwitch(<Switch size="small" aria-label="t-sm" />);
     const smTrack = (document.querySelector('[aria-hidden="true"]') as HTMLElement).className;
     unmount();
 
-    renderSwitch(<Switch size="lg" aria-label="t-lg" />);
+    renderSwitch(<Switch size="large" aria-label="t-lg" />);
     const lgTrack = (document.querySelector('[aria-hidden="true"]') as HTMLElement).className;
 
     expect(smTrack).not.toEqual(lgTrack);
@@ -206,7 +206,7 @@ describe('Switch slot recipe (RFC-0017)', () => {
 
 describe('Switch sizes', () => {
   it('renders sm size', () => {
-    renderSwitch(<Switch size="sm" aria-label="Toggle" />);
+    renderSwitch(<Switch size="small" aria-label="Toggle" />);
     expect(getSwitch()).toBeTruthy();
   });
 
@@ -216,7 +216,7 @@ describe('Switch sizes', () => {
   });
 
   it('renders lg size', () => {
-    renderSwitch(<Switch size="lg" aria-label="Toggle" />);
+    renderSwitch(<Switch size="large" aria-label="Toggle" />);
     expect(getSwitch()).toBeTruthy();
   });
 });
@@ -232,7 +232,7 @@ describe('Switch accessibility — visible focus (TD-014, WCAG 2.4.7)', () => {
 });
 
 describe('Switch accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
-  it.each(['sm', 'md', 'lg'] as const)('track has 44x44 hit-area overlay in size %s', size => {
+  it.each(['small', 'medium', 'large'] as const)('track has 44x44 hit-area overlay in size %s', size => {
     renderSwitch(<Switch size={size} aria-label="Toggle" />);
     const track = document.querySelector('[aria-hidden="true"]') as HTMLElement;
     const trackClass = track.className.split(' ').pop()!;

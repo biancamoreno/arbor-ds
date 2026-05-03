@@ -11,7 +11,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
  */
 export interface ButtonVariant {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
   loading?: boolean;
 }
 

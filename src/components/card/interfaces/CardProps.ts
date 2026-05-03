@@ -7,7 +7,7 @@ export interface CardRootProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   variant?: 'outlined' | 'elevated' | 'flat' | 'hoverable' | 'clickable';
   /** Padding interno padrão */
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  padding?: 'none' | 'small' | 'medium' | 'large';
 }
 
 export interface CardSectionProps extends HTMLAttributes<HTMLDivElement> {

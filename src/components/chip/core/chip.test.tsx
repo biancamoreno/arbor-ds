@@ -39,8 +39,8 @@ describe('Chip', () => {
     expect(screen.getByText('Brand')).toBeTruthy();
   });
 
-  it('aceita size sm', () => {
-    render(<Chip size="sm"><Chip.Label>Sm</Chip.Label></Chip>, { wrapper });
+  it('aceita size small', () => {
+    render(<Chip size="small"><Chip.Label>Sm</Chip.Label></Chip>, { wrapper });
     expect(screen.getByText('Sm')).toBeTruthy();
   });
 

@@ -39,9 +39,9 @@ describe('Avatar', () => {
     expect(screen.getByText('MR')).toBeTruthy();
   });
 
-  it('aceita size xs — 24px', () => {
+  it('aceita size xsmall — 24px', () => {
     const { container } = render(
-      <Avatar.Root size="xs"><Avatar.Fallback>X</Avatar.Fallback></Avatar.Root>,
+      <Avatar.Root size="xsmall"><Avatar.Fallback>X</Avatar.Fallback></Avatar.Root>,
       { wrapper }
     );
     const root = container.firstChild as HTMLElement;
@@ -49,9 +49,9 @@ describe('Avatar', () => {
     expect(root.style.height).toBe('24px');
   });
 
-  it('aceita size xl — 64px', () => {
+  it('aceita size xlarge — 64px', () => {
     const { container } = render(
-      <Avatar.Root size="xl"><Avatar.Fallback>X</Avatar.Fallback></Avatar.Root>,
+      <Avatar.Root size="xlarge"><Avatar.Fallback>X</Avatar.Fallback></Avatar.Root>,
       { wrapper }
     );
     const root = container.firstChild as HTMLElement;
@@ -59,7 +59,7 @@ describe('Avatar', () => {
     expect(root.style.height).toBe('64px');
   });
 
-  it('aceita size md — 40px (default)', () => {
+  it('aceita size medium — 40px (default)', () => {
     const { container } = render(
       <Avatar.Root><Avatar.Fallback>AB</Avatar.Fallback></Avatar.Root>,
       { wrapper }

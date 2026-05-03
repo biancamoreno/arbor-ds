@@ -89,7 +89,7 @@ function TabsList({ children, fullWidth = false, style, ...props }: TabsListProp
   );
 }
 
-function TabsTrigger({ children, value, size = 'md', disabled, onClick, style, ...props }: TabsTriggerProps) {
+function TabsTrigger({ children, value, size = 'medium', disabled, onClick, style, ...props }: TabsTriggerProps) {
   const theme = useTheme();
   const { activeValue, setActive, baseId } = useTabsNativeContext();
   const isActive = activeValue === value;
@@ -113,8 +113,8 @@ function TabsTrigger({ children, value, size = 'md', disabled, onClick, style, .
       alignItems="center"
       justifyContent="center"
       style={{
-        paddingHorizontal: size === 'sm' ? 12 : 16,
-        paddingVertical: size === 'sm' ? 8 : 10,
+        paddingHorizontal: size === 'small' ? 12 : 16,
+        paddingVertical: size === 'small' ? 8 : 10,
         borderBottomWidth: 2,
         borderBottomColor: isActive ? theme.colors.brand.base : 'transparent',
         opacity: disabled ? 0.5 : 1,
@@ -125,7 +125,7 @@ function TabsTrigger({ children, value, size = 'md', disabled, onClick, style, .
         as="span"
         style={{
           color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
-          fontSize: size === 'sm' ? 12 : 14,
+          fontSize: size === 'small' ? 12 : 14,
           fontWeight: isActive ? '500' : '400',
         }}
       >

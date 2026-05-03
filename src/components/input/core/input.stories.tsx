@@ -10,7 +10,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
   argTypes: {
-    size: { control: { type: 'select' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
     variant: { control: { type: 'select' }, options: ['default', 'filled'] },
     disabled: { control: 'boolean' },
   },
@@ -23,7 +23,7 @@ export const Default: Story = {
   args: {
     placeholder: 'Digite algo...',
     label: 'Campo de texto',
-    size: 'md',
+    size: 'medium',
   },
 };
 
@@ -55,9 +55,9 @@ export const Filled: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex flexDirection="column" gap="12px" style={{ width: 320 }}>
-      <TextInput size="sm" placeholder="Pequeno (sm)" label="Pequeno" />
-      <TextInput size="md" placeholder="Médio (md)" label="Médio" />
-      <TextInput size="lg" placeholder="Grande (lg)" label="Grande" />
+      <TextInput size="small" placeholder="Pequeno (small)" label="Pequeno" />
+      <TextInput size="medium" placeholder="Médio (medium)" label="Médio" />
+      <TextInput size="large" placeholder="Grande (large)" label="Grande" />
     </Flex>
   ),
 };

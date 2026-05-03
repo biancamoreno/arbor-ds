@@ -88,18 +88,18 @@ describe('TextInput standalone', () => {
     expect(screen.getByTestId('right-icon')).toBeTruthy();
   });
 
-  it('renders with size sm', () => {
-    renderInput(<TextInput size="sm" />);
+  it('renders with size small', () => {
+    renderInput(<TextInput size="small" />);
     expect(screen.getByRole('textbox')).toBeTruthy();
   });
 
-  it('renders with size md (default)', () => {
+  it('renders with size medium (default)', () => {
     renderInput(<TextInput />);
     expect(screen.getByRole('textbox')).toBeTruthy();
   });
 
-  it('renders with size lg', () => {
-    renderInput(<TextInput size="lg" />);
+  it('renders with size large', () => {
+    renderInput(<TextInput size="large" />);
     expect(screen.getByRole('textbox')).toBeTruthy();
   });
 
@@ -224,7 +224,7 @@ describe('TextInput FieldContext integration', () => {
 });
 
 describe('TextInput accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
-  it.each(['sm', 'md', 'lg'] as const)('frame minHeight is >= 44 in size %s', size => {
+  it.each(['small', 'medium', 'large'] as const)('frame minHeight is >= 44 in size %s', size => {
     renderInput(<TextInput size={size} />);
     const frame = screen.getByRole('textbox').parentElement as HTMLElement;
     const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';

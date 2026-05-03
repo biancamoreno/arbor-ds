@@ -54,8 +54,8 @@ describe('Badge', () => {
     expect(screen.getByText('Sólido')).toBeTruthy();
   });
 
-  it('aceita size sm', () => {
-    render(<Badge size="sm">Small</Badge>, { wrapper });
+  it('aceita size small', () => {
+    render(<Badge size="small">Small</Badge>, { wrapper });
     expect(screen.getByText('Small')).toBeTruthy();
   });
 

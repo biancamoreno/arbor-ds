@@ -7,9 +7,9 @@ import { Box, Flex, Clickable, Text } from '../../core';
 import type { CounterProps } from '../interfaces';
 
 const sizeMap = {
-  sm: { button: 24, font: 'xsmall' as const },
-  md: { button: 32, font: 'small' as const },
-  lg: { button: 40, font: 'medium' as const },
+  small: { button: 24, font: 'xsmall' as const },
+  medium: { button: 32, font: 'small' as const },
+  large: { button: 40, font: 'medium' as const },
 };
 
 const CounterBase: React.FC<CounterProps> = ({
@@ -19,7 +19,7 @@ const CounterBase: React.FC<CounterProps> = ({
   max = 999,
   step = 1,
   label,
-  size = 'md',
+  size = 'medium',
   disabled,
   showInput = true,
 }) => {

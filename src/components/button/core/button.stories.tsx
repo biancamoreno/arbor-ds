@@ -10,7 +10,7 @@ const meta = {
   parameters: { layout: 'centered' },
   argTypes: {
     variant: { control: { type: 'select' }, options: ['primary', 'secondary', 'ghost', 'danger'] },
-    size: { control: { type: 'select' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
     loading: { control: 'boolean' },
     disabled: { control: 'boolean' },
   },
@@ -21,19 +21,19 @@ export default meta;
 type Story = StoryObj;
 
 export const Primary: Story = {
-  args: { children: 'Botão primário', variant: 'primary', size: 'md' },
+  args: { children: 'Botão primário', variant: 'primary', size: 'medium' },
 };
 
 export const Secondary: Story = {
-  args: { children: 'Botão secundário', variant: 'secondary', size: 'md' },
+  args: { children: 'Botão secundário', variant: 'secondary', size: 'medium' },
 };
 
 export const Ghost: Story = {
-  args: { children: 'Botão ghost', variant: 'ghost', size: 'md' },
+  args: { children: 'Botão ghost', variant: 'ghost', size: 'medium' },
 };
 
 export const Danger: Story = {
-  args: { children: 'Excluir', variant: 'danger', size: 'md' },
+  args: { children: 'Excluir', variant: 'danger', size: 'medium' },
 };
 
 export const Loading: Story = {
@@ -47,9 +47,9 @@ export const Disabled: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex gap="12px" alignItems="center">
-      <Button size="sm">Pequeno</Button>
-      <Button size="md">Médio</Button>
-      <Button size="lg">Grande</Button>
+      <Button size="small">Pequeno</Button>
+      <Button size="medium">Médio</Button>
+      <Button size="large">Grande</Button>
     </Flex>
   ),
 };

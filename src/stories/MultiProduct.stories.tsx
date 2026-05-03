@@ -85,20 +85,20 @@ function ProductColumn({ panel }: { panel: ProductPanel }) {
 
           <Box height="1px" backgroundColor="border.subtle" />
 
-          <Card variant="outlined" padding="md">
+          <Card variant="outlined" padding="medium">
             <Flex flexDirection="column" gap="medium">
               <Text fontSize="small" fontWeight="bold" color="text.primary">
                 Buttons
               </Text>
               <Flex gap="small" flexWrap="wrap">
-                <Button variant="primary" size="md">Primary</Button>
-                <Button variant="secondary" size="md">Secondary</Button>
-                <Button variant="ghost" size="md">Ghost</Button>
+                <Button variant="primary" size="medium">Primary</Button>
+                <Button variant="secondary" size="medium">Secondary</Button>
+                <Button variant="ghost" size="medium">Ghost</Button>
               </Flex>
             </Flex>
           </Card>
 
-          <Card variant="outlined" padding="md">
+          <Card variant="outlined" padding="medium">
             <Flex flexDirection="column" gap="medium">
               <Text fontSize="small" fontWeight="bold" color="text.primary">
                 Selection
@@ -106,12 +106,12 @@ function ProductColumn({ panel }: { panel: ProductPanel }) {
               <Flex alignItems="center" gap="medium">
                 <Switch checked onCheckedChange={() => {}} aria-label="ativo" />
                 <Switch checked={false} onCheckedChange={() => {}} aria-label="inativo" />
-                <Spinner size="md" label="loading" />
+                <Spinner size="medium" label="loading" />
               </Flex>
             </Flex>
           </Card>
 
-          <Card variant="outlined" padding="md">
+          <Card variant="outlined" padding="medium">
             <Flex flexDirection="column" gap="medium">
               <Text fontSize="small" fontWeight="bold" color="text.primary">
                 Status & Tags
@@ -130,15 +130,15 @@ function ProductColumn({ panel }: { panel: ProductPanel }) {
             </Flex>
           </Card>
 
-          <Card variant="outlined" padding="md">
+          <Card variant="outlined" padding="medium">
             <Flex flexDirection="column" gap="medium">
               <Text fontSize="small" fontWeight="bold" color="text.primary">
                 Identity & Form
               </Text>
               <Flex alignItems="center" gap="medium">
-                <Avatar size="md">AB</Avatar>
-                <Avatar size="md">CD</Avatar>
-                <Avatar size="md">EF</Avatar>
+                <Avatar size="medium">AB</Avatar>
+                <Avatar size="medium">CD</Avatar>
+                <Avatar size="medium">EF</Avatar>
               </Flex>
               <Field>
                 <Field.Label>Email</Field.Label>

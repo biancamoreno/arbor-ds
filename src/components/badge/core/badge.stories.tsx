@@ -13,7 +13,7 @@ const meta = {
       options: ['neutral', 'brand', 'success', 'warning', 'critical', 'info'],
     },
     variant: { control: { type: 'select' }, options: ['solid', 'subtle'] },
-    size: { control: { type: 'select' }, options: ['sm', 'md'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium'] },
   },
 } satisfies Meta<typeof Badge>;
 
@@ -47,15 +47,15 @@ export const Subtle: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex gap="small" alignItems="center">
-      <Badge size="sm" tone="brand">SM</Badge>
-      <Badge size="md" tone="brand">MD</Badge>
+      <Badge size="small" tone="brand">SM</Badge>
+      <Badge size="medium" tone="brand">MD</Badge>
     </Flex>
   ),
 };
 
 export const WithAnchor: Story = {
   render: () => (
-    <Badge.Anchor badge={<Badge tone="critical" size="sm">3</Badge>}>
+    <Badge.Anchor badge={<Badge tone="critical" size="small">3</Badge>}>
       <Flex
         width={40}
         height={40}

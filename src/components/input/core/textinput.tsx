@@ -25,7 +25,7 @@ export const TextInput = markFieldAware(
       {
         label,
         error,
-        size = 'md',
+        size = 'medium',
         variant = 'default',
         leftIcon,
         rightIcon,

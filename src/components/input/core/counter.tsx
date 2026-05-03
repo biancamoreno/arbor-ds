@@ -13,7 +13,7 @@ const CounterBase: React.FC<CounterProps> = ({
   max = 999,
   step = 1,
   label,
-  size = 'md',
+  size = 'medium',
   disabled,
   showInput = true,
 }) => {
@@ -29,9 +29,9 @@ const CounterBase: React.FC<CounterProps> = ({
   const [editValue, setEditValue] = useState(String(value));
 
   const sizeMap = {
-    sm: { button: '32px', font: theme.fontSizes.xsmall, padding: '0.25rem 0.5rem' },
-    md: { button: '40px', font: theme.fontSizes.small, padding: '0.5rem 0.75rem' },
-    lg: { button: '48px', font: theme.fontSizes.medium, padding: '0.75rem 1rem' },
+    small: { button: '32px', font: theme.fontSizes.xsmall, padding: '0.25rem 0.5rem' },
+    medium: { button: '40px', font: theme.fontSizes.small, padding: '0.5rem 0.75rem' },
+    large: { button: '48px', font: theme.fontSizes.medium, padding: '0.75rem 1rem' },
   };
 
   const hitTargetOverlay = {

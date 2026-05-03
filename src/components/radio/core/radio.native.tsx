@@ -31,7 +31,7 @@ function RadioRoot({
   disabled,
   id: idProp,
   name,
-  size = 'md',
+  size = 'medium',
   children,
 }: RadioRootProps) {
   const autoId = useId();

@@ -21,7 +21,7 @@ export const Right: Story = {
         </button>
       </Drawer.Trigger>
       <Drawer.Overlay />
-      <Drawer.Content size="md">
+      <Drawer.Content size="medium">
         <Drawer.Title>Painel Lateral</Drawer.Title>
         <div style={{ marginTop: 16 }}>
           <p>Conteúdo do drawer lateral.</p>

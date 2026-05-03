@@ -137,7 +137,7 @@ describe('Checkbox compound anatomy', () => {
 describe('Checkbox slot recipe (RFC-0017)', () => {
   it('accepts size prop without runtime error', () => {
     renderCb(
-      <Checkbox.Root size="sm" defaultChecked={false} onCheckedChange={() => {}}>
+      <Checkbox.Root size="small" defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb" />
       </Checkbox.Root>,
     );
@@ -146,7 +146,7 @@ describe('Checkbox slot recipe (RFC-0017)', () => {
 
   it('produces different classNames for different sizes (recipe is consumed)', () => {
     const { unmount } = renderCb(
-      <Checkbox.Root size="sm" defaultChecked={false} onCheckedChange={() => {}}>
+      <Checkbox.Root size="small" defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb-sm" />
       </Checkbox.Root>,
     );
@@ -154,7 +154,7 @@ describe('Checkbox slot recipe (RFC-0017)', () => {
     unmount();
 
     renderCb(
-      <Checkbox.Root size="lg" defaultChecked={false} onCheckedChange={() => {}}>
+      <Checkbox.Root size="large" defaultChecked={false} onCheckedChange={() => {}}>
         <Checkbox.Indicator data-testid="cb-lg" />
       </Checkbox.Root>,
     );

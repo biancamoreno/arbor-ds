@@ -8,14 +8,14 @@ import type { SpinnerProps } from '../interfaces';
  * @platform shared
  *
  * Indicador de loading rotativo (RFC-0021 — loader unificado consumido também
- * por `Button` em `loading=true`). `size` (default `'md'`) e `color` (token
+ * por `Button` em `loading=true`). `size` (default `'medium'`) e `color` (token
  * semântico ou string CSS, default `brand.base`). `label` é texto SR-only
  * (`role="status"` + `aria-label`); passe `label=""` quando o contexto já
  * anuncia o loading.
  *
  * @see {@link SpinnerProps}
  */
-export function Spinner({ size = 'md', color, label = 'Carregando', style, ...props }: SpinnerProps) {
+export function Spinner({ size = 'medium', color, label = 'Carregando', style, ...props }: SpinnerProps) {
   const theme = useTheme();
   const px = SIZE_MAP[size];
   const strokeColor = color ?? theme.colors.brand.base;

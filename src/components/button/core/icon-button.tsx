@@ -2,16 +2,16 @@ import type { IconButtonProps } from '../interfaces';
 import { Button } from './button';
 
 const iconButtonSizeMap = {
-  sm: { width: '32px', height: '32px', padding: 0 },
-  md: { width: '40px', height: '40px', padding: 0 },
-  lg: { width: '48px', height: '48px', padding: 0 },
+  small: { width: '32px', height: '32px', padding: 0 },
+  medium: { width: '40px', height: '40px', padding: 0 },
+  large: { width: '48px', height: '48px', padding: 0 },
 } as const;
 
 /**
  * @platform shared
  *
  * `Button` quadrado que recebe apenas um ícone via `children`. Tamanho fixo por
- * size token (`sm` 32px / `md` 40px / `lg` 48px) e formato controlado por
+ * size token (`small` 32px / `medium` 40px / `large` 48px) e formato controlado por
  * `shape` (`circle` — default, `square`). Reutiliza variantes/loading/disabled
  * do `Button`.
  *
@@ -19,7 +19,7 @@ const iconButtonSizeMap = {
  */
 export function IconButton({
   children,
-  size = 'md',
+  size = 'medium',
   shape = 'circle',
   style,
   ...props

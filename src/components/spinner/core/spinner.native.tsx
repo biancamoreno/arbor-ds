@@ -17,7 +17,7 @@ import type { SpinnerProps } from '../interfaces';
  *
  * @see {@link SpinnerProps}
  */
-export function Spinner({ size = 'md', color, label = 'Carregando', style, ...props }: SpinnerProps) {
+export function Spinner({ size = 'medium', color, label = 'Carregando', style, ...props }: SpinnerProps) {
   const theme = useTheme();
   const px = SIZE_MAP[size];
   const strokeColor = color ?? theme.colors.brand.base;

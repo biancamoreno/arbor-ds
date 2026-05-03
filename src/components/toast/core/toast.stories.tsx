@@ -57,7 +57,7 @@ function AllTonesDemo() {
           <Button
             key={tone}
             variant="secondary"
-            size="sm"
+            size="small"
             onClick={() => toast({ title: tone, description: `Toast do tipo ${tone}`, tone })}
           >
             {tone}

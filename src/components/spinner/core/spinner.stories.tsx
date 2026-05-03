@@ -8,7 +8,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
   argTypes: {
-    size: { control: { type: 'select' }, options: ['sm', 'md', 'lg'] },
+    size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
     color: { control: 'color' },
     label: { control: 'text' },
   },
@@ -18,19 +18,19 @@ export default meta;
 type Story = StoryObj;
 
 export const Default: Story = {
-  args: { size: 'md', label: 'Carregando' },
+  args: { size: 'medium', label: 'Carregando' },
 };
 
 export const Sizes: Story = {
   render: () => (
     <Flex gap="medium" alignItems="center">
-      <Spinner size="sm" />
-      <Spinner size="md" />
-      <Spinner size="lg" />
+      <Spinner size="small" />
+      <Spinner size="medium" />
+      <Spinner size="large" />
     </Flex>
   ),
 };
 
 export const CustomColor: Story = {
-  args: { size: 'md', color: '#10b981', label: 'Processando' },
+  args: { size: 'medium', color: '#10b981', label: 'Processando' },
 };

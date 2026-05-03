@@ -56,7 +56,7 @@ function ChipRoot(props: ChipRootProps) {
   const {
     children,
     variant = 'subtle',
-    size = 'md',
+    size = 'medium',
     disabled = false,
     tone = 'neutral',
     className,
@@ -72,9 +72,9 @@ function ChipRoot(props: ChipRootProps) {
 
   const theme = useTheme();
   const colors = getChipColors(theme, variant, tone, selected);
-  const paddingX = size === 'sm' ? 'micro' : 'small';
-  const paddingY = size === 'sm' ? 'nano' : 'micro';
-  const fontSize = size === 'sm' ? 'xsmall' : 'small';
+  const paddingX = size === 'small' ? 'micro' : 'small';
+  const paddingY = size === 'small' ? 'nano' : 'micro';
+  const fontSize = size === 'small' ? 'xsmall' : 'small';
 
   const handleToggle = useCallback(() => {
     if (disabled) return;

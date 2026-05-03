@@ -11,13 +11,13 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 const BackButton = () => (
-  <IconButton aria-label="Voltar" variant="ghost" size="sm">
+  <IconButton aria-label="Voltar" variant="ghost" size="small">
     <Icon name="ArrowLeft" size="medium" decorative />
   </IconButton>
 );
 
 const SearchButton = () => (
-  <IconButton aria-label="Buscar" variant="ghost" size="sm">
+  <IconButton aria-label="Buscar" variant="ghost" size="small">
     <Icon name="Search" size="medium" decorative />
   </IconButton>
 );

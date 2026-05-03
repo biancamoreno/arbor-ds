@@ -2,7 +2,7 @@
 
 > Índice acionável de tudo que ficou em aberto após cada fase de review. Atualizar ao mover itens para "concluído", abrir issue/PR ou rejeitar.
 
-**Última atualização:** 2026-05-02 (R8 fechado — 4 reviews + sweep coletivo 8.A/8.B/8.C aplicado; 940/940 verdes; consolidado em [`R8-feedback-mensagens.md`](./R8-feedback-mensagens.md). Foundations ganhou `feedback.info.*`. R7 issue B-4/B-5 fechada de quebra. RFCs SP-1/feedback-tones/Chip-Interativo continuam pendentes para 8.D.)
+**Última atualização:** 2026-05-03 (RFC-0031 SP-1 implementada — `xs/sm/md/lg/xl` → `xsmall/small/medium/large/xlarge` em 16 props públicas + recipes + density tokens + Spinner por consistência interna; 974/974 verdes; CHANGELOG ganhou entrada Breaking; pre-v1, sem aliases).
 
 > Para débito técnico mapeado (decisões de adiar com plano de resolução), ver [`docs/TECH_DEBT.md`](../TECH_DEBT.md).
 

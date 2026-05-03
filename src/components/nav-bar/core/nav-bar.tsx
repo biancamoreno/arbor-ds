@@ -37,7 +37,7 @@ export function NavBar({
           progress={progress}
           label={progressLabel}
           tone={progressTone}
-          size="sm"
+          size="small"
           style={{ width: '100%' }}
         />
       );

@@ -24,18 +24,18 @@ describe('Spinner', () => {
     expect(screen.getByLabelText('Aguarde')).toBeTruthy();
   });
 
-  it('aceita size sm — 16px', () => {
-    render(<Spinner size="sm" />, { wrapper });
+  it('aceita size small — 16px', () => {
+    render(<Spinner size="small" />, { wrapper });
     expect(screen.getByRole('status').style.width).toBe('16px');
   });
 
-  it('aceita size md — 24px', () => {
-    render(<Spinner size="md" />, { wrapper });
+  it('aceita size medium — 24px', () => {
+    render(<Spinner size="medium" />, { wrapper });
     expect(screen.getByRole('status').style.width).toBe('24px');
   });
 
-  it('aceita size lg — 40px', () => {
-    render(<Spinner size="lg" />, { wrapper });
+  it('aceita size large — 40px', () => {
+    render(<Spinner size="large" />, { wrapper });
     expect(screen.getByRole('status').style.width).toBe('40px');
   });
 

@@ -374,7 +374,7 @@ describe('Select chevron icon (W1)', () => {
 describe('Select slot recipe (RFC-0017)', () => {
   it('produces different trigger classNames for sm vs lg (recipe is consumed)', () => {
     const { unmount } = renderSelect(
-      <Select size="sm" defaultValue="">
+      <Select size="small" defaultValue="">
         <Select.Trigger><Select.Value placeholder="x" /></Select.Trigger>
       </Select>,
     );
@@ -382,7 +382,7 @@ describe('Select slot recipe (RFC-0017)', () => {
     unmount();
 
     renderSelect(
-      <Select size="lg" defaultValue="">
+      <Select size="large" defaultValue="">
         <Select.Trigger><Select.Value placeholder="x" /></Select.Trigger>
       </Select>,
     );
@@ -455,7 +455,7 @@ describe('Select FieldContext integration', () => {
 });
 
 describe('Select accessibility — touch target (TD-016, WCAG 2.5.5)', () => {
-  it.each(['sm', 'md', 'lg'] as const)('trigger minHeight is >= 44 in size %s', size => {
+  it.each(['small', 'medium', 'large'] as const)('trigger minHeight is >= 44 in size %s', size => {
     renderSelect(
       <Select defaultValue="" size={size}>
         <Select.Trigger>
