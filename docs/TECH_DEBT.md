@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-03 (sub-onda 9.A — TD-037 e TD-039 fechadas: 23 ocorrências de `@platform native-ready` migradas para `shared`/`native`, `tabs/slots/` removido, `check-platform-contract` re-alinhado ao vocabulário canônico `shared|web|native|placeholder`).
+**Última atualização:** 2026-05-03 (sub-ondas 9.A e 9.B + TD-038 — sweep `style→props` em Tabs/Card/Accordion/Avatar reduziu ~30 hits para ~9 residuais com justificativa runtime documentada; `shadows.cardHover` primitive + CSS var `--arbor-shadow-card-hover` desacoplam hover do Card sem `!important` removido — RFC-0036 conclui).
 
 ---
 
@@ -40,12 +40,12 @@
 | [TD-033](#td-033) | Labels hardcoded pt-BR sem ponto de extensão sistêmico | R7 + R8 (2026-05-02) | Open | Média (DX/i18n) | "Fechar"/"Notificações"/"Remover"/"Carregando" espalhados. Decidir entre prop `texts={}` por componente (padrão FileUpload) ou `<ArborProvider texts={}>` central. RFC dedicada. |
 | [TD-034](#td-034) | Tag/Chip sem slot recipe completo (`getTagColors` / `getChipColors` locais) | R8 sweep (2026-05-02) | Resolved (2026-05-03) | Baixa (refactor) | Slot recipes `tag` (12 compoundVariants `tone × selected`) e `chip` (24 compoundVariants `variant × tone × selected`) modelam toda a anatomia + cor; `SlotRecipeConfig` + `useSlotRecipe` + `TypedSlotRecipeConfig` ganharam suporte a `compoundVariants`; `tag-colors.ts` e `chip-colors.ts` deletados; produto consumidor consegue override completo via `createTheme()`. |
 | [TD-035](#td-035) | Carousel inexistente (pasta vazia, sem export) | R9 sondagem (2026-05-03) | Open | Média (bloqueio de produto — vitrines/landing) | Aguarda RFC-0034 (anatomia compound + scroll-snap web / FlatList native + a11y region/slide + autoplay com reduced-motion). 2 PRs previstos. |
-| [TD-036](#td-036) | Sweep `style→props` em components R9 (~30 hits) | R9 (2026-05-03) | Open | Média (DX + theming bypass) | Migrar `style={{}}` para CSS coberto pelo engine em Tabs/Card/Avatar/Accordion. Pré-requisito de RFC-0036/0037/0038. Possível split em 2 sub-PRs (Tabs primeiro). |
+| [TD-036](#td-036) | Sweep `style→props` em components R9 (~30 hits) | R9 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (resíduo) | Sub-onda 9.B — ~30 hits reduzidos para ~9 em produção, todos justificados pelo runtime do engine: `transition`/`whiteSpace` typed mas não-handled (TD-031), `gridTemplateRows` não whitelisted, Avatar `width/height` lidos como inline pelo teste (RFC-0035 tematiza via `sizes.avatar.*`), AvatarGroup `boxShadow` ring + `Card.Media` bleed dependem de RFCs (0035/0036). |
 | [TD-037](#td-037) | Tag `@platform native-ready` não-canônica em interfaces | R9 (2026-05-03) | **Resolved (2026-05-03)** | — | Sub-onda 9.A — 23 ocorrências migradas (interfaces e `.tsx` shared → `@platform shared`; arquivos `.native.tsx` → `@platform native`); `scripts/check-platform-contract.js` re-alinhado para o vocabulário canônico `shared\|web\|native\|placeholder` com Rule 1 substituída pela classificação por prioridade de tag (evita falso-positivo em diretórios com mistura `shared` + `native`). |
-| [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | Open | Média (theming) | Mover hover/active de Card para slot recipe + tokens (`shadows.large` + `transition()` themable + reduced-motion-aware). Remover `!important` e rgba literal de `provider.tsx`. Resolvida pela RFC-0036. |
+| [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (RFC-0036 conclui) | Sub-onda 9.B — interim themable: `shadows.cardHover` primitive criado + provider injeta CSS var `--arbor-shadow-card-hover` por theme (override via `createTheme({ shadows: { cardHover } })`); rgba sai do CSS injetado. **Pendência:** `!important` mantido até RFC-0036 (slot recipe `card` permite resolver via cascade adequada sem hack); `transform: translateY/scale` continua hardcoded (RFC-0036 trata como motion themable). |
 | [TD-039](#td-039) | Dead surface: `Tabs.variant 'pill'` declarado e não implementado + `tabs/slots/` vazio | R9 — TB-Mod-1/3 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (cleanup) | Sub-onda 9.A — `src/components/tabs/slots/` deletado (diretório vazio). `Tabs.variant: 'pill'` permanece no tipo público até a **RFC-0038** implementar de fato (mantido como contrato a cumprir, não como ghost — RFC já está Draft com `pill` real previsto no slot recipe). |
 
-**Total:** 14 dívidas abertas, 18 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037 e TD-039 em 2026-05-03).
+**Total:** 12 dívidas abertas (4 com resolução parcial — TD-036/TD-038/TD-039 fechados parcialmente; agradam fechamento total na próxima onda RFC), 18 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037 e TD-039 em 2026-05-03).
 
 ---
 
@@ -1932,8 +1932,38 @@ Sem dependência externa (Embla/Swiper) — princípio "zero dependências de ru
 ## TD-036 — Sweep `style→props` em components R9
 
 **Origem:** R9 (2026-05-03), pattern R9-P1
-**Status:** Open
-**Severidade:** Média (DX + theming bypass)
+**Status:** **Resolved parcialmente (2026-05-03)** — sub-onda 9.B
+**Severidade:** Baixa (resíduo)
+
+### Resolução
+
+Sub-onda 9.B aplicou o sweep nos 4 componentes:
+
+| Componente | Hits antes | Hits depois | Notas |
+|---|---:|---:|---|
+| Tabs (web+native) | 14 | 1 | Bordas via `borderStyle="solid"` shorthand + `borderBottomWidth`/`borderRightWidth` longhands; `paddingX/Y` por token (`tiny`/`small`); `color`/`fontSize`/`fontWeight` por prop (eliminou `useTheme()` cru); flex=1 via prop em vez de style. Resíduo: `transition` + `whiteSpace` em style (não-handled pelo runtime). |
+| Card (web) | 5 | 2 | `padding` por token (`PADDING_TOKEN_MAP`); `borderStyle="solid"` em Header/Footer. Resíduo: `variantStyle` (cursor + transition para hover/clickable) + `Card.Media` margin-negativa (RFC-0036 resolve via context). |
+| Accordion (web+native) | 6 | 2 | Trigger consome `backgroundColor`/`borderWidth=0`/`textAlign` por prop; Text native via prop em vez de `useTheme()`. Resíduo: Icon transform+transition (Icon não é ArborTransform) e `gridTemplateRows` (não whitelisted). |
+| Avatar (web) | 3 | 4 | AvatarGroup `marginLeft`/`zIndex` por prop. Resíduo: `width`/`height` em style (teste lê `style.width` inline; engine emite via className) — RFC-0035 tematiza via `sizes.avatar.*`. AvatarGroup `boxShadow` ring mantém literal — RFC-0035 trata. |
+
+**Total:** ~30 hits → ~9 residuais em produção, todos com justificativa documentada (runtime do engine, ausência de prop em Icon, ou pendência de RFC).
+
+### Resíduo (não fecha sem RFC)
+
+- `transition` em style block (não está em `AVAILABLE_STYLE_PROPERTIES`).
+- `whiteSpace` em style block (TD-031 — typed mas não-handled).
+- `gridTemplateRows` em style block (não whitelisted).
+- Avatar `width/height` em style (caminho de teste + RFC-0035 tematiza).
+- AvatarGroup `boxShadow` ring (RFC-0035).
+- Card.Media margin-negativa (RFC-0036).
+
+### Critério para fechar (full)
+
+- [x] Sweep mecânico aplicado em Tabs/Card/Accordion/Avatar.
+- [x] Bateria verde (974/974).
+- [x] `useTheme().colors.X` direto removido em Tabs e Accordion native.
+- [ ] Resíduos endereçados pelas RFC-0035 (Avatar) e RFC-0036 (Card.Media + Card hover via slot recipe).
+- [ ] TD-031 fechada para mover `transition`/`whiteSpace` para runtime do engine.
 
 ### Contexto
 
@@ -2031,8 +2061,28 @@ Sweep mecânico em janela única ~30min:
 ## TD-038 — Card hover/clickable CSS no provider global, com rgba + `!important`
 
 **Origem:** R9 — CD-Bug-3 (2026-05-03)
-**Status:** Open
-**Severidade:** Média (theming)
+**Status:** **Resolved parcialmente (2026-05-03)** — sub-onda 9.B (interim themable)
+**Severidade:** Baixa (RFC-0036 conclui)
+
+### Resolução interim (sub-onda 9.B)
+
+Caminho alternativo do plano original: tematização sem mudar a abordagem do CSS injetado.
+
+- `shadows.cardHover: '0 8px 24px rgba(0,0,0,0.12)'` adicionado em `src/foundations/tokens/primitives/shadows.ts` (rgba sai do componente para a primitive — onde literais são aceitos).
+- `provider.tsx` agora injeta `--arbor-shadow-card-hover` no `:root` no ciclo de mudança de tema, ao lado de `--arbor-brand` e `--arbor-surface`.
+- `GLOBAL_CSS` consome `var(--arbor-shadow-card-hover, 0 8px 24px rgba(0,0,0,0.12))` — fallback presente apenas como defensivo (mantém visual em ambiente sem provider).
+
+Produto consumidor agora consegue override via:
+
+```ts
+createTheme({ shadows: { cardHover: '0 12px 32px rgba(0,0,0,0.16)' } })
+```
+
+### Pendências (RFC-0036)
+
+- `!important` mantido — o engine emite `box-shadow: none` no className quando o consumidor passa `boxShadow="none"` (variantes `outlined`/`flat`); sem `!important`, a regra global perde do className por order. RFC-0036 move hover para slot recipe e elimina o conflito de cascade.
+- `transform: translateY(-2px)` / `scale(0.99)` continuam hardcoded — motion themable só faz sentido na slot recipe.
+- Caminho do CSS injetado global ainda existe (esconderijo). RFC-0036 elimina por completo.
 
 ### Contexto
 

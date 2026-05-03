@@ -3,7 +3,7 @@ import { Box, Flex } from '../../core';
 import { transition } from '../../../ecosystem/utils/functions';
 import type { CardRootProps, CardSectionProps } from '../interfaces';
 
-const PADDING_MAP = { none: '0', small: '12px', medium: '16px', large: '24px' } as const;
+const PADDING_TOKEN_MAP = { none: 'none', small: 'tiny', medium: 'small', large: 'large' } as const;
 
 function CardRoot({ children, variant = 'outlined', padding = 'medium', style, className, ...props }: CardRootProps) {
   const extraClass =
@@ -14,15 +14,12 @@ function CardRoot({ children, variant = 'outlined', padding = 'medium', style, c
         : undefined;
 
   const shadowToken = variant === 'elevated' ? 'md' : 'none';
-  const variantStyle: React.CSSProperties = variant === 'elevated'
-    ? { border: 'none' }
-    : variant === 'flat'
-      ? { border: 'none' }
-      : variant === 'hoverable'
-        ? { transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
-        : variant === 'clickable'
-          ? { cursor: 'pointer', transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
-          : {};
+  const variantStyle: React.CSSProperties =
+    variant === 'hoverable'
+      ? { transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
+      : variant === 'clickable'
+        ? { cursor: 'pointer', transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate') }
+        : {};
 
   const useBorder = variant !== 'elevated' && variant !== 'flat';
 
@@ -43,7 +40,7 @@ function CardRoot({ children, variant = 'outlined', padding = 'medium', style, c
       <Flex
         flexDirection="column"
         flex={1}
-        style={{ padding: PADDING_MAP[padding] }}
+        padding={PADDING_TOKEN_MAP[padding]}
       >
         {children}
       </Flex>
@@ -56,8 +53,8 @@ function CardHeader({ children, style, ...props }: CardSectionProps) {
     <Box
       {...props}
       paddingBottom="small"
+      borderStyle="solid"
       borderBottomWidth={1}
-      borderBottomStyle="solid"
       borderBottomColor="border.subtle"
       marginBottom="small"
       style={style}
@@ -80,8 +77,8 @@ function CardFooter({ children, style, ...props }: CardSectionProps) {
     <Box
       {...props}
       paddingTop="small"
+      borderStyle="solid"
       borderTopWidth={1}
-      borderTopStyle="solid"
       borderTopColor="border.subtle"
       marginTop="small"
       style={style}

@@ -29,7 +29,7 @@ const GLOBAL_CSS = `
 }
 .arbor-card-hoverable:hover, .arbor-card-clickable:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+  box-shadow: var(--arbor-shadow-card-hover, 0 8px 24px rgba(0,0,0,0.12)) !important;
 }
 .arbor-card-clickable:active { transform: scale(0.99); }
 `;
@@ -55,6 +55,10 @@ export function ArborProvider({ theme = themeLight, children, ...rest }: Partial
     if (typeof document === 'undefined') return;
     document.documentElement.style.setProperty('--arbor-brand', theme.colors.brand.base);
     document.documentElement.style.setProperty('--arbor-surface', theme.colors.surface.default);
+    document.documentElement.style.setProperty(
+      '--arbor-shadow-card-hover',
+      theme.shadows?.cardHover ?? '0 8px 24px rgba(0,0,0,0.12)',
+    );
   }, [theme]);
 
   return (

@@ -105,9 +105,9 @@ function AccordionItem({ children, value, disabled = false, style, ...props }: A
     <AccordionItemContext.Provider value={{ value, open, disabled, contentId, triggerId }}>
       <Box
         {...props}
+        borderStyle="solid"
         borderBottomColor="border.subtle"
         borderBottomWidth={1}
-        borderBottomStyle="solid"
         style={style}
       >
         {children}
@@ -154,12 +154,10 @@ function AccordionTrigger({ children, style, ...props }: AccordionTriggerProps) 
       fontWeight="medium"
       fontSize="small"
       color={disabled ? 'text.disabled' : 'text.primary'}
-      style={{
-        background: 'none',
-        border: 'none',
-        textAlign: 'left',
-        ...style,
-      }}
+      backgroundColor="transparent"
+      borderWidth={0}
+      textAlign="left"
+      style={style}
     >
       <Text as="span">{children}</Text>
       <Icon
@@ -194,7 +192,7 @@ function AccordionContent({ children, style, ...props }: AccordionContentProps) 
       }}
     >
       <Box minHeight={0} overflow="hidden">
-        <Box padding="medium" style={{ paddingTop: 0 }}>
+        <Box padding="medium" paddingTop={0}>
           {children}
         </Box>
       </Box>

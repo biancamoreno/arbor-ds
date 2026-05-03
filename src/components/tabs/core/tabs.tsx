@@ -1,5 +1,4 @@
 import React, { useCallback, useRef } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Box, Flex, Clickable } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { transition } from '../../../ecosystem/utils/functions';
@@ -66,8 +65,9 @@ function TabsRoot({
 }
 
 function TabsList({ children, variant = 'underline', fullWidth = false, style, ...props }: TabsListProps) {
-  const theme = useTheme();
   const { orientation } = useTabsContext();
+  const isUnderlineH = variant === 'underline' && orientation === 'horizontal';
+  const isUnderlineV = variant === 'underline' && orientation === 'vertical';
 
   return (
     <Flex
@@ -77,22 +77,19 @@ function TabsList({ children, variant = 'underline', fullWidth = false, style, .
       flexDirection={orientation === 'vertical' ? 'column' : 'row'}
       gap="2px"
       flexShrink={0}
-      style={{
-        borderBottom: variant === 'underline' && orientation === 'horizontal'
-          ? `1px solid ${theme.colors.border.subtle}`
-          : 'none',
-        borderRight: variant === 'underline' && orientation === 'vertical'
-          ? `1px solid ${theme.colors.border.subtle}`
-          : 'none',
-        flexWrap: orientation === 'horizontal' ? 'wrap' : undefined,
-        ...style,
-      }}
+      flexWrap={orientation === 'horizontal' ? 'wrap' : undefined}
+      borderStyle="solid"
+      borderColor="border.subtle"
+      borderBottomWidth={isUnderlineH ? '1px' : '0'}
+      borderRightWidth={isUnderlineV ? '1px' : '0'}
+      style={style}
     >
       {fullWidth
         ? React.Children.map(children, (child) =>
             React.isValidElement(child)
-              ? React.cloneElement(child as React.ReactElement<TabsTriggerProps>, {
-                  style: { flex: 1, ...(child.props as TabsTriggerProps).style },
+              ? React.cloneElement(child as React.ReactElement<TabsTriggerProps & { flex?: number }>, {
+                  flex: 1,
+                  ...(child.props as TabsTriggerProps),
                 })
               : child
           )
@@ -102,7 +99,6 @@ function TabsList({ children, variant = 'underline', fullWidth = false, style, .
 }
 
 function TabsTrigger({ children, value, size = 'medium', disabled, style, ...props }: TabsTriggerProps) {
-  const theme = useTheme();
   const { activeValue, setActive, registerTrigger, unregisterTrigger, focusNext, focusPrev, orientation } =
     useTabsContext();
   const isActive = activeValue === value;
@@ -140,15 +136,18 @@ function TabsTrigger({ children, value, size = 'medium', disabled, style, ...pro
       gap="6px"
       cursor={disabled ? 'not-allowed' : 'pointer'}
       opacity={disabled ? 0.5 : 1}
+      paddingX={size === 'small' ? 'tiny' : 'small'}
+      paddingY={size === 'small' ? 'micro' : 10}
+      borderWidth={0}
+      borderStyle="solid"
+      borderBottomWidth="2px"
+      borderBottomColor={isActive ? 'brand.base' : 'transparent'}
+      borderRadius={0}
+      backgroundColor="transparent"
+      color={isActive ? 'text.primary' : 'text.secondary'}
+      fontSize={size === 'small' ? 'xsmall' : 'small'}
+      fontWeight={isActive ? 'medium' : 'regular'}
       style={{
-        padding: size === 'small' ? '8px 12px' : '10px 16px',
-        border: 'none',
-        borderBottom: `2px solid ${isActive ? theme.colors.brand.base : 'transparent'}`,
-        borderRadius: 0,
-        backgroundColor: 'transparent',
-        color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
-        fontSize: size === 'small' ? theme.fontSizes.xsmall : theme.fontSizes.small,
-        fontWeight: isActive ? theme.fontWeights.medium : theme.fontWeights.regular,
         whiteSpace: 'nowrap',
         transition: transition(['color', 'border-color'], 'fast'),
         ...style,
@@ -171,8 +170,10 @@ function TabsContent({ children, value, style, ...props }: TabsContentProps) {
       tabIndex={0}
       {...props}
       color="text.primary"
-      padding="medium"
-      style={{ paddingLeft: 0, paddingRight: 0, outline: 'none', ...style }}
+      paddingY="medium"
+      paddingX={0}
+      outline="none"
+      style={style}
     >
       {children}
     </Box>

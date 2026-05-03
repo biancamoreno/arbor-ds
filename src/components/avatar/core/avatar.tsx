@@ -116,11 +116,9 @@ function AvatarGroup({ children, max, size = 'medium', style, ...props }: Avatar
           key={i}
           position="relative"
           borderRadius="full"
-          style={{
-            marginLeft: i === 0 ? 0 : `-${overlap}px`,
-            zIndex: visible.length - i,
-            boxShadow: `0 0 0 2px ${ringColor}`,
-          }}
+          marginLeft={i === 0 ? 0 : -overlap}
+          zIndex={visible.length - i}
+          style={{ boxShadow: `0 0 0 2px ${ringColor}` }}
         >
           {React.cloneElement(child as React.ReactElement<AvatarRootProps>, { size })}
         </Box>
@@ -139,11 +137,9 @@ function AvatarGroup({ children, max, size = 'medium', style, ...props }: Avatar
           fontSize="xsmall"
           fontWeight="medium"
           color="text.secondary"
-          style={{
-            marginLeft: `-${overlap}px`,
-            zIndex: 0,
-            boxShadow: `0 0 0 2px ${ringColor}`,
-          }}
+          marginLeft={-overlap}
+          zIndex={0}
+          style={{ boxShadow: `0 0 0 2px ${ringColor}` }}
         >
           +{overflow}
         </Flex>

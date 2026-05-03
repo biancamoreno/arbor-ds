@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useId } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Box, Flex, Clickable, Text } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
 import type {
@@ -59,7 +58,6 @@ function TabsRoot({
 
 function TabsList({ children, fullWidth = false, style, ...props }: TabsListProps) {
   const { orientation } = useTabsNativeContext();
-  const theme = useTheme();
 
   return (
     <Flex
@@ -68,19 +66,18 @@ function TabsList({ children, fullWidth = false, style, ...props }: TabsListProp
       flexDirection={orientation === 'vertical' ? 'column' : 'row'}
       gap="2px"
       flexShrink={0}
-      style={{
-        borderBottomWidth: orientation === 'horizontal' ? 1 : 0,
-        borderRightWidth: orientation === 'vertical' ? 1 : 0,
-        borderColor: theme.colors.border.subtle,
-        borderStyle: 'solid',
-        ...style,
-      }}
+      borderBottomWidth={orientation === 'horizontal' ? '1px' : '0'}
+      borderRightWidth={orientation === 'vertical' ? '1px' : '0'}
+      borderColor="border.subtle"
+      borderStyle="solid"
+      style={style}
     >
       {fullWidth
         ? React.Children.map(children, (child) =>
             React.isValidElement(child)
-              ? React.cloneElement(child as React.ReactElement<TabsTriggerProps>, {
-                  style: { flex: 1, ...(child.props as TabsTriggerProps).style },
+              ? React.cloneElement(child as React.ReactElement<TabsTriggerProps & { flex?: number }>, {
+                  flex: 1,
+                  ...(child.props as TabsTriggerProps),
                 })
               : child,
           )
@@ -90,7 +87,6 @@ function TabsList({ children, fullWidth = false, style, ...props }: TabsListProp
 }
 
 function TabsTrigger({ children, value, size = 'medium', disabled, onClick, style, ...props }: TabsTriggerProps) {
-  const theme = useTheme();
   const { activeValue, setActive, baseId } = useTabsNativeContext();
   const isActive = activeValue === value;
   const triggerId = `${baseId}-trigger-${value}`;
@@ -112,22 +108,18 @@ function TabsTrigger({ children, value, size = 'medium', disabled, onClick, styl
       display="flex"
       alignItems="center"
       justifyContent="center"
-      style={{
-        paddingHorizontal: size === 'small' ? 12 : 16,
-        paddingVertical: size === 'small' ? 8 : 10,
-        borderBottomWidth: 2,
-        borderBottomColor: isActive ? theme.colors.brand.base : 'transparent',
-        opacity: disabled ? 0.5 : 1,
-        ...style,
-      }}
+      paddingX={size === 'small' ? 'tiny' : 'small'}
+      paddingY={size === 'small' ? 'micro' : 10}
+      borderBottomWidth="2px"
+      borderBottomColor={isActive ? 'brand.base' : 'transparent'}
+      opacity={disabled ? 0.5 : 1}
+      style={style}
     >
       <Text
         as="span"
-        style={{
-          color: isActive ? theme.colors.text.primary : theme.colors.text.secondary,
-          fontSize: size === 'small' ? 12 : 14,
-          fontWeight: isActive ? '500' : '400',
-        }}
+        color={isActive ? 'text.primary' : 'text.secondary'}
+        fontSize={size === 'small' ? 'xs' : 'sm'}
+        fontWeight={isActive ? 'medium' : 'regular'}
       >
         {children}
       </Text>
