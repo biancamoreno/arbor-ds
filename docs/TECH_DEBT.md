@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-02 (TD-027 resolvida — RFC-0028 implementada via catálogo curado embutido (`iconMap` com 142 ícones); API por `name` preservada; bundle do consumidor cai de ~600 kB para ~140 kB)
+**Última atualização:** 2026-05-02 (sub-onda 8.D — abertura de TD-030 a TD-034 catalogando issues residuais do R8 que não viraram RFC: depreciar `colors.status.*`, engine runtime ignora `*Inline*`/`whiteSpace`, `usePrefersReducedMotion.native` ausente, labels hardcoded pt-BR, slot recipe completo Tag/Chip)
 
 ---
 
@@ -34,8 +34,13 @@
 | [TD-025](#td-025) | `FileUpload.native` é placeholder; promover para implementação real se demanda materializar | RFC-0026 (PR 2) | Open | DX (consumidor RN precisa integrar lib externa via `children`) | Promover para caminho (a) `expo-document-picker` peer dep quando 3+ produtos consumidores pedirem em < 6 meses |
 | [TD-026](#td-026) | `focusRing` largura/offset/estilo não são themable (cor já é, via `focus.ring`) | RFC-0027 (PR 2) | Open (Baixa) | Theming (gap residual: produto não consegue ajustar espessura/offset/estilo do anel) | Adiada até gatilho concreto (a11y reforçada WCAG 2.4.11 ou identidade de marca distinta) — caminho preferido: shorthand `_focusRing: 'default' \| 'strong'` resolvido em runtime via `theme.focusRing` |
 | [TD-027](#td-027) | `<Icon name="X" />` força catálogo lucide completo no bundle do consumidor | PR `fix(build): externalize lucide` (2026-05-01) | **Resolved (2026-05-02)** | — | Resolvida pela RFC-0028 — catálogo curado embutido (`iconMap` com 142 ícones essenciais). API por `name` preservada; bundle do consumidor passa a arrastar ~140 kB em vez de ~600 kB. |
+| [TD-030](#td-030) | `colors.status.{info,notice,highlight}` órfão pós-sub-onda 8.A | R8 sweep (2026-05-02) | Open | Baixa (cleanup) | Sweep curto: zero consumidores após migração `feedback.info.*`. Remover quando RFC-0032 fechar (estabiliza catálogo `feedback.*` como único namespace). |
+| [TD-031](#td-031) | Engine runtime ignora `marginInline*` / `borderInline*` / `whiteSpace` apesar de tipar | R2 + R8 (2026-05-02) | Open | Média (a11y/RTL bloqueado) | Inventariar todos longhand declarados em `system/props/*` mas ausentes do whitelist runtime; corrigir transformer ou rebaixar tipos. RFC dedicada quando 1º produto pedir RTL. |
+| [TD-032](#td-032) | `usePrefersReducedMotion.native` ausente — animações native ignoram a11y | R1-C4 + R7 (2026-05-02) | Open | Média (a11y mobile) | Implementar shim consumindo `AccessibilityInfo.isReduceMotionEnabled()`; substituir `Animated.loop` em Spinner/Skeleton/ProgressCircle/Toast por versão que respeita o hook. |
+| [TD-033](#td-033) | Labels hardcoded pt-BR sem ponto de extensão sistêmico | R7 + R8 (2026-05-02) | Open | Média (DX/i18n) | "Fechar"/"Notificações"/"Remover"/"Carregando" espalhados. Decidir entre prop `texts={}` por componente (padrão FileUpload) ou `<ArborProvider texts={}>` central. RFC dedicada. |
+| [TD-034](#td-034) | Tag/Chip sem slot recipe completo (`getTagColors` / `getChipColors` locais) | R8 sweep (2026-05-02) | Open | Baixa (refactor) | Migrar para `defineSlotRecipe('tag'|'chip', { variants })`. Bloqueado por RFC-0032 (tones canônicos) e RFC-0033 (Chip selectable). Abrir após ambas aceitas. |
 
-**Total:** 6 dívidas abertas, 14 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02).
+**Total:** 11 dívidas abertas, 14 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02).
 
 ---
 
@@ -1641,6 +1646,202 @@ Causa-raiz: o inventário original da RFC-0013 listou Drawer e Tooltip como já 
 ### Severidade na abertura
 
 Média — não bloqueava o v1.0.0 (a RFC-0013 já era a norma documentada), mas qualquer release que mantivesse o gap iria contradizer CONTRIBUTING e RFC-0013 ao mesmo tempo. Resolvida no mesmo dia em que foi catalogada.
+
+---
+
+## TD-030 — `colors.status.{info,notice,highlight}` órfão pós-sub-onda 8.A
+
+**Origem:** R8 sweep, sub-onda 8.A (2026-05-02)
+**Status:** Open
+**Severidade:** Baixa (cleanup)
+
+### Contexto
+
+O namespace `themeLight/DarkColors.status` mantinha 3 tokens (`info`, `notice`, `highlight`) num formato single-value (sem `subtle`/`base`/`strong`), inconsistente com `feedback.*` (3 shades). Alert/Toast/Badge consumiam `status.info` por falta de alternativa.
+
+A sub-onda 8.A criou `feedback.info.{subtle, base, strong}` (escala `ocean`) e migrou todos os consumidores. `status.info` perdeu consumidores; `status.notice` e `status.highlight` nunca tiveram. O namespace inteiro ficou órfão.
+
+### Decisão
+
+Manter pelo último ciclo de release (2026-05-02) por precaução — o sweep foi grande e queremos confirmar zero regressão antes da remoção. RFC-0032 (catálogo cross-componente) consolida o namespace `feedback.*` como único oficial; após sua aceitação, `colors.status.*` pode ser removido sem alternativa.
+
+### Critério para fechar
+
+- [ ] RFC-0032 aceita.
+- [ ] `grep -rE "colors\\.status\\." src/` retorna 0 hits.
+- [ ] `themeLightColors.status` e `themeDarkColors.status` removidos do `colors` em `src/foundations/theme/colors/{light,dark}.ts`.
+- [ ] Tipo `ThemeColors` não declara mais a propriedade `status`.
+- [ ] Suite verde após remoção.
+
+### Plano
+
+PR único curto pós-RFC-0032: deleta o namespace + ajusta tipos. Sem janela de transição (precedente TD-012).
+
+### Por que não foi feito junto da sub-onda 8.A
+
+A sub-onda 8.A focou em desbloquear o bug funcional (`tone='info'` em Alert). Remover `status.*` exigia decidir o futuro do tipo (que veio na RFC-0032). Separar manteve o sweep mecânico previsível e a decisão arquitetural visível.
+
+---
+
+## TD-031 — Engine runtime ignora `marginInline*` / `borderInline*` / `whiteSpace` apesar de tipar
+
+**Origem:** R2 (achado original) + R8 sweep (2026-05-02 — confirmação na tentativa de aplicar RTL em Alert/Toast/Chip)
+**Status:** Open
+**Severidade:** Média (a11y/i18n bloqueada)
+
+### Contexto
+
+O sistema de props expõe **declarativamente** as longhand RTL-aware:
+
+- `system/props/space.ts:30,62,81` — `marginInlineEnd`, `marginInlineStart`, `marginInline`.
+- `system/props/border.ts:50,56,72,78,94,100,106,117,143,174,228` — `borderInlineStartWidth/Style/Color`, `borderInlineEnd*`, `borderInline*`, `borderInlineStartRadius`, `borderInlineEndRadius`.
+- `system/props/typography.ts:54` — `whiteSpace`.
+
+Mas o **runtime engine não inclui essas props no whitelist de transformação**. Resultado: o consumidor passa `<Box marginInlineStart="medium">` sem erro de TypeScript, mas a CSS não chega ao DOM. Silenciosamente quebra.
+
+A sub-onda 8.B do R8 detectou isto ao tentar aplicar RTL em Alert/Toast/Chip — `marginLeft: 'auto'` era o anti-pattern catalogado, mas a substituição `marginInlineStart='auto'` não tinha efeito visível. Voltei para `marginLeft`. `whiteSpace='nowrap'` em Chip ficou em `style={{}}` pelo mesmo motivo (quebra a regra `feedback_no_style_prop.md` por limitação do engine, não por escolha).
+
+### Por que importa
+
+- **i18n.** Produto com locale RTL (árabe, hebraico) renderiza errado. Bug invisível durante testes em pt/en.
+- **WCAG.** WCAG 1.4.10 (Reflow) recomenda layouts adaptativos; longhand inline-aware é a forma canônica.
+- **DX.** TypeScript "mente" — sugere prop que não funciona. Pior tipo de bug DX.
+
+### Decisão (proposta)
+
+Duas linhas de ataque:
+
+1. **Whitelist runtime ampliado** (preferencial). `system/blocked.ts` (ou onde estiver o transformer) passa a aceitar todas as longhand inline-aware + `whiteSpace`. Custo: pequeno, mas precisa garantir parity com React Native (RN não suporta `marginInlineStart` nativamente — precisa fallback condicional `marginLeft` em native).
+2. **Rebaixar tipos** (fallback). Se a paridade native for cara, remover as longhand do `system/props/*.ts` para evitar falsa expectativa. Documentar workaround `style={{}}` em CONTRIBUTING.
+
+### Critério para fechar
+
+- [ ] Inventário formal: rodar script que lista props declaradas em `system/props/*` e ausentes do whitelist runtime.
+- [ ] RFC dedicada decidindo entre caminho 1 e caminho 2.
+- [ ] Se caminho 1: testes unitários cobrindo cada longhand em web e native (incluindo flip RTL).
+- [ ] Sweep dos `marginLeft: 'auto'` / `borderLeft*` em Alert/Toast (R8 voltou para o anti-pattern por causa desse bug).
+- [ ] `whiteSpace='nowrap'` em Chip migra de `style={{}}` para prop.
+
+### Severidade
+
+Média — não bloqueia v1 nem casos LTR, mas é falsa promessa de tipo. Promover a Alta se 1º produto consumidor pedir RTL.
+
+---
+
+## TD-032 — `usePrefersReducedMotion.native` ausente
+
+**Origem:** R1-C4 (catalogada em foundations review) + R7 reviews (Spinner/Skeleton/ProgressCircle) + R8 (Toast.native)
+**Status:** Open
+**Severidade:** Média (a11y mobile)
+
+### Contexto
+
+Web tem `usePrefersReducedMotion` consumindo `prefers-reduced-motion` via media query. Reviews R7 confirmaram que Spinner/Skeleton respeitam isso via CSS global (`REDUCED_MOTION_CSS`). ProgressBar indeterminate também.
+
+Em **native (RN/Expo)**, nenhum equivalente existe. `Animated.loop` em Spinner.native/Skeleton.native/ProgressCircle.native/Toast.native roda independente de `AccessibilityInfo.isReduceMotionEnabled()`. Usuário com a configuração ativa em iOS/Android continua vendo animações que solicitou desativar — quebra direta de WCAG 2.3.3 (Animation from Interactions).
+
+### Decisão
+
+Implementar `src/ecosystem/utils/functions/use-prefers-reduced-motion.native.ts` consumindo:
+- `AccessibilityInfo.isReduceMotionEnabled()` (snapshot inicial)
+- `AccessibilityInfo.addEventListener('reduceMotionChanged', ...)` (mudança em runtime)
+
+Hook retorna `boolean`. Componentes native consumidores:
+- `Spinner.native` — quando true, render estático sem `Animated.loop`.
+- `Skeleton.native` — quando true, sem shimmer animado.
+- `ProgressCircle.native` — quando true, sem rotação.
+- `Toast.native` — quando true, entrada/saída sem `Animated.timing` (snap).
+
+### Critério para fechar
+
+- [ ] `use-prefers-reduced-motion.native.ts` exportado de `ecosystem/utils/functions`.
+- [ ] 4 consumidores native ramificam comportamento.
+- [ ] 4 testes `.native.test.tsx` cobrindo `mockReduceMotion(true)`.
+- [ ] CONTRIBUTING ganha §"Reduced motion" cross-platform com pattern.
+
+### Por que está aberto
+
+Foi adiada em todos os R7/R8 por escopo (componentes individuais não devem ter shim próprio — precisa de hook compartilhado). Esta TD formaliza o trabalho.
+
+---
+
+## TD-033 — Labels hardcoded pt-BR sem ponto de extensão sistêmico
+
+**Origem:** R7 (Spinner.label, ProgressBar.label, Skeleton.label) + R8 (Alert "Fechar", Toast "Fechar"+"Notificações", Chip "Remover") + RFC-0026 (FileUpload `texts` como precedente local)
+**Status:** Open
+**Severidade:** Média (DX/i18n)
+
+### Contexto
+
+Strings de UI estão espalhadas:
+
+| Componente | String | Forma |
+|---|---|---|
+| Alert.Close | "Fechar" | hardcoded em `aria-label` |
+| Toast.Close | "Fechar" | hardcoded |
+| Toast.Region | "Notificações" | hardcoded `aria-label` |
+| Chip.Remove | "Remover" | prop `label?` (default) |
+| Spinner | "Carregando" | prop `label?` (default) |
+| ProgressBar | "Carregando" | prop `label?` (default) |
+| FileUpload | múltiplas | objeto `texts?` (RFC-0026) |
+| Skeleton | "Carregando" | prop `label?: string \| false` (R7) |
+
+Padrão emergente é caótico: prop `label?`, prop `texts?`, ou hardcoded direto. Consumidor que quer i18n precisa lembrar a forma de cada componente.
+
+### Decisão (proposta)
+
+Duas alternativas, RFC dedicada:
+
+1. **Padrão por componente (status quo + sweep)**: cada componente expõe prop `label?` ou `texts?`. Consumidor passa explícito quando precisa. Fácil de implementar; ruim para apps com 50 strings.
+2. **Provider central**: `<ArborProvider texts={{ alert: { close: 'Close' }, chip: { remove: 'Remove' } }}>`. Cobertura ampla; risco de surface inflada e bike-shedding sobre a estrutura.
+
+Recomendação inicial: **híbrido** — prop por componente continua aceitável; Provider adiciona defaults. Componente lê prop primeiro, cai para Provider, cai para default pt-BR.
+
+### Critério para fechar
+
+- [ ] RFC dedicada decidindo entre 1, 2 ou híbrido.
+- [ ] Inventário completo de strings hardcoded (script `pnpm list-i18n-strings`).
+- [ ] CONTRIBUTING §"Strings de UI" documenta o padrão.
+- [ ] Migração dos 8+ componentes catalogados.
+
+### Severidade
+
+Média — não bloqueia produto pt-BR (caso atual), mas trava expansão internacional. Promover a Alta quando 1º produto en-US/es pedir.
+
+---
+
+## TD-034 — Tag/Chip sem slot recipe completo
+
+**Origem:** R8 sweep (2026-05-02), follow-up das reviews Tag e Chip
+**Status:** Open (bloqueado)
+**Severidade:** Baixa (refactor estrutural)
+
+### Contexto
+
+Sub-onda 8.B do R8 extraiu `getTagColors` para `src/components/tag/internal/tag-colors.ts` consumido por `tag.tsx` (web) e `tag.native.tsx`, eliminando o drift mais cru. Mas a anatomia continua sendo função local + componente JSX, sem `defineSlotRecipe`.
+
+Casos ideais para slot recipe:
+- **Tag**: variantes puramente visuais (`tone × variant × size × selected`).
+- **Chip** (pós-RFC-0033): adiciona dimensão `selectable` (decorativo vs interativo) — cabe variant.
+
+### Por que está bloqueado
+
+- Slot recipe completo de Tag depende de **RFC-0032** (tones canônicos — sem ela, recipe duplica matriz hoje incompleta).
+- Slot recipe completo de Chip depende de **RFC-0032** + **RFC-0033** (`selectable` é nova dimensão de variant).
+
+### Critério para fechar
+
+- [ ] RFC-0032 aceita e implementada.
+- [ ] RFC-0033 aceita e implementada.
+- [ ] `defineSlotRecipe('tag', { slots, variants: { tone, variant, size, selected } })` em `base-theme.ts`.
+- [ ] `defineSlotRecipe('chip', { slots, variants: { tone, variant, size, selected, selectable } })` em `base-theme.ts`.
+- [ ] `tag.tsx` / `tag.native.tsx` consomem via `useSlotRecipe('tag')`. `internal/tag-colors.ts` deletado.
+- [ ] `chip.tsx` / `chip.native.tsx` consomem via `useSlotRecipe('chip')`. `getChipColors` deletado.
+- [ ] Suite verde + paridade web↔native.
+
+### Severidade
+
+Baixa — código atual funciona e está consolidado num único arquivo `internal/`. Risco real de drift é mitigado. Refactor é cosmético + mais alinhado ao padrão R6 (RFC-0017).
 
 ---
 

@@ -18,6 +18,9 @@ Ver [`docs/reviews/_followups.md`](../reviews/_followups.md) para o índice acio
 | [RFC-0011](./RFC-0011-modo-de-renderizacao-explicito-em-image.md) | Modo de renderização explícito em `Image` | R3 | Draft |
 | [RFC-0012](./RFC-0012-loading-e-error-states-em-image.md) | Estados de loading/error em `Image` | R3 | Draft |
 | [RFC-0016](./RFC-0016-ambiente-de-testes-cross-platform.md) | Ambiente de testes cross-platform | TD-013 | Draft |
+| [RFC-0031](./RFC-0031-sp1-naming-size-componente.md) | SP-1 — alinhar `size` de componentes para `small \| medium \| large` | R7 + R8 (sub-onda 8.D) | Draft |
+| [RFC-0032](./RFC-0032-feedback-tones-cross-componente.md) | Catálogo `FeedbackTone` cross-componente | R7 #7 + R8 (sub-onda 8.D) | Draft |
+| [RFC-0033](./RFC-0033-chip-interativo.md) | Chip-Interativo: contrato explícito para Chip selecionável | R8 review (CH-Bug-1) | Draft |
 
 ---
 
