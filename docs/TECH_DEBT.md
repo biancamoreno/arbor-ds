@@ -1913,19 +1913,22 @@ Baixa — código atual funciona e está consolidado num único arquivo `interna
 
 ### Resolução proposta
 
-[**RFC-0034 — Carousel**](rfcs/RFC-0034-carousel.md), 2 PRs:
-1. **PR1**: anatomia compound (`Root/Viewport/Track/Slide/Prev/Next/Indicators`) + a11y completa (`role="region"` + `aria-roledescription="carousel"` + `aria-current` em indicators) + keyboard nav + slot recipe `carousel`.
-2. **PR2**: motion (`autoplay` respeitando `usePrefersReducedMotion`) + `orientation: 'vertical'` + lazy de slides fora da janela.
+[**RFC-0034 — Carousel**](rfcs/RFC-0034-carousel.md), rev. 2, 2 PRs:
+1. **PR1**: anatomia compound (`Root/Viewport/Track/Slide/Prev/Next/Indicators`) + tracking ativo via `IntersectionObserver` (web) e `onMomentumScrollEnd` (native, `ScrollView`) + a11y completa (`role="region"` + `aria-roledescription="carousel"` + `aria-current` em indicators + `inert` em slides fora) + keyboard nav web + slot recipe `carousel`. **Sem `loop`, `autoplay`, `orientation`, `lazy`.**
+2. **PR2**: `autoplay` com máquina de estado completa (`prefersReducedMotion` + `pauseOnHover` + `pauseOnFocusWithin` + `pauseOnPageHidden` + `pauseOnInteraction`) + `loop` (decisão "soft" vs "clones" no momento) + `orientation: 'vertical'` + `lazy?: boolean`.
+
+**Bloqueios:** PR1 depende de **TD-040** (engine `inert`); PR2 depende de **TD-032** (`usePrefersReducedMotion.native`).
 
 Sem dependência externa (Embla/Swiper) — princípio "zero dependências de runtime".
 
 ### Critério para fechar
 
 - [ ] RFC-0034 aceita.
-- [ ] PR1 entregue (anatomia + a11y core).
-- [ ] PR2 entregue (motion + lazy + vertical).
-- [ ] Stories cobrindo: 1/2/3 slides simultâneos, autoplay on/off, vertical, loop on/off.
-- [ ] Bateria verde web + native.
+- [ ] TD-040 fechada (pré-requisito de PR1).
+- [ ] PR1 entregue (anatomia + tracking IO/onMomentumScrollEnd + a11y core).
+- [ ] PR2 entregue (autoplay + loop + vertical + lazy).
+- [ ] Stories cobrindo: 1/2/4 slides simultâneos, responsive (`{ base, md, lg }`), render prop em `Indicators`, controlled vs uncontrolled (PR1) + autoplay on/off, vertical, loop on/off (PR2).
+- [ ] Bateria verde web + native (incluindo teste de "drag → activeIndex muda").
 
 ---
 
@@ -2184,6 +2187,44 @@ Caminho alternativo (se RFC-0038 atrasar): remover `pill` do tipo público e do 
 - [ ] `Tabs.variant === 'pill'` muda o render visual em web e native (RFC-0038).
 - [x] `src/components/tabs/slots/` deletado (sub-onda 9.A).
 - [ ] Stories cobrindo `variant="pill"` (RFC-0038).
+
+---
+
+## TD-040 — Engine não suporta `inert` apesar de ser HTML padrão Baseline
+
+**Origem:** RFC-0034 rev. 2 (2026-05-03)
+**Status:** Open
+**Severidade:** Baixa (escopo cirúrgico, mas bloqueia PR1 da RFC-0034)
+
+### Contexto
+
+`grep -r "inert" src/ecosystem/styled-system` retorna 0 hits. A engine não tipa nem propaga o atributo HTML `inert`, embora ele esteja em Baseline 2024 (Safari 15.5+, Chrome 102+, Firefox 112+) e seja a forma canônica de remover uma subárvore do tab-order **e** do screen reader simultaneamente.
+
+O fallback histórico (`aria-hidden="true"` + `tabIndex={-1}` em todos os descendentes focáveis) exige varredura `querySelectorAll` em runtime, é mais frágil (precisa cobrir todos os elementos focáveis: `a, button, input, textarea, select, [tabindex]`) e quebra quando o consumidor injeta widgets focáveis customizados.
+
+A RFC-0034 (Carousel) precisa marcar slides fora da janela visível como `inert`. Sem suporte na engine, PR1 cai no fallback.
+
+### Impacto
+
+- **A11y.** Slides ocultos do Carousel — e qualquer overlay/painel com semântica similar — dependem de fallback frágil até a engine suportar `inert`.
+- **DX.** Consumidores que precisam aplicar `inert` em qualquer subárvore via `Box` hoje precisam usar `style={{}}` (ou pior, `dangerouslySetInnerHTML`) para contornar.
+- **Performance.** Fallback custa varredura DOM + N writes de `tabIndex/aria-hidden` por slide a cada mudança de `activeIndex`.
+
+### Resolução proposta
+
+1. Adicionar `inert?: boolean` ao tipo de props do engine (categoria de props HTML/A11y).
+2. Propagação direta para o DOM (sem transformação): `inert ? '' : undefined` no atributo (HTML boolean attribute).
+3. Em native, ignorar (já existe `accessibilityElementsHidden` + `importantForAccessibility` cobrindo o caso, e a RFC-0018 já trata).
+4. Teste unitário: `<Box inert>...</Box>` renderiza `<div inert>`.
+
+Estimativa: ~30 minutos. Sem migração de consumidor (atributo novo).
+
+### Critério para fechar
+
+- [ ] `inert?: boolean` tipado em `Box`/`Flex`/etc. via engine.
+- [ ] Renderiza como atributo HTML válido em web; no-op em native.
+- [ ] Teste unitário verde.
+- [ ] RFC-0034 PR1 consome `inert` sem fallback.
 
 ---
 
