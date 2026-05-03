@@ -1913,21 +1913,25 @@ Baixa — código atual funciona e está consolidado num único arquivo `interna
 
 ### Resolução proposta
 
-[**RFC-0034 — Carousel**](rfcs/RFC-0034-carousel.md), rev. 2, 2 PRs:
-1. **PR1**: anatomia compound (`Root/Viewport/Track/Slide/Prev/Next/Indicators`) + tracking ativo via `IntersectionObserver` (web) e `onMomentumScrollEnd` (native, `ScrollView`) + a11y completa (`role="region"` + `aria-roledescription="carousel"` + `aria-current` em indicators + `inert` em slides fora) + keyboard nav web + slot recipe `carousel`. **Sem `loop`, `autoplay`, `orientation`, `lazy`.**
-2. **PR2**: `autoplay` com máquina de estado completa (`prefersReducedMotion` + `pauseOnHover` + `pauseOnFocusWithin` + `pauseOnPageHidden` + `pauseOnInteraction`) + `loop` (decisão "soft" vs "clones" no momento) + `orientation: 'vertical'` + `lazy?: boolean`.
+[**RFC-0034 — Carousel**](rfcs/RFC-0034-carousel.md), rev. 3 (alinhada com shadcn/ui + WAI-ARIA APG + análise de mercado: Embla/Swiper/Mantine/FlatList/FlashList/reanimated-carousel), 2 PRs:
 
-**Bloqueios:** PR1 depende de **TD-040** (engine `inert`); PR2 depende de **TD-032** (`usePrefersReducedMotion.native`).
+1. **PR1**: anatomia compound `Carousel.{Root,Content,Item,Previous,Next,Indicators}` (nomes alinhados com shadcn/ui) + tracking via `IntersectionObserver` (web) e `onViewableItemsChanged` (native, `FlatList`) + a11y APG (`role="region"` + `aria-roledescription="carousel"` + `aria-label="N de M"` sem palavra "slide" + Tabs pattern condicional para indicadores ≤7+spv1) + `inert` em items fora (TD-040 fechada) + keyboard nav web + slot recipe `carousel` + `nativeListProps` escape hatch. **Sem `loop`, `autoplay`, `orientation`, `lazy`.**
+2. **PR2**: `autoplay` com máquina de estado completa + **`Carousel.PlayPause` obrigatório** (APG requirement) + `loop` (decisão "soft" vs "clones" no momento) + `orientation: 'vertical'` + `lazy?: boolean`.
 
-Sem dependência externa (Embla/Swiper) — princípio "zero dependências de runtime".
+**Bloqueios:** PR1 ✅ TD-040 fechada (commit `fe25121`); PR2 depende de **TD-032** (`usePrefersReducedMotion.native`).
+
+**Decisões deliberadas:**
+- **`FlatList` no native** (não `ScrollView`, não `FlashList`): mainstream RN para carousel basic; virtualização de graça via `windowSize`; FlashList tem [bug Android #1153](https://github.com/Shopify/flash-list/issues/1153) com `snapToInterval`.
+- **Sem virtualização default no web** (precedente Embla; PR3 abre `virtualizeWhenAtLeast` opt-in se reclamo real materializar).
+- Sem dependência externa (Embla/Swiper) — princípio "zero dependências de runtime".
 
 ### Critério para fechar
 
 - [ ] RFC-0034 aceita.
-- [ ] TD-040 fechada (pré-requisito de PR1).
-- [ ] PR1 entregue (anatomia + tracking IO/onMomentumScrollEnd + a11y core).
-- [ ] PR2 entregue (autoplay + loop + vertical + lazy).
-- [ ] Stories cobrindo: 1/2/4 slides simultâneos, responsive (`{ base, md, lg }`), render prop em `Indicators`, controlled vs uncontrolled (PR1) + autoplay on/off, vertical, loop on/off (PR2).
+- [x] TD-040 fechada (pré-requisito de PR1).
+- [ ] PR1 entregue (anatomia + tracking IO/onViewableItemsChanged + a11y APG + Tabs pattern condicional + `nativeListProps`).
+- [ ] PR2 entregue (autoplay + `Carousel.PlayPause` + loop + vertical + lazy).
+- [ ] Stories cobrindo: 1/2/4 slides simultâneos, responsive (`{ base, md, lg }`), render prop em `Indicators`, controlled vs uncontrolled, **8+ items mostrando Group fallback** (PR1) + autoplay on/off, vertical, loop on/off (PR2).
 - [ ] Bateria verde web + native (incluindo teste de "drag → activeIndex muda").
 
 ---
