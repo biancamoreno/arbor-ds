@@ -55,6 +55,11 @@ export const themeDarkColors = {
     strong: primitiveColor.aqua['60'],
   },
   feedback: {
+    info: {
+      subtle: primitiveColor.ocean['20'],
+      base: primitiveColor.ocean['40'],
+      strong: primitiveColor.ocean['60'],
+    },
     success: {
       subtle: primitiveColor.emerald['20'],
       base: primitiveColor.emerald['40'],

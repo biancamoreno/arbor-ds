@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
+import { Flex, Icon } from '../../core';
 import { Chip } from './chip';
 
 const meta = {
@@ -39,7 +40,7 @@ export const WithRemove: Story = {
 export const WithIcon: Story = {
   render: () => (
     <Chip>
-      <Chip.Icon>⚡</Chip.Icon>
+      <Chip.Icon><Icon name="Tag" size="xsmall" /></Chip.Icon>
       <Chip.Label>Vite</Chip.Label>
     </Chip>
   ),
@@ -55,25 +56,25 @@ export const Selected: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 8 }}>
+    <Flex gap="small">
       {(['filled', 'outlined', 'subtle'] as const).map((variant) => (
         <Chip key={variant} variant={variant}>
           <Chip.Label>{variant}</Chip.Label>
         </Chip>
       ))}
-    </div>
+    </Flex>
   ),
 };
 
 export const Tags: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+    <Flex gap="small" flexWrap="wrap">
       {['React', 'TypeScript', 'Vite', 'Storybook', 'Arbor DS'].map((tag) => (
         <Chip key={tag} variant="outlined">
           <Chip.Label>{tag}</Chip.Label>
           <Chip.Remove onClick={fn()} label={`Remover ${tag}`} />
         </Chip>
       ))}
-    </div>
+    </Flex>
   ),
 };

@@ -28,7 +28,7 @@ Componentes são revisados por **dependência arquitetural** (montante → jusan
 | **R5** | Formulário — base | [R5 consolidação](./R5-form-base.md) · [Field](./field.md) · [Input](./input.md) | ✅ concluído |
 | **R6** | Formulário — seleção | [R6 consolidação](./R6-form-selection.md) · [Checkbox](./checkbox.md) · [Radio](./radio.md) · [RadioCard](./radio-card.md) · [Switch](./switch.md) · [Select](./select.md) | ✅ concluído |
 | **R7** | Feedback — indicadores | [R7 consolidação](./R7-feedback-indicadores.md) · [Badge](./badge.md) · [Spinner](./spinner.md) · [Skeleton](./skeleton.md) · [ProgressBar](./progress-bar.md) · [ProgressCircle](./progress-circle.md) | ✅ concluído |
-| **R8** | Feedback — mensagens | [Alert](./alert.md) · [Toast](./toast.md) · [Tag](./tag.md) · [Chip](./chip.md) | ⏳ pendente |
+| **R8** | Feedback — mensagens | [R8 consolidação](./R8-feedback-mensagens.md) · [Alert](./alert.md) · [Toast](./toast.md) · [Tag](./tag.md) · [Chip](./chip.md) | ✅ concluído (sweep 8.A/8.B/8.C aplicado, 940/940 verde) |
 | **R9** | Conteúdo | [Avatar](./avatar.md) · [Card](./card.md) · [Accordion](./accordion.md) · [Tabs](./tabs.md) · [Carousel](./carousel.md) | ⏳ pendente |
 | **R10** | Dados | [Table](./table.md) · [Breadcrumb](./breadcrumb.md) · [Pagination](./pagination.md) | ⏳ pendente |
 | **R11** | Overlays | [Dialog](./dialog.md) · [Drawer](./drawer.md) · [Tooltip](./tooltip.md) · [Popover](./popover.md) · [Menu](./menu.md) · ~~Modal~~ *(removido 2026-04-24)* | ⏳ pendente |

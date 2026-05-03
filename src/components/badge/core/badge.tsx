@@ -34,9 +34,9 @@ function getBadgeColors(tone: ToneKey, variant: NonNullable<BadgeProps['variant'
       border: variant === 'solid' ? c.feedback.critical.base : c.feedback.critical.subtle,
     },
     info: {
-      bg: variant === 'solid' ? c.status.info : 'transparent',
-      text: variant === 'solid' ? c.text.inverse : c.status.info,
-      border: c.status.info,
+      bg: variant === 'solid' ? c.feedback.info.base : c.feedback.info.subtle,
+      text: variant === 'solid' ? c.text.inverse : c.feedback.info.strong,
+      border: variant === 'solid' ? c.feedback.info.base : c.feedback.info.subtle,
     },
   };
   return map[tone];

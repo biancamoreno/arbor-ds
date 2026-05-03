@@ -39,18 +39,21 @@ export interface ToastRootProps {
   style?: CSSProperties;
   /** Test id forwardado para a raiz do componente. */
   testID?: string;
+  className?: string;
 }
 
 export interface ToastTitleProps {
   children: ReactNode;
   style?: CSSProperties;
   testID?: string;
+  className?: string;
 }
 
 export interface ToastDescriptionProps {
   children: ReactNode;
   style?: CSSProperties;
   testID?: string;
+  className?: string;
 }
 
 export interface ToastCloseProps {
@@ -59,6 +62,7 @@ export interface ToastCloseProps {
   onClose?: () => void;
   style?: CSSProperties;
   testID?: string;
+  className?: string;
 }
 
 export interface ToasterProps {

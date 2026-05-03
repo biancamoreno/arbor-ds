@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Toaster, useToast } from '../index';
+import { Flex } from '../../core';
+import { Button } from '../../button';
+import { Toaster, useToast, type ToastTone } from '../index';
 
 const meta = {
   title: 'Feedback/Toast',
@@ -10,17 +12,17 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
-function ToastDemo({ tone }: { tone?: 'neutral' | 'success' | 'warning' | 'critical' | 'info' }) {
+function ToastDemo({ tone }: { tone?: ToastTone }) {
   const { toast } = useToast();
   return (
     <>
       <Toaster />
-      <button
+      <Button
+        variant="secondary"
         onClick={() => toast({ title: `Toast ${tone ?? 'neutral'}`, description: 'Mensagem de exemplo.', tone })}
-        style={{ padding: '8px 16px', borderRadius: 4, cursor: 'pointer', border: '1px solid #ccc' }}
       >
         Exibir toast {tone ?? 'neutral'}
-      </button>
+      </Button>
     </>
   );
 }
@@ -50,17 +52,18 @@ function AllTonesDemo() {
   return (
     <>
       <Toaster />
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <Flex gap="small" flexWrap="wrap">
         {(['neutral', 'success', 'warning', 'critical', 'info'] as const).map((tone) => (
-          <button
+          <Button
             key={tone}
+            variant="secondary"
+            size="sm"
             onClick={() => toast({ title: tone, description: `Toast do tipo ${tone}`, tone })}
-            style={{ padding: '8px 12px', borderRadius: 4, cursor: 'pointer', border: '1px solid #ccc' }}
           >
             {tone}
-          </button>
+          </Button>
         ))}
-      </div>
+      </Flex>
     </>
   );
 }
@@ -68,5 +71,3 @@ function AllTonesDemo() {
 export const AllTones: Story = {
   render: () => <AllTonesDemo />,
 };
-
-

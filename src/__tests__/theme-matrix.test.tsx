@@ -88,8 +88,8 @@ describe('multi-product theming matrix', () => {
   });
 
   it('Chip renders within product B without crashing', () => {
-    render(<Chip data-testid="chip">tag</Chip>, { wrapper: Wrapper });
-    expect(screen.getByTestId('chip')).toBeTruthy();
+    render(<Chip><Chip.Label>chip-label</Chip.Label></Chip>, { wrapper: Wrapper });
+    expect(screen.getByText('chip-label')).toBeTruthy();
   });
 
   it('motion override propagates to theme.motion.duration', () => {

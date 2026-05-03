@@ -24,12 +24,13 @@ import type {
  *   `*-center` usa `alignItems: 'center'` (RN não suporta `translateX('-50%')`).
  * - Entrada animada via `Animated.parallel` em opacity + translateY; em test env
  *   a animação é resolvida instantaneamente (mesmo padrão de Spinner/Skeleton/ProgressCircle).
- * - `accessibilityLiveRegion` (Android) + `accessibilityRole='alert'` para tom crítico.
+ * - `accessibilityLiveRegion` (Android) + `accessibilityRole='alert'` apenas para
+ *   tons críticos (semântica polite cobre o restante via liveRegion).
  */
 
 const TONE_BORDER: Record<ToastTone, string> = {
   neutral: 'border.default',
-  info: 'status.info',
+  info: 'feedback.info.base',
   success: 'feedback.success.base',
   warning: 'feedback.warning.base',
   critical: 'feedback.critical.base',
@@ -71,74 +72,83 @@ function getPlacementContainerStyle(placement: ToastPlacement): ViewStyle {
   };
 }
 
-function ToastRoot({ children, tone = 'neutral', style, testID }: ToastRootProps) {
+function ToastRoot({ children, tone = 'neutral', className, style, testID }: ToastRootProps) {
   const borderColor = TONE_BORDER[tone];
   const isCritical = tone === 'critical';
 
   return (
     <Flex
       accessible
-      accessibilityRole={isCritical ? 'alert' : 'text'}
+      accessibilityRole={isCritical ? 'alert' : undefined}
       accessibilityLiveRegion={isCritical ? 'assertive' : 'polite'}
       testID={testID}
+      className={className}
+      style={style as ViewStyle}
       alignItems="flex-start"
       gap="small"
       padding="small"
       paddingX="medium"
       borderRadius="small"
       backgroundColor="surface.raised"
-      borderLeftWidth={4}
-      borderLeftColor={borderColor as never}
-      style={style as ViewStyle}
+      borderLeftWidth="thick"
+      borderLeftColor={borderColor}
     >
       {children}
     </Flex>
   );
 }
 
-function ToastTitle({ children, style, testID }: ToastTitleProps) {
+function ToastTitle({ children, className, style, testID }: ToastTitleProps) {
   return (
     <Text
       testID={testID}
+      className={className}
+      style={style as ViewStyle}
       fontWeight="medium"
       fontSize="small"
       color="text.primary"
-      style={style as never}
+      margin={0}
     >
       {children}
     </Text>
   );
 }
 
-function ToastDescription({ children, style, testID }: ToastDescriptionProps) {
+function ToastDescription({ children, className, style, testID }: ToastDescriptionProps) {
   return (
     <Text
       testID={testID}
-      fontSize="sm"
+      className={className}
+      style={style as ViewStyle}
+      fontSize="small"
       color="text.secondary"
-      style={style as never}
+      margin={0}
     >
       {children}
     </Text>
   );
 }
 
-function ToastClose({ label = 'Fechar', onClose, style, testID }: ToastCloseProps) {
+function ToastClose({ label = 'Fechar', onClose, className, style, testID }: ToastCloseProps) {
   return (
     <Clickable
       accessibilityRole="button"
       accessibilityLabel={label}
       onClick={onClose}
       testID={testID}
-      display="inline-flex"
+      className={className}
+      style={style as ViewStyle}
+      display="flex"
       alignItems="center"
       justifyContent="center"
+      minWidth={44}
+      minHeight={44}
       width={20}
       height={20}
       flexShrink={0}
       color="text.secondary"
       borderRadius="nano"
-      style={{ marginLeft: 'auto', ...(style as object) } as never}
+      marginLeft="auto"
     >
       <Icon name="X" size="small" />
     </Clickable>
@@ -211,7 +221,7 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
     <Portal mode="overlay">
       <Box
         accessibilityLabel="Notificações"
-        style={getPlacementContainerStyle(placement) as never}
+        style={getPlacementContainerStyle(placement) as ViewStyle}
       >
         {items.map((item) => (
           <ToastItemRenderer key={item.id} item={item} />

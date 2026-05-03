@@ -55,6 +55,11 @@ export const themeLightColors = {
     strong: lightBrandHover,
   },
   feedback: {
+    info: {
+      subtle: primitiveColor.ocean['10'],
+      base: primitiveColor.ocean['60'],
+      strong: primitiveColor.ocean['80'],
+    },
     success: {
       subtle: primitiveColor.emerald['10'],
       base: primitiveColor.emerald['60'],

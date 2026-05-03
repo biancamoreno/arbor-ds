@@ -1,14 +1,15 @@
 /**
  * @platform shared
  *
- * Implementação web do compound `Toast` + `Toaster`. Estratégia: keyframe CSS
- * (`arbor-toast-in`) injetado uma única vez no `document.head` + posicionamento
- * via `position: fixed` controlado por `placement`. A versão native fica em
- * `toast.native.tsx` (Animated.Value + Portal `mode="overlay"`).
+ * Implementação web do compound `Toast` + `Toaster`. Estratégia: keyframe
+ * `arbor-toast-in` é parte do `GLOBAL_CSS` do provider (mesma pattern do
+ * Skeleton). Posicionamento via `position: fixed` controlado por `placement`.
+ * A versão native fica em `toast.native.tsx` (Animated.Value + Portal).
  */
 import React, { useEffect, useSyncExternalStore } from 'react';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { Portal } from '../../../ecosystem/primitives';
+import { transition } from '../../../foundations';
 import { toastStore } from '../store/toast-store';
 import type {
   ToastRootProps,
@@ -21,59 +22,38 @@ import type {
   ToastItem,
 } from '../interfaces';
 
-const KEYFRAMES_ID = 'arbor-toast-keyframes';
-
-function injectKeyframes() {
-  if (typeof document === 'undefined') return;
-  if (document.getElementById(KEYFRAMES_ID)) return;
-  const style = document.createElement('style');
-  style.id = KEYFRAMES_ID;
-  style.textContent = `
-    @keyframes arbor-toast-in {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 const TONE_BORDER: Record<ToastTone, string> = {
   neutral: 'border.default',
-  info: 'status.info',
+  info: 'feedback.info.base',
   success: 'feedback.success.base',
   warning: 'feedback.warning.base',
   critical: 'feedback.critical.base',
 };
 
-function getPlacementStyle(placement: ToastPlacement): React.CSSProperties {
-  const base: React.CSSProperties = {
-    position: 'fixed',
-    zIndex: 9999,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    maxWidth: '420px',
-    width: '100%',
-  };
-  const map: Record<ToastPlacement, React.CSSProperties> = {
-    'top-left': { ...base, top: '16px', left: '16px' },
-    'top-center': { ...base, top: '16px', left: '50%', transform: 'translateX(-50%)' },
-    'top-right': { ...base, top: '16px', right: '16px' },
-    'bottom-left': { ...base, bottom: '16px', left: '16px', flexDirection: 'column-reverse' },
-    'bottom-center': {
-      ...base,
-      bottom: '16px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      flexDirection: 'column-reverse',
-    },
-    'bottom-right': { ...base, bottom: '16px', right: '16px', flexDirection: 'column-reverse' },
-  };
-  return map[placement];
+type PlacementProps = {
+  top?: string | number;
+  bottom?: string | number;
+  left?: string | number;
+  right?: string | number;
+  flexDirection: 'column' | 'column-reverse';
+  transform?: string;
+};
+
+function getPlacementProps(placement: ToastPlacement): PlacementProps {
+  const isBottom = placement.startsWith('bottom');
+  const flexDirection = isBottom ? 'column-reverse' : 'column';
+  const vertical = isBottom ? { bottom: '16px' } : { top: '16px' };
+
+  if (placement.endsWith('center')) {
+    return { ...vertical, left: '50%', flexDirection, transform: 'translateX(-50%)' };
+  }
+  if (placement.endsWith('left')) {
+    return { ...vertical, left: '16px', flexDirection };
+  }
+  return { ...vertical, right: '16px', flexDirection };
 }
 
-function ToastRoot({ children, tone = 'neutral', style, testID }: ToastRootProps) {
-  injectKeyframes();
+function ToastRoot({ children, tone = 'neutral', className, style, testID }: ToastRootProps) {
   const borderColor = TONE_BORDER[tone];
 
   return (
@@ -82,56 +62,59 @@ function ToastRoot({ children, tone = 'neutral', style, testID }: ToastRootProps
       aria-live={tone === 'critical' ? 'assertive' : 'polite'}
       aria-atomic="true"
       data-testid={testID}
+      className={className}
+      style={style}
       alignItems="flex-start"
       gap="small"
       padding="small"
       paddingX="medium"
       borderRadius="small"
       backgroundColor="surface.raised"
-      borderLeftWidth={4}
+      borderLeftWidth="thick"
       borderLeftStyle="solid"
-      borderLeftColor={borderColor as never}
+      borderLeftColor={borderColor}
       boxShadow="lg"
-      style={{
-        animation: 'arbor-toast-in 0.2s ease forwards',
-        ...style,
-      }}
+      animation="arbor-toast-in 0.2s ease forwards"
     >
       {children}
     </Flex>
   );
 }
 
-function ToastTitle({ children, style, testID }: ToastTitleProps) {
+function ToastTitle({ children, className, style, testID }: ToastTitleProps) {
   return (
     <Text
       as="p"
       data-testid={testID}
+      className={className}
+      style={style}
       fontWeight="medium"
       fontSize="small"
       color="text.primary"
-      style={{ margin: 0, lineHeight: '20px', ...style }}
+      margin={0}
     >
       {children}
     </Text>
   );
 }
 
-function ToastDescription({ children, style, testID }: ToastDescriptionProps) {
+function ToastDescription({ children, className, style, testID }: ToastDescriptionProps) {
   return (
     <Text
       as="p"
       data-testid={testID}
-      fontSize="sm"
+      className={className}
+      style={style}
+      fontSize="small"
       color="text.secondary"
-      style={{ margin: 0, lineHeight: '20px', ...style }}
+      margin={0}
     >
       {children}
     </Text>
   );
 }
 
-function ToastClose({ label = 'Fechar', onClose, style, testID }: ToastCloseProps) {
+function ToastClose({ label = 'Fechar', onClose, className, style, testID }: ToastCloseProps) {
   return (
     <Clickable
       as="button"
@@ -139,22 +122,26 @@ function ToastClose({ label = 'Fechar', onClose, style, testID }: ToastCloseProp
       aria-label={label}
       onClick={onClose}
       data-testid={testID}
+      className={className}
+      style={style}
       display="inline-flex"
       alignItems="center"
       justifyContent="center"
+      minWidth={44}
+      minHeight={44}
       width={20}
       height={20}
       flexShrink={0}
       cursor="pointer"
       color="text.secondary"
       borderRadius="nano"
-      style={{
-        marginLeft: 'auto',
-        padding: 0,
-        border: 'none',
-        background: 'none',
-        ...style,
-      }}
+      backgroundColor="transparent"
+      borderWidth={0}
+      padding={0}
+      marginLeft="auto"
+      transition={transition(['background-color', 'color'], 'fast')}
+      _hover={{ backgroundColor: 'background.interactive', color: 'text.primary' }}
+      _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
     >
       <Icon name="X" size="small" />
     </Clickable>
@@ -188,9 +175,25 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
 
   if (items.length === 0) return null;
 
+  const placementProps = getPlacementProps(placement);
+
   return (
     <Portal mode="overlay">
-      <Box aria-label="Notificações" style={getPlacementStyle(placement)}>
+      <Box
+        aria-label="Notificações"
+        position="fixed"
+        zIndex="toast"
+        display="flex"
+        flexDirection={placementProps.flexDirection}
+        gap="small"
+        maxWidth={420}
+        width="100%"
+        top={placementProps.top as React.CSSProperties['top']}
+        bottom={placementProps.bottom as React.CSSProperties['bottom']}
+        left={placementProps.left as React.CSSProperties['left']}
+        right={placementProps.right as React.CSSProperties['right']}
+        style={placementProps.transform ? { transform: placementProps.transform } : undefined}
+      >
         {items.map((item) => (
           <ToastItemRenderer key={item.id} item={item} />
         ))}

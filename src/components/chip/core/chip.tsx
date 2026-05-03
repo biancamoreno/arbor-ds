@@ -1,37 +1,41 @@
-import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Box, Flex, Clickable } from '../../core';
 import { Icon } from '../../core';
+import { transition } from '../../../foundations';
 import { ChipContext, useChipContext } from '../context/chip-context';
 import type { ChipRootProps, ChipLabelProps, ChipIconProps, ChipRemoveProps } from '../interfaces';
 
-function getChipStyle(
-  variant: ChipRootProps['variant'],
-  tone: ChipRootProps['tone'],
+type ChipColors = {
+  backgroundColor: string;
+  color: string;
+  borderColor: string;
+};
+
+function getChipColors(
+  variant: NonNullable<ChipRootProps['variant']>,
+  tone: NonNullable<ChipRootProps['tone']>,
   selected: boolean,
-  theme: ReturnType<typeof useTheme>
-): React.CSSProperties {
-  const c = theme.colors;
+): ChipColors {
   const isBrand = tone === 'brand';
 
   if (variant === 'filled') {
     return selected
-      ? { backgroundColor: isBrand ? c.brand.base : c.text.primary, color: c.text.inverse, borderColor: 'transparent' }
-      : { backgroundColor: isBrand ? c.brand.subtle : c.background.subtle, color: isBrand ? c.brand.strong : c.text.primary, borderColor: 'transparent' };
+      ? { backgroundColor: isBrand ? 'brand.base' : 'text.primary', color: 'text.inverse', borderColor: 'transparent' }
+      : { backgroundColor: isBrand ? 'brand.subtle' : 'background.subtle', color: isBrand ? 'brand.strong' : 'text.primary', borderColor: 'transparent' };
   }
 
   if (variant === 'outlined') {
     return {
       backgroundColor: 'transparent',
-      color: selected ? (isBrand ? c.brand.base : c.text.primary) : c.text.secondary,
-      borderColor: selected ? (isBrand ? c.brand.base : c.text.primary) : c.border.default,
+      color: selected ? (isBrand ? 'brand.base' : 'text.primary') : 'text.secondary',
+      borderColor: selected ? (isBrand ? 'brand.base' : 'text.primary') : 'border.default',
     };
   }
 
   return {
-    backgroundColor: selected ? (isBrand ? c.brand.subtle : c.background.interactive) : 'transparent',
-    color: selected ? (isBrand ? c.brand.strong : c.text.primary) : c.text.secondary,
-    borderColor: c.border.subtle,
+    backgroundColor: selected ? (isBrand ? 'brand.subtle' : 'background.interactive') : 'transparent',
+    color: selected ? (isBrand ? 'brand.strong' : 'text.primary') : 'text.secondary',
+    borderColor: 'border.subtle',
   };
 }
 
@@ -42,29 +46,38 @@ function ChipRoot({
   selected = false,
   disabled = false,
   tone = 'neutral',
+  onClick,
+  className,
   style,
-  ...props
 }: ChipRootProps) {
   const theme = useTheme();
-  const chipStyle = getChipStyle(variant, tone, selected, theme);
-  const padding = size === 'sm' ? '3px 8px' : '5px 12px';
-  const fontSize = size === 'sm' ? theme.fontSizes.xsmall : theme.fontSizes.sm;
+  const colors = getChipColors(variant, tone, selected);
+  const paddingX = size === 'sm' ? 'micro' : 'small';
+  const paddingY = size === 'sm' ? 'nano' : 'micro';
+  const fontSize = size === 'sm' ? 'xsmall' : 'small';
 
   return (
     <ChipContext.Provider value={{ variant, tone, selected, disabled }}>
       <Flex
         as="span"
-        {...props}
+        onClick={onClick}
+        className={className}
+        style={{ whiteSpace: 'nowrap', ...style }}
         display="inline-flex"
         alignItems="center"
-        gap="4px"
+        gap="nano"
+        paddingX={paddingX}
+        paddingY={paddingY}
         borderRadius="full"
-        borderWidth={1}
+        borderWidth="hairline"
         borderStyle="solid"
+        backgroundColor={colors.backgroundColor}
+        color={colors.color}
+        borderColor={colors.borderColor}
         fontWeight="medium"
+        fontSize={fontSize}
         cursor={disabled ? 'not-allowed' : 'default'}
-        opacity={disabled ? Number(theme.opacity.medium) : 1}
-        style={{ padding, fontSize, lineHeight: 1.4, whiteSpace: 'nowrap', ...chipStyle, ...style }}
+        opacity={disabled ? theme.opacity.medium : 1}
       >
         {children}
       </Flex>
@@ -72,31 +85,31 @@ function ChipRoot({
   );
 }
 
-function ChipLabel({ children, style, ...props }: ChipLabelProps) {
+function ChipLabel({ children, className, style }: ChipLabelProps) {
   return (
-    <Box as="span" {...props} style={{ lineHeight: 'inherit', ...style }}>
+    <Box as="span" className={className} style={style} lineHeight="inherit">
       {children}
     </Box>
   );
 }
 
-function ChipIcon({ children, style, ...props }: ChipIconProps) {
+function ChipIcon({ children, className, style }: ChipIconProps) {
   return (
     <Flex
       as="span"
       aria-hidden="true"
-      {...props}
+      className={className}
+      style={style}
       display="inline-flex"
       alignItems="center"
       flexShrink={0}
-      style={style}
     >
       {children}
     </Flex>
   );
 }
 
-function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
+function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemoveProps) {
   const { disabled } = useChipContext();
 
   return (
@@ -105,27 +118,37 @@ function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
       type="button"
       aria-label={label}
       disabled={disabled}
-      {...props}
+      onClick={onClick}
+      className={className}
+      style={style}
       display="inline-flex"
       alignItems="center"
       justifyContent="center"
+      minWidth={44}
+      minHeight={44}
       width={14}
       height={14}
       flexShrink={0}
       cursor={disabled ? 'not-allowed' : 'pointer'}
       color="inherit"
       borderRadius="full"
-      style={{
-        padding: 0,
-        border: 'none',
-        background: 'none',
-        ...style,
-      }}
+      padding={0}
+      borderWidth={0}
+      backgroundColor="transparent"
+      marginLeft="micro"
+      transition={transition(['background-color', 'color'], 'fast')}
+      _hover={{ backgroundColor: 'background.interactive' }}
+      _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
     >
       <Icon name="X" size="xsmall" />
     </Clickable>
   );
 }
+
+ChipRoot.displayName = 'Chip.Root';
+ChipLabel.displayName = 'Chip.Label';
+ChipIcon.displayName = 'Chip.Icon';
+ChipRemove.displayName = 'Chip.Remove';
 
 /**
  * @platform shared
@@ -134,7 +157,8 @@ function ChipRemove({ label = 'Remover', style, ...props }: ChipRemoveProps) {
  * pequenas ações. `Chip.Root` controla `tone`, `size`, `selected` e
  * `disabled`; slots `Label`, `Icon` e `Remove` (botão `X` clicável).
  * Diferente de `Tag`, `Chip` é tipicamente interativo (selecionável ou
- * removível).
+ * removível) — `selected` é por enquanto somente visual; ver RFC Chip-Interativo
+ * para a discussão sobre tornar `Chip.Root` focável quando selectable.
  *
  * @example
  * <Chip selected={isActive} onClick={toggle}>

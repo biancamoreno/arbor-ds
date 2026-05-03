@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
+import { useState } from 'react';
+import { Flex } from '../../core';
 import { Tag } from './tag';
 
 const meta = {
@@ -32,11 +34,24 @@ export const Selected: Story = {
 
 export const AllTones: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 8 }}>
+    <Flex gap="small">
       <Tag tone="neutral">Neutral</Tag>
       <Tag tone="brand">Brand</Tag>
       <Tag tone="neutral" selected>Selecionada</Tag>
       <Tag disabled>Desabilitada</Tag>
-    </div>
+    </Flex>
   ),
+};
+
+function ToggleableDemo() {
+  const [selected, setSelected] = useState(false);
+  return (
+    <Tag selected={selected} onClick={() => setSelected((v) => !v)}>
+      {selected ? 'Ativo' : 'Inativo'}
+    </Tag>
+  );
+}
+
+export const Toggleable: Story = {
+  render: () => <ToggleableDemo />,
 };

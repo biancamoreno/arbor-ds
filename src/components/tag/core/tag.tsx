@@ -1,43 +1,38 @@
-import type { CSSProperties } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Clickable } from '../../core';
+import { transition } from '../../../foundations';
+import { getTagColors } from '../internal';
 import type { TagProps } from '../interfaces';
 
-function getTagStyle(selected: boolean, tone: TagProps['tone'], theme: ReturnType<typeof useTheme>): CSSProperties {
-  if (tone === 'brand') {
-    return selected
-      ? { backgroundColor: theme.colors.brand.base, borderColor: theme.colors.brand.base, color: theme.colors.text.inverse }
-      : { backgroundColor: theme.colors.brand.subtle, borderColor: theme.colors.brand.soft, color: theme.colors.brand.strong };
-  }
-
-  return selected
-    ? { backgroundColor: theme.colors.text.primary, borderColor: theme.colors.text.primary, color: theme.colors.text.inverse }
-    : { backgroundColor: theme.colors.surface.default, borderColor: theme.colors.border.default, color: theme.colors.text.primary };
-}
-
-function TagComponent({ children, tone = 'neutral', selected = false, style, ...props }: TagProps) {
-  const theme = useTheme();
+function TagComponent({ children, tone = 'neutral', selected = false, disabled, onClick, className, style }: TagProps) {
+  const colors = getTagColors(selected, tone);
 
   return (
     <Clickable
       as="button"
       type="button"
-      {...props}
+      aria-pressed={selected}
+      disabled={disabled}
+      onClick={onClick}
+      className={className}
+      style={style}
       display="inline-flex"
       alignItems="center"
       justifyContent="center"
-      gap="6px"
+      gap="micro"
+      paddingX="small"
+      paddingY="micro"
+      minHeight={44}
       borderRadius="full"
       borderStyle="solid"
-      borderWidth={1}
+      borderWidth="hairline"
+      backgroundColor={colors.backgroundColor}
+      borderColor={colors.borderColor}
+      color={colors.color}
       fontWeight="medium"
-      cursor={props.disabled ? 'not-allowed' : 'pointer'}
-      style={{
-        padding: '6px 12px',
-        fontSize: theme.fontSizes.xsmall,
-        ...getTagStyle(selected, tone, theme),
-        ...style,
-      }}
+      fontSize="xsmall"
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      transition={transition(['background-color', 'border-color', 'color'], 'fast')}
+      _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
     >
       {children}
     </Clickable>
@@ -45,6 +40,7 @@ function TagComponent({ children, tone = 'neutral', selected = false, style, ...
 }
 
 TagComponent.displayName = 'Tag';
+
 /**
  * @platform shared
  *
@@ -52,7 +48,8 @@ TagComponent.displayName = 'Tag';
  * (`neutral`/`brand`) e `selected` (alterna preenchimento sólido vs.
  * outline). Diferente de `Chip`, não é compound: o conteúdo é flat. Use
  * para tags filtráveis em listas, badges de status interativos ou pílulas
- * de seleção simples.
+ * de seleção simples. Web expõe `aria-pressed={selected}`; native expõe
+ * `accessibilityState.selected`.
  *
  * @see {@link TagProps}
  */
