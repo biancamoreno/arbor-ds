@@ -42,6 +42,7 @@ export type ThemeComponents = {
   chip?: SlotRecipeConfig;
   tag?: SlotRecipeConfig;
   avatar?: SlotRecipeConfig;
+  tabs?: SlotRecipeConfig;
   toast?: SlotRecipeConfig;
   [key: string]: RecipeConfig | SlotRecipeConfig | undefined;
 };

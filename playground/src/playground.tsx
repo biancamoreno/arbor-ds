@@ -738,7 +738,20 @@ function PlaygroundContent({
           </header>
 
           <main className="playground-main">
-            <Tabs items={tabItems} variant="pill" size="small" />
+            <Tabs defaultValue={tabItems[0]?.id ?? 'overview'}>
+              <Tabs.List variant="pill" size="small">
+                {tabItems.map((item) => (
+                  <Tabs.Trigger key={item.id} value={item.id}>
+                    {item.label}
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
+              {tabItems.map((item) => (
+                <Tabs.Content key={item.id} value={item.id}>
+                  {item.content}
+                </Tabs.Content>
+              ))}
+            </Tabs>
           </main>
         </div>
       </Container>

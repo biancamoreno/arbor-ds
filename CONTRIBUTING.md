@@ -348,6 +348,32 @@ Anatomia (`root`, `item`, `trigger`, `triggerIcon`, `content`, `contentInner`) +
 - Render condicional de `Content` (`if (!open) return null`).
 - Mesma slot recipe — `triggerIcon.transform` é no-op natural.
 
+### 12. Tabs — `variant`/`size` em `Tabs.List` + Home/End + foco visível em Content (RFC-0038)
+
+`variant` (`underline` | `pill`) e `size` (SP-1 completo: `xsmall`/`small`/`medium`/`large`/`xlarge`) vivem em `Tabs.List` — decisão de identidade do grupo, não do trigger individual:
+
+```tsx
+<Tabs defaultValue="overview">
+  <Tabs.List variant="pill" size="small" fullWidth>
+    <Tabs.Trigger value="overview">Visão geral</Tabs.Trigger>
+    <Tabs.Trigger value="reviews">Avaliações</Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="overview">…</Tabs.Content>
+  <Tabs.Content value="reviews">…</Tabs.Content>
+</Tabs>
+```
+
+Anatomia (`root`, `list`, `trigger`, `content`) + axes (`variant`, `size`, `orientation`, `state`) resolvidos pela slot recipe `tabs`. Estado ativo é modelado via variant `state: 'active' | 'inactive'` (engine não tem `_selected`); identidade no Trigger combina `compoundVariants` com `variant`. Override completo via `createTheme`.
+
+**Web:**
+- Keyboard nav: `ArrowLeft`/`ArrowRight` (horizontal) ou `ArrowUp`/`ArrowDown` (vertical), `Home`/`End`. DOM-order via `compareDocumentPosition`.
+- Foco visível WCAG 2.4.7 no Trigger **e no Content** (sem `outline: none`; Content precisa anunciar foco quando recebe `tabIndex=0` por requisito ARIA).
+- IDs únicos via `useId()` (suporta múltiplos `Tabs` na mesma página).
+
+**Native:**
+- Mesma slot recipe; pseudos `_focusVisible`/`_hover` são no-ops naturais em RN.
+- `Tabs.Content` usa `accessibilityLabelledBy` (RN não tem `tabpanel`).
+
 ## RFCs
 
 Mudanças que afetam API pública, breaking changes ou decisões arquiteturais relevantes requerem RFC.

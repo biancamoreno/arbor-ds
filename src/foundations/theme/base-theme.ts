@@ -800,6 +800,82 @@ const components: ThemeComponents = {
     defaultVariants: { state: 'closed' },
   }),
 
+  tabs: defineSlotRecipe({
+    slots: ['root', 'list', 'trigger', 'content'] as const,
+    base: {
+      root: { display: 'flex' },
+      list: {
+        display: 'flex',
+        flexShrink: 0,
+        gap: 'micro',
+        borderStyle: 'solid',
+        borderColor: 'border.subtle',
+      },
+      trigger: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 'micro',
+        backgroundColor: 'transparent',
+        borderWidth: 0,
+        cursor: 'pointer',
+        color: 'text.secondary',
+        fontWeight: 'regular',
+        _disabled: { opacity: 0.5, cursor: 'not-allowed' },
+        _focusVisible: focusRing,
+      },
+      content: {
+        color: 'text.primary',
+        paddingTop: 'medium',
+        paddingBottom: 'medium',
+        _focusVisible: focusRing,
+      },
+    },
+    variants: {
+      variant: {
+        underline: {
+          trigger: {
+            borderRadius: 0,
+            borderStyle: 'solid',
+            borderBottomWidth: 'thin',
+            borderBottomColor: 'transparent',
+          },
+        },
+        pill: {
+          trigger: { borderRadius: 'full' },
+        },
+      },
+      size: {
+        xsmall: { trigger: { paddingLeft: 'small',  paddingRight: 'small',  paddingTop: 'micro', paddingBottom: 'micro', fontSize: 'xsmall' } },
+        small:  { trigger: { paddingLeft: 'small',  paddingRight: 'small',  paddingTop: 'micro', paddingBottom: 'micro', fontSize: 'xsmall' } },
+        medium: { trigger: { paddingLeft: 'medium', paddingRight: 'medium', paddingTop: 'small', paddingBottom: 'small', fontSize: 'small'  } },
+        large:  { trigger: { paddingLeft: 'medium', paddingRight: 'medium', paddingTop: 'small', paddingBottom: 'small', fontSize: 'medium' } },
+        xlarge: { trigger: { paddingLeft: 'large',  paddingRight: 'large',  paddingTop: 'medium', paddingBottom: 'medium', fontSize: 'medium' } },
+      },
+      orientation: {
+        horizontal: {
+          root: { flexDirection: 'column' },
+          list: { flexDirection: 'row', flexWrap: 'wrap', borderBottomWidth: 'hairline' },
+        },
+        vertical: {
+          root: { flexDirection: 'row' },
+          list: { flexDirection: 'column', borderRightWidth: 'hairline' },
+        },
+      },
+      state: {
+        inactive: {},
+        active:   {},
+      },
+    },
+    compoundVariants: [
+      { conditions: { variant: 'underline', state: 'active' },
+        style: { trigger: { borderBottomColor: 'brand.base', color: 'text.primary', fontWeight: 'medium' } } },
+      { conditions: { variant: 'pill', state: 'active' },
+        style: { trigger: { backgroundColor: 'brand.base', color: 'text.inverse', fontWeight: 'medium' } } },
+    ],
+    defaultVariants: { variant: 'underline', size: 'medium', orientation: 'horizontal', state: 'inactive' },
+  }),
+
   toast: defineSlotRecipe({
     slots: ['root', 'title', 'description', 'close'] as const,
     base: {

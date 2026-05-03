@@ -82,4 +82,19 @@ describe('Tabs (native)', () => {
     fireEvent.press(screen.getByRole('tab', { name: 'B' }));
     expect(onChange).toHaveBeenCalledWith('b');
   });
+
+  it('aceita variant="pill" e size em List sem quebrar', () => {
+    render(
+      <Tabs defaultValue="a">
+        <Tabs.List variant="pill" size="xsmall">
+          <Tabs.Trigger value="a">A</Tabs.Trigger>
+          <Tabs.Trigger value="b">B</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="a"><Text>CA</Text></Tabs.Content>
+        <Tabs.Content value="b"><Text>CB</Text></Tabs.Content>
+      </Tabs>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByRole('tab', { name: 'A' }).props.accessibilityState.selected).toBe(true);
+  });
 });

@@ -1,6 +1,13 @@
-import React, { createContext, useContext, useId } from 'react';
+import React, { useId, useMemo } from 'react';
 import { Box, Flex, Clickable, Text } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import {
+  TabsContext,
+  TabsListContext,
+  useTabsContext,
+  useTabsListContext,
+} from '../context/tabs-context';
 import type {
   TabsRootProps,
   TabsListProps,
@@ -8,22 +15,9 @@ import type {
   TabsContentProps,
 } from '../interfaces';
 
+type TabsSlots = 'root' | 'list' | 'trigger' | 'content';
 
-interface TabsNativeContextValue {
-  activeValue: string;
-  setActive: (value: string) => void;
-  orientation: 'horizontal' | 'vertical';
-  baseId: string;
-}
-
-const TabsNativeContext = createContext<TabsNativeContextValue>({
-  activeValue: '',
-  setActive: () => {},
-  orientation: 'horizontal',
-  baseId: '',
-});
-
-const useTabsNativeContext = () => useContext(TabsNativeContext);
+const noop = () => {};
 
 function TabsRoot({
   children,
@@ -31,8 +25,8 @@ function TabsRoot({
   defaultValue = '',
   onValueChange,
   orientation = 'horizontal',
+  className,
   style,
-  ...props
 }: TabsRootProps) {
   const baseId = useId();
   const [activeValue, setActiveValue] = useControllableState({
@@ -41,102 +35,118 @@ function TabsRoot({
     onChange: onValueChange,
   });
 
+  const slots = useSlotRecipe<TabsSlots>('tabs', { orientation });
+
   return (
-    <TabsNativeContext.Provider
-      value={{ activeValue, setActive: setActiveValue, orientation, baseId }}
+    <TabsContext.Provider
+      value={{
+        activeValue,
+        setActive: setActiveValue,
+        registerTrigger: noop,
+        unregisterTrigger: noop,
+        focusNext: noop,
+        focusPrev: noop,
+        focusFirst: noop,
+        focusLast: noop,
+        orientation,
+        baseId,
+      }}
     >
-      <Flex
-        {...(props as object)}
-        flexDirection={orientation === 'vertical' ? 'row' : 'column'}
-        style={style}
-      >
+      <Flex {...slots.root} className={className} style={style}>
         {children}
       </Flex>
-    </TabsNativeContext.Provider>
+    </TabsContext.Provider>
   );
 }
 
-function TabsList({ children, fullWidth = false, style, ...props }: TabsListProps) {
-  const { orientation } = useTabsNativeContext();
+function TabsList({
+  children,
+  variant = 'underline',
+  size = 'medium',
+  fullWidth = false,
+  className,
+  style,
+}: TabsListProps) {
+  const { orientation } = useTabsContext();
+  const slots = useSlotRecipe<TabsSlots>('tabs', { variant, size, orientation });
+  const listContextValue = useMemo(() => ({ variant, size }), [variant, size]);
+
+  const renderedChildren = fullWidth
+    ? React.Children.map(children, (child) =>
+        React.isValidElement(child)
+          ? React.cloneElement(child as React.ReactElement<{ flex?: number }>, { flex: 1 })
+          : child,
+      )
+    : children;
 
   return (
-    <Flex
-      {...(props as object)}
-      accessibilityRole="tablist"
-      flexDirection={orientation === 'vertical' ? 'column' : 'row'}
-      gap="2px"
-      flexShrink={0}
-      borderBottomWidth={orientation === 'horizontal' ? '1px' : '0'}
-      borderRightWidth={orientation === 'vertical' ? '1px' : '0'}
-      borderColor="border.subtle"
-      borderStyle="solid"
-      style={style}
-    >
-      {fullWidth
-        ? React.Children.map(children, (child) =>
-            React.isValidElement(child)
-              ? React.cloneElement(child as React.ReactElement<TabsTriggerProps & { flex?: number }>, {
-                  flex: 1,
-                  ...(child.props as TabsTriggerProps),
-                })
-              : child,
-          )
-        : children}
-    </Flex>
+    <TabsListContext.Provider value={listContextValue}>
+      <Flex
+        accessibilityRole="tablist"
+        {...slots.list}
+        className={className}
+        style={style}
+      >
+        {renderedChildren}
+      </Flex>
+    </TabsListContext.Provider>
   );
 }
 
-function TabsTrigger({ children, value, size = 'medium', disabled, onClick, style, ...props }: TabsTriggerProps) {
-  const { activeValue, setActive, baseId } = useTabsNativeContext();
+function TabsTrigger({
+  children,
+  value,
+  disabled,
+  className,
+  style,
+  flex,
+}: TabsTriggerProps & { flex?: number }) {
+  const { activeValue, setActive, orientation, baseId } = useTabsContext();
+  const { variant, size } = useTabsListContext();
   const isActive = activeValue === value;
-  const triggerId = `${baseId}-trigger-${value}`;
+  const triggerId = `${baseId}-tab-trigger-${value}`;
 
-  const handleClick: React.MouseEventHandler<HTMLElement> = (e) => {
+  const slots = useSlotRecipe<TabsSlots>('tabs', {
+    variant,
+    size,
+    orientation,
+    state: isActive ? 'active' : 'inactive',
+  });
+
+  const handleClick: React.MouseEventHandler<HTMLElement> = () => {
     if (disabled) return;
     setActive(value);
-    onClick?.(e as React.MouseEvent<HTMLButtonElement>);
   };
 
   return (
     <Clickable
-      {...(props as object)}
       nativeID={triggerId}
       accessibilityRole="tab"
       accessibilityState={{ selected: isActive, disabled: !!disabled }}
       onClick={handleClick}
       disabled={disabled}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      paddingX={size === 'small' ? 'tiny' : 'small'}
-      paddingY={size === 'small' ? 'micro' : 10}
-      borderBottomWidth="2px"
-      borderBottomColor={isActive ? 'brand.base' : 'transparent'}
-      opacity={disabled ? 0.5 : 1}
+      flex={flex}
+      {...slots.trigger}
+      className={className}
       style={style}
     >
-      <Text
-        as="span"
-        color={isActive ? 'text.primary' : 'text.secondary'}
-        fontSize={size === 'small' ? 'xs' : 'sm'}
-        fontWeight={isActive ? 'medium' : 'regular'}
-      >
+      <Text as="span" color={isActive ? 'text.primary' : 'text.secondary'} fontWeight={isActive ? 'medium' : 'regular'}>
         {children}
       </Text>
     </Clickable>
   );
 }
 
-function TabsContent({ children, value, style, ...props }: TabsContentProps) {
-  const { activeValue, baseId } = useTabsNativeContext();
+function TabsContent({ children, value, className, style }: TabsContentProps) {
+  const { activeValue, baseId } = useTabsContext();
+  const slots = useSlotRecipe<TabsSlots>('tabs');
   if (activeValue !== value) return null;
 
   return (
     <Box
-      {...(props as object)}
-      accessibilityLabelledBy={`${baseId}-trigger-${value}`}
-      color="text.primary"
-      padding="medium"
+      accessibilityLabelledBy={`${baseId}-tab-trigger-${value}`}
+      {...slots.content}
+      className={className}
       style={style}
     >
       {children}
@@ -152,15 +162,18 @@ TabsContent.displayName = 'Tabs.Content';
 /**
  * @platform native
  *
- * `Tabs` em React Native — versão simplificada do compound web:
- * - Sem navegação por teclado (paradigma touch-only).
+ * Tabs em React Native — paridade com web pós-RFC-0038.
+ *
+ * - Mesma slot recipe `tabs` (variants underline/pill themable).
  * - `Tabs.List` recebe `accessibilityRole='tablist'`.
  * - `Tabs.Trigger` via `Clickable.native` com `accessibilityRole='tab'` +
  *   `accessibilityState={{ selected, disabled }}`.
- * - `Tabs.Content` usa `accessibilityLabelledBy` apontando para o `nativeID`
- *   do trigger ativo (RN não tem role `tabpanel`).
+ * - `Tabs.Content` usa `accessibilityLabelledBy` (RN não tem `tabpanel`).
+ * - Sem keyboard nav (touch-only); pseudos `_hover/_focusVisible` são
+ *   no-ops naturais em RN.
  *
  * @see {@link TabsRootProps}
+ * @see RFC-0038
  */
 export const Tabs = Object.assign(TabsRoot, {
   Root: TabsRoot,

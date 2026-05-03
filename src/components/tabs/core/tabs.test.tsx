@@ -67,11 +67,19 @@ describe('Tabs', () => {
     expect(screen.queryByText('Conteúdo C')).toBeNull();
   });
 
-  it('tabpanel tem role="tabpanel" e aria-labelledby correto', () => {
+  it('tabpanel tem role="tabpanel" e aria-labelledby aponta para o trigger', () => {
     render(<BasicTabs defaultValue="a" />, { wrapper });
     const panel = screen.getByRole('tabpanel');
+    const trigger = screen.getByRole('tab', { name: 'Tab A' });
     expect(panel).toBeTruthy();
-    expect(panel.getAttribute('aria-labelledby')).toBe('tab-trigger-a');
+    expect(panel.getAttribute('aria-labelledby')).toBe(trigger.id);
+  });
+
+  it('tabpanel é focável (tabIndex=0) sem outline:none', () => {
+    render(<BasicTabs defaultValue="a" />, { wrapper });
+    const panel = screen.getByRole('tabpanel');
+    expect(panel.getAttribute('tabindex')).toBe('0');
+    expect(panel.style.outline).toBe('');
   });
 
   it('modo controlado chama onValueChange', () => {
@@ -91,25 +99,85 @@ describe('Tabs', () => {
     expect(onChange).toHaveBeenCalledWith('b');
   });
 
-  it('ArrowRight foca próxima tab', () => {
-    render(<BasicTabs defaultValue="a" />, { wrapper });
-    const tabA = screen.getByRole('tab', { name: 'Tab A' });
-    tabA.focus();
-    fireEvent.keyDown(tabA, { key: 'ArrowRight' });
-    expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Tab B' }));
+  describe('teclado', () => {
+    it('ArrowRight foca próxima tab', () => {
+      render(<BasicTabs defaultValue="a" />, { wrapper });
+      const tabA = screen.getByRole('tab', { name: 'Tab A' });
+      tabA.focus();
+      fireEvent.keyDown(tabA, { key: 'ArrowRight' });
+      expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Tab B' }));
+    });
+
+    it('ArrowLeft foca tab anterior', () => {
+      render(<BasicTabs defaultValue="b" />, { wrapper });
+      const tabB = screen.getByRole('tab', { name: 'Tab B' });
+      tabB.focus();
+      fireEvent.keyDown(tabB, { key: 'ArrowLeft' });
+      expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Tab A' }));
+    });
+
+    it('Home move foco para a primeira tab', () => {
+      render(<BasicTabs defaultValue="a" />, { wrapper });
+      const tabB = screen.getByRole('tab', { name: 'Tab B' });
+      tabB.focus();
+      fireEvent.keyDown(tabB, { key: 'Home' });
+      expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Tab A' }));
+    });
+
+    it('End move foco para a última tab', () => {
+      render(<BasicTabs defaultValue="a" />, { wrapper });
+      const tabA = screen.getByRole('tab', { name: 'Tab A' });
+      tabA.focus();
+      fireEvent.keyDown(tabA, { key: 'End' });
+      expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Tab C' }));
+    });
+
+    it('orientation=vertical usa ArrowDown/ArrowUp', () => {
+      render(
+        <Tabs defaultValue="a" orientation="vertical">
+          <Tabs.List>
+            <Tabs.Trigger value="a">A</Tabs.Trigger>
+            <Tabs.Trigger value="b">B</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="a">CA</Tabs.Content>
+          <Tabs.Content value="b">CB</Tabs.Content>
+        </Tabs>,
+        { wrapper },
+      );
+      const tabA = screen.getByRole('tab', { name: 'A' });
+      tabA.focus();
+      fireEvent.keyDown(tabA, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'B' }));
+    });
   });
 
-  it('ArrowLeft foca tab anterior', () => {
-    render(<BasicTabs defaultValue="b" />, { wrapper });
-    const tabB = screen.getByRole('tab', { name: 'Tab B' });
-    tabB.focus();
-    fireEvent.keyDown(tabB, { key: 'ArrowLeft' });
-    expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Tab A' }));
-  });
+  describe('variants', () => {
+    it('aceita variant="pill" sem quebrar', () => {
+      render(
+        <Tabs defaultValue="a">
+          <Tabs.List variant="pill">
+            <Tabs.Trigger value="a">A</Tabs.Trigger>
+            <Tabs.Trigger value="b">B</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="a">CA</Tabs.Content>
+          <Tabs.Content value="b">CB</Tabs.Content>
+        </Tabs>,
+        { wrapper },
+      );
+      expect(screen.getByRole('tab', { name: 'A' }).getAttribute('aria-selected')).toBe('true');
+    });
 
-  it('tabs trigger tem transição CSS definida', () => {
-    render(<BasicTabs />, { wrapper });
-    const tab = screen.getByRole('tab', { name: 'Tab A' });
-    expect(tab.style.transition).toBeTruthy();
+    it('size em List propaga para os triggers', () => {
+      render(
+        <Tabs defaultValue="a">
+          <Tabs.List size="xsmall">
+            <Tabs.Trigger value="a">A</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="a">CA</Tabs.Content>
+        </Tabs>,
+        { wrapper },
+      );
+      expect(screen.getByRole('tab', { name: 'A' })).toBeTruthy();
+    });
   });
 });

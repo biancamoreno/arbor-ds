@@ -1,4 +1,5 @@
 import { createContext, useContext, type RefObject } from 'react';
+import type { TabsOrientation, TabsSize, TabsVariant } from '../interfaces';
 
 export interface TabsContextValue {
   activeValue: string;
@@ -7,7 +8,10 @@ export interface TabsContextValue {
   unregisterTrigger: (value: string) => void;
   focusNext: (fromValue: string) => void;
   focusPrev: (fromValue: string) => void;
-  orientation: 'horizontal' | 'vertical';
+  focusFirst: () => void;
+  focusLast: () => void;
+  orientation: TabsOrientation;
+  baseId: string;
 }
 
 export const TabsContext = createContext<TabsContextValue>({
@@ -17,7 +21,22 @@ export const TabsContext = createContext<TabsContextValue>({
   unregisterTrigger: () => {},
   focusNext: () => {},
   focusPrev: () => {},
+  focusFirst: () => {},
+  focusLast: () => {},
   orientation: 'horizontal',
+  baseId: '',
 });
 
 export const useTabsContext = () => useContext(TabsContext);
+
+export interface TabsListContextValue {
+  variant: TabsVariant;
+  size: TabsSize;
+}
+
+export const TabsListContext = createContext<TabsListContextValue>({
+  variant: 'underline',
+  size: 'medium',
+});
+
+export const useTabsListContext = () => useContext(TabsListContext);

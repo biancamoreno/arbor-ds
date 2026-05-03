@@ -3,5 +3,7 @@ export type {
   TabsListProps,
   TabsTriggerProps,
   TabsContentProps,
+  TabsVariant,
+  TabsSize,
+  TabsOrientation,
 } from './TabsProps';
-
