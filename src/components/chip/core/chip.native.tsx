@@ -1,7 +1,7 @@
-import { useCallback, type KeyboardEvent } from 'react';
+import { useCallback } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useControllableState } from '../../../ecosystem/primitives';
-import { Box, Flex, Clickable } from '../../core';
+import { Box, Flex, Clickable, Text } from '../../core';
 import { Icon } from '../../core';
 import { transition, getFeedbackToneColor, type ArborTheme, type FeedbackTone } from '../../../foundations';
 import { ChipContext, useChipContext } from '../context/chip-context';
@@ -13,14 +13,6 @@ type ChipColors = {
   borderColor: string;
 };
 
-/**
- * Pattern unificado pós-RFC-0032 (Tag-like, ajustado para variants do Chip):
- * - `filled`:   selected → bg=base/text=inverse; default → bg=subtle/text=strong.
- * - `outlined`: selected → border=base/text=base; default → border=border.default/text=text.secondary.
- * - `subtle`:   selected → bg=subtle/text=strong; default → transparente/text=text.secondary.
- *
- * Refactor mais profundo para slot recipe ficará a cargo da TD-034.
- */
 function getChipColors(
   theme: ArborTheme,
   variant: NonNullable<ChipRootProps['variant']>,
@@ -93,14 +85,13 @@ function ChipRoot(props: ChipRootProps) {
     return (
       <ChipContext.Provider value={contextValue}>
         <Clickable
-          as="button"
-          type="button"
-          aria-pressed={selected}
+          accessibilityRole="button"
+          accessibilityState={{ selected, disabled: !!disabled }}
           disabled={disabled}
           onClick={handleToggle}
           className={className}
-          style={{ whiteSpace: 'nowrap', ...style }}
-          display="inline-flex"
+          style={style}
+          display="flex"
           alignItems="center"
           gap="nano"
           paddingX={paddingX}
@@ -110,16 +101,12 @@ function ChipRoot(props: ChipRootProps) {
           borderWidth="hairline"
           borderStyle="solid"
           backgroundColor={colors.backgroundColor}
-          color={colors.color}
           borderColor={colors.borderColor}
-          fontWeight="medium"
-          fontSize={fontSize}
-          cursor={disabled ? 'not-allowed' : 'pointer'}
           opacity={disabled ? theme.opacity.medium : 1}
-          transition={transition(['background-color', 'border-color', 'color'], 'fast')}
-          _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
         >
-          {children}
+          <Text fontSize={fontSize} fontWeight="medium" color={colors.color}>
+            {children}
+          </Text>
         </Clickable>
       </ChipContext.Provider>
     );
@@ -128,10 +115,9 @@ function ChipRoot(props: ChipRootProps) {
   return (
     <ChipContext.Provider value={contextValue}>
       <Flex
-        as="span"
         className={className}
-        style={{ whiteSpace: 'nowrap', ...style }}
-        display="inline-flex"
+        style={style}
+        display="flex"
         alignItems="center"
         gap="nano"
         paddingX={paddingX}
@@ -140,14 +126,12 @@ function ChipRoot(props: ChipRootProps) {
         borderWidth="hairline"
         borderStyle="solid"
         backgroundColor={colors.backgroundColor}
-        color={colors.color}
         borderColor={colors.borderColor}
-        fontWeight="medium"
-        fontSize={fontSize}
-        cursor={disabled ? 'not-allowed' : 'default'}
         opacity={disabled ? theme.opacity.medium : 1}
       >
-        {children}
+        <Text fontSize={fontSize} fontWeight="medium" color={colors.color}>
+          {children}
+        </Text>
       </Flex>
     </ChipContext.Provider>
   );
@@ -155,7 +139,7 @@ function ChipRoot(props: ChipRootProps) {
 
 function ChipLabel({ children, className, style }: ChipLabelProps) {
   return (
-    <Box as="span" className={className} style={style} lineHeight="inherit">
+    <Box className={className} style={style}>
       {children}
     </Box>
   );
@@ -164,11 +148,11 @@ function ChipLabel({ children, className, style }: ChipLabelProps) {
 function ChipIcon({ children, className, style }: ChipIconProps) {
   return (
     <Flex
-      as="span"
-      aria-hidden="true"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
       className={className}
       style={style}
-      display="inline-flex"
+      display="flex"
       alignItems="center"
       flexShrink={0}
     >
@@ -178,66 +162,20 @@ function ChipIcon({ children, className, style }: ChipIconProps) {
 }
 
 function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemoveProps) {
-  const { disabled, selectable } = useChipContext();
+  const { disabled } = useChipContext();
 
-  // Em modo selectable, o Root é <button>. Para evitar nested-button (HTML
-  // inválido), Remove vira <span role="button"> com listener Space/Enter próprio.
-  if (selectable) {
-    const handleClick = (event: React.MouseEvent | React.KeyboardEvent) => {
-      event.stopPropagation();
-      if (disabled) return;
-      onClick?.();
-    };
-    const handleKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
-      if (disabled) return;
-      if (event.key === ' ' || event.key === 'Enter') {
-        event.preventDefault();
-        handleClick(event);
-      }
-    };
-    return (
-      <Box
-        as="span"
-        role="button"
-        aria-label={label}
-        aria-disabled={disabled || undefined}
-        tabIndex={disabled ? -1 : 0}
-        onClick={(event: React.MouseEvent<HTMLSpanElement>) => handleClick(event)}
-        onKeyDown={handleKeyDown}
-        className={className}
-        style={style}
-        display="inline-flex"
-        alignItems="center"
-        justifyContent="center"
-        minWidth={44}
-        minHeight={44}
-        width={14}
-        height={14}
-        flexShrink={0}
-        cursor={disabled ? 'not-allowed' : 'pointer'}
-        color="inherit"
-        borderRadius="full"
-        backgroundColor="transparent"
-        marginLeft="micro"
-        transition={transition(['background-color', 'color'], 'fast')}
-        _hover={{ backgroundColor: 'background.interactive' }}
-        _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
-      >
-        <Icon name="X" size="xsmall" decorative />
-      </Box>
-    );
-  }
-
+  // Em RN, nested Pressable é aceitável (sem regra HTML equivalente). Mantemos
+  // Clickable.native em ambos os modos do Root para paridade visual.
   return (
     <Clickable
-      as="button"
-      type="button"
-      aria-label={label}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onClick={onClick}
       className={className}
       style={style}
-      display="inline-flex"
+      display="flex"
       alignItems="center"
       justifyContent="center"
       minWidth={44}
@@ -245,16 +183,10 @@ function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemove
       width={14}
       height={14}
       flexShrink={0}
-      cursor={disabled ? 'not-allowed' : 'pointer'}
-      color="inherit"
       borderRadius="full"
-      padding={0}
-      borderWidth={0}
       backgroundColor="transparent"
       marginLeft="micro"
       transition={transition(['background-color', 'color'], 'fast')}
-      _hover={{ backgroundColor: 'background.interactive' }}
-      _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
     >
       <Icon name="X" size="xsmall" decorative />
     </Clickable>
@@ -267,37 +199,21 @@ ChipIcon.displayName = 'Chip.Icon';
 ChipRemove.displayName = 'Chip.Remove';
 
 /**
- * @platform shared
+ * @platform native
  *
- * Compound de chip — pílula compacta para filtros, tags selecionáveis ou
- * pequenas ações. **Discriminated union** controla o contrato:
+ * Chip em React Native — paridade com web pós-RFC-0033. Discriminated union
+ * via prop `selectable`:
  *
- * - **Decorativo (default):** `<Chip>` renderiza `<span>` puramente visual.
- *   Sem foco, sem teclado, sem ARIA de interação.
+ * - **Decorativo (default):** `<Flex>` (View) puramente visual. Sem
+ *   `accessibilityRole`.
+ * - **Interativo (`selectable`):** `Clickable.native` com
+ *   `accessibilityRole='button'` + `accessibilityState.selected`.
  *
- *   ```tsx
- *   <Chip variant="filled" tone="warning">
- *     <Chip.Icon><Icon name="Bell" /></Chip.Icon>
- *     <Chip.Label>Pendente</Chip.Label>
- *   </Chip>
- *   ```
- *
- * - **Interativo:** `<Chip selectable selected onSelectedChange={...}>`
- *   vira botão focável (`<button>`) com `aria-pressed` + ativação por
- *   Space/Enter. Cobre filtros toggleable e seleção múltipla.
- *
- *   ```tsx
- *   <Chip selectable selected={isActive} onSelectedChange={setIsActive}>
- *     <Chip.Label>Em estoque</Chip.Label>
- *     <Chip.Remove onClick={onRemove} />
- *   </Chip>
- *   ```
- *
- * `Chip.Remove` ramifica anatomia automaticamente: em modo decorativo é
- * `<button>`; em modo selectable vira `<span role="button">` para evitar
- * nested-button no DOM.
+ * Em RN, nested Pressable não tem restrição equivalente ao nested-button do
+ * HTML, então `Chip.Remove` mantém `Clickable.native` em ambos os modos.
  *
  * @see {@link ChipRootProps}
+ * @see RFC-0033
  */
 export const Chip = Object.assign(ChipRoot, {
   Root: ChipRoot,

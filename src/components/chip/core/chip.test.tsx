@@ -29,8 +29,8 @@ describe('Chip', () => {
     expect(screen.getByText('O')).toBeTruthy();
   });
 
-  it('aceita selected=true', () => {
-    render(<Chip selected><Chip.Label>Sel</Chip.Label></Chip>, { wrapper });
+  it('aceita selectable selected=true', () => {
+    render(<Chip selectable selected><Chip.Label>Sel</Chip.Label></Chip>, { wrapper });
     expect(screen.getByText('Sel')).toBeTruthy();
   });
 
@@ -93,5 +93,103 @@ describe('Chip', () => {
     );
     const removeBtn = container.querySelector('[aria-label="Remover"]');
     expect(removeBtn?.querySelector('svg')).toBeTruthy();
+  });
+
+  // RFC-0033 — modo selectable
+
+  describe('selectable (RFC-0033)', () => {
+    it('default (decorativo) NÃO renderiza role=button no Root', () => {
+      render(<Chip><Chip.Label>X</Chip.Label></Chip>, { wrapper });
+      expect(screen.queryByRole('button', { name: 'X' })).toBeNull();
+    });
+
+    it('selectable=true renderiza Root como button focável com aria-pressed', () => {
+      render(
+        <Chip selectable selected={false}><Chip.Label>Filtro</Chip.Label></Chip>,
+        { wrapper },
+      );
+      const btn = screen.getByRole('button', { name: 'Filtro' });
+      expect(btn).toBeTruthy();
+      expect(btn.getAttribute('aria-pressed')).toBe('false');
+      expect(btn.tagName).toBe('BUTTON');
+    });
+
+    it('selectable + selected=true expõe aria-pressed=true', () => {
+      render(
+        <Chip selectable selected><Chip.Label>Ativo</Chip.Label></Chip>,
+        { wrapper },
+      );
+      expect(screen.getByRole('button').getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('Space/Enter dispara onSelectedChange (controlado)', () => {
+      const onSelectedChange = jest.fn();
+      render(
+        <Chip selectable selected={false} onSelectedChange={onSelectedChange}>
+          <Chip.Label>Toggle</Chip.Label>
+        </Chip>,
+        { wrapper },
+      );
+      const btn = screen.getByRole('button');
+      fireEvent.click(btn);
+      expect(onSelectedChange).toHaveBeenCalledWith(true);
+    });
+
+    it('disabled bloqueia toggle (selectable)', () => {
+      const onSelectedChange = jest.fn();
+      render(
+        <Chip selectable disabled selected={false} onSelectedChange={onSelectedChange}>
+          <Chip.Label>X</Chip.Label>
+        </Chip>,
+        { wrapper },
+      );
+      fireEvent.click(screen.getByRole('button'));
+      expect(onSelectedChange).not.toHaveBeenCalled();
+    });
+
+    it('defaultSelected funciona não-controlado', () => {
+      const onSelectedChange = jest.fn();
+      render(
+        <Chip selectable defaultSelected onSelectedChange={onSelectedChange}>
+          <Chip.Label>X</Chip.Label>
+        </Chip>,
+        { wrapper },
+      );
+      const btn = screen.getByRole('button');
+      expect(btn.getAttribute('aria-pressed')).toBe('true');
+      fireEvent.click(btn);
+      expect(onSelectedChange).toHaveBeenCalledWith(false);
+    });
+
+    it('Chip.Remove em modo selectable NÃO gera nested <button>', () => {
+      const { container } = render(
+        <Chip selectable selected={false}>
+          <Chip.Label>Tag</Chip.Label>
+          <Chip.Remove />
+        </Chip>,
+        { wrapper },
+      );
+      // Apenas o Root deve ser <button>; Remove vira <span role="button">.
+      const buttons = container.querySelectorAll('button');
+      expect(buttons.length).toBe(1);
+      const remove = container.querySelector('[aria-label="Remover"]');
+      expect(remove?.tagName).toBe('SPAN');
+      expect(remove?.getAttribute('role')).toBe('button');
+    });
+
+    it('Chip.Remove em modo selectable não propaga click ao Root', () => {
+      const onSelectedChange = jest.fn();
+      const onRemove = jest.fn();
+      render(
+        <Chip selectable selected={false} onSelectedChange={onSelectedChange}>
+          <Chip.Label>Tag</Chip.Label>
+          <Chip.Remove onClick={onRemove} />
+        </Chip>,
+        { wrapper },
+      );
+      fireEvent.click(screen.getByLabelText('Remover'));
+      expect(onRemove).toHaveBeenCalledTimes(1);
+      expect(onSelectedChange).not.toHaveBeenCalled();
+    });
   });
 });

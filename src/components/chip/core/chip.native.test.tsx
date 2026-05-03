@@ -26,8 +26,11 @@ describe('Chip (native)', () => {
     expect(screen.getByText('O')).toBeTruthy();
   });
 
-  it('aceita tone brand', () => {
-    render(<Chip tone="brand" selected><Chip.Label>Brand</Chip.Label></Chip>, { wrapper: Wrapper });
+  it('aceita tone brand selectable', () => {
+    render(
+      <Chip tone="brand" selectable selected><Chip.Label>Brand</Chip.Label></Chip>,
+      { wrapper: Wrapper },
+    );
     expect(screen.getByText('Brand')).toBeTruthy();
   });
 
@@ -53,5 +56,54 @@ describe('Chip (native)', () => {
       { wrapper: Wrapper },
     );
     expect(screen.getByLabelText('Excluir')).toBeTruthy();
+  });
+
+  // RFC-0033 — modo selectable
+
+  describe('selectable (RFC-0033)', () => {
+    it('selectable expõe accessibilityState.selected + role=button', () => {
+      render(
+        <Chip selectable selected><Chip.Label>Ativo</Chip.Label></Chip>,
+        { wrapper: Wrapper },
+      );
+      const btn = screen.getByRole('button', { name: 'Ativo' });
+      expect(btn).toBeTruthy();
+    });
+
+    it('selectable dispara onSelectedChange ao pressionar', () => {
+      const onSelectedChange = jest.fn();
+      render(
+        <Chip selectable selected={false} onSelectedChange={onSelectedChange}>
+          <Chip.Label>Toggle</Chip.Label>
+        </Chip>,
+        { wrapper: Wrapper },
+      );
+      fireEvent.press(screen.getByRole('button'));
+      expect(onSelectedChange).toHaveBeenCalledWith(true);
+    });
+
+    it('disabled bloqueia toggle (selectable)', () => {
+      const onSelectedChange = jest.fn();
+      render(
+        <Chip selectable disabled selected={false} onSelectedChange={onSelectedChange}>
+          <Chip.Label>X</Chip.Label>
+        </Chip>,
+        { wrapper: Wrapper },
+      );
+      fireEvent.press(screen.getByRole('button'));
+      expect(onSelectedChange).not.toHaveBeenCalled();
+    });
+
+    it('defaultSelected funciona não-controlado', () => {
+      const onSelectedChange = jest.fn();
+      render(
+        <Chip selectable defaultSelected onSelectedChange={onSelectedChange}>
+          <Chip.Label>X</Chip.Label>
+        </Chip>,
+        { wrapper: Wrapper },
+      );
+      fireEvent.press(screen.getByRole('button'));
+      expect(onSelectedChange).toHaveBeenCalledWith(false);
+    });
   });
 });

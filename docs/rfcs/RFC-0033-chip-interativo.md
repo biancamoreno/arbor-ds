@@ -1,6 +1,6 @@
 # RFC-0033 — Chip-Interativo: contrato explícito para `Chip` selecionável
 
-**Status**: **Draft (2026-05-02)**
+**Status**: **Accepted (2026-05-02) — Implementada (2026-05-02)**
 **Autores**: arbor-ds-architect
 **Data**: 2026-05-02
 **Origem**: review R8 do `Chip` (achados CH-Bug-1 + CH-A11y-1). Sub-onda 8.D.

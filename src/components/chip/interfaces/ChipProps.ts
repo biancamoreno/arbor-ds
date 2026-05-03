@@ -3,26 +3,50 @@ import type { FeedbackTone } from '../../../foundations';
 
 /**
  * @platform shared
+ *
+ * Discriminated union — `selectable` decide o contrato:
+ *
+ * - `selectable=false` (default): `Chip.Root` é `<span>` decorativo (RN: View).
+ *   Sem foco, sem teclado, sem `aria-pressed`. `selected` e
+ *   `onSelectedChange` são tipo-erro (`never`).
+ * - `selectable=true`: `Chip.Root` vira botão focável (`<button>` web,
+ *   `Clickable.native`) com `aria-pressed` / `accessibilityState.selected`
+ *   + ativação por Space/Enter. `selected` controla o estado; ausente,
+ *   `defaultSelected` cobre o caso não-controlado.
+ *
+ * @see RFC-0033
  */
-export interface ChipRootProps {
+export type ChipRootProps = ChipDecorativeProps | ChipSelectableProps;
+
+interface ChipBaseProps {
   children: ReactNode;
   /** @default 'subtle' */
   variant?: 'filled' | 'outlined' | 'subtle';
   /** @default 'md' */
   size?: 'sm' | 'md';
-  /** Chip está selecionado/ativo */
-  selected?: boolean;
   disabled?: boolean;
-  /**
-   * Conjunto canônico `FeedbackTone` (RFC-0032). A interatividade real
-   * (focável, `aria-pressed`) será endereçada pela RFC-0033.
-   *
-   * @default 'neutral'
-   */
+  /** Conjunto canônico `FeedbackTone` (RFC-0032). @default 'neutral' */
   tone?: FeedbackTone;
-  onClick?: () => void;
   className?: string;
   style?: CSSProperties;
+}
+
+export interface ChipDecorativeProps extends ChipBaseProps {
+  /** @default false */
+  selectable?: false;
+  selected?: never;
+  defaultSelected?: never;
+  onSelectedChange?: never;
+}
+
+export interface ChipSelectableProps extends ChipBaseProps {
+  selectable: true;
+  /** Estado controlado. */
+  selected?: boolean;
+  /** Estado inicial não-controlado. @default false */
+  defaultSelected?: boolean;
+  /** Notificação canônica RFC-0015 (value-only). */
+  onSelectedChange?: (selected: boolean) => void;
 }
 
 export interface ChipLabelProps {
