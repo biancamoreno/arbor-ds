@@ -374,6 +374,32 @@ Anatomia (`root`, `list`, `trigger`, `content`) + axes (`variant`, `size`, `orie
 - Mesma slot recipe; pseudos `_focusVisible`/`_hover` são no-ops naturais em RN.
 - `Tabs.Content` usa `accessibilityLabelledBy` (RN não tem `tabpanel`).
 
+### 13. Avatar — `<Image>` do DS + tokens themable + paridade native (RFC-0035)
+
+`Avatar.Image` consome o `<Image>` do DS (RFC-0011/0012) — paridade web/native automática. Tamanhos resolvem via `theme.sizes.avatar.{size}` e sobreposição de `AvatarGroup` via `theme.sizes.avatarOverlap.{size}` — produto consumidor ajusta densidade sem editar o componente:
+
+```tsx
+<Avatar size="medium">
+  <Avatar.Image src={user.photo} alt={user.name} />
+  <Avatar.Fallback delayMs={300}>{getInitials(user.name)}</Avatar.Fallback>
+</Avatar>
+
+<AvatarGroup size="medium" max={3}>
+  {users.map(u => (
+    <Avatar key={u.id}>
+      <Avatar.Image src={u.photo} alt={u.name} />
+      <Avatar.Fallback>{getInitials(u.name)}</Avatar.Fallback>
+    </Avatar>
+  ))}
+</AvatarGroup>
+```
+
+**Anel de empilhamento (web):** `boxShadow: 'avatarRing'` resolve para `'0 0 0 2px var(--arbor-surface, #fff)'`. O `ArborProvider` emite `--arbor-surface` no `document.documentElement` por tema, então a cor do anel acompanha automaticamente light/dark/branding sem reler o token.
+
+**Anel (native):** sem `boxShadow`. Substituído por `borderWidth: 2` + `borderColor: 'surface.default'` — mesma intenção visual, suportada pelo runtime.
+
+**Sem extends `HTMLAttributes`/`ImgHTMLAttributes`:** API cross-platform pura (`className` + `style` apenas).
+
 ## RFCs
 
 Mudanças que afetam API pública, breaking changes ou decisões arquiteturais relevantes requerem RFC.

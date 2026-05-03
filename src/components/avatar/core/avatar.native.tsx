@@ -1,5 +1,5 @@
 import React, { Children, isValidElement, useState } from 'react';
-import { Box, Flex, Image } from '../../core';
+import { Box, Flex, Image, Text } from '../../core';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { AvatarContext, useAvatarContext } from '../context/avatar-context';
 import type {
@@ -18,8 +18,7 @@ function AvatarRoot({ size = 'medium', shape = 'circle', children, className, st
   return (
     <AvatarContext.Provider value={{ imageStatus, setImageStatus }}>
       <Flex
-        as="span"
-        display="inline-flex"
+        display="flex"
         alignItems="center"
         justifyContent="center"
         borderRadius={shape === 'circle' ? 'full' : 'small'}
@@ -71,8 +70,6 @@ function AvatarFallback({ children, delayMs = 0, className, style }: AvatarFallb
 
   return (
     <Flex
-      as="span"
-      aria-hidden="true"
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -98,45 +95,41 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
   const negativeOverlap = `-${overlapValue}`;
 
   return (
-    <Flex
-      as="span"
-      display="inline-flex"
-      alignItems="center"
-      className={className}
-      style={style}
-    >
+    <Flex display="flex" flexDirection="row" alignItems="center" className={className} style={style}>
       {visible.map((child, i) => (
         <Box
-          as="span"
           key={i}
           position="relative"
           borderRadius="full"
+          borderWidth={2}
+          borderStyle="solid"
+          borderColor="surface.default"
           marginLeft={i === 0 ? 0 : (negativeOverlap as unknown as number)}
           zIndex={visible.length - i}
-          boxShadow="avatarRing"
         >
           {React.cloneElement(child as React.ReactElement<AvatarRootProps>, { size })}
         </Box>
       ))}
       {overflow > 0 && (
         <Flex
-          as="span"
           position="relative"
-          display="inline-flex"
+          display="flex"
           alignItems="center"
           justifyContent="center"
           width={sizeToken(size)}
           height={sizeToken(size)}
           borderRadius="full"
+          borderWidth={2}
+          borderStyle="solid"
+          borderColor="surface.default"
           backgroundColor="background.interactive"
           fontSize="xsmall"
           fontWeight="medium"
           color="text.secondary"
           marginLeft={negativeOverlap as unknown as number}
           zIndex={0}
-          boxShadow="avatarRing"
         >
-          +{overflow}
+          <Text fontSize="xsmall" fontWeight="medium" color="text.secondary">+{overflow}</Text>
         </Flex>
       )}
     </Flex>
@@ -144,24 +137,20 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
 }
 
 /**
- * @platform shared
+ * @platform native
  *
- * Compound de avatar (cross-platform). `Avatar.Root` controla `size` (SP-1
- * completo) e `shape` (`circle`/`square`). `Avatar.Image` consome
- * `<Image>` do DS (RFC-0011/0012) — paridade web/native automática.
- * `Avatar.Fallback` exibe iniciais ou conteúdo customizado em loading/erro
- * (`delayMs` evita flash).
+ * Avatar em React Native — paridade com web pós-RFC-0035.
  *
- * Tamanhos resolvem via `theme.sizes.avatar.{size}` — override completo
- * via `createTheme`.
- *
- * @example
- * <Avatar size="medium">
- *   <Avatar.Image src={user.photo} alt={user.name} />
- *   <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
- * </Avatar>
+ * - `Avatar.Image` consome `<Image>` do DS (já cross-platform via
+ *   RFC-0011/0012). Sem fork de implementação.
+ * - `AvatarGroup` substitui `boxShadow: 'avatarRing'` (CSS-only) por
+ *   `borderWidth: 2` + `borderColor: 'surface.default'` — efeito visual
+ *   equivalente, suportado pelo runtime native.
+ * - Tamanhos via `theme.sizes.avatar.{size}` e overlap via
+ *   `theme.sizes.avatarOverlap.{size}`.
  *
  * @see {@link AvatarRootProps}
+ * @see RFC-0035
  */
 export const Avatar = Object.assign(AvatarRoot, {
   Root: AvatarRoot,
@@ -170,13 +159,7 @@ export const Avatar = Object.assign(AvatarRoot, {
 });
 
 /**
- * @platform shared
- *
- * Empilha múltiplos `Avatar` lado a lado com sobreposição negativa
- * (`theme.sizes.avatarOverlap.{size}`). Quando o número de filhos excede
- * `max`, exibe um avatar contador com `+N`. Anel via `shadows.avatarRing`
- * (web) — produto pode redefinir cor/espessura via `createTheme`.
- *
+ * @platform native
  * @see {@link AvatarGroupProps}
  */
 export { AvatarGroup };

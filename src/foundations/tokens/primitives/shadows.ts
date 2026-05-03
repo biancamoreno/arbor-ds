@@ -5,4 +5,10 @@ export const shadows = {
   lg: '0 4px 16px rgba(0,0,0,0.16)',
   xl: '0 8px 32px rgba(0,0,0,0.20)',
   cardHover: '0 8px 24px rgba(0,0,0,0.12)',
+  /**
+   * Anel de empilhamento usado em `AvatarGroup`. Resolve a cor via
+   * CSS custom property `--arbor-surface` (emitida pelo `ArborProvider`),
+   * com fallback `#fff` para SSR/render fora do provider.
+   */
+  avatarRing: '0 0 0 2px var(--arbor-surface, #fff)',
 };

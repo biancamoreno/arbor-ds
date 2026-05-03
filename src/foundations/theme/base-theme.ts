@@ -15,6 +15,8 @@ import {
   motion,
   controlSize,
   dialogSize,
+  avatarSize,
+  avatarOverlap,
 } from '../tokens';
 import { transition } from './transition';
 import type { ThemeComponents, SlotRecipeConfig } from './types';
@@ -892,7 +894,7 @@ const components: ThemeComponents = {
 export const baseTheme = {
   borderWidths: borderWidth,
   radii: borderRadius,
-  sizes: { ...spacing, control: controlSize, dialog: dialogSize },
+  sizes: { ...spacing, control: controlSize, dialog: dialogSize, avatar: avatarSize, avatarOverlap },
   space: spacing,
   opacity,
   letterSpacings: letterSpacing,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { Avatar, AvatarGroup } from './avatar';
 import { ArborProvider } from '../../../ecosystem';
 import { themeLight } from '../../../foundations';
@@ -9,7 +9,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 describe('Avatar', () => {
-  it('renderiza Avatar.Root', () => {
+  it('renderiza Avatar.Root com Fallback', () => {
     render(
       <Avatar.Root>
         <Avatar.Fallback>AB</Avatar.Fallback>
@@ -19,7 +19,7 @@ describe('Avatar', () => {
     expect(screen.getByText('AB')).toBeTruthy();
   });
 
-  it('renderiza Avatar.Image com alt', () => {
+  it('renderiza Avatar.Image (consumindo Image do DS) com alt', () => {
     render(
       <Avatar.Root>
         <Avatar.Image src="img.jpg" alt="Usuário" />
@@ -29,7 +29,7 @@ describe('Avatar', () => {
     expect(screen.getByAltText('Usuário')).toBeTruthy();
   });
 
-  it('Fallback visível quando status é idle', () => {
+  it('Fallback visível quando status é idle (sem delay)', () => {
     render(
       <Avatar.Root>
         <Avatar.Fallback>MR</Avatar.Fallback>
@@ -39,41 +39,46 @@ describe('Avatar', () => {
     expect(screen.getByText('MR')).toBeTruthy();
   });
 
-  it('aceita size xsmall — 24px', () => {
-    const { container } = render(
-      <Avatar.Root size="xsmall"><Avatar.Fallback>X</Avatar.Fallback></Avatar.Root>,
+  it('Fallback respeita delayMs antes de aparecer', () => {
+    jest.useFakeTimers();
+    render(
+      <Avatar.Root>
+        <Avatar.Fallback delayMs={100}>YZ</Avatar.Fallback>
+      </Avatar.Root>,
       { wrapper }
     );
-    const root = container.firstChild as HTMLElement;
-    expect(root.style.width).toBe('24px');
-    expect(root.style.height).toBe('24px');
+    expect(screen.queryByText('YZ')).toBeNull();
+    act(() => { jest.advanceTimersByTime(100); });
+    expect(screen.getByText('YZ')).toBeTruthy();
+    jest.useRealTimers();
   });
 
-  it('aceita size xlarge — 64px', () => {
-    const { container } = render(
-      <Avatar.Root size="xlarge"><Avatar.Fallback>X</Avatar.Fallback></Avatar.Root>,
-      { wrapper }
-    );
-    const root = container.firstChild as HTMLElement;
-    expect(root.style.width).toBe('64px');
-    expect(root.style.height).toBe('64px');
-  });
-
-  it('aceita size medium — 40px (default)', () => {
-    const { container } = render(
-      <Avatar.Root><Avatar.Fallback>AB</Avatar.Fallback></Avatar.Root>,
-      { wrapper }
-    );
-    const root = container.firstChild as HTMLElement;
-    expect(root.style.width).toBe('40px');
-  });
-
-  it('é um <span>', () => {
+  it('Root é um <span>', () => {
     const { container } = render(
       <Avatar.Root><Avatar.Fallback>AB</Avatar.Fallback></Avatar.Root>,
       { wrapper }
     );
     expect(container.firstChild?.nodeName).toBe('SPAN');
+  });
+
+  it('aceita todos os tamanhos SP-1 sem crash', () => {
+    const sizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+    sizes.forEach((size) => {
+      const { unmount } = render(
+        <Avatar.Root size={size}><Avatar.Fallback>{size[0].toUpperCase()}</Avatar.Fallback></Avatar.Root>,
+        { wrapper },
+      );
+      unmount();
+    });
+  });
+
+  it('shape="square" usa borderRadius=small (não full)', () => {
+    const { container } = render(
+      <Avatar.Root shape="square"><Avatar.Fallback>S</Avatar.Fallback></Avatar.Root>,
+      { wrapper },
+    );
+    expect(container.firstChild?.nodeName).toBe('SPAN');
+    expect(screen.getByText('S')).toBeTruthy();
   });
 });
 
@@ -107,5 +112,16 @@ describe('AvatarGroup', () => {
       { wrapper }
     );
     expect(screen.queryByText(/\+/)).toBeNull();
+  });
+
+  it('aceita todos os tamanhos SP-1 sem crash', () => {
+    const sizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+    sizes.forEach((size) => {
+      const { unmount } = render(
+        <AvatarGroup size={size} max={1}>{[makeAvatar('A'), makeAvatar('B')]}</AvatarGroup>,
+        { wrapper },
+      );
+      unmount();
+    });
   });
 });

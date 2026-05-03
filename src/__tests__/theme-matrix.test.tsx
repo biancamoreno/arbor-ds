@@ -82,8 +82,8 @@ describe('multi-product theming matrix', () => {
   });
 
   it('Avatar renders within product B without crashing', () => {
-    render(<Avatar data-testid="avatar">X</Avatar>, { wrapper: Wrapper });
-    expect(screen.getByTestId('avatar')).toBeTruthy();
+    render(<Avatar><Avatar.Fallback>X</Avatar.Fallback></Avatar>, { wrapper: Wrapper });
+    expect(screen.getByText('X')).toBeTruthy();
   });
 
   it('Chip renders within product B without crashing', () => {
