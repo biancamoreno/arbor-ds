@@ -9,7 +9,8 @@
 import React, { useEffect, useSyncExternalStore } from 'react';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { Portal } from '../../../ecosystem/primitives';
-import { transition } from '../../../foundations';
+import { transition, getFeedbackToneColor } from '../../../foundations';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { toastStore } from '../store/toast-store';
 import type {
   ToastRootProps,
@@ -17,18 +18,9 @@ import type {
   ToastDescriptionProps,
   ToastCloseProps,
   ToasterProps,
-  ToastTone,
   ToastPlacement,
   ToastItem,
 } from '../interfaces';
-
-const TONE_BORDER: Record<ToastTone, string> = {
-  neutral: 'border.default',
-  info: 'feedback.info.base',
-  success: 'feedback.success.base',
-  warning: 'feedback.warning.base',
-  critical: 'feedback.critical.base',
-};
 
 type PlacementProps = {
   top?: string | number;
@@ -54,7 +46,8 @@ function getPlacementProps(placement: ToastPlacement): PlacementProps {
 }
 
 function ToastRoot({ children, tone = 'neutral', className, style, testID }: ToastRootProps) {
-  const borderColor = TONE_BORDER[tone];
+  const theme = useTheme();
+  const borderColor = getFeedbackToneColor(theme, tone, 'base');
 
   return (
     <Flex

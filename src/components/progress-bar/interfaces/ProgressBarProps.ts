@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { FeedbackTone } from '../../../foundations';
 
 /**
  * @platform shared
@@ -16,7 +17,13 @@ export interface ProgressBarProps {
   /** Texto descritivo para leitores de tela */
   label?: string;
   size?: 'sm' | 'md' | 'lg';
-  tone?: 'brand' | 'success' | 'warning' | 'critical';
+  /**
+   * Subset de `FeedbackTone` excluindo `neutral` — cinza sobre cinza não
+   * comunica progresso (justificativa em CONTRIBUTING.md §"Feedback tones").
+   *
+   * @default 'brand'
+   */
+  tone?: Exclude<FeedbackTone, 'neutral'>;
   /** Escape hatch para CSS não coberto pelo sistema */
   style?: CSSProperties;
   className?: string;

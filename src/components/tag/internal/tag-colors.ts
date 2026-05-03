@@ -1,8 +1,17 @@
-import type { TagProps } from '../interfaces';
+import { getFeedbackToneColor, type ArborTheme, type FeedbackTone } from '../../../foundations';
 
 /**
- * Resolve cores semânticas (alias strings) por combinação `tone × selected`.
- * Compartilhado por `tag.tsx` (web) e `tag.native.tsx` para evitar drift visual.
+ * Resolve cores semânticas de Tag por combinação `tone × selected`.
+ * Compartilhado por `tag.tsx` (web) e `tag.native.tsx` para evitar drift
+ * visual cross-platform.
+ *
+ * Pattern unificado pós-RFC-0032:
+ * - `selected=false` (outline): bg=`subtle`, text=`strong`, border=`base`.
+ * - `selected=true` (solid):    bg=`base`,   text=`inverse`, border=`base`.
+ *
+ * Funciona para os 6 tones canônicos via `getFeedbackToneColor`.
+ *
+ * @see RFC-0032
  */
 export type TagColors = {
   backgroundColor: string;
@@ -10,14 +19,22 @@ export type TagColors = {
   color: string;
 };
 
-export function getTagColors(selected: boolean, tone: TagProps['tone'] = 'neutral'): TagColors {
-  if (tone === 'brand') {
-    return selected
-      ? { backgroundColor: 'brand.base', borderColor: 'brand.base', color: 'text.inverse' }
-      : { backgroundColor: 'brand.subtle', borderColor: 'brand.soft', color: 'brand.strong' };
+export function getTagColors(
+  theme: ArborTheme,
+  selected: boolean,
+  tone: FeedbackTone = 'neutral',
+): TagColors {
+  const base = getFeedbackToneColor(theme, tone, 'base');
+  if (selected) {
+    return {
+      backgroundColor: base,
+      borderColor: base,
+      color: theme.colors.text.inverse,
+    };
   }
-
-  return selected
-    ? { backgroundColor: 'text.primary', borderColor: 'text.primary', color: 'text.inverse' }
-    : { backgroundColor: 'surface.default', borderColor: 'border.default', color: 'text.primary' };
+  return {
+    backgroundColor: getFeedbackToneColor(theme, tone, 'subtle'),
+    borderColor: base,
+    color: getFeedbackToneColor(theme, tone, 'strong'),
+  };
 }

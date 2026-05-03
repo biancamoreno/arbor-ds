@@ -2,6 +2,8 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { Animated, Easing, type ViewStyle } from 'react-native';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { Portal } from '../../../ecosystem/primitives';
+import { getFeedbackToneColor } from '../../../foundations';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { toastStore } from '../store/toast-store';
 import type {
   ToastRootProps,
@@ -9,7 +11,6 @@ import type {
   ToastDescriptionProps,
   ToastCloseProps,
   ToasterProps,
-  ToastTone,
   ToastPlacement,
   ToastItem,
 } from '../interfaces';
@@ -27,14 +28,6 @@ import type {
  * - `accessibilityLiveRegion` (Android) + `accessibilityRole='alert'` apenas para
  *   tons críticos (semântica polite cobre o restante via liveRegion).
  */
-
-const TONE_BORDER: Record<ToastTone, string> = {
-  neutral: 'border.default',
-  info: 'feedback.info.base',
-  success: 'feedback.success.base',
-  warning: 'feedback.warning.base',
-  critical: 'feedback.critical.base',
-};
 
 function getPlacementContainerStyle(placement: ToastPlacement): ViewStyle {
   const vertical: ViewStyle = placement.startsWith('top') ? { top: 16 } : { bottom: 16 };
@@ -73,7 +66,8 @@ function getPlacementContainerStyle(placement: ToastPlacement): ViewStyle {
 }
 
 function ToastRoot({ children, tone = 'neutral', className, style, testID }: ToastRootProps) {
-  const borderColor = TONE_BORDER[tone];
+  const theme = useTheme();
+  const borderColor = getFeedbackToneColor(theme, tone, 'base');
   const isCritical = tone === 'critical';
 
   return (

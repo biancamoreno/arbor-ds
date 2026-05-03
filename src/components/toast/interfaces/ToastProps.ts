@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import type { FeedbackTone } from '../../../foundations';
 
 /**
  * @platform shared
@@ -11,7 +12,8 @@ import type { CSSProperties, ReactNode } from 'react';
  * (props DOM-only ficariam vazando em React Native).
  */
 
-export type ToastTone = 'neutral' | 'success' | 'warning' | 'critical' | 'info';
+/** Conjunto canônico `FeedbackTone` (RFC-0032). `brand` cobre "novidade do produto". */
+export type ToastTone = FeedbackTone;
 
 export type ToastPlacement =
   | 'top-left'

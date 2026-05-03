@@ -2,7 +2,8 @@ import { Flex, Text, Clickable } from '../../core';
 import { Icon } from '../../core';
 import type { IconName } from '../../core';
 import { AlertContext, useAlertContext } from '../context/alert-context';
-import { transition } from '../../../foundations';
+import { transition, getFeedbackToneColor, type FeedbackTone } from '../../../foundations';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type {
   AlertRootProps,
   AlertIconProps,
@@ -11,31 +12,17 @@ import type {
   AlertCloseProps,
 } from '../interfaces';
 
-type Tone = NonNullable<AlertRootProps['tone']>;
-
-type ToneColors = {
-  bg: string;
-  border: string;
-  text: string;
-  icon: string;
-};
-
-const TONE_ICON: Record<Tone, IconName> = {
+const TONE_ICON: Record<FeedbackTone, IconName> = {
+  neutral: 'Info',
+  brand: 'Megaphone',
   info: 'Info',
   success: 'CircleCheck',
   warning: 'TriangleAlert',
   critical: 'CircleAlert',
 };
 
-const TONE_COLORS: Record<Tone, ToneColors> = {
-  info: { bg: 'feedback.info.subtle', border: 'feedback.info.base', text: 'feedback.info.strong', icon: 'feedback.info.base' },
-  success: { bg: 'feedback.success.subtle', border: 'feedback.success.base', text: 'feedback.success.strong', icon: 'feedback.success.base' },
-  warning: { bg: 'feedback.warning.subtle', border: 'feedback.warning.base', text: 'feedback.warning.strong', icon: 'feedback.warning.base' },
-  critical: { bg: 'feedback.critical.subtle', border: 'feedback.critical.base', text: 'feedback.critical.strong', icon: 'feedback.critical.base' },
-};
-
 function AlertRoot({ children, tone = 'info', className, style }: AlertRootProps) {
-  const colors = TONE_COLORS[tone];
+  const theme = useTheme();
   const role = tone === 'critical' || tone === 'warning' ? 'alert' : 'status';
 
   return (
@@ -51,9 +38,9 @@ function AlertRoot({ children, tone = 'info', className, style }: AlertRootProps
         borderRadius="small"
         borderLeftWidth="thick"
         borderLeftStyle="solid"
-        borderLeftColor={colors.border}
-        backgroundColor={colors.bg}
-        color={colors.text}
+        borderLeftColor={getFeedbackToneColor(theme, tone, 'base')}
+        backgroundColor={getFeedbackToneColor(theme, tone, 'subtle')}
+        color={getFeedbackToneColor(theme, tone, 'strong')}
       >
         {children}
       </Flex>
@@ -63,7 +50,7 @@ function AlertRoot({ children, tone = 'info', className, style }: AlertRootProps
 
 function AlertIcon({ children, className, style }: AlertIconProps) {
   const { tone } = useAlertContext();
-  const colors = TONE_COLORS[tone];
+  const theme = useTheme();
 
   return (
     <Flex
@@ -74,7 +61,7 @@ function AlertIcon({ children, className, style }: AlertIconProps) {
       display="inline-flex"
       alignItems="center"
       flexShrink={0}
-      color={colors.icon}
+      color={getFeedbackToneColor(theme, tone, 'base')}
     >
       {children ?? <Icon name={TONE_ICON[tone]} size="medium" />}
     </Flex>

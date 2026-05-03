@@ -1,6 +1,6 @@
 # RFC-0032 — Catálogo `FeedbackTone` cross-componente
 
-**Status**: **Draft (2026-05-02)**
+**Status**: **Accepted (2026-05-02) — Implementada (2026-05-02)**
 **Autores**: arbor-ds-architect
 **Data**: 2026-05-02
 **Origem**: pattern sistêmico #7 catalogado nos reviews R7 (consolidado de Badge/ProgressBar/ProgressCircle) e R8 (consolidado de Alert/Toast/Tag/Chip). Promovido a RFC dedicada após sub-onda 8.A fechar `feedback.info.*` em foundations.

@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import type { FeedbackTone } from '../../../foundations';
 
 /**
  * @platform shared
@@ -6,8 +7,14 @@ import type { CSSProperties, ReactNode } from 'react';
  */
 export interface AlertRootProps {
   children: ReactNode;
-  /** @default 'info' */
-  tone?: 'info' | 'success' | 'warning' | 'critical';
+  /**
+   * Subset canônico de `FeedbackTone`. `neutral` cobre nota informativa
+   * sem urgência; `brand` cobre anúncio do produto; demais tons mantêm
+   * a semântica padrão.
+   *
+   * @default 'info'
+   */
+  tone?: FeedbackTone;
   className?: string;
   style?: CSSProperties;
 }

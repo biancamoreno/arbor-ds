@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import type { FeedbackTone } from '../../../foundations';
 
 /**
  * @platform shared
@@ -12,8 +13,13 @@ export interface ChipRootProps {
   /** Chip está selecionado/ativo */
   selected?: boolean;
   disabled?: boolean;
-  /** @default 'neutral' */
-  tone?: 'neutral' | 'brand';
+  /**
+   * Conjunto canônico `FeedbackTone` (RFC-0032). A interatividade real
+   * (focável, `aria-pressed`) será endereçada pela RFC-0033.
+   *
+   * @default 'neutral'
+   */
+  tone?: FeedbackTone;
   onClick?: () => void;
   className?: string;
   style?: CSSProperties;

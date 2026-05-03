@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import type { FeedbackTone } from '../../../foundations';
 
 /**
  * @platform shared
@@ -8,8 +9,8 @@ import type { CSSProperties, ReactNode } from 'react';
  */
 export interface BadgeProps {
   children?: ReactNode;
-  /** Semântica de cor */
-  tone?: 'neutral' | 'brand' | 'success' | 'warning' | 'critical' | 'info';
+  /** Conjunto canônico `FeedbackTone` (RFC-0032). */
+  tone?: FeedbackTone;
   /** Preenchimento sólido vs. suave */
   variant?: 'solid' | 'subtle';
   size?: 'sm' | 'md';

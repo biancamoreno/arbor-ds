@@ -1,7 +1,7 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Box, Flex, Clickable } from '../../core';
 import { Icon } from '../../core';
-import { transition } from '../../../foundations';
+import { transition, getFeedbackToneColor, type ArborTheme, type FeedbackTone } from '../../../foundations';
 import { ChipContext, useChipContext } from '../context/chip-context';
 import type { ChipRootProps, ChipLabelProps, ChipIconProps, ChipRemoveProps } from '../interfaces';
 
@@ -11,31 +11,42 @@ type ChipColors = {
   borderColor: string;
 };
 
+/**
+ * Pattern unificado pós-RFC-0032 (Tag-like, ajustado para variants do Chip):
+ * - `filled`:   selected → bg=base/text=inverse; default → bg=subtle/text=strong.
+ * - `outlined`: selected → border=base/text=base; default → border=border.default/text=text.secondary.
+ * - `subtle`:   selected → bg=subtle/text=strong; default → transparente/text=text.secondary.
+ *
+ * Refactor mais profundo para slot recipe ficará a cargo da RFC-0033/TD-034.
+ */
 function getChipColors(
+  theme: ArborTheme,
   variant: NonNullable<ChipRootProps['variant']>,
-  tone: NonNullable<ChipRootProps['tone']>,
+  tone: FeedbackTone,
   selected: boolean,
 ): ChipColors {
-  const isBrand = tone === 'brand';
+  const base = getFeedbackToneColor(theme, tone, 'base');
+  const subtle = getFeedbackToneColor(theme, tone, 'subtle');
+  const strong = getFeedbackToneColor(theme, tone, 'strong');
 
   if (variant === 'filled') {
     return selected
-      ? { backgroundColor: isBrand ? 'brand.base' : 'text.primary', color: 'text.inverse', borderColor: 'transparent' }
-      : { backgroundColor: isBrand ? 'brand.subtle' : 'background.subtle', color: isBrand ? 'brand.strong' : 'text.primary', borderColor: 'transparent' };
+      ? { backgroundColor: base, color: theme.colors.text.inverse, borderColor: 'transparent' }
+      : { backgroundColor: subtle, color: strong, borderColor: 'transparent' };
   }
 
   if (variant === 'outlined') {
     return {
       backgroundColor: 'transparent',
-      color: selected ? (isBrand ? 'brand.base' : 'text.primary') : 'text.secondary',
-      borderColor: selected ? (isBrand ? 'brand.base' : 'text.primary') : 'border.default',
+      color: selected ? base : theme.colors.text.secondary,
+      borderColor: selected ? base : theme.colors.border.default,
     };
   }
 
   return {
-    backgroundColor: selected ? (isBrand ? 'brand.subtle' : 'background.interactive') : 'transparent',
-    color: selected ? (isBrand ? 'brand.strong' : 'text.primary') : 'text.secondary',
-    borderColor: 'border.subtle',
+    backgroundColor: selected ? subtle : 'transparent',
+    color: selected ? strong : theme.colors.text.secondary,
+    borderColor: theme.colors.border.subtle,
   };
 }
 
@@ -51,7 +62,7 @@ function ChipRoot({
   style,
 }: ChipRootProps) {
   const theme = useTheme();
-  const colors = getChipColors(variant, tone, selected);
+  const colors = getChipColors(theme, variant, tone, selected);
   const paddingX = size === 'sm' ? 'micro' : 'small';
   const paddingY = size === 'sm' ? 'nano' : 'micro';
   const fontSize = size === 'sm' ? 'xsmall' : 'small';

@@ -520,6 +520,62 @@ Aceita token semântico (`xsmall`/`small`/`medium`/`large`/`xlarge`/`hero`) ou n
 | `xlarge` | 32 | hero icons em cards |
 | `hero` | 48 | empty states, onboarding |
 
+## Feedback tones
+
+O Arbor-DS expõe o tipo canônico **`FeedbackTone`** em `foundations`:
+
+```ts
+type FeedbackTone =
+  | 'neutral'
+  | 'brand'
+  | 'success'
+  | 'warning'
+  | 'critical'
+  | 'info';
+```
+
+A resolução de cor por `tone × slot` (`subtle`/`base`/`strong`) é
+centralizada no helper `getFeedbackToneColor(theme, tone, slot)` —
+**não há mapeamento local em componente**. Isso elimina drift entre
+Alert/Toast/Badge/ProgressBar/ProgressCircle/Tag/Chip e garante que
+override de `theme.colors.feedback.*` via `createTheme()` propaga
+uniformemente.
+
+### Subset por componente
+
+Cada componente declara `tone?: FeedbackTone` ou um subset com
+justificativa explícita:
+
+| Componente | Subset | Justificativa |
+|---|---|---|
+| `Badge` | canônico (6) | Indicador puro escala em qualquer tone. |
+| `Alert` | canônico (6) | `neutral`/`brand` cobrem nota informativa e anúncio. |
+| `Toast` | canônico (6) | `brand` cobre "novidade do produto". |
+| `Tag` | canônico (6) | Filtros/categorização ganham expressividade. |
+| `Chip` | canônico (6) | Idem Tag (interatividade real virá pela RFC-0033). |
+| `ProgressBar` | `Exclude<FeedbackTone, 'neutral'>` | Cinza sobre cinza não comunica progresso. |
+| `ProgressCircle` | `Exclude<FeedbackTone, 'neutral'>` | Paridade com `ProgressBar`. |
+
+### Diretriz de uso (filtros agrupados)
+
+Em conjuntos de Tag/Chip filtráveis, **use no máximo 1 tone de
+feedback por grupo**. Carnaval visual (`success` + `warning` +
+`critical` lado a lado) quebra a varredura e dilui o sinal — o
+neutro/`brand` deve ser o tone padrão.
+
+### Lint guard
+
+```bash
+pnpm test:feedback-tones
+```
+
+Falha se alguma interface `*Props.ts` declara `tone?:` como literal
+em vez de consumir `FeedbackTone` (ou subset via `Exclude`/`Pick`).
+
+Ver [RFC-0032](docs/rfcs/RFC-0032-feedback-tones-cross-componente.md).
+
+---
+
 ## Scripts úteis
 
 ```bash
@@ -534,4 +590,6 @@ pnpm storybook                  # Docs interativa
 pnpm tokens:validate            # Validar tokens
 pnpm depcheck                   # Verificar fronteiras de dependência
 pnpm test:platform-contract     # Paridade .tsx ↔ .native.tsx ↔ .native.test.tsx
+pnpm test:no-color-literal      # Sem cores literais em componentes (RFC-0027)
+pnpm test:feedback-tones        # Toda prop `tone?` consome FeedbackTone (RFC-0032)
 ```

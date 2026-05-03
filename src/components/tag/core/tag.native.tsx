@@ -1,4 +1,5 @@
 import { Clickable, Text } from '../../core';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { getTagColors } from '../internal';
 import type { TagProps } from '../interfaces';
 
@@ -14,13 +15,15 @@ import type { TagProps } from '../interfaces';
  * @platform native
  *
  * `Tag` em React Native — `Clickable.native` com mesmo modelo visual do web.
- * Suporta `tone` (`neutral`/`brand`) e `selected` (preenchimento sólido vs.
- * outline). `disabled` bloqueia o press e propaga em `accessibilityState`.
+ * Aceita o conjunto canônico `FeedbackTone` (RFC-0032) e `selected`
+ * (preenchimento sólido vs. outline). `disabled` bloqueia o press e propaga
+ * em `accessibilityState`.
  *
  * @see {@link TagProps}
  */
 export function Tag({ children, tone = 'neutral', selected = false, disabled, onClick, className, style }: TagProps) {
-  const colors = getTagColors(selected, tone);
+  const theme = useTheme();
+  const colors = getTagColors(theme, selected, tone);
 
   return (
     <Clickable

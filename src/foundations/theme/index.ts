@@ -4,5 +4,6 @@ export * from './create-brand-palette';
 export * from './Theme';
 export * from './themeLight';
 export * from './themeDark';
+export * from './get-feedback-tone-color';
 export * from './transition';
 export * from './types';

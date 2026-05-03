@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { FeedbackTone } from '../../../foundations';
 
 /**
  * @platform native-ready
@@ -20,8 +21,13 @@ export interface ProgressCircleProps {
   size?: number;
   /** Espessura do traço. Default: 4. */
   strokeWidth?: number;
-  /** Tom semântico do trace ativo. Default: `brand`. */
-  tone?: 'brand' | 'success' | 'warning' | 'critical';
+  /**
+   * Subset de `FeedbackTone` excluindo `neutral` — paridade com `ProgressBar`
+   * (cinza sobre cinza não comunica progresso).
+   *
+   * @default 'brand'
+   */
+  tone?: Exclude<FeedbackTone, 'neutral'>;
   /** Texto descritivo para leitor de tela. */
   label?: string;
   /** Escape hatch para overrides finos. Aplicado ao `<svg>` (web) ou container `Animated.View` (native). */

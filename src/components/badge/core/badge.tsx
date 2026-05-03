@@ -1,45 +1,19 @@
 import React from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { Box, Flex } from '../../core';
+import { getFeedbackToneColor, type FeedbackTone } from '../../../foundations';
 import type { BadgeProps, BadgeAnchorProps } from '../interfaces';
 
-type ToneKey = NonNullable<BadgeProps['tone']>;
-
-function getBadgeColors(tone: ToneKey, variant: NonNullable<BadgeProps['variant']>, theme: ReturnType<typeof useTheme>) {
-  const c = theme.colors;
-  const map: Record<ToneKey, { bg: string; text: string; border: string }> = {
-    neutral: {
-      bg: variant === 'solid' ? c.text.primary : c.background.subtle,
-      text: variant === 'solid' ? c.text.inverse : c.text.primary,
-      border: variant === 'solid' ? c.text.primary : c.border.subtle,
-    },
-    brand: {
-      bg: variant === 'solid' ? c.brand.base : c.brand.subtle,
-      text: variant === 'solid' ? c.text.inverse : c.brand.strong,
-      border: variant === 'solid' ? c.brand.base : c.brand.soft,
-    },
-    success: {
-      bg: variant === 'solid' ? c.feedback.success.base : c.feedback.success.subtle,
-      text: variant === 'solid' ? c.text.inverse : c.feedback.success.strong,
-      border: variant === 'solid' ? c.feedback.success.base : c.feedback.success.subtle,
-    },
-    warning: {
-      bg: variant === 'solid' ? c.feedback.warning.base : c.feedback.warning.subtle,
-      text: variant === 'solid' ? c.text.inverse : c.feedback.warning.strong,
-      border: variant === 'solid' ? c.feedback.warning.base : c.feedback.warning.subtle,
-    },
-    critical: {
-      bg: variant === 'solid' ? c.feedback.critical.base : c.feedback.critical.subtle,
-      text: variant === 'solid' ? c.text.inverse : c.feedback.critical.strong,
-      border: variant === 'solid' ? c.feedback.critical.base : c.feedback.critical.subtle,
-    },
-    info: {
-      bg: variant === 'solid' ? c.feedback.info.base : c.feedback.info.subtle,
-      text: variant === 'solid' ? c.text.inverse : c.feedback.info.strong,
-      border: variant === 'solid' ? c.feedback.info.base : c.feedback.info.subtle,
-    },
-  };
-  return map[tone];
+function getBadgeColors(
+  tone: FeedbackTone,
+  variant: NonNullable<BadgeProps['variant']>,
+  theme: ReturnType<typeof useTheme>,
+) {
+  const isSolid = variant === 'solid';
+  const bg = getFeedbackToneColor(theme, tone, isSolid ? 'base' : 'subtle');
+  const text = isSolid ? theme.colors.text.inverse : getFeedbackToneColor(theme, tone, 'strong');
+  const border = bg;
+  return { bg, text, border };
 }
 
 function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'md', style, ...props }: BadgeProps) {
