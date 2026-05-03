@@ -1,23 +1,31 @@
 import { createContext, useContext, type RefObject } from 'react';
 
+export type AccordionMode =
+  | { type: 'single'; collapsible: boolean }
+  | { type: 'multiple' };
+
 export interface AccordionContextValue {
   openValues: string[];
   toggle: (value: string) => void;
-  type: 'single' | 'multiple';
+  mode: AccordionMode;
   registerTrigger: (value: string, ref: RefObject<HTMLButtonElement | null>) => void;
   unregisterTrigger: (value: string) => void;
   focusNext: (fromValue: string) => void;
   focusPrev: (fromValue: string) => void;
+  focusFirst: () => void;
+  focusLast: () => void;
 }
 
 export const AccordionContext = createContext<AccordionContextValue>({
   openValues: [],
   toggle: () => {},
-  type: 'single',
+  mode: { type: 'single', collapsible: true },
   registerTrigger: () => {},
   unregisterTrigger: () => {},
   focusNext: () => {},
   focusPrev: () => {},
+  focusFirst: () => {},
+  focusLast: () => {},
 });
 
 export interface AccordionItemContextValue {

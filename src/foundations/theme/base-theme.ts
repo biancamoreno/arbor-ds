@@ -739,15 +739,65 @@ const components: ThemeComponents = {
   }),
 
   accordion: defineSlotRecipe({
-    slots: ['root', 'item', 'trigger', 'content'] as const,
+    slots: ['root', 'item', 'trigger', 'triggerIcon', 'content', 'contentInner'] as const,
     base: {
-      root: { display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-      item: {},
-      trigger: { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: 'medium' },
-      content: {},
+      root: {
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 'small',
+        borderWidth: 'hairline',
+        borderStyle: 'solid',
+        borderColor: 'border.subtle',
+        overflow: 'hidden',
+      },
+      item: {
+        borderStyle: 'solid',
+        borderBottomWidth: 'hairline',
+        borderBottomColor: 'border.subtle',
+        _last: { borderBottomWidth: 0 },
+      },
+      trigger: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingLeft: 'medium',
+        paddingRight: 'medium',
+        paddingTop: 'small',
+        paddingBottom: 'small',
+        backgroundColor: 'transparent',
+        borderWidth: 0,
+        textAlign: 'left',
+        fontWeight: 'medium',
+        fontSize: 'small',
+        color: 'text.primary',
+        cursor: 'pointer',
+        _hover: { backgroundColor: 'background.subtle' },
+        _focusVisible: focusRing,
+        _disabled: { color: 'text.disabled', cursor: 'not-allowed' },
+      },
+      triggerIcon: {
+        flexShrink: 0,
+      },
+      content: {
+        display: 'grid',
+        overflow: 'hidden',
+      },
+      contentInner: {
+        minHeight: 0,
+        overflow: 'hidden',
+        paddingLeft: 'medium',
+        paddingRight: 'medium',
+        paddingBottom: 'medium',
+      },
     },
-    variants: {},
-    defaultVariants: {},
+    variants: {
+      state: {
+        closed: { triggerIcon: { transform: 'rotate(0deg)' } },
+        open:   { triggerIcon: { transform: 'rotate(180deg)' } },
+      },
+    },
+    defaultVariants: { state: 'closed' },
   }),
 
   toast: defineSlotRecipe({

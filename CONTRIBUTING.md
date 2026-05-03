@@ -311,6 +311,43 @@ Sem `'hover'` decorativo — quando interativo, hover/active são affordances re
 
 Hover/active themable via `interactive: true` na slot recipe — produto consumidor sobreescreve via `createTheme({ components: { card: { variants: { interactive: { true: { root: { _hover: { boxShadow: '...' } } } } } } } })`. Em RN, `_hover`/`_active` são no-ops naturais; nada quebra.
 
+### 11. Accordion — discriminated union por `type` + slot recipe themable (RFC-0037)
+
+`Accordion` separa contrato de modo via discriminated union por `type`. O type system impede combinações inválidas (ex.: `defaultValue: string[]` em `single`):
+
+```tsx
+// Single (default) — collapsible default true
+<Accordion defaultValue="faq-1" onValueChange={(v: string) => save(v)}>
+  <Accordion.Item value="faq-1">
+    <Accordion.Trigger>Como cancelar?</Accordion.Trigger>
+    <Accordion.Content>Acesse Configurações…</Accordion.Content>
+  </Accordion.Item>
+</Accordion>
+
+// Single + collapsible=false — clicar no aberto não fecha
+<Accordion type="single" collapsible={false} defaultValue="faq-1">
+  ...
+</Accordion>
+
+// Multiple — value/defaultValue são string[]
+<Accordion type="multiple" defaultValue={['a', 'b']} onValueChange={(v: string[]) => save(v)}>
+  ...
+</Accordion>
+```
+
+Anatomia (`root`, `item`, `trigger`, `triggerIcon`, `content`, `contentInner`) + estado (`open`/`closed` para o ícone) resolvidos pela slot recipe `accordion` — override completo via `createTheme`.
+
+**Web:**
+- Keyboard nav: `ArrowUp`/`ArrowDown` (wrap), `Home`/`End`. A ordem de foco usa `compareDocumentPosition` em vez de ordem de registro, então itens condicionais não quebram a navegação.
+- `aria-disabled` em items desabilitados (redundante com `disabled` em `<button>` para SR que ignoram um ou outro).
+- Foco visível WCAG 2.4.7 via `_focusVisible` no trigger (slot recipe).
+- Animação de altura via `gridTemplateRows: 0fr → 1fr` (inline `style` por necessidade do engine).
+
+**Native:**
+- Sem keyboard nav (touch-only); sem rotate (chevron alterna `ChevronDown` ↔ `ChevronUp`).
+- Render condicional de `Content` (`if (!open) return null`).
+- Mesma slot recipe — `triggerIcon.transform` é no-op natural.
+
 ## RFCs
 
 Mudanças que afetam API pública, breaking changes ou decisões arquiteturais relevantes requerem RFC.
