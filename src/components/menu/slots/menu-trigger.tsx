@@ -7,20 +7,19 @@ import type { MenuTriggerProps } from '../interfaces/MenuProps';
 type AnyProps = Record<string, unknown> & { ref?: React.Ref<HTMLElement> };
 
 export function MenuTrigger({ children, asChild = false }: MenuTriggerProps) {
-  const { isOpen, open, close, triggerRef } = useMenuContext();
+  const { open, setOpen, triggerRef } = useMenuContext();
 
   const child = children as React.ReactElement<AnyProps>;
   const childOnClick = (child.props as AnyProps).onClick as ((e: React.MouseEvent) => void) | undefined;
 
   const onClick = (e: React.MouseEvent) => {
     childOnClick?.(e);
-    if (isOpen) close();
-    else open();
+    setOpen(!open);
   };
 
   const triggerProps: AnyProps = {
     'aria-haspopup': 'menu',
-    'aria-expanded': isOpen,
+    'aria-expanded': open,
     onClick,
   };
 

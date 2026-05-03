@@ -7,9 +7,9 @@ import type { DrawerPlacement } from '../context/drawer-context';
  * `DismissableLayer` — todas com `.native.tsx`). Sem `drawer.native.tsx` dedicado.
  */
 export type DrawerRootProps = {
-  isOpen?: boolean;
+  open?: boolean;
   defaultOpen?: boolean;
-  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
   placement?: DrawerPlacement;
   children: ReactNode;
 };

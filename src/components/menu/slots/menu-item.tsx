@@ -4,7 +4,7 @@ import { useMenuContext } from '../context/menu-context';
 import type { MenuItemProps } from '../interfaces/MenuProps';
 
 export function MenuItem({ children, onSelect, disabled = false }: MenuItemProps) {
-  const { close, activeIndex, setActiveIndex, registerItem } = useMenuContext();
+  const { setOpen, activeIndex, setActiveIndex, registerItem } = useMenuContext();
   const indexRef = useRef<number>(-1);
   const itemRef = useRef<HTMLLIElement>(null);
 
@@ -23,7 +23,7 @@ export function MenuItem({ children, onSelect, disabled = false }: MenuItemProps
   const handleClick = () => {
     if (!disabled) {
       onSelect?.();
-      close();
+      setOpen(false);
     }
   };
 
@@ -31,7 +31,7 @@ export function MenuItem({ children, onSelect, disabled = false }: MenuItemProps
     if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
       e.preventDefault();
       onSelect?.();
-      close();
+      setOpen(false);
     }
   };
 

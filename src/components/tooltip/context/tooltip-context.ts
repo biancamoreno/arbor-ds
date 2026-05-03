@@ -3,9 +3,8 @@ import { createContext, useContext, type MutableRefObject } from 'react';
 export type TooltipPlacement = 'top' | 'right' | 'bottom' | 'left';
 
 export type TooltipContextValue = {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
+  open: boolean;
+  setOpen: (next: boolean) => void;
   tooltipId: string;
   triggerRef: MutableRefObject<HTMLElement | null>;
 };

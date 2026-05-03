@@ -1,30 +1,28 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
-import { PopoverContext } from '../context/popover-context';
+import { PopoverContext, type PopoverContextValue } from '../context/popover-context';
 import { PopoverTrigger } from '../slots/popover-trigger';
 import { PopoverContent } from '../slots/popover-content';
 import { PopoverClose } from '../slots/popover-close';
 import type { PopoverRootProps } from '../interfaces/PopoverProps';
 
-function PopoverRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, children }: PopoverRootProps) {
-  const [isOpen, setIsOpen] = useControllableState({
-    value: isOpenProp,
+function PopoverRoot({ open: openProp, defaultOpen = false, onOpenChange, children }: PopoverRootProps) {
+  const [open, setOpenState] = useControllableState({
+    value: openProp,
     defaultValue: defaultOpen,
-    onChange: (v) => {
-      if (!v) onClose?.();
-    },
+    onChange: onOpenChange,
   });
 
   const titleId = useLayoutId('popover');
   const triggerRef = useRef<HTMLElement | null>(null);
-  const open = useCallback(() => setIsOpen(true), [setIsOpen]);
-  const close = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const setOpen = useCallback((next: boolean) => setOpenState(next), [setOpenState]);
 
-  return (
-    <PopoverContext.Provider value={{ isOpen, open, close, titleId, triggerRef }}>
-      {children}
-    </PopoverContext.Provider>
+  const value = useMemo<PopoverContextValue>(
+    () => ({ open, setOpen, titleId, triggerRef }),
+    [open, setOpen, titleId],
   );
+
+  return <PopoverContext.Provider value={value}>{children}</PopoverContext.Provider>;
 }
 
 /**
@@ -32,10 +30,10 @@ function PopoverRoot({ isOpen: isOpenProp, defaultOpen = false, onClose, childre
  *
  * Compound de popover — painel não-modal ancorado ao trigger. Diferente de
  * `Dialog`, não bloqueia interação com a UI subjacente: clicar fora apenas
- * fecha (via `DismissableLayer`). `Popover.Root` mantém `isOpen`/`onClose`
+ * fecha (via `DismissableLayer`). `Popover.Root` mantém `open`/`onOpenChange`
  * controlado ou uncontrolled. `Trigger` ancora o conteúdo; `Content` é o
  * painel posicionado próximo ao trigger e montado em `Portal`; `Close` fecha
- * programaticamente.
+ * programaticamente. Usa nomenclatura canônica `open` (RFC-0013/RFC-0030).
  *
  * @example
  * <Popover>

@@ -16,10 +16,10 @@ import type {
 
 type RadioSlot = 'root' | 'control' | 'indicator' | 'label' | 'description';
 
-function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): RadioState {
-  if (isDisabled) return 'disabled';
-  if (isInvalid) return 'invalid';
-  if (isChecked) return 'checked';
+function resolveState(disabled: boolean, invalid: boolean, checked: boolean): RadioState {
+  if (disabled) return 'disabled';
+  if (invalid) return 'invalid';
+  if (checked) return 'checked';
   return 'idle';
 }
 
@@ -40,27 +40,27 @@ function RadioRoot({
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const effectiveInvalid = fieldCtx?.invalid ?? false;
 
-  const [isChecked, setIsChecked] = useControllableState({
+  const [checkedState, setCheckedState] = useControllableState({
     value: checked,
     defaultValue: defaultChecked,
     onChange: (val) => onCheckedChange?.(val),
   });
 
-  const state = resolveState(effectiveDisabled, effectiveInvalid, isChecked);
+  const state = resolveState(effectiveDisabled, effectiveInvalid, checkedState);
   const slots = useSlotRecipe<RadioSlot>('radio', { size, state });
 
   return (
     <RadioContext.Provider
       value={{
-        isChecked,
-        isDisabled: effectiveDisabled,
-        isInvalid: effectiveInvalid,
+        checked: checkedState,
+        disabled: effectiveDisabled,
+        invalid: effectiveInvalid,
         size,
         state,
         inputId,
         value,
         name,
-        onChange: () => !effectiveDisabled && setIsChecked(true),
+        onChange: () => !effectiveDisabled && setCheckedState(true),
       }}
     >
       <Box
@@ -74,13 +74,13 @@ function RadioRoot({
           type="radio"
           name={name}
           value={value}
-          checked={isChecked}
+          checked={checkedState}
           disabled={effectiveDisabled}
           aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
           aria-required={fieldCtx?.required || undefined}
           aria-invalid={fieldCtx?.invalid || undefined}
           aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
-          onChange={() => !effectiveDisabled && setIsChecked(true)}
+          onChange={() => !effectiveDisabled && setCheckedState(true)}
           position="absolute"
           opacity={0}
           pointerEvents="none"
@@ -105,7 +105,7 @@ function RadioIndicator({ style }: RadioIndicatorProps) {
         width={10}
         height={10}
         borderRadius="full"
-        backgroundColor={ctx.isChecked ? 'brand.base' : 'transparent'}
+        backgroundColor={ctx.checked ? 'brand.base' : 'transparent'}
         transition={transitionFn('background-color', 'fast')}
       />
     </Flex>

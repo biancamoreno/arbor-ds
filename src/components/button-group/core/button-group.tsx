@@ -8,7 +8,7 @@ import { ButtonGroupContext, ButtonGroupItemContext } from './button-group-conte
  *
  * Container que agrupa botões e propaga via context: `orientation`
  * (`horizontal`/`vertical`), `attached` (botões conjugados sem gap, com bordas
- * colapsadas), `spacing` (gap quando não-attached) e `isDisabled` (desabilita
+ * colapsadas), `spacing` (gap quando não-attached) e `disabled` (desabilita
  * todos os filhos). Requer `aria-label` ou `aria-labelledby` para
  * acessibilidade — em desenvolvimento, ausência dispara `console.warn`.
  *
@@ -19,7 +19,7 @@ export function ButtonGroup({
   orientation = 'horizontal',
   attached = false,
   spacing = '8px',
-  isDisabled = false,
+  disabled = false,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
 }: ButtonGroupProps) {
@@ -31,7 +31,7 @@ export function ButtonGroup({
   const totalItems = validChildren.length;
 
   return (
-    <ButtonGroupContext.Provider value={{ attached, orientation, isDisabled }}>
+    <ButtonGroupContext.Provider value={{ attached, orientation, disabled }}>
       <Flex
         role="group"
         aria-label={ariaLabel}

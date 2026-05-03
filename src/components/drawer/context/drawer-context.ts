@@ -3,9 +3,8 @@ import { createContext, useContext } from 'react';
 export type DrawerPlacement = 'left' | 'right' | 'bottom' | 'top';
 
 export type DrawerContextValue = {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
+  open: boolean;
+  setOpen: (next: boolean) => void;
   placement: DrawerPlacement;
   titleId: string;
 };

@@ -4,13 +4,13 @@ import { usePopoverContext } from '../context/popover-context';
 import type { PopoverContentProps } from '../interfaces/PopoverProps';
 
 export function PopoverContent({ children }: PopoverContentProps) {
-  const { isOpen, close, titleId, triggerRef } = usePopoverContext();
+  const { open, setOpen, titleId, triggerRef } = usePopoverContext();
 
-  if (!isOpen) return null;
+  if (!open) return null;
 
   return (
     <Portal>
-      <DismissableLayer onDismiss={close} excludeRef={triggerRef}>
+      <DismissableLayer onDismiss={() => setOpen(false)} excludeRef={triggerRef}>
         <Flex
           role="dialog"
           aria-labelledby={titleId}

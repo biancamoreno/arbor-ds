@@ -14,7 +14,7 @@ function BasicPagination() {
       <Pagination.List>
         <Pagination.Item><Pagination.Prev /></Pagination.Item>
         <Pagination.Item><Pagination.Button>1</Pagination.Button></Pagination.Item>
-        <Pagination.Item><Pagination.Button isActive>2</Pagination.Button></Pagination.Item>
+        <Pagination.Item><Pagination.Button current>2</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Button>3</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Ellipsis /></Pagination.Item>
         <Pagination.Item><Pagination.Button>10</Pagination.Button></Pagination.Item>

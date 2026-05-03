@@ -6,14 +6,14 @@ import { useDrawerContext } from '../context/drawer-context';
 import type { DrawerOverlayProps } from '../interfaces/DrawerProps';
 
 export function DrawerOverlay({ style }: DrawerOverlayProps) {
-  const { isOpen, close } = useDrawerContext();
+  const { open, setOpen } = useDrawerContext();
 
-  const [mounted, setMounted] = useState(isOpen);
+  const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       setMounted(true);
       frameRef.current = requestAnimationFrame(() => setVisible(true));
     } else {
@@ -22,7 +22,7 @@ export function DrawerOverlay({ style }: DrawerOverlayProps) {
       return () => clearTimeout(t);
     }
     return () => cancelAnimationFrame(frameRef.current);
-  }, [isOpen]);
+  }, [open]);
 
   if (!mounted) return null;
 
@@ -30,7 +30,7 @@ export function DrawerOverlay({ style }: DrawerOverlayProps) {
     <Portal>
       <Box
         aria-hidden="true"
-        onClick={close}
+        onClick={() => setOpen(false)}
         position="fixed"
         zIndex="overlay"
         backgroundColor="background.overlay"

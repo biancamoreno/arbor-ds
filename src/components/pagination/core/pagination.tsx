@@ -40,7 +40,7 @@ function PaginationItem({ children, style, ...props }: PaginationItemProps) {
 
 function PaginationButton({
   children,
-  isActive = false,
+  current = false,
   disabled,
   style,
   ...props
@@ -51,7 +51,7 @@ function PaginationButton({
     <Clickable
       as="button"
       type="button"
-      aria-current={isActive ? 'page' : undefined}
+      aria-current={current ? 'page' : undefined}
       disabled={disabled}
       {...props}
       display="inline-flex"
@@ -67,10 +67,10 @@ function PaginationButton({
       style={{
         minWidth: '36px',
         padding: '0 8px',
-        borderColor: isActive ? theme.colors.brand.base : theme.colors.border.default,
-        backgroundColor: isActive ? theme.colors.brand.base : 'transparent',
-        color: isActive ? theme.colors.text.inverse : theme.colors.text.primary,
-        fontWeight: isActive ? theme.fontWeights.medium : theme.fontWeights.regular,
+        borderColor: current ? theme.colors.brand.base : theme.colors.border.default,
+        backgroundColor: current ? theme.colors.brand.base : 'transparent',
+        color: current ? theme.colors.text.inverse : theme.colors.text.primary,
+        fontWeight: current ? theme.fontWeights.medium : theme.fontWeights.regular,
         ...style,
       }}
     >
@@ -119,17 +119,17 @@ PaginationEllipsis.displayName = 'Pagination.Ellipsis';
  *
  * Compound de paginação. `Pagination.Root` é um `<nav aria-label>` (default
  * `"Paginação"`). Estrutura: `Root > List > Item* > Button|Prev|Next|Ellipsis`.
- * Use `Button` para páginas numeradas (com `isActive` na atual), `Prev`/`Next`
+ * Use `Button` para páginas numeradas (com `current` na atual), `Prev`/`Next`
  * para navegação direcional e `Ellipsis` para indicar ranges omitidos. O
  * compound não controla o estado da página — o consumidor decide qual
- * botão é `isActive` e responde aos `onClick`.
+ * botão é `current` e responde aos `onClick`.
  *
  * @example
  * <Pagination>
  *   <Pagination.List>
  *     <Pagination.Item><Pagination.Prev onClick={prev} /></Pagination.Item>
  *     <Pagination.Item><Pagination.Button onClick={() => goTo(1)}>1</Pagination.Button></Pagination.Item>
- *     <Pagination.Item><Pagination.Button isActive>2</Pagination.Button></Pagination.Item>
+ *     <Pagination.Item><Pagination.Button current>2</Pagination.Button></Pagination.Item>
  *     <Pagination.Item><Pagination.Ellipsis /></Pagination.Item>
  *     <Pagination.Item><Pagination.Next onClick={next} /></Pagination.Item>
  *   </Pagination.List>

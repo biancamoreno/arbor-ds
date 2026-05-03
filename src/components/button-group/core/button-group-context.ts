@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 export interface ButtonGroupContextValue {
   attached: boolean;
   orientation: 'horizontal' | 'vertical';
-  isDisabled: boolean;
+  disabled: boolean;
 }
 
 export interface ButtonGroupItemContextValue {

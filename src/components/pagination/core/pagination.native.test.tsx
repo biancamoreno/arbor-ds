@@ -16,7 +16,7 @@ function BasicPagination() {
       <Pagination.List>
         <Pagination.Item><Pagination.Prev /></Pagination.Item>
         <Pagination.Item><Pagination.Button aria-label="Página 1">1</Pagination.Button></Pagination.Item>
-        <Pagination.Item><Pagination.Button aria-label="Página 2" isActive>2</Pagination.Button></Pagination.Item>
+        <Pagination.Item><Pagination.Button aria-label="Página 2" current>2</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Button aria-label="Página 3">3</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Next /></Pagination.Item>
       </Pagination.List>

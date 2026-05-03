@@ -141,7 +141,7 @@ describe('Switch FieldContext integration', () => {
     expect(getSwitch().getAttribute('aria-required')).toBe('true');
   });
 
-  it('picks up aria-errormessage from Field when isInvalid', () => {
+  it('picks up aria-errormessage from Field when invalid', () => {
     renderSwitch(
       <Field id="sw-field" invalid>
         <Field.Control>

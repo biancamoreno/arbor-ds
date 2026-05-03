@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
-import { DrawerContext } from '../context/drawer-context';
+import { DrawerContext, type DrawerContextValue } from '../context/drawer-context';
 import { DrawerTrigger } from '../slots/drawer-trigger';
 import { DrawerOverlay } from '../slots/drawer-overlay';
 import { DrawerContent } from '../slots/drawer-content';
@@ -9,38 +9,37 @@ import { DrawerClose } from '../slots/drawer-close';
 import type { DrawerRootProps } from '../interfaces/DrawerProps';
 
 function DrawerRoot({
-  isOpen: isOpenProp,
+  open: openProp,
   defaultOpen = false,
-  onClose,
+  onOpenChange,
   placement = 'right',
   children,
 }: DrawerRootProps) {
-  const [isOpen, setIsOpen] = useControllableState({
-    value: isOpenProp,
+  const [open, setOpenState] = useControllableState({
+    value: openProp,
     defaultValue: defaultOpen,
-    onChange: (v) => {
-      if (!v) onClose?.();
-    },
+    onChange: onOpenChange,
   });
 
   const titleId = useLayoutId('drawer-title');
-  const open = useCallback(() => setIsOpen(true), [setIsOpen]);
-  const close = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const setOpen = useCallback((next: boolean) => setOpenState(next), [setOpenState]);
 
-  return (
-    <DrawerContext.Provider value={{ isOpen, open, close, placement, titleId }}>
-      {children}
-    </DrawerContext.Provider>
+  const value = useMemo<DrawerContextValue>(
+    () => ({ open, setOpen, placement, titleId }),
+    [open, setOpen, placement, titleId],
   );
+
+  return <DrawerContext.Provider value={value}>{children}</DrawerContext.Provider>;
 }
 
 /**
  * @platform shared
  *
  * Compound de drawer (painel lateral). `Drawer.Root` controla a abertura via
- * `isOpen`/`onClose` e o lado pelo `placement` (`'left'`/`'right'`/`'top'`/
+ * `open`/`onOpenChange` e o lado pelo `placement` (`'left'`/`'right'`/`'top'`/
  * `'bottom'`, default `'right'`). `Trigger` abre, `Overlay` é o backdrop,
  * `Content` é o painel montado em `Portal`, `Close` fecha programaticamente.
+ * Usa nomenclatura canônica `open` (RFC-0013/RFC-0030).
  *
  * @example
  * <Drawer placement="right">

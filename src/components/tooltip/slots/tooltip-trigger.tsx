@@ -11,7 +11,7 @@ type TooltipTriggerProps = {
 type AnyProps = Record<string, unknown> & { ref?: React.Ref<HTMLElement> };
 
 export function TooltipTrigger({ children, asChild = true }: TooltipTriggerProps) {
-  const { open, close, tooltipId, triggerRef } = useTooltipContext();
+  const { setOpen, tooltipId, triggerRef } = useTooltipContext();
 
   const child = children as React.ReactElement<AnyProps>;
 
@@ -19,19 +19,19 @@ export function TooltipTrigger({ children, asChild = true }: TooltipTriggerProps
     'aria-describedby': tooltipId,
     onMouseEnter: (e: React.MouseEvent) => {
       (child.props.onMouseEnter as ((e: React.MouseEvent) => void) | undefined)?.(e);
-      open();
+      setOpen(true);
     },
     onMouseLeave: (e: React.MouseEvent) => {
       (child.props.onMouseLeave as ((e: React.MouseEvent) => void) | undefined)?.(e);
-      close();
+      setOpen(false);
     },
     onFocus: (e: React.FocusEvent) => {
       (child.props.onFocus as ((e: React.FocusEvent) => void) | undefined)?.(e);
-      open();
+      setOpen(true);
     },
     onBlur: (e: React.FocusEvent) => {
       (child.props.onBlur as ((e: React.FocusEvent) => void) | undefined)?.(e);
-      close();
+      setOpen(false);
     },
   };
 

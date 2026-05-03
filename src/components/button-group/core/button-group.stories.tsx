@@ -13,7 +13,7 @@ const meta = {
   argTypes: {
     orientation: { control: { type: 'radio' }, options: ['horizontal', 'vertical'] },
     attached: { control: 'boolean' },
-    isDisabled: { control: 'boolean' },
+    disabled: { control: 'boolean' },
   },
 } satisfies Meta<typeof ButtonGroup>;
 
@@ -51,7 +51,7 @@ export const AttachedVertical: Story = {
 
 export const GroupDisabled: Story = {
   render: () => (
-    <ButtonGroup aria-label="Ações desabilitadas" isDisabled>
+    <ButtonGroup aria-label="Ações desabilitadas" disabled>
       <Button variant="ghost">Cancelar</Button>
       <Button variant="primary">Confirmar</Button>
     </ButtonGroup>

@@ -10,7 +10,7 @@ export interface ButtonGroupProps {
   orientation?: 'horizontal' | 'vertical';
   attached?: boolean;
   spacing?: string;
-  isDisabled?: boolean;
+  disabled?: boolean;
   'aria-label'?: string;
   'aria-labelledby'?: string;
 }

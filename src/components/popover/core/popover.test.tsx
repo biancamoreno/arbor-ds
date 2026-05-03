@@ -87,11 +87,11 @@ describe('Popover', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('calls onClose when dismissed', () => {
-    const onClose = jest.fn();
+  it('calls onOpenChange when dismissed', () => {
+    const onOpenChange = jest.fn();
 
     renderPopover(
-      <Popover.Root isOpen onClose={onClose}>
+      <Popover.Root open onOpenChange={onOpenChange}>
         <Popover.Content>
           <Popover.Close label="Fechar" />
         </Popover.Content>
@@ -99,7 +99,7 @@ describe('Popover', () => {
     );
 
     fireEvent.click(screen.getByLabelText('Fechar'));
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('toggles open/close on subsequent trigger clicks', () => {

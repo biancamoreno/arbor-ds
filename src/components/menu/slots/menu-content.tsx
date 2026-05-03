@@ -5,7 +5,7 @@ import { useMenuContext } from '../context/menu-context';
 import type { MenuContentProps } from '../interfaces/MenuProps';
 
 export function MenuContent({ children, label }: MenuContentProps) {
-  const { isOpen, close, setActiveIndex, activeIndex, itemCount, triggerRef } = useMenuContext();
+  const { open, setOpen, setActiveIndex, activeIndex, itemCount, triggerRef } = useMenuContext();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -15,15 +15,15 @@ export function MenuContent({ children, label }: MenuContentProps) {
       e.preventDefault();
       setActiveIndex((activeIndex - 1 + itemCount) % itemCount);
     } else if (e.key === 'Tab') {
-      close();
+      setOpen(false);
     }
   };
 
-  if (!isOpen) return null;
+  if (!open) return null;
 
   return (
     <Portal>
-      <DismissableLayer onDismiss={close} excludeRef={triggerRef}>
+      <DismissableLayer onDismiss={() => setOpen(false)} excludeRef={triggerRef}>
         <Box
           as="ul"
           role="menu"

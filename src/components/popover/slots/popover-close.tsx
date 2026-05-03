@@ -6,10 +6,11 @@ import type { PopoverCloseProps } from '../interfaces/PopoverProps';
 type AnyProps = Record<string, unknown>;
 
 export function PopoverClose({ children, label = 'Fechar' }: PopoverCloseProps) {
-  const { close } = usePopoverContext();
+  const { setOpen } = usePopoverContext();
+  const handleClose = () => setOpen(false);
 
   if (children) {
-    return React.cloneElement(children as React.ReactElement<AnyProps>, { onClick: close });
+    return React.cloneElement(children as React.ReactElement<AnyProps>, { onClick: handleClose });
   }
 
   return (
@@ -17,7 +18,7 @@ export function PopoverClose({ children, label = 'Fechar' }: PopoverCloseProps) 
       as="button"
       type="button"
       aria-label={label}
-      onClick={close}
+      onClick={handleClose}
       color="text.secondary"
       fontSize="medium"
       cursor="pointer"

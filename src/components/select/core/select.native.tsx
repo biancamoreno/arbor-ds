@@ -19,10 +19,10 @@ import type {
 
 type SelectSlot = 'root' | 'trigger' | 'value' | 'icon' | 'content' | 'item' | 'itemText';
 
-function resolveState(isDisabled: boolean, isInvalid: boolean, isOpen: boolean): SelectState {
-  if (isDisabled) return 'disabled';
-  if (isInvalid) return 'invalid';
-  if (isOpen) return 'open';
+function resolveState(disabled: boolean, invalid: boolean, open: boolean): SelectState {
+  if (disabled) return 'disabled';
+  if (invalid) return 'invalid';
+  if (open) return 'open';
   return 'idle';
 }
 
@@ -61,7 +61,8 @@ function SelectRoot({
     onChange: onValueChange,
   });
 
-  const { isOpen, open, close } = useDisclosure(false);
+  const disclosure = useDisclosure(false);
+  const open = disclosure.isOpen;
 
   const [items, setItems] = useState<SelectItemEntry[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -78,43 +79,48 @@ function SelectRoot({
     [],
   );
 
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (next) {
+        disclosure.open();
+      } else {
+        disclosure.close();
+        setActiveIndex(-1);
+      }
+    },
+    [disclosure],
+  );
+
   const select = useCallback(
     (val: string) => {
       setSelectedValue(val);
-      close();
-      setActiveIndex(-1);
+      setOpen(false);
     },
-    [setSelectedValue, close],
+    [setSelectedValue, setOpen],
   );
-
-  const closeAndReset = useCallback(() => {
-    close();
-    setActiveIndex(-1);
-  }, [close]);
 
   const openAtIndex = useCallback(
     (index: number) => {
       setActiveIndex(index);
-      open();
+      disclosure.open();
     },
-    [open],
+    [disclosure],
   );
 
-  const state = resolveState(effectiveDisabled, effectiveInvalid, isOpen);
+  const state = resolveState(effectiveDisabled, effectiveInvalid, open);
   const slots = useSlotRecipe<SelectSlot>('select', { size, state });
 
   const ctxValue = useMemo(
     () => ({
-      isOpen,
+      open,
       selectedValue,
-      isDisabled: effectiveDisabled,
-      isInvalid: effectiveInvalid,
+      disabled: effectiveDisabled,
+      invalid: effectiveInvalid,
       inputId,
       listboxId,
       size,
       state,
-      open,
-      close: closeAndReset,
+      setOpen,
       select,
       items,
       replaceItems,
@@ -124,8 +130,8 @@ function SelectRoot({
       openAtIndex,
     }),
     [
-      isOpen, selectedValue, effectiveDisabled, effectiveInvalid, inputId, listboxId,
-      size, state, open, closeAndReset, select, items, replaceItems,
+      open, selectedValue, effectiveDisabled, effectiveInvalid, inputId, listboxId,
+      size, state, setOpen, select, items, replaceItems,
       getDisplayText, activeIndex, openAtIndex,
     ],
   );
@@ -144,10 +150,10 @@ function SelectTrigger({ children }: SelectTriggerProps) {
 
   return (
     <Pressable
-      onPress={() => (ctx.isOpen ? ctx.close() : ctx.open())}
-      disabled={ctx.isDisabled}
+      onPress={() => ctx.setOpen(!ctx.open)}
+      disabled={ctx.disabled}
       accessibilityRole="combobox"
-      accessibilityState={{ expanded: ctx.isOpen, disabled: ctx.isDisabled }}
+      accessibilityState={{ expanded: ctx.open, disabled: ctx.disabled }}
       nativeID={ctx.inputId}
       accessibilityLabelledBy={fieldCtx?.labelId}
     >
@@ -198,17 +204,17 @@ function SelectContent({ children }: SelectContentProps) {
     replaceItems(entries);
   }, [entries, replaceItems]);
 
-  if (!ctx.isOpen) return null;
+  if (!ctx.open) return null;
 
   return (
     <Modal
       visible
       transparent
       animationType="fade"
-      onRequestClose={ctx.close}
+      onRequestClose={() => ctx.setOpen(false)}
     >
       <Pressable
-        onPress={ctx.close}
+        onPress={() => ctx.setOpen(false)}
         accessibilityLabel="close"
         style={{ flex: 1, backgroundColor: theme.colors.background.overlay, justifyContent: 'flex-end' }}
       >

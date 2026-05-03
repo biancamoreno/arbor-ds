@@ -7,7 +7,7 @@ import type { TooltipPlacement } from '../context/tooltip-context';
  * `DismissableLayer` — ambas com `.native.tsx`). Sem `tooltip.native.tsx` dedicado.
  */
 export type TooltipRootProps = {
-  isOpen?: boolean;
+  open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   children: ReactNode;

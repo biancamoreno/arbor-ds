@@ -104,11 +104,11 @@ describe('Drawer', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('calls onClose on dismissal', () => {
-    const onClose = jest.fn();
+  it('calls onOpenChange on dismissal', () => {
+    const onOpenChange = jest.fn();
 
     renderDrawer(
-      <Drawer.Root isOpen onClose={onClose}>
+      <Drawer.Root open onOpenChange={onOpenChange}>
         <Drawer.Content>
           <Drawer.Title>My Drawer</Drawer.Title>
           <Drawer.Close />
@@ -117,7 +117,7 @@ describe('Drawer', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('has aria-modal and aria-labelledby', () => {

@@ -6,7 +6,8 @@ import type { DrawerTriggerProps } from '../interfaces/DrawerProps';
 type AnyProps = Record<string, unknown>;
 
 export function DrawerTrigger({ children, asChild = false }: DrawerTriggerProps) {
-  const { open } = useDrawerContext();
+  const { setOpen } = useDrawerContext();
+  const handleOpen = () => setOpen(true);
 
   if (asChild) {
     const child = children as React.ReactElement<AnyProps>;
@@ -14,13 +15,13 @@ export function DrawerTrigger({ children, asChild = false }: DrawerTriggerProps)
     return React.cloneElement(child, {
       onClick: (e: React.MouseEvent) => {
         childOnClick?.(e);
-        open();
+        handleOpen();
       },
     });
   }
 
   return (
-    <Clickable as="button" type="button" onClick={open}>
+    <Clickable as="button" type="button" onClick={handleOpen}>
       {children}
     </Clickable>
   );

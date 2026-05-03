@@ -28,10 +28,10 @@ type SelectSlot = 'root' | 'trigger' | 'value' | 'icon' | 'content' | 'item' | '
 const TYPEAHEAD_TIMEOUT_MS = 500;
 const PAGE_STEP = 10;
 
-function resolveState(isDisabled: boolean, isInvalid: boolean, isOpen: boolean): SelectState {
-  if (isDisabled) return 'disabled';
-  if (isInvalid) return 'invalid';
-  if (isOpen) return 'open';
+function resolveState(disabled: boolean, invalid: boolean, open: boolean): SelectState {
+  if (disabled) return 'disabled';
+  if (invalid) return 'invalid';
+  if (open) return 'open';
   return 'idle';
 }
 
@@ -98,7 +98,8 @@ function SelectRoot({
     onChange: onValueChange,
   });
 
-  const { isOpen, open, close } = useDisclosure(false);
+  const disclosure = useDisclosure(false);
+  const open = disclosure.isOpen;
 
   const [items, setItems] = useState<SelectItemEntry[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -120,45 +121,49 @@ function SelectRoot({
     triggerRef.current?.focus();
   }, []);
 
-  const closeAndFocus = useCallback(() => {
-    close();
-    setActiveIndex(-1);
-    focusTrigger();
-  }, [close, focusTrigger]);
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (next) {
+        disclosure.open();
+      } else {
+        disclosure.close();
+        setActiveIndex(-1);
+        focusTrigger();
+      }
+    },
+    [disclosure, focusTrigger],
+  );
 
   const select = useCallback(
     (val: string) => {
       setSelectedValue(val);
-      close();
-      setActiveIndex(-1);
-      focusTrigger();
+      setOpen(false);
     },
-    [setSelectedValue, close, focusTrigger],
+    [setSelectedValue, setOpen],
   );
 
   const openAtIndex = useCallback(
     (index: number) => {
       setActiveIndex(index);
-      open();
+      disclosure.open();
     },
-    [open],
+    [disclosure],
   );
 
-  const state = resolveState(effectiveDisabled, effectiveInvalid, isOpen);
+  const state = resolveState(effectiveDisabled, effectiveInvalid, open);
   const slots = useSlotRecipe<SelectSlot>('select', { size, state });
 
   const ctxValue = useMemo(
     () => ({
-      isOpen,
+      open,
       selectedValue,
-      isDisabled: effectiveDisabled,
-      isInvalid: effectiveInvalid,
+      disabled: effectiveDisabled,
+      invalid: effectiveInvalid,
       inputId,
       listboxId,
       size,
       state,
-      open,
-      close: closeAndFocus,
+      setOpen,
       select,
       items,
       replaceItems,
@@ -168,8 +173,8 @@ function SelectRoot({
       openAtIndex,
     }),
     [
-      isOpen, selectedValue, effectiveDisabled, effectiveInvalid, inputId, listboxId,
-      size, state, open, closeAndFocus, select, items, replaceItems,
+      open, selectedValue, effectiveDisabled, effectiveInvalid, inputId, listboxId,
+      size, state, setOpen, select, items, replaceItems,
       getDisplayText, activeIndex, openAtIndex,
     ],
   );
@@ -224,10 +229,10 @@ function SelectTrigger({ children }: SelectTriggerProps) {
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (ctx.isDisabled) return;
-    const { items, isOpen, activeIndex, selectedValue } = ctx;
+    if (ctx.disabled) return;
+    const { items, open, activeIndex, selectedValue } = ctx;
 
-    if (!isOpen) {
+    if (!open) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         const selectedIdx = items.findIndex(i => i.value === selectedValue && !i.disabled);
@@ -253,12 +258,12 @@ function SelectTrigger({ children }: SelectTriggerProps) {
 
     if (e.key === 'Escape') {
       e.preventDefault();
-      ctx.close();
+      ctx.setOpen(false);
       return;
     }
 
     if (e.key === 'Tab') {
-      ctx.close();
+      ctx.setOpen(false);
       return;
     }
 
@@ -321,7 +326,7 @@ function SelectTrigger({ children }: SelectTriggerProps) {
   };
 
   const activeId =
-    ctx.isOpen && ctx.activeIndex >= 0 && ctx.activeIndex < ctx.items.length
+    ctx.open && ctx.activeIndex >= 0 && ctx.activeIndex < ctx.items.length
       ? ctx.items[ctx.activeIndex].id
       : undefined;
 
@@ -332,7 +337,7 @@ function SelectTrigger({ children }: SelectTriggerProps) {
       type="button"
       id={ctx.inputId}
       role="combobox"
-      aria-expanded={ctx.isOpen}
+      aria-expanded={ctx.open}
       aria-haspopup="listbox"
       aria-controls={ctx.listboxId}
       aria-activedescendant={activeId}
@@ -340,10 +345,10 @@ function SelectTrigger({ children }: SelectTriggerProps) {
       aria-required={fieldCtx?.required || undefined}
       aria-invalid={fieldCtx?.invalid || undefined}
       aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
-      disabled={ctx.isDisabled}
+      disabled={ctx.disabled}
       onClick={() => {
-        if (ctx.isOpen) {
-          ctx.close();
+        if (ctx.open) {
+          ctx.setOpen(false);
         } else {
           const selectedIdx = ctx.items.findIndex(i => i.value === ctx.selectedValue && !i.disabled);
           const target = selectedIdx >= 0 ? selectedIdx : findFirstEnabled(ctx.items);
@@ -352,7 +357,7 @@ function SelectTrigger({ children }: SelectTriggerProps) {
       }}
       onKeyDown={handleKeyDown}
       {...slots.trigger}
-      cursor={ctx.isDisabled ? 'not-allowed' : 'pointer'}
+      cursor={ctx.disabled ? 'not-allowed' : 'pointer'}
       style={{ boxSizing: 'border-box' }}
     >
       {children}
@@ -365,7 +370,7 @@ function SelectTrigger({ children }: SelectTriggerProps) {
           display: 'inline-flex',
           alignItems: 'center',
           transition: transition(['transform'], 'fast'),
-          transform: ctx.isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          transform: ctx.open ? 'rotate(180deg)' : 'rotate(0deg)',
         }}
       >
         <Icon name="ChevronDown" size="small" decorative />
@@ -422,7 +427,7 @@ function SelectContent({ children }: SelectContentProps) {
   }, [entries, replaceItems]);
 
   useLayoutEffect(() => {
-    if (!ctx.isOpen) {
+    if (!ctx.open) {
       setPosition(null);
       return;
     }
@@ -439,24 +444,24 @@ function SelectContent({ children }: SelectContentProps) {
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };
-  }, [ctx.isOpen, triggerRefCtx]);
+  }, [ctx.open, triggerRefCtx]);
 
   useEffect(() => {
-    if (!ctx.isOpen) return;
+    if (!ctx.open) return;
     if (ctx.activeIndex < 0 || ctx.activeIndex >= ctx.items.length) return;
     const id = ctx.items[ctx.activeIndex].id;
     const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
     if (el && typeof el.scrollIntoView === 'function') {
       el.scrollIntoView({ block: 'nearest' });
     }
-  }, [ctx.activeIndex, ctx.isOpen, ctx.items]);
+  }, [ctx.activeIndex, ctx.open, ctx.items]);
 
-  if (!ctx.isOpen || !position) return null;
+  if (!ctx.open || !position) return null;
 
   return (
     <Portal>
       <DismissableLayer
-        onDismiss={ctx.close}
+        onDismiss={() => ctx.setOpen(false)}
         excludeRef={triggerRefCtx ?? undefined}
         disableEscapeKey
       >

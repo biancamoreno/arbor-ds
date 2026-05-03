@@ -16,10 +16,10 @@ import type {
 
 type CheckboxSlot = 'root' | 'indicator' | 'label' | 'description';
 
-function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): CheckboxState {
-  if (isDisabled) return 'disabled';
-  if (isInvalid) return 'invalid';
-  if (isChecked) return 'checked';
+function resolveState(disabled: boolean, invalid: boolean, checked: boolean): CheckboxState {
+  if (disabled) return 'disabled';
+  if (invalid) return 'invalid';
+  if (checked) return 'checked';
   return 'idle';
 }
 
@@ -41,28 +41,28 @@ function CheckboxRoot({
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const effectiveInvalid = fieldCtx?.invalid ?? false;
 
-  const [isChecked, setIsChecked] = useControllableState({
+  const [checkedState, setCheckedState] = useControllableState({
     value: checked,
     defaultValue: defaultChecked,
     onChange: onCheckedChange,
   });
 
-  const state = resolveState(effectiveDisabled, effectiveInvalid, isChecked || indeterminate);
+  const state = resolveState(effectiveDisabled, effectiveInvalid, checkedState || indeterminate);
   const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size, state });
 
   return (
     <CheckboxContext.Provider
       value={{
-        isChecked,
-        isIndeterminate: indeterminate,
-        isDisabled: effectiveDisabled,
-        isInvalid: effectiveInvalid,
+        checked: checkedState,
+        indeterminate,
+        disabled: effectiveDisabled,
+        invalid: effectiveInvalid,
         size,
         state,
         inputId,
         name,
         value,
-        onChange: setIsChecked,
+        onChange: setCheckedState,
       }}
     >
       <Flex
@@ -86,9 +86,9 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
 
   useEffect(() => {
     if (internalRef.current) {
-      internalRef.current.indeterminate = ctx.isIndeterminate && !ctx.isChecked;
+      internalRef.current.indeterminate = ctx.indeterminate && !ctx.checked;
     }
-  }, [ctx.isChecked, ctx.isIndeterminate]);
+  }, [ctx.checked, ctx.indeterminate]);
 
   return (
     <Box
@@ -104,14 +104,14 @@ const CheckboxIndicator = React.forwardRef<HTMLInputElement, CheckboxIndicatorPr
       type="checkbox"
       name={ctx.name}
       value={ctx.value}
-      checked={ctx.isChecked}
-      disabled={ctx.isDisabled}
+      checked={ctx.checked}
+      disabled={ctx.disabled}
       aria-describedby={fieldCtx?.descriptionRegistered ? fieldCtx.descriptionId : undefined}
       aria-required={fieldCtx?.required || undefined}
       aria-invalid={fieldCtx?.invalid || undefined}
       aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => { if (!ctx.isDisabled) ctx.onChange(e.target.checked); }}
-      cursor={ctx.isDisabled ? 'not-allowed' : 'pointer'}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => { if (!ctx.disabled) ctx.onChange(e.target.checked); }}
+      cursor={ctx.disabled ? 'not-allowed' : 'pointer'}
       style={{ accentColor: theme.colors.interactive.default, ...style }}
     />
   );

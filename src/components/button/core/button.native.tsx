@@ -142,7 +142,7 @@ export function Button({
   const groupCtx = useButtonGroup();
   const itemCtx = useButtonGroupItem();
 
-  const isDisabled = loading || disabled || (groupCtx?.isDisabled ?? false);
+  const isDisabled = loading || disabled || (groupCtx?.disabled ?? false);
   const sizing = buttonSizeMap[size];
   const colors = getVariantColors(variant, theme);
   const radiusSmall = typeof theme.radii.small === 'number' ? theme.radii.small : 6;

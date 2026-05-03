@@ -11,16 +11,15 @@ export type SelectItemEntry = {
 };
 
 export type SelectContextValue = {
-  isOpen: boolean;
+  open: boolean;
   selectedValue: string;
-  isDisabled: boolean;
-  isInvalid: boolean;
+  disabled: boolean;
+  invalid: boolean;
   inputId: string;
   listboxId: string;
   size: SelectSize;
   state: SelectState;
-  open: () => void;
-  close: () => void;
+  setOpen: (next: boolean) => void;
   select: (value: string) => void;
 
   items: SelectItemEntry[];

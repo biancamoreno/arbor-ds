@@ -1598,6 +1598,52 @@ Média — não bloqueia v1.0.0 (surface area atual do `native.ts` é coerente c
 
 ---
 
+## TD-029 — RFC-0013 incompleta em overlays e contextos remanescentes
+
+**Origem:** revisão de naming sob `arbor-ds-arch` — 2026-05-02 (resposta à pergunta `open` × `isOpen` em Tooltip/Drawer/Dialog)
+**Status:** Resolved (2026-05-02)
+**Severidade:** Média (na abertura)
+
+### Contexto
+
+A RFC-0013 (Accepted · 2026-04-24) fixou que toda prop booleana pública usa naming sem prefixo (`open`, `disabled`, `checked`, `required`, `invalid`). A varredura de TD-012 (2026-04-24) eliminou aliases legados sem janela de transição.
+
+Inventário em 2026-05-02 mostrou que a varredura ficou incompleta:
+
+- `Drawer.Root` / `Tooltip.Root` / `Popover.Root` / `Menu.Root` — API pública com `isOpen` (e `onClose` em Drawer/Popover/Menu) em vez de `open` + `onOpenChange`.
+- `DrawerContext` / `TooltipContext` / `PopoverContext` / `MenuContext` / `SelectContext` — campos `isOpen`/`isDisabled`/`isInvalid`.
+- `CheckboxContext` / `RadioContext` — `isChecked`/`isIndeterminate`/`isDisabled`/`isInvalid`.
+- `ButtonGroup` — `isDisabled` na API pública e no contexto.
+- `PaginationItemProps.isActive` — última prop `is*` na API pública.
+
+Causa-raiz: o inventário original da RFC-0013 listou Drawer e Tooltip como já alinhados (leu `defaultOpen`, que é canônico, e perdeu `isOpen` na mesma interface).
+
+### Resolução
+
+[RFC-0030](rfcs/RFC-0030-completar-rfc-0013-naming-overlays.md) (Accepted · Implemented · 2026-05-02):
+
+1. Overlays migrados para `open` + `onOpenChange`; `onClose` removido (mantido apenas em Toast — ciclo de vida finito não-controlável).
+2. Contextos uniformizados ao pattern de Dialog `{ open, setOpen }` em vez de `{ isOpen, open(), close() }` — evita colisão de nome `open` (estado) × `open()` (ação).
+3. Contextos de seleção (`Checkbox`/`Radio`) e `ButtonGroup` alinhados à Convenção 2 da RFC-0013.
+4. `PaginationItemProps.isActive` → `current` (alinha com `aria-current="page"`).
+5. `useDisclosure().isOpen` mantido como exceção documentada em CONTRIBUTING.md (variável local na call site, não prop pública).
+
+### Critério para fechar
+
+- [x] RFC-0030 redigida e aceita.
+- [x] PR1 (overlays) — Drawer/Tooltip/Popover/Menu API + contextos migrados.
+- [x] PR2 (Select context) — `open`/`disabled`/`invalid` + `setOpen`.
+- [x] PR3 (Checkbox/Radio/ButtonGroup) — contextos sem prefixo `is*`. ButtonGroup também migrou API pública (`isDisabled` → `disabled`).
+- [x] PR4 (Pagination) — `current` substituindo `isActive`.
+- [x] CONTRIBUTING.md atualizado (seção "Naming de props e eventos" cita RFC-0030, lista exceção `useDisclosure`, formaliza `onOpenChange` × `onClose`).
+- [x] `grep -rE "\bisOpen\b|isDisabled|isChecked|isInvalid|isIndeterminate|isActive|isRequired" src/components` retorna 0 hits exceto variáveis locais e `useDisclosure`.
+
+### Severidade na abertura
+
+Média — não bloqueava o v1.0.0 (a RFC-0013 já era a norma documentada), mas qualquer release que mantivesse o gap iria contradizer CONTRIBUTING e RFC-0013 ao mesmo tempo. Resolvida no mesmo dia em que foi catalogada.
+
+---
+
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
 Mapeamento das demais 2 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.

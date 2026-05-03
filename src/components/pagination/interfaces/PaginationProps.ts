@@ -26,7 +26,7 @@ export interface PaginationButtonProps extends ButtonHTMLAttributes<HTMLButtonEl
    * Marca o botão como a página atual. Aplica `aria-current="page"` e o estado
    * visual selecionado.
    */
-  isActive?: boolean;
+  current?: boolean;
   /**
    * Texto acessível do botão. Use quando `children` for apenas numérico/icônico
    * para descrever a ação (ex.: `"Ir para a página 3"`, `"Próxima página"`).

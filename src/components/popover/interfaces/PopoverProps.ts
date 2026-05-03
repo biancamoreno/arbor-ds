@@ -6,9 +6,9 @@ import type { ReactElement, ReactNode } from 'react';
  * `DismissableLayer` — todas com `.native.tsx`). Sem `popover.native.tsx` dedicado.
  */
 export type PopoverRootProps = {
-  isOpen?: boolean;
+  open?: boolean;
   defaultOpen?: boolean;
-  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
   children: ReactNode;
 };
 

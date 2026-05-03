@@ -29,7 +29,7 @@ function PaginationDemo({ totalPages = 10 }: { totalPages?: number }) {
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
           <Pagination.Item key={p}>
             <Pagination.Button
-              isActive={p === page}
+              current={p === page}
               onClick={() => setPage(p)}
               aria-label={`Página ${p}`}
             >
@@ -62,7 +62,7 @@ export const ManyPages: Story = {
         <Pagination.Item><Pagination.Button aria-label="Anterior">‹</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Button aria-label="Página 1">1</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Button aria-label="Página 2">2</Pagination.Button></Pagination.Item>
-        <Pagination.Item><Pagination.Button aria-label="Página 3" isActive>3</Pagination.Button></Pagination.Item>
+        <Pagination.Item><Pagination.Button aria-label="Página 3" current>3</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Ellipsis /></Pagination.Item>
         <Pagination.Item><Pagination.Button aria-label="Página 10">10</Pagination.Button></Pagination.Item>
         <Pagination.Item><Pagination.Button aria-label="Próxima">›</Pagination.Button></Pagination.Item>

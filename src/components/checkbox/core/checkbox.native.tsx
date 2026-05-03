@@ -11,10 +11,10 @@ import type { CheckboxRootProps, CheckboxLabelProps, CheckboxDescriptionProps } 
 
 type CheckboxSlot = 'root' | 'indicator' | 'label' | 'description';
 
-function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): CheckboxState {
-  if (isDisabled) return 'disabled';
-  if (isInvalid) return 'invalid';
-  if (isChecked) return 'checked';
+function resolveState(disabled: boolean, invalid: boolean, checked: boolean): CheckboxState {
+  if (disabled) return 'disabled';
+  if (invalid) return 'invalid';
+  if (checked) return 'checked';
   return 'idle';
 }
 
@@ -36,35 +36,35 @@ function CheckboxRoot({
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const effectiveInvalid = fieldCtx?.invalid ?? false;
 
-  const [isChecked, setIsChecked] = useControllableState({
+  const [checkedState, setCheckedState] = useControllableState({
     value: checked,
     defaultValue: defaultChecked,
     onChange: onCheckedChange,
   });
 
-  const state = resolveState(effectiveDisabled, effectiveInvalid, isChecked || indeterminate);
+  const state = resolveState(effectiveDisabled, effectiveInvalid, checkedState || indeterminate);
   const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size, state });
 
   return (
     <CheckboxContext.Provider
       value={{
-        isChecked,
-        isIndeterminate: indeterminate,
-        isDisabled: effectiveDisabled,
-        isInvalid: effectiveInvalid,
+        checked: checkedState,
+        indeterminate,
+        disabled: effectiveDisabled,
+        invalid: effectiveInvalid,
         size,
         state,
         inputId,
         name,
         value,
-        onChange: setIsChecked,
+        onChange: setCheckedState,
       }}
     >
       <Pressable
-        onPress={() => !effectiveDisabled && setIsChecked(!isChecked)}
+        onPress={() => !effectiveDisabled && setCheckedState(!checkedState)}
         disabled={effectiveDisabled}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: isChecked, disabled: effectiveDisabled }}
+        accessibilityState={{ checked: checkedState, disabled: effectiveDisabled }}
       >
         <Flex {...slots.root}>{children}</Flex>
       </Pressable>
@@ -76,7 +76,7 @@ function CheckboxIndicator() {
   const ctx = useCheckboxContext();
   const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
 
-  const isActive = ctx.isChecked || ctx.isIndeterminate;
+  const isActive = ctx.checked || ctx.indeterminate;
 
   return (
     <Flex {...slots.indicator}>
@@ -86,7 +86,7 @@ function CheckboxIndicator() {
           height="2px"
           backgroundColor="text.inverse"
           style={{
-            transform: ctx.isIndeterminate ? [] : [{ rotate: '-45deg' }],
+            transform: ctx.indeterminate ? [] : [{ rotate: '-45deg' }],
           }}
         />
       )}

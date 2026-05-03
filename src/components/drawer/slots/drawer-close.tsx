@@ -6,10 +6,11 @@ import type { DrawerCloseProps } from '../interfaces/DrawerProps';
 type AnyProps = Record<string, unknown>;
 
 export function DrawerClose({ children, label = 'Fechar' }: DrawerCloseProps) {
-  const { close } = useDrawerContext();
+  const { setOpen } = useDrawerContext();
+  const handleClose = () => setOpen(false);
 
   if (children) {
-    return React.cloneElement(children as React.ReactElement<AnyProps>, { onClick: close });
+    return React.cloneElement(children as React.ReactElement<AnyProps>, { onClick: handleClose });
   }
 
   return (
@@ -17,7 +18,7 @@ export function DrawerClose({ children, label = 'Fechar' }: DrawerCloseProps) {
       as="button"
       type="button"
       aria-label={label}
-      onClick={close}
+      onClick={handleClose}
       color="text.secondary"
       fontSize="medium"
       cursor="pointer"

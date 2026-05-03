@@ -81,10 +81,10 @@ describe('Button (native)', () => {
     expect(screen.getAllByRole('button')).toHaveLength(3);
   });
 
-  it('ButtonGroup isDisabled propaga para itens (busy ou disabled)', () => {
+  it('ButtonGroup disabled propaga para itens (busy ou disabled)', () => {
     const onClick = jest.fn();
     render(
-      <ButtonGroup aria-label="Ações" isDisabled>
+      <ButtonGroup aria-label="Ações" disabled>
         <Button onClick={onClick}>Bloqueado</Button>
       </ButtonGroup>,
       { wrapper: Wrapper },

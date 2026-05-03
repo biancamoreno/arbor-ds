@@ -169,20 +169,36 @@ Exemplos: `Icon.native` para `currentColor`, `Clickable` para `as !== 'button'/'
 
 ### 7. Naming de props e eventos
 
-**Props booleanas (RFC-0013):** API pública usa nomes alinhados com HTML/ARIA, **sem prefixo `is`**.
+**Props booleanas (RFC-0013, completada por RFC-0030):** API pública usa nomes alinhados com HTML/ARIA, **sem prefixo `is`**.
 
 ```tsx
 // ✅ Correto
 <Field disabled required invalid />
 <Dialog open onOpenChange={…} />
+<Drawer open onOpenChange={…} />
+<Tooltip open onOpenChange={…} />
+<Popover open onOpenChange={…} />
+<Menu open onOpenChange={…} />
 <Checkbox checked indeterminate />
+<Pagination.Button current>2</Pagination.Button>
+<ButtonGroup disabled>…</ButtonGroup>
 
 // ❌ Errado
 <Field isDisabled isRequired isInvalid />
 <Dialog isOpen />
+<Pagination.Button isActive />
 ```
 
-Variáveis derivadas locais dentro do componente podem usar `is*` para legibilidade (`const isInteractive = !disabled && !readOnly`).
+A mesma regra vale para **contextos internos**: `DrawerContextValue.open`, `CheckboxContextValue.checked`, `RadioContextValue.disabled`. Não há `isFoo` na superfície entre componentes.
+
+**Variáveis locais derivadas dentro do componente** podem usar `is*` para legibilidade — RFC-0013 Convenção 2:
+
+```tsx
+const isInteractive = !disabled && !readOnly;
+const isActive = activeIndex === currentIndex;
+```
+
+**Exceção registrada — `useDisclosure()`:** o hook utilitário retorna `{ isOpen, open, close, toggle }`. Manter `isOpen` neste retorno é deliberado: `open` é tanto a flag quanto o nome da ação no mesmo objeto, e essa colisão tornaria o hook inutilizável (`{ open: opened }` não é melhor que `isOpen`). Como o retorno é variável local na call site, a convenção 2 cobre o caso.
 
 **Eventos de mudança de estado controlado (RFC-0015):** usar `on{Verbo}Change` com assinatura **value-only**.
 
@@ -201,7 +217,9 @@ onCheckedChange?: (checked: boolean, value: string) => void;
 
 **Exceção legítima:** componentes que envolvem `<input>`/`<textarea>` podem aceitar `onChange` HTML adicional **com semântica preservada** (`(e: ChangeEvent) => void`). Não redefinir o significado de `onChange`.
 
-**Eventos pontuais (não-Change):** seguem `on{Verbo}` simples — `onSubmit`, `onClose`, `onSelect`. `Change` é reservado para par `value`/`onValueChange`.
+**Eventos pontuais (não-Change):** seguem `on{Verbo}` simples — `onSubmit`, `onSelect`. `Change` é reservado para par `value`/`onValueChange`.
+
+**`onClose` × `onOpenChange` em overlays (RFC-0030):** overlays controláveis (Dialog/Drawer/Tooltip/Popover/Menu) **não** expõem `onClose`. Usam `onOpenChange(open)`, que é estritamente mais informativo — cobre abertura e fechamento, e é compatível com `useControllableState`. `onClose` permanece **apenas** em superfícies de ciclo de vida finito não-controlável (Toast com auto-dismiss).
 
 ### 8. Foco visível em componentes com input oculto (WCAG 2.4.7)
 

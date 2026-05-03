@@ -4,9 +4,9 @@ import type { RadioSize } from '../interfaces/RadioProps';
 export type RadioState = 'idle' | 'checked' | 'invalid' | 'disabled';
 
 export type RadioContextValue = {
-  isChecked: boolean;
-  isDisabled: boolean;
-  isInvalid: boolean;
+  checked: boolean;
+  disabled: boolean;
+  invalid: boolean;
   size: RadioSize;
   state: RadioState;
   inputId: string;

@@ -7,20 +7,19 @@ import type { PopoverTriggerProps } from '../interfaces/PopoverProps';
 type AnyProps = Record<string, unknown> & { ref?: React.Ref<HTMLElement> };
 
 export function PopoverTrigger({ children, asChild = false }: PopoverTriggerProps) {
-  const { isOpen, close, open, titleId, triggerRef } = usePopoverContext();
+  const { open, setOpen, titleId, triggerRef } = usePopoverContext();
 
   const child = children as React.ReactElement<AnyProps>;
   const childOnClick = (child.props as AnyProps).onClick as ((e: React.MouseEvent) => void) | undefined;
 
   const onClick = (e: React.MouseEvent) => {
     childOnClick?.(e);
-    if (isOpen) close();
-    else open();
+    setOpen(!open);
   };
 
   const triggerProps: AnyProps = {
     'aria-haspopup': 'dialog',
-    'aria-expanded': isOpen,
+    'aria-expanded': open,
     'aria-controls': titleId,
     onClick,
   };

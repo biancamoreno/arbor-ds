@@ -51,14 +51,14 @@ function getTransformOrigin(placement: TooltipPlacement): string {
 }
 
 export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: TooltipContentProps) {
-  const { isOpen, tooltipId, triggerRef } = useTooltipContext();
-  const [mounted, setMounted] = useState(isOpen);
+  const { open, tooltipId, triggerRef } = useTooltipContext();
+  const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       setMounted(true);
       frameRef.current = requestAnimationFrame(() => setVisible(true));
       return () => cancelAnimationFrame(frameRef.current);
@@ -66,7 +66,7 @@ export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: 
     setVisible(false);
     const t = setTimeout(() => setMounted(false), EXIT_MS);
     return () => clearTimeout(t);
-  }, [isOpen]);
+  }, [open]);
 
   useLayoutEffect(() => {
     if (!mounted) {
@@ -98,7 +98,7 @@ export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: 
         as="span"
         id={tooltipId}
         role="tooltip"
-        aria-hidden={!isOpen || undefined}
+        aria-hidden={!open || undefined}
         position="fixed"
         zIndex="tooltip"
         borderRadius="small"

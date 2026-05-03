@@ -40,7 +40,7 @@ function PaginationItem({ children, style, ...props }: PaginationItemProps) {
 
 function PaginationButton({
   children,
-  isActive = false,
+  current = false,
   disabled,
   onClick,
   'aria-label': ariaLabel,
@@ -48,7 +48,7 @@ function PaginationButton({
   ...props
 }: PaginationButtonProps) {
   const theme = useTheme();
-  const accessibilityState = { selected: !!isActive, disabled: !!disabled };
+  const accessibilityState = { selected: !!current, disabled: !!disabled };
 
   return (
     <Clickable
@@ -68,8 +68,8 @@ function PaginationButton({
       style={{
         minWidth: 36,
         paddingHorizontal: 8,
-        borderColor: isActive ? theme.colors.brand.base : theme.colors.border.default,
-        backgroundColor: isActive ? theme.colors.brand.base : 'transparent',
+        borderColor: current ? theme.colors.brand.base : theme.colors.border.default,
+        backgroundColor: current ? theme.colors.brand.base : 'transparent',
         opacity: disabled ? 0.5 : 1,
         ...style,
       }}
@@ -77,9 +77,9 @@ function PaginationButton({
       <Text
         as="span"
         style={{
-          color: isActive ? theme.colors.text.inverse : theme.colors.text.primary,
+          color: current ? theme.colors.text.inverse : theme.colors.text.primary,
           fontSize: 14,
-          fontWeight: isActive ? '500' : '400',
+          fontWeight: current ? '500' : '400',
         }}
       >
         {children}
@@ -147,7 +147,7 @@ PaginationEllipsis.displayName = 'Pagination.Ellipsis';
  *   não tem equivalente).
  * - `aria-label` mapeia para `accessibilityLabel` no wrapper.
  * - `Pagination.Button` via `Clickable.native` com `accessibilityRole='button'`
- *   + `accessibilityState={{ selected: isActive, disabled }}` para anunciar
+ *   + `accessibilityState={{ selected: current, disabled }}` para anunciar
  *   página atual.
  * - `Pagination.Ellipsis` é escondido de a11y via
  *   `accessibilityElementsHidden`/`importantForAccessibility='no-hide-descendants'`.

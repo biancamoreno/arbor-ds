@@ -32,14 +32,14 @@ const SLIDE_HIDDEN: Record<DrawerPlacement, string> = {
 };
 
 export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
-  const { isOpen, close, placement, titleId } = useDrawerContext();
+  const { open, setOpen, placement, titleId } = useDrawerContext();
 
-  const [mounted, setMounted] = useState(isOpen);
+  const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       setMounted(true);
       frameRef.current = requestAnimationFrame(() => setVisible(true));
     } else {
@@ -48,13 +48,13 @@ export function DrawerContent({ children, size = 'md' }: DrawerContentProps) {
       return () => clearTimeout(t);
     }
     return () => cancelAnimationFrame(frameRef.current);
-  }, [isOpen]);
+  }, [open]);
 
   if (!mounted) return null;
 
   return (
     <Portal>
-      <DismissableLayer onDismiss={close} disableOutsideClick>
+      <DismissableLayer onDismiss={() => setOpen(false)} disableOutsideClick>
         <FocusScope trapped autoFocus restoreFocus>
           <Flex
             as="aside"

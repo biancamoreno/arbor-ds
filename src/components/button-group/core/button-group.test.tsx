@@ -54,10 +54,10 @@ describe('ButtonGroup', () => {
     spy.mockRestore();
   });
 
-  it('propaga isDisabled para filhos via context', () => {
+  it('propaga disabled para filhos via context', () => {
     const onClick = jest.fn();
     render(
-      <ButtonGroup aria-label="Ações" isDisabled>
+      <ButtonGroup aria-label="Ações" disabled>
         <Button onClick={onClick}>Ação</Button>
       </ButtonGroup>,
       { wrapper },

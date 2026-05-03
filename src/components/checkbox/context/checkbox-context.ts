@@ -4,10 +4,10 @@ export type CheckboxSize = 'sm' | 'md' | 'lg';
 export type CheckboxState = 'idle' | 'checked' | 'invalid' | 'disabled';
 
 export type CheckboxContextValue = {
-  isChecked: boolean;
-  isIndeterminate: boolean;
-  isDisabled: boolean;
-  isInvalid: boolean;
+  checked: boolean;
+  indeterminate: boolean;
+  disabled: boolean;
+  invalid: boolean;
   size: CheckboxSize;
   state: CheckboxState;
   inputId: string;

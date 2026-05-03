@@ -39,7 +39,7 @@ export function Button({
   const itemCtx = useButtonGroupItem();
   const radiusSmall = theme.radii.small;
 
-  const isDisabled = loading || disabled || (groupCtx?.isDisabled ?? false);
+  const isDisabled = loading || disabled || (groupCtx?.disabled ?? false);
 
   // Radii colapsados quando dentro de ButtonGroup attached
   let attachedStyle: CSSProperties = {};

@@ -233,7 +233,7 @@ describe('Radio FieldContext integration', () => {
     expect(screen.getByRole('radio').getAttribute('aria-required')).toBe('true');
   });
 
-  it('picks up aria-errormessage from Field when isInvalid', () => {
+  it('picks up aria-errormessage from Field when invalid', () => {
     renderRadio(
       <Field id="radio-field" invalid>
         <Field.Control>
