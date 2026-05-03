@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { IconName } from '../../core/icon';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Bottom tab bar; `tab-bar.native.tsx` posiciona com safe-area iOS e usa
  * `Clickable.native` para o press feedback nos itens.
  */

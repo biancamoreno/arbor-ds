@@ -1,7 +1,7 @@
 import type { AnchorHTMLAttributes, HTMLAttributes, LiHTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  *
  * Breadcrumb compound. Web usa `<nav>`/`<ol>`/`<li>`/`<a>`; native remapeia para
  * `Box`/`Flex`/`Clickable.native` com `accessibilityRole="link"` e a11y nativa equivalente.

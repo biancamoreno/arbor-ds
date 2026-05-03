@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-02 (sub-onda 8.D — abertura de TD-030 a TD-034 catalogando issues residuais do R8 que não viraram RFC: depreciar `colors.status.*`, engine runtime ignora `*Inline*`/`whiteSpace`, `usePrefersReducedMotion.native` ausente, labels hardcoded pt-BR, slot recipe completo Tag/Chip)
+**Última atualização:** 2026-05-03 (sub-onda 9.A — TD-037 e TD-039 fechadas: 23 ocorrências de `@platform native-ready` migradas para `shared`/`native`, `tabs/slots/` removido, `check-platform-contract` re-alinhado ao vocabulário canônico `shared|web|native|placeholder`).
 
 ---
 
@@ -39,8 +39,13 @@
 | [TD-032](#td-032) | `usePrefersReducedMotion.native` ausente — animações native ignoram a11y | R1-C4 + R7 (2026-05-02) | Open | Média (a11y mobile) | Implementar shim consumindo `AccessibilityInfo.isReduceMotionEnabled()`; substituir `Animated.loop` em Spinner/Skeleton/ProgressCircle/Toast por versão que respeita o hook. |
 | [TD-033](#td-033) | Labels hardcoded pt-BR sem ponto de extensão sistêmico | R7 + R8 (2026-05-02) | Open | Média (DX/i18n) | "Fechar"/"Notificações"/"Remover"/"Carregando" espalhados. Decidir entre prop `texts={}` por componente (padrão FileUpload) ou `<ArborProvider texts={}>` central. RFC dedicada. |
 | [TD-034](#td-034) | Tag/Chip sem slot recipe completo (`getTagColors` / `getChipColors` locais) | R8 sweep (2026-05-02) | Resolved (2026-05-03) | Baixa (refactor) | Slot recipes `tag` (12 compoundVariants `tone × selected`) e `chip` (24 compoundVariants `variant × tone × selected`) modelam toda a anatomia + cor; `SlotRecipeConfig` + `useSlotRecipe` + `TypedSlotRecipeConfig` ganharam suporte a `compoundVariants`; `tag-colors.ts` e `chip-colors.ts` deletados; produto consumidor consegue override completo via `createTheme()`. |
+| [TD-035](#td-035) | Carousel inexistente (pasta vazia, sem export) | R9 sondagem (2026-05-03) | Open | Média (bloqueio de produto — vitrines/landing) | Aguarda RFC-0034 (anatomia compound + scroll-snap web / FlatList native + a11y region/slide + autoplay com reduced-motion). 2 PRs previstos. |
+| [TD-036](#td-036) | Sweep `style→props` em components R9 (~30 hits) | R9 (2026-05-03) | Open | Média (DX + theming bypass) | Migrar `style={{}}` para CSS coberto pelo engine em Tabs/Card/Avatar/Accordion. Pré-requisito de RFC-0036/0037/0038. Possível split em 2 sub-PRs (Tabs primeiro). |
+| [TD-037](#td-037) | Tag `@platform native-ready` não-canônica em interfaces | R9 (2026-05-03) | **Resolved (2026-05-03)** | — | Sub-onda 9.A — 23 ocorrências migradas (interfaces e `.tsx` shared → `@platform shared`; arquivos `.native.tsx` → `@platform native`); `scripts/check-platform-contract.js` re-alinhado para o vocabulário canônico `shared\|web\|native\|placeholder` com Rule 1 substituída pela classificação por prioridade de tag (evita falso-positivo em diretórios com mistura `shared` + `native`). |
+| [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | Open | Média (theming) | Mover hover/active de Card para slot recipe + tokens (`shadows.large` + `transition()` themable + reduced-motion-aware). Remover `!important` e rgba literal de `provider.tsx`. Resolvida pela RFC-0036. |
+| [TD-039](#td-039) | Dead surface: `Tabs.variant 'pill'` declarado e não implementado + `tabs/slots/` vazio | R9 — TB-Mod-1/3 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (cleanup) | Sub-onda 9.A — `src/components/tabs/slots/` deletado (diretório vazio). `Tabs.variant: 'pill'` permanece no tipo público até a **RFC-0038** implementar de fato (mantido como contrato a cumprir, não como ghost — RFC já está Draft com `pill` real previsto no slot recipe). |
 
-**Total:** 11 dívidas abertas, 14 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02).
+**Total:** 14 dívidas abertas, 18 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037 e TD-039 em 2026-05-03).
 
 ---
 
@@ -1888,6 +1893,236 @@ Casos ideais para slot recipe:
 ### Severidade
 
 Baixa — código atual funciona e está consolidado num único arquivo `internal/`. Risco real de drift é mitigado. Refactor é cosmético + mais alinhado ao padrão R6 (RFC-0017).
+
+---
+
+## TD-035 — Carousel inexistente
+
+**Origem:** R9 sondagem (2026-05-03)
+**Status:** Open
+**Severidade:** Média (bloqueio de produto)
+
+### Contexto
+
+`src/components/carousel/` está vazio desde Out/2025; `src/components/index.ts` não exporta nada. Carousel é citado nos cenários de produto declarados em `CLAUDE.md` skill (e-commerce vitrine, landing pages, listas) e nunca foi implementado.
+
+### Impacto
+
+- **Produto.** Cada consumidor reinventa carrossel — risco de a11y inconsistente, motion sem `prefers-reduced-motion`, divergência cross-platform.
+- **DS.** Promessa "fonte única de verdade para web e mobile" tem buraco em padrão recorrente (vitrines).
+
+### Resolução proposta
+
+[**RFC-0034 — Carousel**](rfcs/RFC-0034-carousel.md), 2 PRs:
+1. **PR1**: anatomia compound (`Root/Viewport/Track/Slide/Prev/Next/Indicators`) + a11y completa (`role="region"` + `aria-roledescription="carousel"` + `aria-current` em indicators) + keyboard nav + slot recipe `carousel`.
+2. **PR2**: motion (`autoplay` respeitando `usePrefersReducedMotion`) + `orientation: 'vertical'` + lazy de slides fora da janela.
+
+Sem dependência externa (Embla/Swiper) — princípio "zero dependências de runtime".
+
+### Critério para fechar
+
+- [ ] RFC-0034 aceita.
+- [ ] PR1 entregue (anatomia + a11y core).
+- [ ] PR2 entregue (motion + lazy + vertical).
+- [ ] Stories cobrindo: 1/2/3 slides simultâneos, autoplay on/off, vertical, loop on/off.
+- [ ] Bateria verde web + native.
+
+---
+
+## TD-036 — Sweep `style→props` em components R9
+
+**Origem:** R9 (2026-05-03), pattern R9-P1
+**Status:** Open
+**Severidade:** Média (DX + theming bypass)
+
+### Contexto
+
+Reviews dos 4 components R9 catalogaram ~30 ocorrências de `style={{}}` para CSS coberto pelo engine. Distribuição:
+
+| Componente | Hits aprox. |
+|---|---:|
+| Tabs (web + native) | 14 |
+| Card (web) | 5 |
+| Accordion (web + native) | 6 |
+| Avatar / AvatarGroup | 3 |
+
+Exemplos:
+- `Tabs.tsx`: `padding: size === 'small' ? '8px 12px' : '10px 16px'` em `style` — props `paddingX`/`paddingY` + tokens cobrem.
+- `Tabs.tsx`: `color: isActive ? theme.colors.text.primary : theme.colors.text.secondary` lendo `useTheme()` — prop `color` resolveria via runtime.
+- `Card.tsx`: variantStyle inline com `border: 'none'` etc.
+- `Accordion.native.tsx`: `<Text style={{ color, fontSize: 14, fontWeight: '500' }}>` — quatro violações de uma vez.
+- `Avatar.tsx`: `style={{ width: px, height: px, objectFit: 'cover' }}` — todas têm prop.
+
+### Impacto
+
+- **DX.** Padrão duplo: parte do componente em props, parte em `style`. Leitor precisa olhar dois lugares.
+- **Theming.** `useTheme().colors.X` lê valor cru no module-load do componente (não via alias do engine), contornando override de tema.
+- **Pré-requisito.** Qualquer redesign de variant (RFC-0036/0037/0038) custa menos sobre código limpo.
+
+### Resolução proposta
+
+Sweep mecânico em janela dedicada **antes** das RFCs grandes. Ataque por componente, do pior para o melhor:
+
+1. **Tabs** (web + native) — 14 hits; saída para slot recipe será mais limpa após o sweep.
+2. **Accordion** (native) — Text com 4 violações.
+3. **Card** (web) — 5 hits estruturais.
+4. **Avatar** (web) — 3 hits cosméticos.
+
+Em paralelo, padronizar `useTheme().colors.X` → prop `color` em todos os 4.
+
+### Critério para fechar
+
+- [ ] `pnpm grep -nE "style=\{\{.*(padding|margin|color|fontSize|fontWeight|backgroundColor|border|whiteSpace|transition|width|height|objectFit)" src/components/{tabs,card,accordion,avatar}` retorna 0 hits estruturais (escapes legítimos como `gridTemplateRows` documentados com comentário).
+- [ ] Bateria verde após sweep (974/974+ depending on R9 progress).
+
+---
+
+## TD-037 — Tag `@platform native-ready` não-canônica
+
+**Origem:** R9 (2026-05-03), pattern R9-P2
+**Status:** **Resolved (2026-05-03)**
+**Severidade:** Baixa (cleanup)
+
+### Resolução
+
+Sub-onda 9.A:
+- 23 ocorrências de `@platform native-ready` em `src/` substituídas: interfaces e arquivos `.tsx` que descrevem contrato cross-platform → `@platform shared`; arquivos `.native.tsx` (toast, skeleton) → `@platform native`.
+- `scripts/check-platform-contract.js` re-alinhado para o vocabulário canônico `shared|web|native|placeholder`:
+  - Regex de detecção atualizada (drop `native-ready`/`web-only`).
+  - Rule 1 antiga ("native-ready precisa de `.native.tsx`") removida — `shared` agora cobre tanto componentes que funcionam cross-platform via engine (Box/Flex/Center/Card/Dialog) quanto os com `.native.tsx` próprio. Gate de paridade segue na Regra 3 (componente apenas `web` viola RFC-0018) e na Regra 4 (paridade `.native.tsx ↔ .native.test.tsx`).
+  - Inventário (Regra 2) classifica por **prioridade de tag** (`shared > web > native > placeholder`), evitando que um diretório com `comp.tsx` (`shared`) + `comp.native.tsx` (`native`) caia em `native` por ordem alfabética.
+- `pnpm test` 974/974 verde; `node scripts/check-platform-contract.js --strict` verde.
+
+### Contexto
+
+`src/components/accordion/interfaces/AccordionProps.ts` e `src/components/tabs/interfaces/TabsProps.ts` carregam `@platform native-ready` em JSDoc. Tag não-canônica — o vocabulário oficial é `shared|web|native`.
+
+```ts
+/**
+ * @platform native-ready
+ * Tabs compostas via slots. Web tem navegação por teclado e semântica ARIA automáticas;
+ * native usa `accessibilityRole="tab"/"tablist"` + `accessibilityState.selected` (touch-only).
+ */
+export interface TabsRootProps extends HTMLAttributes<HTMLDivElement> { … }
+```
+
+Ambos componentes têm `.native.tsx` paritários — qualificam como `@platform shared`.
+
+### Impacto
+
+- **Cleanup.** Sem efeito funcional; ruído na auditoria de plataforma.
+- **Risco residual:** scripts/lint que dependem do vocabulário canônico (ex.: `check-platform-contract --strict`) podem ignorar e mascarar bugs.
+
+### Resolução proposta
+
+Sweep mecânico em janela única ~30min:
+1. `pnpm grep -rn "@platform native-ready" src/` para inventariar.
+2. Substituir por `@platform shared` quando há `.native.tsx`; por `@platform web` ou `@platform native` quando aplicável.
+3. Verificar lint/script de paridade.
+
+### Critério para fechar
+
+- [x] `grep -rn "@platform native-ready" src/` retorna 0 hits.
+- [x] Bateria verde (974/974).
+- [x] `check-platform-contract --strict` verde no vocabulário canônico.
+
+---
+
+## TD-038 — Card hover/clickable CSS no provider global, com rgba + `!important`
+
+**Origem:** R9 — CD-Bug-3 (2026-05-03)
+**Status:** Open
+**Severidade:** Média (theming)
+
+### Contexto
+
+`src/ecosystem/styled-system/core/provider/provider.tsx:30-34`:
+
+```css
+.arbor-card-hoverable:hover, .arbor-card-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+}
+.arbor-card-clickable:active { transform: scale(0.99); }
+```
+
+Quatro problemas:
+
+1. **rgba literal** — viola "no rgba/hex em recipe/componente".
+2. **`!important`** — força override que ignora o cascade themable.
+3. **Transform/shadow hardcoded** — não consome `shadows.{token}` nem motion themable de RFC-0027.
+4. **Inútil em native** — CSS injetado só funciona em web, então `card.native.tsx` (quando existir) terá comportamento diferente sem caminho de paridade.
+
+### Impacto
+
+- **Theming.** Produto consumidor não consegue redefinir hover/active de Card via `createTheme()`.
+- **Cross-platform.** Em RN não há equivalente; Card hover/clickable em mobile vira no-op silencioso.
+- **Princípio.** Provider global virou esconderijo para CSS hardcoded — já tinha o focus ring (CSS vars `--arbor-brand`/`--arbor-surface`) e os keyframes; abrir precedente para componente específico polui o escopo.
+
+### Resolução proposta
+
+Resolvida pela [**RFC-0036 — Card slot recipe**](rfcs/RFC-0036-card-slot-recipe.md):
+- Mover hover/active para `defineSlotRecipe('card', { variants: { interactive: { hover, press } } })`.
+- Consumir `shadows.large` + `transition()` themable.
+- Deletar `arbor-card-hoverable`/`arbor-card-clickable` do `GLOBAL_CSS` em `provider.tsx`.
+
+Caminho alternativo (se RFC-0036 atrasar): converter para tokens (`shadows.cardHover`, `motion.cardHover`) sem mudar a abordagem do CSS injetado. **Não-preferido** — perpetua o esconderijo.
+
+### Critério para fechar
+
+- [ ] `arbor-card-hoverable` e `arbor-card-clickable` removidos de `provider.tsx`.
+- [ ] Hover/active de Card consomem `shadows.{token}` + `transition()` themable.
+- [ ] Produto consumidor consegue override completo via `createTheme({ components: { card: { variants: { interactive: { hover: { … } } } } } })`.
+- [ ] `card.native.tsx` documenta `interactive='hover'` como no-op em RN (sem hover em touch).
+
+---
+
+## TD-039 — Dead surface: `Tabs.variant 'pill'` + `tabs/slots/` vazio
+
+**Origem:** R9 — TB-Mod-1, TB-Mod-3 (2026-05-03)
+**Status:** **Resolved parcialmente (2026-05-03)** — `tabs/slots/` removido; `pill` real fica para RFC-0038
+**Severidade:** Baixa (cleanup)
+
+### Resolução
+
+Sub-onda 9.A:
+- `src/components/tabs/slots/` (diretório vazio desde a refatoração) removido.
+- `Tabs.variant: 'pill'` mantido no tipo público — a **RFC-0038 — Tabs API canônica** (já em Draft) implementa `pill` real no slot recipe `tabs`. Não removemos do tipo agora porque RFC-0038 está na fila imediata de execução; remover e re-adicionar seria churn.
+
+### Contexto
+
+`TabsListProps`:
+
+```ts
+interface TabsListProps extends HTMLAttributes<HTMLDivElement> {
+  children: ReactNode;
+  variant?: 'underline' | 'pill';   // ← pill declarado
+  fullWidth?: boolean;
+}
+```
+
+`tabs.tsx` ignora `variant === 'pill'` por completo — só `'underline'` afeta o render. Native (`tabs.native.tsx`) ignora `variant` por completo. `pill` é ghost no contrato público.
+
+E `src/components/tabs/slots/` é diretório vazio — código morto desde a refatoração que migrou para o pattern atual.
+
+### Impacto
+
+- **Contrato público mente.** Consumidor que digita `variant="pill"` não recebe erro de tipo nem warning, mas o estilo não muda.
+- **Confusão.** `tabs/slots/` vazio sugere arquitetura inacabada.
+
+### Resolução proposta
+
+Resolvida pela [**RFC-0038 — Tabs API canônica**](rfcs/RFC-0038-tabs-api-canonica.md):
+- `pill` implementado como variant real no slot recipe `tabs` (web + native paritários).
+- `src/components/tabs/slots/` deletado.
+
+Caminho alternativo (se RFC-0038 atrasar): remover `pill` do tipo público e do JSDoc — surface area diminui sem compromisso. Trade-off: consumidores que esperavam `pill` perdem a expectativa, mas hoje ela é apenas teórica.
+
+### Critério para fechar
+
+- [ ] `Tabs.variant === 'pill'` muda o render visual em web e native (RFC-0038).
+- [x] `src/components/tabs/slots/` deletado (sub-onda 9.A).
+- [ ] Stories cobrindo `variant="pill"` (RFC-0038).
 
 ---
 

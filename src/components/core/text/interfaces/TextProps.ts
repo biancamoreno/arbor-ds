@@ -1,7 +1,7 @@
 import { type ArborTransformProps, type Tags } from '../../../../ecosystem';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Componente de texto com implementação dedicada para web (`text.tsx`) e React Native (`text.native.tsx`).
  * Suporta web, iOS e Android.
  */

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Top app bar com slots `start`/`center`/`end`. Web usa `<header>` semântico;
  * `nav-bar.native.tsx` usa `Box` + safe-area iOS.
  */

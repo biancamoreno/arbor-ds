@@ -1,7 +1,7 @@
 import type { ArborTransformProps } from '../../../../ecosystem';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Layout primitivo CSS Grid no web; `grid.native.tsx` traduz `templateColumns/Rows`
  * para wrapping em Flex equivalente.
  */

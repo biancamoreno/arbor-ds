@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Tabs compostas via slots. Web tem navegação por teclado e semântica ARIA automáticas;
  * native usa `accessibilityRole="tab"/"tablist"` + `accessibilityState.selected` (touch-only).
  */

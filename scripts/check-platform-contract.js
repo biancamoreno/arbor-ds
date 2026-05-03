@@ -2,11 +2,21 @@
 /**
  * Verifica o contrato de plataforma do Arbor-DS.
  *
+ * Vocabulário canônico de `@platform`: `shared | web | native | placeholder`.
+ *
+ * Semântica: `shared` cobre dois caminhos válidos para paridade cross-platform —
+ * (a) o engine resolve sozinho (Box/Flex/Center, etc.) e não há `.native.tsx`;
+ * (b) o componente tem especialização `.native.tsx` ao lado do `.tsx` web.
+ * Por isso não exigimos `.native.tsx` para todo `shared` — o gate de paridade
+ * é feito pela Regra 3 (componente apenas `web` viola RFC-0018) e pela Regra 4
+ * (todo `.native.tsx` precisa do `.native.test.tsx` irmão).
+ *
  * Regras:
- * 1. Componentes marcados como `native-ready` devem ter arquivo `.native.tsx` correspondente.
- * 2. O entrypoint `src/native.ts` não deve importar arquivos que contenham `@platform web-only`.
- * 3. Componentes `shared` e `native-ready` devem estar presentes em `src/native.ts`.
- * 4. `@platform web-only` é classificação inválida (RFC-0018). Em modo `--strict`, falha o build.
+ * 1. O entrypoint `src/native.ts` não deve importar arquivos com `@platform web`.
+ * 2. Inventário de classificação por componente (informativo).
+ * 3. Componentes classificados apenas como `web` (sem par nativo) violam RFC-0018.
+ *    Em modo `--strict`, falha o build.
+ * 4. Todo `.native.tsx` deve ter `.native.test.tsx` irmão (RFC-0016).
  *
  * Uso:
  *   node scripts/check-platform-contract.js          # warns sobre web-only
@@ -47,7 +57,7 @@ function readFile(path) {
 }
 
 function findPlatformTag(fileContent) {
-  const match = fileContent.match(/@platform\s+(shared|native-ready|web-only|placeholder)/);
+  const match = fileContent.match(/@platform\s+(shared|web|native|placeholder)/);
   return match ? match[1] : null;
 }
 
@@ -65,49 +75,12 @@ function getAllTsxFiles(dir) {
   return files;
 }
 
-// ─── Regra 1: native-ready deve ter .native.tsx ───────────────────────────────
-
-console.log('\n── Verificando componentes @platform native-ready ──');
-
 const componentsDir = join(SRC, 'components');
 const coreDir = join(componentsDir, 'core');
 
-function checkNativeReadyComponents(baseDir) {
-  if (!existsSync(baseDir)) return;
+// ─── Regra 1: src/native.ts não deve importar @platform web ───────────────────
 
-  for (const entry of readdirSync(baseDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const compDir = join(baseDir, entry.name);
-    const tsxFiles = getAllTsxFiles(compDir);
-
-    for (const file of tsxFiles) {
-      const content = readFile(file);
-      if (!content) continue;
-
-      const tag = findPlatformTag(content);
-      if (tag !== 'native-ready') continue;
-
-      // Encontrou native-ready — verifica se existe .native.tsx no diretório core
-      const coreComponentDir = join(compDir, 'core');
-      if (!existsSync(coreComponentDir)) continue;
-
-      const nativeFiles = readdirSync(coreComponentDir).filter(f => f.endsWith('.native.tsx'));
-      if (nativeFiles.length === 0) {
-        error(`[native-ready sem .native.tsx] ${file.replace(ROOT, '').replace(/\\/g, '/')}`);
-        error(`  → Componente marcado como native-ready mas sem arquivo .native.tsx em ${coreComponentDir.replace(ROOT, '').replace(/\\/g, '/')}`);
-      } else {
-        ok(`${entry.name}: native-ready com ${nativeFiles.join(', ')}`);
-      }
-      break;
-    }
-  }
-}
-
-checkNativeReadyComponents(coreDir);
-
-// ─── Regra 2: src/native.ts não deve importar web-only ────────────────────────
-
-console.log('\n── Verificando src/native.ts não importa web-only ──');
+console.log('\n── Verificando src/native.ts não importa @platform web ──');
 
 const nativeEntry = join(SRC, 'native.ts');
 if (!existsSync(nativeEntry)) {
@@ -137,17 +110,17 @@ if (!existsSync(nativeEntry)) {
     if (!fileContent) continue;
 
     const tag = findPlatformTag(fileContent);
-    if (tag === 'web-only') {
-      error(`[web-only importado em native.ts] ${importPath}`);
+    if (tag === 'web') {
+      error(`[@platform web importado em native.ts] ${importPath}`);
     }
   }
 
   if (!hasError) {
-    ok('src/native.ts não importa nenhum componente web-only');
+    ok('src/native.ts não importa nenhum componente @platform web');
   }
 }
 
-// ─── Regra 3: inventário de suporte por plataforma ────────────────────────────
+// ─── Regra 2: inventário de suporte por plataforma ────────────────────────────
 
 console.log('\n── Inventário de suporte por plataforma ──');
 
@@ -160,17 +133,30 @@ const allComponentDirs = [
     .map(e => ({ name: e.name, dir: join(componentsDir, e.name) })),
 ];
 
-const summary = { shared: [], 'native-ready': [], 'web-only': [], placeholder: [], unknown: [] };
+const summary = { shared: [], web: [], native: [], placeholder: [], unknown: [] };
+
+// Para classificar o componente, preferimos a tag mais inclusiva encontrada em
+// qualquer arquivo do diretório: `shared` > `web` > `native` > `placeholder`.
+// Assim, um diretório com `comp.tsx` (`@platform shared`) e `comp.native.tsx`
+// (`@platform native`) classifica como `shared` (contrato cross-platform), não
+// como `native` por acaso de ordenação alfabética.
+const TAG_PRIORITY = { shared: 4, web: 3, native: 2, placeholder: 1 };
 
 for (const { name, dir } of allComponentDirs) {
   const files = getAllTsxFiles(dir);
   let tag = files.length === 0 ? 'placeholder' : 'unknown';
+  let priority = 0;
 
   for (const file of files) {
     const content = readFile(file);
     if (!content) continue;
     const found = findPlatformTag(content);
-    if (found) { tag = found; break; }
+    if (!found) continue;
+    const p = TAG_PRIORITY[found] ?? 0;
+    if (p > priority) {
+      priority = p;
+      tag = found;
+    }
   }
 
   summary[tag] = summary[tag] || [];
@@ -190,20 +176,25 @@ if (summary.unknown.length > 0) {
   warn(`\n${summary.unknown.length} componente(s) sem tag @platform — adicione a tag para formalizar o suporte.`);
 }
 
-// ─── Regra 3.5: web-only é classificação inválida (RFC-0018 + TD-017) ─────────
+// ─── Regra 3: componente exclusivamente `web` viola RFC-0018 ──────────────────
+//
+// Tags `web` e `native` são válidas em arquivos individuais que documentam a
+// especialização por plataforma de um componente shared. O que viola RFC-0018 é
+// um diretório de componente cuja única tag `@platform` encontrada seja `web`
+// (i.e., sem par nativo em qualquer arquivo do diretório).
 
-if (summary['web-only'] && summary['web-only'].length > 0) {
-  const count = summary['web-only'].length;
+if (summary.web.length > 0) {
+  const count = summary.web.length;
   const banner = '═'.repeat(72);
   console.log('');
   console.log(`\x1b[33m${banner}\x1b[0m`);
-  console.log(`\x1b[33m  CONTRATO RFC-0018 VIOLADO — ${count} componente(s) @platform web-only\x1b[0m`);
+  console.log(`\x1b[33m  CONTRATO RFC-0018 VIOLADO — ${count} componente(s) sem paridade native\x1b[0m`);
   console.log(`\x1b[33m${banner}\x1b[0m`);
-  warn('  `@platform web-only` é classificação INVÁLIDA. Critério de aceite da RFC-0018:');
-  warn('  todo componente do DS deve ter paridade native (`shared` ou `native-ready`).');
+  warn('  Componente classificado apenas como `@platform web` (sem par `shared` nem `native`).');
+  warn('  Critério da RFC-0018: todo componente do DS deve ter paridade native.');
   warn('');
   warn('  Cada item abaixo precisa de uma destas resoluções:');
-  warn('    1. Adicionar `.native.tsx` correspondente + tag `@platform native-ready`.');
+  warn('    1. Adicionar `.native.tsx` correspondente + classificar como `@platform shared`.');
   warn('    2. Confirmar que o engine cobre cross-platform e re-classificar como `shared`.');
   warn('    3. Abrir RFC dedicada se exigir decisão arquitetural (ex.: peer dep RN-svg).');
   warn('');
@@ -211,16 +202,16 @@ if (summary['web-only'] && summary['web-only'].length > 0) {
   warn('  Plano: docs/rfcs/RFC-0018-paridade-native-completa-do-ds.md');
   warn('');
   warn(`  Componentes em violação (${count}):`);
-  for (const comp of summary['web-only']) {
+  for (const comp of summary.web) {
     warn(`    × ${comp}`);
   }
   console.log(`\x1b[33m${banner}\x1b[0m`);
   if (STRICT) {
-    error('Modo --strict ativo: classificação web-only é falha de contrato.');
+    error('Modo --strict ativo: componente apenas `@platform web` é falha de contrato.');
   }
 }
 
-// ─── Regra 4: todo .native.tsx deve ter .native.test.tsx irmão (RFC-0016) ────
+// ─── Regra 4: todo .native.tsx deve ter .native.test.tsx irmão (RFC-0016) ─────
 
 console.log('\n── Verificando paridade .native.tsx ↔ .native.test.tsx ──');
 

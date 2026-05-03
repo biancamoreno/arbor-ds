@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import type { FeedbackTone } from '../../../foundations';
 
 /**
- * @platform native-ready
+ * @platform shared
  *
  * Indicador de progresso circular (0–100) ou indeterminado.
  *

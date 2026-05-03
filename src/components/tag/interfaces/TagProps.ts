@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { FeedbackTone } from '../../../foundations';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Tag interativa cross-platform. Web renderiza `<button>`; native delega ao
  * `Clickable.native` com `accessibilityRole="button"` + `accessibilityState.selected`.
  */

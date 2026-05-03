@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 export type RadioSize = 'small' | 'medium' | 'large';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Web: `<input type=radio>` invisível + label clicável.
  * Native: `<Pressable accessibilityRole="radio">` em `radio.native.tsx`.
  */

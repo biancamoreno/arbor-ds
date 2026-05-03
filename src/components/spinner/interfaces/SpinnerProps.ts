@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import type { SpinnerSize } from '../internal/sizes';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Indicador de carregamento indeterminado.
  *
  * - Web (`spinner.tsx`): keyframes CSS (`@keyframes arbor-spin` injetado pelo `ArborProvider`).

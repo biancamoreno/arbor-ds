@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  *
  * Accordion compound. Web usa CSS grid + keyboard nav (ArrowUp/Down); native renderiza
  * Content condicionalmente (`if (!open) return null`) e é touch-only. Trigger expõe

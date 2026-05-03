@@ -1,7 +1,7 @@
 import type { IconName } from '../../core/icon';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Web posiciona via `position: fixed`; `fab.native.tsx` usa `position: absolute`
  * dentro do safe-area + `Clickable.native` para o press feedback.
  */

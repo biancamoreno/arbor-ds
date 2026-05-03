@@ -1,7 +1,7 @@
 import type { HTMLAttributes, ReactNode, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Tabela semântica minimal. Sem sorting/paginação embutidos.
  *
  * Em native: layout columnar com Flex; sem reflow para cards (use composição manual).

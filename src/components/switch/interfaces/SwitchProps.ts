@@ -4,7 +4,7 @@ export type SwitchSize = 'small' | 'medium' | 'large';
 export type SwitchState = 'idle' | 'checked' | 'invalid' | 'disabled';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Web consome `<input type=checkbox role=switch>` com slot recipe;
  * `switch.native.tsx` re-implementa track/thumb com `Pressable` + Animated.
  */

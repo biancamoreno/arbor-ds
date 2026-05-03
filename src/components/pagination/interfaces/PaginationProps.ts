@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  *
  * Paginação compound. Web usa semântica `<nav>`/`<ul>`/`<li>`/`<button>`; native
  * remapeia para `Box`/`Flex`/`Clickable.native` com a11y nativa equivalente.

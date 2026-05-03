@@ -2,7 +2,7 @@ import type { MouseEventHandler } from 'react';
 import type { ArborTransformProps } from '../../../../ecosystem';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Botão interativo cross-platform.
  *
  * - Web (`clickable.tsx`): renderiza tag interativa (`<button>`, `<a>`, ...) via `<Flex as>`.

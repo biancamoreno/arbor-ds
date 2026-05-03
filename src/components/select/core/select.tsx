@@ -1,5 +1,5 @@
 /**
- * @platform native-ready
+ * @platform shared
  * Select compound: web usa DOM (`<button role=combobox>` + listbox `<ul>`) com modelo
  * de foco activedescendant — o foco real fica no trigger; o item ativo é apontado
  * via `aria-activedescendant` e segue setas/Home/End/PageUp/PageDown/type-ahead.

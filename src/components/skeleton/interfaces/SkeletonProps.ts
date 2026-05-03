@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Placeholder de carregamento com animação pulse.
  *
  * - Web (`skeleton.tsx`): shimmer via gradient + `@keyframes arbor-shimmer` (injetado pelo `ArborProvider`).

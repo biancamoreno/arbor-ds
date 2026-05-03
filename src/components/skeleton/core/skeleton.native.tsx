@@ -5,7 +5,7 @@ import { Flex } from '../../core';
 import type { SkeletonProps } from '../interfaces';
 
 /**
- * @platform native-ready
+ * @platform native
  *
  * Pulse via `Animated` em opacity (0.4 ↔ 1.0). Sem gradient shimmer (paridade visual
  * aceitável no MVP — gradient cross-platform exigiria `expo-linear-gradient`).

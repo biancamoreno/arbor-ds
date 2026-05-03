@@ -95,7 +95,7 @@ export type ImageBackgroundProps = ImageBaseProps & {
 };
 
 /**
- * @platform native-ready
+ * @platform shared
  *
  * Componente de imagem cross-platform com modos explícitos e estados padrão.
  *

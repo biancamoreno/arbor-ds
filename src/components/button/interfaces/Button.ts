@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 /**
- * @platform native-ready
+ * @platform shared
  * Botão cross-platform. Web renderiza `<Clickable as="button">`; native compõe
  * `Clickable.native` (Pressable + Box) com `accessibilityRole="button"` e
  * `accessibilityState={{ disabled, busy }}`. Loader é o `<Spinner>` em ambas.

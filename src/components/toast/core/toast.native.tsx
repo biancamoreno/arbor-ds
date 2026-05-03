@@ -16,7 +16,7 @@ import type {
 } from '../interfaces';
 
 /**
- * @platform native-ready
+ * @platform native
  *
  * Toast nativo:
  * - `Toaster` monta um `<Portal mode="overlay">` para que toques em áreas vazias
