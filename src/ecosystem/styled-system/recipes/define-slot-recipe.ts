@@ -7,6 +7,14 @@ type SlotVariants<
   [K in keyof V]?: keyof V[K];
 };
 
+type SlotCompoundVariant<
+  Slots extends string,
+  V extends Record<string, Record<string, Partial<Record<Slots, StyleProps>>>>,
+> = {
+  conditions: { [K in keyof V]?: keyof V[K] };
+  style: Partial<Record<Slots, StyleProps>>;
+};
+
 export type TypedSlotRecipeConfig<
   Slots extends string,
   V extends Record<string, Record<string, Partial<Record<Slots, StyleProps>>>>,
@@ -14,6 +22,7 @@ export type TypedSlotRecipeConfig<
   slots: readonly Slots[];
   base?: Partial<Record<Slots, StyleProps>>;
   variants?: V;
+  compoundVariants?: ReadonlyArray<SlotCompoundVariant<Slots, V>>;
   defaultVariants?: SlotVariants<Slots, V>;
 };
 

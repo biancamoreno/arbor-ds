@@ -1,15 +1,8 @@
 import { Clickable, Text } from '../../core';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
-import { getTagColors } from '../internal';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import type { TagProps } from '../interfaces';
 
-/**
- * @platform native-ready
- *
- * Tag nativo: `Clickable.native` com `accessibilityRole="button"` +
- * `accessibilityState={{ selected, disabled }}`. Children sempre envoltos em
- * `<Text>` (View não renderiza strings em RN).
- */
+type TagSlots = 'root' | 'label' | 'icon';
 
 /**
  * @platform native
@@ -17,13 +10,15 @@ import type { TagProps } from '../interfaces';
  * `Tag` em React Native — `Clickable.native` com mesmo modelo visual do web.
  * Aceita o conjunto canônico `FeedbackTone` (RFC-0032) e `selected`
  * (preenchimento sólido vs. outline). `disabled` bloqueia o press e propaga
- * em `accessibilityState`.
+ * em `accessibilityState`. Anatomia e cor resolvidas pela slot recipe `tag`
+ * (TD-034).
  *
  * @see {@link TagProps}
  */
 export function Tag({ children, tone = 'neutral', selected = false, disabled, onClick, className, style }: TagProps) {
-  const theme = useTheme();
-  const colors = getTagColors(theme, selected, tone);
+  const slots = useSlotRecipe<TagSlots>('tag', { tone, selected: selected ? 'true' : 'false' });
+  const rootStyles = (slots.root ?? {}) as Record<string, unknown>;
+  const textColor = rootStyles.color as string | undefined;
 
   return (
     <Clickable
@@ -33,21 +28,11 @@ export function Tag({ children, tone = 'neutral', selected = false, disabled, on
       onClick={onClick}
       className={className}
       style={style}
+      {...slots.root}
       display="flex"
-      alignItems="center"
-      justifyContent="center"
-      gap="micro"
-      paddingX="small"
-      paddingY="micro"
-      minHeight={44}
-      borderRadius="full"
-      borderStyle="solid"
-      borderWidth="hairline"
-      backgroundColor={colors.backgroundColor}
-      borderColor={colors.borderColor}
       opacity={disabled ? 0.5 : 1}
     >
-      <Text fontSize="xsmall" fontWeight="medium" color={colors.color}>
+      <Text fontSize="xsmall" fontWeight="medium" color={textColor}>
         {children}
       </Text>
     </Clickable>

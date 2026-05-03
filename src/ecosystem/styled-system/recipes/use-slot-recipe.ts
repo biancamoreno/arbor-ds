@@ -18,7 +18,7 @@ export function useSlotRecipe<S extends string = string>(
   }
 
   const recipe = entry as SlotRecipeConfig;
-  const { slots, base = {}, variants = {}, defaultVariants = {} } = recipe;
+  const { slots, base = {}, variants = {}, compoundVariants = [], defaultVariants = {} } = recipe;
 
   const result: Record<string, Record<string, unknown>> = {};
   for (const slot of slots) {
@@ -29,6 +29,17 @@ export function useSlotRecipe<S extends string = string>(
     const value = (props[variantKey] ?? defaultVariants[variantKey]) as string | undefined;
     if (value !== undefined && variantMap[value]) {
       for (const [slot, slotStyles] of Object.entries(variantMap[value])) {
+        result[slot] = { ...(result[slot] ?? {}), ...(slotStyles as Record<string, unknown>) };
+      }
+    }
+  }
+
+  for (const cv of compoundVariants) {
+    const matches = Object.entries(cv.conditions).every(([k, v]) => {
+      return (props[k] ?? defaultVariants[k]) === v;
+    });
+    if (matches) {
+      for (const [slot, slotStyles] of Object.entries(cv.style)) {
         result[slot] = { ...(result[slot] ?? {}), ...(slotStyles as Record<string, unknown>) };
       }
     }

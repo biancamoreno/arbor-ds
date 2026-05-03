@@ -76,11 +76,6 @@ export const themeLightColors = {
       strong: primitiveColor.red['80'],
     },
   },
-  status: {
-    info: primitiveColor.ocean['60'],
-    notice: primitiveColor.yellow['60'],
-    highlight: primitiveColor.rose['60'],
-  },
   shadow: {
     color: primitiveColor.neutral['100'],
   },

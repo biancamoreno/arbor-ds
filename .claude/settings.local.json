@@ -57,7 +57,9 @@
       "Bash(curl -sI https://biancamoreno.github.io/arbor-ds/)",
       "Bash(curl -s https://biancamoreno.github.io/arbor-ds/)",
       "Bash(pnpm test:platform-contract --strict)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(pnpm test:feedback-tones)"
     ]
   }
 }

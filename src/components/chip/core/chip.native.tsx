@@ -1,48 +1,13 @@
 import { useCallback } from 'react';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { Box, Flex, Clickable, Text } from '../../core';
 import { Icon } from '../../core';
-import { transition, getFeedbackToneColor, type ArborTheme, type FeedbackTone } from '../../../foundations';
 import { ChipContext, useChipContext } from '../context/chip-context';
 import type { ChipRootProps, ChipLabelProps, ChipIconProps, ChipRemoveProps } from '../interfaces';
 
-type ChipColors = {
-  backgroundColor: string;
-  color: string;
-  borderColor: string;
-};
-
-function getChipColors(
-  theme: ArborTheme,
-  variant: NonNullable<ChipRootProps['variant']>,
-  tone: FeedbackTone,
-  selected: boolean,
-): ChipColors {
-  const base = getFeedbackToneColor(theme, tone, 'base');
-  const subtle = getFeedbackToneColor(theme, tone, 'subtle');
-  const strong = getFeedbackToneColor(theme, tone, 'strong');
-
-  if (variant === 'filled') {
-    return selected
-      ? { backgroundColor: base, color: theme.colors.text.inverse, borderColor: 'transparent' }
-      : { backgroundColor: subtle, color: strong, borderColor: 'transparent' };
-  }
-
-  if (variant === 'outlined') {
-    return {
-      backgroundColor: 'transparent',
-      color: selected ? base : theme.colors.text.secondary,
-      borderColor: selected ? base : theme.colors.border.default,
-    };
-  }
-
-  return {
-    backgroundColor: selected ? subtle : 'transparent',
-    color: selected ? strong : theme.colors.text.secondary,
-    borderColor: theme.colors.border.subtle,
-  };
-}
+type ChipSlots = 'root' | 'label' | 'icon' | 'remove';
 
 function ChipRoot(props: ChipRootProps) {
   const {
@@ -63,9 +28,15 @@ function ChipRoot(props: ChipRootProps) {
   });
 
   const theme = useTheme();
-  const colors = getChipColors(theme, variant, tone, selected);
-  const paddingX = size === 'small' ? 'micro' : 'small';
-  const paddingY = size === 'small' ? 'nano' : 'micro';
+  const slots = useSlotRecipe<ChipSlots>('chip', {
+    size,
+    selectable: selectable ? 'true' : 'false',
+    variant,
+    tone,
+    selected: selected ? 'true' : 'false',
+  });
+  const rootStyles = (slots.root ?? {}) as Record<string, unknown>;
+  const textColor = rootStyles.color as string | undefined;
   const fontSize = size === 'small' ? 'xsmall' : 'small';
 
   const handleToggle = useCallback(() => {
@@ -91,20 +62,11 @@ function ChipRoot(props: ChipRootProps) {
           onClick={handleToggle}
           className={className}
           style={style}
+          {...slots.root}
           display="flex"
-          alignItems="center"
-          gap="nano"
-          paddingX={paddingX}
-          paddingY={paddingY}
-          minHeight={32}
-          borderRadius="full"
-          borderWidth="hairline"
-          borderStyle="solid"
-          backgroundColor={colors.backgroundColor}
-          borderColor={colors.borderColor}
           opacity={disabled ? theme.opacity.medium : 1}
         >
-          <Text fontSize={fontSize} fontWeight="medium" color={colors.color}>
+          <Text fontSize={fontSize} fontWeight="medium" color={textColor}>
             {children}
           </Text>
         </Clickable>
@@ -117,19 +79,11 @@ function ChipRoot(props: ChipRootProps) {
       <Flex
         className={className}
         style={style}
+        {...slots.root}
         display="flex"
-        alignItems="center"
-        gap="nano"
-        paddingX={paddingX}
-        paddingY={paddingY}
-        borderRadius="full"
-        borderWidth="hairline"
-        borderStyle="solid"
-        backgroundColor={colors.backgroundColor}
-        borderColor={colors.borderColor}
         opacity={disabled ? theme.opacity.medium : 1}
       >
-        <Text fontSize={fontSize} fontWeight="medium" color={colors.color}>
+        <Text fontSize={fontSize} fontWeight="medium" color={textColor}>
           {children}
         </Text>
       </Flex>
@@ -138,23 +92,24 @@ function ChipRoot(props: ChipRootProps) {
 }
 
 function ChipLabel({ children, className, style }: ChipLabelProps) {
+  const slots = useSlotRecipe<ChipSlots>('chip');
   return (
-    <Box className={className} style={style}>
+    <Box className={className} style={style} {...slots.label}>
       {children}
     </Box>
   );
 }
 
 function ChipIcon({ children, className, style }: ChipIconProps) {
+  const slots = useSlotRecipe<ChipSlots>('chip');
   return (
     <Flex
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
       className={className}
       style={style}
+      {...slots.icon}
       display="flex"
-      alignItems="center"
-      flexShrink={0}
     >
       {children}
     </Flex>
@@ -162,10 +117,9 @@ function ChipIcon({ children, className, style }: ChipIconProps) {
 }
 
 function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemoveProps) {
-  const { disabled } = useChipContext();
+  const { disabled, selectable } = useChipContext();
+  const slots = useSlotRecipe<ChipSlots>('chip', { selectable: selectable ? 'true' : 'false' });
 
-  // Em RN, nested Pressable é aceitável (sem regra HTML equivalente). Mantemos
-  // Clickable.native em ambos os modos do Root para paridade visual.
   return (
     <Clickable
       accessibilityRole="button"
@@ -175,18 +129,8 @@ function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemove
       onClick={onClick}
       className={className}
       style={style}
+      {...slots.remove}
       display="flex"
-      alignItems="center"
-      justifyContent="center"
-      minWidth={44}
-      minHeight={44}
-      width={14}
-      height={14}
-      flexShrink={0}
-      borderRadius="full"
-      backgroundColor="transparent"
-      marginLeft="micro"
-      transition={transition(['background-color', 'color'], 'fast')}
     >
       <Icon name="X" size="xsmall" decorative />
     </Clickable>
@@ -201,8 +145,8 @@ ChipRemove.displayName = 'Chip.Remove';
 /**
  * @platform native
  *
- * Chip em React Native — paridade com web pós-RFC-0033. Discriminated union
- * via prop `selectable`:
+ * Chip em React Native — paridade com web pós-RFC-0033 / TD-034. Discriminated
+ * union via prop `selectable`:
  *
  * - **Decorativo (default):** `<Flex>` (View) puramente visual. Sem
  *   `accessibilityRole`.
@@ -211,6 +155,8 @@ ChipRemove.displayName = 'Chip.Remove';
  *
  * Em RN, nested Pressable não tem restrição equivalente ao nested-button do
  * HTML, então `Chip.Remove` mantém `Clickable.native` em ambos os modos.
+ * Anatomia e cor resolvidas pela slot recipe `chip`; `<Text>` interno recebe
+ * `color` extraído do slot root (RN não cascateia `color` de View para Text).
  *
  * @see {@link ChipRootProps}
  * @see RFC-0033

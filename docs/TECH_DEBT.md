@@ -34,11 +34,11 @@
 | [TD-025](#td-025) | `FileUpload.native` é placeholder; promover para implementação real se demanda materializar | RFC-0026 (PR 2) | Open | DX (consumidor RN precisa integrar lib externa via `children`) | Promover para caminho (a) `expo-document-picker` peer dep quando 3+ produtos consumidores pedirem em < 6 meses |
 | [TD-026](#td-026) | `focusRing` largura/offset/estilo não são themable (cor já é, via `focus.ring`) | RFC-0027 (PR 2) | Open (Baixa) | Theming (gap residual: produto não consegue ajustar espessura/offset/estilo do anel) | Adiada até gatilho concreto (a11y reforçada WCAG 2.4.11 ou identidade de marca distinta) — caminho preferido: shorthand `_focusRing: 'default' \| 'strong'` resolvido em runtime via `theme.focusRing` |
 | [TD-027](#td-027) | `<Icon name="X" />` força catálogo lucide completo no bundle do consumidor | PR `fix(build): externalize lucide` (2026-05-01) | **Resolved (2026-05-02)** | — | Resolvida pela RFC-0028 — catálogo curado embutido (`iconMap` com 142 ícones essenciais). API por `name` preservada; bundle do consumidor passa a arrastar ~140 kB em vez de ~600 kB. |
-| [TD-030](#td-030) | `colors.status.{info,notice,highlight}` órfão pós-sub-onda 8.A | R8 sweep (2026-05-02) | Open | Baixa (cleanup) | Sweep curto: zero consumidores após migração `feedback.info.*`. Remover quando RFC-0032 fechar (estabiliza catálogo `feedback.*` como único namespace). |
+| [TD-030](#td-030) | `colors.status.{info,notice,highlight}` órfão pós-sub-onda 8.A | R8 sweep (2026-05-02) | Resolved (2026-05-03) | Baixa (cleanup) | Removido em PR único pós-RFC-0032 — `themeLightColors.status` e `themeDarkColors.status` deletados; tipo `ThemeColors` (derivado) ajusta automaticamente; 974/974 verdes. |
 | [TD-031](#td-031) | Engine runtime ignora `marginInline*` / `borderInline*` / `whiteSpace` apesar de tipar | R2 + R8 (2026-05-02) | Open | Média (a11y/RTL bloqueado) | Inventariar todos longhand declarados em `system/props/*` mas ausentes do whitelist runtime; corrigir transformer ou rebaixar tipos. RFC dedicada quando 1º produto pedir RTL. |
 | [TD-032](#td-032) | `usePrefersReducedMotion.native` ausente — animações native ignoram a11y | R1-C4 + R7 (2026-05-02) | Open | Média (a11y mobile) | Implementar shim consumindo `AccessibilityInfo.isReduceMotionEnabled()`; substituir `Animated.loop` em Spinner/Skeleton/ProgressCircle/Toast por versão que respeita o hook. |
 | [TD-033](#td-033) | Labels hardcoded pt-BR sem ponto de extensão sistêmico | R7 + R8 (2026-05-02) | Open | Média (DX/i18n) | "Fechar"/"Notificações"/"Remover"/"Carregando" espalhados. Decidir entre prop `texts={}` por componente (padrão FileUpload) ou `<ArborProvider texts={}>` central. RFC dedicada. |
-| [TD-034](#td-034) | Tag/Chip sem slot recipe completo (`getTagColors` / `getChipColors` locais) | R8 sweep (2026-05-02) | Open | Baixa (refactor) | Migrar para `defineSlotRecipe('tag'|'chip', { variants })`. Bloqueado por RFC-0032 (tones canônicos) e RFC-0033 (Chip selectable). Abrir após ambas aceitas. |
+| [TD-034](#td-034) | Tag/Chip sem slot recipe completo (`getTagColors` / `getChipColors` locais) | R8 sweep (2026-05-02) | Resolved (2026-05-03) | Baixa (refactor) | Slot recipes `tag` (12 compoundVariants `tone × selected`) e `chip` (24 compoundVariants `variant × tone × selected`) modelam toda a anatomia + cor; `SlotRecipeConfig` + `useSlotRecipe` + `TypedSlotRecipeConfig` ganharam suporte a `compoundVariants`; `tag-colors.ts` e `chip-colors.ts` deletados; produto consumidor consegue override completo via `createTheme()`. |
 
 **Total:** 11 dívidas abertas, 14 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02).
 
@@ -1652,8 +1652,12 @@ Média — não bloqueava o v1.0.0 (a RFC-0013 já era a norma documentada), mas
 ## TD-030 — `colors.status.{info,notice,highlight}` órfão pós-sub-onda 8.A
 
 **Origem:** R8 sweep, sub-onda 8.A (2026-05-02)
-**Status:** Open
+**Status:** Resolved (2026-05-03)
 **Severidade:** Baixa (cleanup)
+
+### Resolução (2026-05-03)
+
+PR único curto pós-RFC-0032: `themeLightColors.status` e `themeDarkColors.status` deletados de `src/foundations/tokens/semantics/color/{themeLightColors,themeDarkColors}.ts`. Tipo `ThemeColors` (derivado de `typeof themeLightColors`) ajusta automaticamente — sem alterações em `Theme.ts`. Zero consumidores no momento da remoção (`grep -rE "colors\.status\." src/` → 0 hits). 974/974 verdes; `pnpm exec tsc -b` exit 0; `pnpm test:feedback-tones` verde. Sem janela de transição (precedente TD-012).
 
 ### Contexto
 
@@ -1813,8 +1817,50 @@ Média — não bloqueia produto pt-BR (caso atual), mas trava expansão interna
 ## TD-034 — Tag/Chip sem slot recipe completo
 
 **Origem:** R8 sweep (2026-05-02), follow-up das reviews Tag e Chip
-**Status:** Open (bloqueado)
+**Status:** Resolved (2026-05-03)
 **Severidade:** Baixa (refactor estrutural)
+
+### Resolução (2026-05-03)
+
+PR único pós-RFC-0032 + RFC-0033 + RFC-0031, em duas etapas na mesma janela:
+
+**Etapa 1 — slots + variants estruturais.**
+- `tag` e `chip` formalizadas como `defineSlotRecipe` em `src/foundations/theme/base-theme.ts`. Slots: Tag → `root | label | icon`; Chip → `root | label | icon | remove`.
+- Tipo `chip` em `ThemeComponents` migrado de `RecipeConfig` para `SlotRecipeConfig`; novo campo `tag?: SlotRecipeConfig`.
+- Web+native consomem via `useSlotRecipe('tag'|'chip')`.
+
+**Etapa 2 — extensão `compoundVariants` em slot recipe.** Engine hoje só suportava `compoundVariants` em `RecipeConfig` flat. Para mover `tone × selected/variant` para dentro da recipe, três pontos foram estendidos:
+
+- `SlotRecipeConfig` (`src/foundations/theme/types.ts`) ganhou campo `compoundVariants?: Array<{ conditions, style: Partial<Record<slot, AnyStyleProps>> }>`.
+- `useSlotRecipe` (`src/ecosystem/styled-system/recipes/use-slot-recipe.ts`) processa `compoundVariants` após o cascade de variants — mesma ordem que `useRecipe` flat.
+- `TypedSlotRecipeConfig` (`src/ecosystem/styled-system/recipes/define-slot-recipe.ts`) ganhou tipo `SlotCompoundVariant<Slots, V>` com conditions tipadas (`{ [K in keyof V]?: keyof V[K] }`) e style por slot.
+
+**Recipes finais.**
+- `tag` declara `tone × selected` como dois eixos vazios (`{}`) e 12 `compoundVariants` resolvendo `bg/borderColor/color` para cada combinação. Default: `tone='neutral', selected='false'`.
+- `chip` declara `variant × tone × selected` (variants estruturais carregam defaults para `outlined`/`subtle` selected=false que independem de tone) e 24 `compoundVariants` para `variant × tone` (12 filled + 6 outlined-selected + 6 subtle-selected).
+
+**Consumo.**
+- `tag.tsx` / `tag.native.tsx`: `useSlotRecipe('tag', { tone, selected: selected ? 'true' : 'false' })`. Native extrai `color` do slot root (RN não cascateia `color` View→Text) e injeta no `<Text>` interno.
+- `chip.tsx` / `chip.native.tsx`: `useSlotRecipe('chip', { size, selectable, variant, tone, selected })`. Native idem para `<Text>`.
+
+**Eliminado.**
+- `src/components/tag/internal/tag-colors.ts` — deletado.
+- `src/components/chip/internal/chip-colors.ts` — deletado.
+- Pastas `internal/` removidas em ambos os componentes.
+
+**Multi-produto.** Produto consumidor agora consegue override completo via `createTheme({ components: { tag: { compoundVariants: [...] }, chip: { compoundVariants: [...] } } })` — paleta de Tag/Chip por tone deixou de ser decisão hardcoded em runtime helper.
+
+**Métricas.** 974/974 verdes; `pnpm exec tsc -b` exit 0; `pnpm lint` limpo; `pnpm test:feedback-tones` verde; `check-platform-contract --strict` verde.
+
+### Critério para fechar
+
+- [x] RFC-0032 aceita e implementada.
+- [x] RFC-0033 aceita e implementada.
+- [x] `defineSlotRecipe('tag', { slots, variants: { tone, selected } })` com 12 `compoundVariants` em `base-theme.ts`.
+- [x] `defineSlotRecipe('chip', { slots, variants: { size, selectable, variant, tone, selected } })` com 24 `compoundVariants` em `base-theme.ts`.
+- [x] `tag.tsx` / `tag.native.tsx` consomem via `useSlotRecipe('tag')`. `internal/tag-colors.ts` deletado.
+- [x] `chip.tsx` / `chip.native.tsx` consomem via `useSlotRecipe('chip')`. `getChipColors` deletado.
+- [x] Suite verde + paridade web↔native.
 
 ### Contexto
 
