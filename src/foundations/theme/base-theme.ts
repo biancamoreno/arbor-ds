@@ -512,28 +512,60 @@ const components: ThemeComponents = {
     defaultVariants: { size: 'medium' },
   },
 
-  card: {
+  card: defineSlotRecipe({
+    slots: ['root', 'header', 'body', 'footer', 'media'] as const,
     base: {
-      display: 'flex',
-      flexDirection: 'column',
-      borderRadius: 'medium',
-      overflow: 'hidden',
+      root: {
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 'medium',
+        backgroundColor: 'surface.default',
+        overflow: 'hidden',
+      },
+      header: {
+        paddingBottom: 'small',
+        borderStyle: 'solid',
+        borderBottomWidth: 'hairline',
+        borderBottomColor: 'border.subtle',
+      },
+      body: { flex: 1 },
+      footer: {
+        paddingTop: 'small',
+        borderStyle: 'solid',
+        borderTopWidth: 'hairline',
+        borderTopColor: 'border.subtle',
+      },
+      media: { overflow: 'hidden' },
     },
     variants: {
       variant: {
-        outlined: { borderWidth: 'hairline' },
-        elevated: { boxShadow: 'md' },
+        outlined: { root: { borderWidth: 'hairline', borderStyle: 'solid', borderColor: 'border.subtle' } },
+        elevated: { root: { boxShadow: 'md' } },
         flat: {},
       },
+      interactive: {
+        false: {},
+        true: {
+          root: {
+            cursor: 'pointer',
+            transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate'),
+            _hover: { transform: 'translateY(-2px)', boxShadow: 'cardHover' },
+            _active: { transform: 'scale(0.99)' },
+            _focusVisible: focusRing,
+          },
+        },
+      },
       padding: {
-        none: { padding: 'none' },
-        small: { padding: 'tiny' },
-        medium: { padding: 'medium' },
-        large: { padding: 'large' },
+        none:   { header: { padding: 'none' },   body: { padding: 'none' },   footer: { padding: 'none' } },
+        xsmall: { header: { padding: 'micro' },  body: { padding: 'micro' },  footer: { padding: 'micro' } },
+        small:  { header: { padding: 'tiny' },   body: { padding: 'tiny' },   footer: { padding: 'tiny' } },
+        medium: { header: { padding: 'small' },  body: { padding: 'small' },  footer: { padding: 'small' } },
+        large:  { header: { padding: 'large' },  body: { padding: 'large' },  footer: { padding: 'large' } },
+        xlarge: { header: { padding: 'huge' },   body: { padding: 'huge' },   footer: { padding: 'huge' } },
       },
     },
-    defaultVariants: { variant: 'outlined', padding: 'medium' },
-  },
+    defaultVariants: { variant: 'outlined', padding: 'medium', interactive: 'false' },
+  }),
 
   tag: defineSlotRecipe({
     slots: ['root', 'label', 'icon'] as const,

@@ -72,9 +72,8 @@ describe('multi-product theming matrix', () => {
   });
 
   it('Card outlined renders within product B without crashing', () => {
-    render(<Card data-testid="card">content</Card>, { wrapper: Wrapper });
-    const card = screen.getByTestId('card');
-    expect(card).toBeTruthy();
+    render(<Card><Card.Body>content</Card.Body></Card>, { wrapper: Wrapper });
+    expect(screen.getByText('content')).toBeTruthy();
   });
 
   it('Badge renders within product B without crashing', () => {

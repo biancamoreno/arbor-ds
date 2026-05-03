@@ -38,7 +38,7 @@ export type ThemeComponents = {
   badge?: RecipeConfig;
   alert?: SlotRecipeConfig;
   accordion?: SlotRecipeConfig;
-  card?: RecipeConfig;
+  card?: SlotRecipeConfig;
   chip?: SlotRecipeConfig;
   tag?: SlotRecipeConfig;
   avatar?: SlotRecipeConfig;

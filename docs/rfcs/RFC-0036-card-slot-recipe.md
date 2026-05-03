@@ -1,9 +1,21 @@
 # RFC-0036 — Card: slot recipe + behavior split + paridade native
 
-**Status**: **Draft (2026-05-03)**
+**Status**: **Implemented (2026-05-03)**
 **Autores**: arbor-ds-architect
 **Data**: 2026-05-03
 **Origem**: review R9 (achados CD-Bug-1/2/3, CD-Mod-1/2, CD-Hard-1/2, CD-Plat-1, CD-A11y-1).
+
+## Ajustes vs Draft (revisão arquiteto)
+
+A leitura do arquiteto antes da implementação refinou três decisões:
+
+1. **Anatomia reflow em vez de bleed via context.** Cada slot dona seu padding (`header`/`body`/`footer` recebem o padding da variant; `media` não). `Card.Media` fica edge-to-edge **por construção** — sem context, sem `marginX={'-${px}'}`, sem hack. Bug CD-Bug-1 desaparece na fonte.
+2. **`interactive` virou booleano puro.** `interactive?: 'hover' | 'press' | true | false` (Draft) → `interactive?: boolean` (final). `'hover'` saiu (UI mentirosa em web, no-op em native, conflita affordance × feedback). `true` é a única forma; `false`/ausente = decorativo. Precedente TD-012 (sem aliases legacy).
+3. **`aria-label` (chave HTML literal)** em vez de `ariaLabel` camelCase. Native aceita também `accessibilityLabel`; quando ambos passados, prefere `accessibilityLabel`.
+
+Pontos abertos que viraram decisão:
+- Touch target 44×44 não foi forçado em `interactive` — Card é grande por natureza; consumidor controla.
+- `shadows.cardHover` permanece como token themable (override por `createTheme({ shadows: { cardHover: '...' } })`).
 
 ---
 

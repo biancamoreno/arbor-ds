@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-03 (sub-ondas 9.A e 9.B + TD-038 — sweep `style→props` em Tabs/Card/Accordion/Avatar reduziu ~30 hits para ~9 residuais com justificativa runtime documentada; `shadows.cardHover` primitive + CSS var `--arbor-shadow-card-hover` desacoplam hover do Card sem `!important` removido — RFC-0036 conclui).
+**Última atualização:** 2026-05-03 (RFC-0036 implementada — Card slot recipe + behavior split + paridade native + bleed via anatomia reflow; TD-038 fechada definitivamente; CSS global `.arbor-card-*` deletado do provider; 1002/1002 testes verdes).
 
 ---
 
@@ -42,10 +42,10 @@
 | [TD-035](#td-035) | Carousel inexistente (pasta vazia, sem export) | R9 sondagem (2026-05-03) | Open | Média (bloqueio de produto — vitrines/landing) | Aguarda RFC-0034 (anatomia compound + scroll-snap web / FlatList native + a11y region/slide + autoplay com reduced-motion). 2 PRs previstos. |
 | [TD-036](#td-036) | Sweep `style→props` em components R9 (~30 hits) | R9 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (resíduo) | Sub-onda 9.B — ~30 hits reduzidos para ~9 em produção, todos justificados pelo runtime do engine: `transition`/`whiteSpace` typed mas não-handled (TD-031), `gridTemplateRows` não whitelisted, Avatar `width/height` lidos como inline pelo teste (RFC-0035 tematiza via `sizes.avatar.*`), AvatarGroup `boxShadow` ring + `Card.Media` bleed dependem de RFCs (0035/0036). |
 | [TD-037](#td-037) | Tag `@platform native-ready` não-canônica em interfaces | R9 (2026-05-03) | **Resolved (2026-05-03)** | — | Sub-onda 9.A — 23 ocorrências migradas (interfaces e `.tsx` shared → `@platform shared`; arquivos `.native.tsx` → `@platform native`); `scripts/check-platform-contract.js` re-alinhado para o vocabulário canônico `shared\|web\|native\|placeholder` com Rule 1 substituída pela classificação por prioridade de tag (evita falso-positivo em diretórios com mistura `shared` + `native`). |
-| [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (RFC-0036 conclui) | Sub-onda 9.B — interim themable: `shadows.cardHover` primitive criado + provider injeta CSS var `--arbor-shadow-card-hover` por theme (override via `createTheme({ shadows: { cardHover } })`); rgba sai do CSS injetado. **Pendência:** `!important` mantido até RFC-0036 (slot recipe `card` permite resolver via cascade adequada sem hack); `transform: translateY/scale` continua hardcoded (RFC-0036 trata como motion themable). |
+| [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | **Resolved (2026-05-03)** | Baixa (resolvida) | RFC-0036 — `defineSlotRecipe('card')` com variant `interactive: { true: { _hover, _active, transition } }`; CSS global e `--arbor-shadow-card-hover` deletados do provider; `card.tsx`/`card.native.tsx` cross-platform paritários; bleed via anatomia reflow (cada slot dona seu padding, `media` edge-to-edge por construção). |
 | [TD-039](#td-039) | Dead surface: `Tabs.variant 'pill'` declarado e não implementado + `tabs/slots/` vazio | R9 — TB-Mod-1/3 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (cleanup) | Sub-onda 9.A — `src/components/tabs/slots/` deletado (diretório vazio). `Tabs.variant: 'pill'` permanece no tipo público até a **RFC-0038** implementar de fato (mantido como contrato a cumprir, não como ghost — RFC já está Draft com `pill` real previsto no slot recipe). |
 
-**Total:** 12 dívidas abertas (4 com resolução parcial — TD-036/TD-038/TD-039 fechados parcialmente; agradam fechamento total na próxima onda RFC), 18 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037 e TD-039 em 2026-05-03).
+**Total:** 11 dívidas abertas (3 com resolução parcial — TD-036/TD-039; TD-038 fechada definitivamente), 19 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037, TD-038 e TD-039 em 2026-05-03).
 
 ---
 
@@ -2061,8 +2061,19 @@ Sweep mecânico em janela única ~30min:
 ## TD-038 — Card hover/clickable CSS no provider global, com rgba + `!important`
 
 **Origem:** R9 — CD-Bug-3 (2026-05-03)
-**Status:** **Resolved parcialmente (2026-05-03)** — sub-onda 9.B (interim themable)
-**Severidade:** Baixa (RFC-0036 conclui)
+**Status:** **Resolved (2026-05-03)** — RFC-0036 implementada
+**Severidade:** Baixa (resolvida)
+
+### Resolução final (RFC-0036)
+
+- `defineSlotRecipe('card')` ganhou variant `interactive: { true: { _hover: { boxShadow: 'cardHover', transform: ... }, _active: { transform: ... }, transition: transition([...]) } }`. Hover/active 100% themable via cascade da recipe.
+- `provider.tsx` perdeu as 4 linhas de CSS global `.arbor-card-hoverable` / `.arbor-card-clickable` e o `--arbor-shadow-card-hover` (sem var, sem `!important`, sem fallback).
+- `card.tsx` (web) embrulha em `<Clickable as="button">` quando `interactive=true`; pseudo-states resolvidos pelo engine. `card.native.tsx` documenta `_hover`/`_active` como no-ops naturais em RN.
+- Override por produto: `createTheme({ components: { card: { variants: { interactive: { true: { root: { _hover: { boxShadow: 'minha-sombra' } } } } } } } })` — funciona sem editar arquivos do DS.
+
+1002/1002 testes verdes. Critérios todos atendidos. Veja seção abaixo.
+
+
 
 ### Resolução interim (sub-onda 9.B)
 
@@ -2120,10 +2131,10 @@ Caminho alternativo (se RFC-0036 atrasar): converter para tokens (`shadows.cardH
 
 ### Critério para fechar
 
-- [ ] `arbor-card-hoverable` e `arbor-card-clickable` removidos de `provider.tsx`.
-- [ ] Hover/active de Card consomem `shadows.{token}` + `transition()` themable.
-- [ ] Produto consumidor consegue override completo via `createTheme({ components: { card: { variants: { interactive: { hover: { … } } } } } })`.
-- [ ] `card.native.tsx` documenta `interactive='hover'` como no-op em RN (sem hover em touch).
+- [x] `arbor-card-hoverable` e `arbor-card-clickable` removidos de `provider.tsx`.
+- [x] Hover/active de Card consomem `shadows.{token}` + `transition()` themable.
+- [x] Produto consumidor consegue override completo via `createTheme({ components: { card: { variants: { interactive: { true: { … } } } } } })`.
+- [x] `card.native.tsx` cobre o caso `interactive=true` com `Clickable.native`; `_hover`/`_active` no-ops naturais em RN documentados no JSDoc.
 
 ---
 

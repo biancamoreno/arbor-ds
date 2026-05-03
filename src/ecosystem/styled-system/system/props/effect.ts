@@ -30,4 +30,8 @@ export interface EffectProps {
    * The CSS `opacity` property
    */
   opacity?: ResponsiveValue<CSS.Property.Opacity>;
+  /**
+   * The CSS `transform` property
+   */
+  transform?: ResponsiveValue<CSS.Property.Transform>;
 }

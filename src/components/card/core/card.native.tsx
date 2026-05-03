@@ -34,18 +34,18 @@ function CardRoot(props: CardRootProps) {
   const contextValue = useMemo(() => slots, [slots]);
 
   if (interactive) {
-    const { onClick } = props as Extract<CardRootProps, { interactive: true }>;
+    const { onClick, accessibilityLabel } = props as Extract<CardRootProps, { interactive: true }>;
     const ariaLabel = (props as Extract<CardRootProps, { interactive: true }>)['aria-label'];
     return (
       <CardContext.Provider value={contextValue}>
         <Clickable
-          as="button"
-          type="button"
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel ?? ariaLabel}
           onClick={onClick}
-          aria-label={ariaLabel}
           className={className}
           style={style}
           {...slots.root}
+          display="flex"
         >
           {children}
         </Clickable>
@@ -105,39 +105,22 @@ CardFooter.displayName = 'Card.Footer';
 CardMedia.displayName = 'Card.Media';
 
 /**
- * @platform shared
+ * @platform native
  *
- * Compound de cartão. **Discriminated union** controla o contrato:
+ * Card em React Native — paridade com web pós-RFC-0036.
  *
- * - **Decorativo (default):** `<Card>` renderiza `<div>` puramente visual.
+ * - **Decorativo (default):** `<Flex>` (View) puramente visual.
+ * - **Interativo (`interactive`):** `Clickable.native` com
+ *   `accessibilityRole='button'` + `accessibilityLabel`.
  *
- *   ```tsx
- *   <Card variant="elevated" padding="medium">
- *     <Card.Media><Image src={url} alt="" /></Card.Media>
- *     <Card.Header>Plano Plus</Card.Header>
- *     <Card.Body>Recursos avançados…</Card.Body>
- *     <Card.Footer><Button>Assinar</Button></Card.Footer>
- *   </Card>
- *   ```
+ * Pseudo-states `_hover`/`_active` da slot recipe são ignorados pelo engine
+ * native (não existem em RN); transição também não tem efeito sem `Animated`.
+ * O custo é zero — a recipe convive bem em ambas as plataformas.
  *
- * - **Interativo:** `<Card interactive onClick={...} aria-label="...">` vira
- *   `<button>` (web) / `<Pressable>` (native) com hover/active themable e
- *   foco visível WCAG.
- *
- *   ```tsx
- *   <Card interactive onClick={openProduct} aria-label="Abrir produto X">
- *     <Card.Body>...</Card.Body>
- *   </Card>
- *   ```
- *
- * Anatomia (variant × padding × interactive) resolvida pela slot recipe
- * `card` — override completo via `createTheme`.
- *
- * `Card.Media` fica edge-to-edge **por construção**: cada slot dona seu
- * padding; `media` não tem padding, então renderiza encostado nas bordas
- * do `root` (graças a `overflow: 'hidden'` no root).
+ * `Card.Media` fica edge-to-edge **por construção**: cada slot dona seu padding.
  *
  * @see {@link CardRootProps}
+ * @see RFC-0036
  */
 export const Card = Object.assign(CardRoot, {
   Root: CardRoot,

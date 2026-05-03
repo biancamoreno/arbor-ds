@@ -282,6 +282,35 @@ size: {
 
 O `::before` herda os event handlers do parent — clicar no overlay dispara `onClick` do botão. **Cada componente novo interativo precisa de teste assertivo** verificando `min-height >= 44` (no slot via recipe) ou regra `::before{min-width:44px;min-height:44px}` (no overlay).
 
+### 10. Card — discriminated union `interactive` + anatomia reflow (RFC-0036)
+
+`Card` separa **identidade** (`variant`) de **comportamento** (`interactive`). A discriminated union força a11y no nível de tipo:
+
+```tsx
+// Decorativo (default)
+<Card variant="elevated" padding="medium">
+  <Card.Body>...</Card.Body>
+</Card>
+
+// Interativo — TS exige onClick + aria-label
+<Card interactive onClick={open} aria-label="Abrir produto X">
+  <Card.Body>...</Card.Body>
+</Card>
+```
+
+Sem `'hover'` decorativo — quando interativo, hover/active são affordances reais que dependem de `onClick`. `interactive: true` vira `<button>` (web) / `<Pressable>` (native).
+
+**Anatomia reflow:** cada slot dona seu padding. `header`/`body`/`footer` recebem o padding da variant; `media` não. `Card.Media` fica edge-to-edge **por construção** — sem context, sem margin negativa, sem hack:
+
+```tsx
+<Card padding="large">
+  <Card.Media><Image src={url} alt="" /></Card.Media>  {/* edge-to-edge */}
+  <Card.Body>...</Card.Body>                            {/* padding large */}
+</Card>
+```
+
+Hover/active themable via `interactive: true` na slot recipe — produto consumidor sobreescreve via `createTheme({ components: { card: { variants: { interactive: { true: { root: { _hover: { boxShadow: '...' } } } } } } } })`. Em RN, `_hover`/`_active` são no-ops naturais; nada quebra.
+
 ## RFCs
 
 Mudanças que afetam API pública, breaking changes ou decisões arquiteturais relevantes requerem RFC.
