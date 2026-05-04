@@ -12,7 +12,11 @@ import { FlatList, type ViewToken } from 'react-native';
 import { Box, Clickable, Icon } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
-import { useBreakpoint, useToken } from '../../../ecosystem/styled-system/system/hooks';
+import {
+  useBreakpoint,
+  useToken,
+  usePrefersReducedMotion,
+} from '../../../ecosystem/styled-system/system/hooks';
 import { CarouselContext, useCarouselContext } from '../context/carousel-context';
 import type {
   CarouselContentProps,
@@ -321,6 +325,7 @@ function CarouselItem({ children, id, className, style }: CarouselItemProps) {
 function CarouselPrevious({ ariaLabel, children, className, style }: CarouselNavProps) {
   const ctx = useCarouselContext();
   const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const prefersReducedMotion = usePrefersReducedMotion();
   const disabled = ctx.activeIndex <= 0;
 
   const handlePress = () => {
@@ -328,7 +333,7 @@ function CarouselPrevious({ ariaLabel, children, className, style }: CarouselNav
     const target = ctx.activeIndex - 1;
     ctx.prev();
     const list = ctx.flatListRef.current as FlatList<unknown> | null;
-    list?.scrollToIndex({ index: target, animated: true });
+    list?.scrollToIndex({ index: target, animated: !prefersReducedMotion });
   };
 
   return (
@@ -350,6 +355,7 @@ function CarouselPrevious({ ariaLabel, children, className, style }: CarouselNav
 function CarouselNext({ ariaLabel, children, className, style }: CarouselNavProps) {
   const ctx = useCarouselContext();
   const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const prefersReducedMotion = usePrefersReducedMotion();
   const disabled = ctx.activeIndex >= ctx.slideCount - ctx.resolvedSlidesPerView;
 
   const handlePress = () => {
@@ -357,7 +363,7 @@ function CarouselNext({ ariaLabel, children, className, style }: CarouselNavProp
     const target = ctx.activeIndex + 1;
     ctx.next();
     const list = ctx.flatListRef.current as FlatList<unknown> | null;
-    list?.scrollToIndex({ index: target, animated: true });
+    list?.scrollToIndex({ index: target, animated: !prefersReducedMotion });
   };
 
   return (
@@ -388,6 +394,7 @@ function CarouselIndicators({
   const slots = useSlotRecipe<CarouselSlots>('carousel');
   const slotsActive = useSlotRecipe<CarouselSlots>('carousel', { state: 'active' });
   const slotsInactive = useSlotRecipe<CarouselSlots>('carousel', { state: 'inactive' });
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const indices = useMemo(
     () => Array.from({ length: ctx.slideCount }, (_, i) => i),
@@ -402,7 +409,7 @@ function CarouselIndicators({
   const handleSelect = (index: number) => {
     ctx.goTo(index);
     const list = ctx.flatListRef.current as FlatList<unknown> | null;
-    list?.scrollToIndex({ index, animated: true });
+    list?.scrollToIndex({ index, animated: !prefersReducedMotion });
   };
 
   return (

@@ -1740,37 +1740,37 @@ Média — não bloqueia v1 nem casos LTR, mas é falsa promessa de tipo. Promov
 ## TD-032 — `usePrefersReducedMotion.native` ausente
 
 **Origem:** R1-C4 (catalogada em foundations review) + R7 reviews (Spinner/Skeleton/ProgressCircle) + R8 (Toast.native)
-**Status:** Open
+**Status:** **Resolved (2026-05-03)** — hook entregue; ramificações dos 4 consumidores native viraram **TD-041**.
 **Severidade:** Média (a11y mobile)
 
 ### Contexto
 
 Web tem `usePrefersReducedMotion` consumindo `prefers-reduced-motion` via media query. Reviews R7 confirmaram que Spinner/Skeleton respeitam isso via CSS global (`REDUCED_MOTION_CSS`). ProgressBar indeterminate também.
 
-Em **native (RN/Expo)**, nenhum equivalente existe. `Animated.loop` em Spinner.native/Skeleton.native/ProgressCircle.native/Toast.native roda independente de `AccessibilityInfo.isReduceMotionEnabled()`. Usuário com a configuração ativa em iOS/Android continua vendo animações que solicitou desativar — quebra direta de WCAG 2.3.3 (Animation from Interactions).
+Em **native (RN/Expo)**, nenhum equivalente existia. `Animated.loop` em Spinner.native/Skeleton.native/ProgressCircle.native/Toast.native rodava independente de `AccessibilityInfo.isReduceMotionEnabled()`. Usuário com a configuração ativa em iOS/Android continua vendo animações que solicitou desativar — quebra direta de WCAG 2.3.3 (Animation from Interactions).
 
-### Decisão
+### Resolução
 
-Implementar `src/ecosystem/utils/functions/use-prefers-reduced-motion.native.ts` consumindo:
-- `AccessibilityInfo.isReduceMotionEnabled()` (snapshot inicial)
-- `AccessibilityInfo.addEventListener('reduceMotionChanged', ...)` (mudança em runtime)
+✅ Hook `usePrefersReducedMotion.native` entregue em `src/ecosystem/styled-system/system/hooks/use-prefers-reduced-motion.native.ts` (irmão do hook web já existente — escolha alternativa à proposta original `utils/functions` para manter coesão com o índice de hooks já exportado).
 
-Hook retorna `boolean`. Componentes native consumidores:
-- `Spinner.native` — quando true, render estático sem `Animated.loop`.
-- `Skeleton.native` — quando true, sem shimmer animado.
-- `ProgressCircle.native` — quando true, sem rotação.
-- `Toast.native` — quando true, entrada/saída sem `Animated.timing` (snap).
+Implementação:
+- `AccessibilityInfo.isReduceMotionEnabled()` para snapshot inicial.
+- `AccessibilityInfo.addEventListener('reduceMotionChanged', ...)` para mudança em runtime.
+- Cleanup remove listener no unmount.
+
+✅ Carousel.native consome o hook em Previous/Next/Indicators (`scrollToIndex({ animated: !prefersReducedMotion })`). Era o único consumidor crítico já tipado para usar o hook.
+
+### Pendências movidas para TD-041
+
+As 4 ramificações de comportamento descritas originalmente (Spinner/Skeleton/ProgressCircle/Toast native) viraram **TD-041** — escopo de sweep separado, com testes individuais.
 
 ### Critério para fechar
 
-- [ ] `use-prefers-reduced-motion.native.ts` exportado de `ecosystem/utils/functions`.
-- [ ] 4 consumidores native ramificam comportamento.
-- [ ] 4 testes `.native.test.tsx` cobrindo `mockReduceMotion(true)`.
-- [ ] CONTRIBUTING ganha §"Reduced motion" cross-platform com pattern.
-
-### Por que está aberto
-
-Foi adiada em todos os R7/R8 por escopo (componentes individuais não devem ter shim próprio — precisa de hook compartilhado). Esta TD formaliza o trabalho.
+- [x] `use-prefers-reduced-motion.native.ts` exportado.
+- [x] 4 testes do hook (default false, true, runtime change, cleanup) verdes.
+- [x] Carousel.native consome o hook.
+- [ ] (movido para TD-041) 4 consumidores native ramificam comportamento + testes individuais.
+- [ ] (movido para TD-041) CONTRIBUTING ganha §"Reduced motion" cross-platform com pattern.
 
 ---
 
@@ -2191,6 +2191,47 @@ Caminho alternativo (se RFC-0038 atrasar): remover `pill` do tipo público e do 
 - [ ] `Tabs.variant === 'pill'` muda o render visual em web e native (RFC-0038).
 - [x] `src/components/tabs/slots/` deletado (sub-onda 9.A).
 - [ ] Stories cobrindo `variant="pill"` (RFC-0038).
+
+---
+
+## TD-041 — Spinner/Skeleton/ProgressCircle/Toast native não ramificam por reduced-motion
+
+**Origem:** TD-032 split (2026-05-03) — hook entregue, ramificações pendentes.
+**Status:** Open
+**Severidade:** Média (a11y mobile, WCAG 2.3.3)
+
+### Contexto
+
+Com **TD-032 fechada**, `usePrefersReducedMotion.native` está disponível. Mas os 4 consumidores listados na TD original ainda usam `Animated.loop`/`Animated.timing` sem ramificar por `prefersReducedMotion`:
+
+- `Spinner.native` (`src/components/spinner/core/spinner.native.tsx`) — `Animated.loop` rotação contínua.
+- `Skeleton.native` (`src/components/skeleton/core/skeleton.native.tsx`) — `Animated.loop` shimmer.
+- `ProgressCircle.native` (`src/components/progress-circle/core/progress-circle.native.tsx`) — `Animated.loop` rotação no modo indeterminate.
+- `Toast.native` (`src/components/toast/core/toast.native.tsx`) — `Animated.timing` entrada/saída.
+
+### Impacto
+
+- **A11y.** Usuário iOS/Android com "Reduzir movimento" ativo continua vendo animações que solicitou desativar — quebra direta de WCAG 2.3.3.
+
+### Resolução proposta
+
+Para cada consumidor:
+1. `const prefersReducedMotion = usePrefersReducedMotion();` no início do componente.
+2. Quando `true`:
+   - `Spinner.native` → render estático (sem `Animated.loop`).
+   - `Skeleton.native` → opacity fixa, sem shimmer.
+   - `ProgressCircle.native` (indeterminate) → estática ou snap entre marcos.
+   - `Toast.native` → entrada/saída sem `Animated.timing` (snap visível imediato).
+3. Teste `.native.test.tsx` mockando `AccessibilityInfo.isReduceMotionEnabled` resolve `true` + verificar invariante (ex: `Animated.loop` não foi chamado).
+4. CONTRIBUTING ganha §"Reduced motion" cross-platform documentando o padrão.
+
+Estimativa: ~1.5h total (4 componentes × ~20 min cada + CONTRIBUTING).
+
+### Critério para fechar
+
+- [ ] 4 consumidores native ramificam comportamento via `usePrefersReducedMotion`.
+- [ ] 4 testes `.native.test.tsx` cobrindo cenário "reduce motion ON".
+- [ ] CONTRIBUTING §"Reduced motion" cross-platform documenta pattern.
 
 ---
 
