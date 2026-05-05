@@ -238,3 +238,33 @@ function ControlledExample() {
 export const Controlled: Story = {
   render: () => <ControlledExample />,
 };
+
+/**
+ * Autoplay com `Carousel.PlayPause` (APG: o controle de
+ * pause/play é obrigatório quando autoplay está ativo). Pausa em
+ * hover, foco interno, página oculta e via toggle manual.
+ */
+export const Autoplay: Story = {
+  render: () => (
+    <Box style={{ width: 600 }}>
+      <Carousel
+        ariaLabel="Carousel com autoplay"
+        autoplay={{ interval: 3000 }}
+      >
+        <Carousel.Content>
+          {Array.from({ length: 4 }, (_, i) => (
+            <Carousel.Item key={i}>
+              <Card index={i} color={PALETTE[i % PALETTE.length]} />
+            </Carousel.Item>
+          ))}
+        </Carousel.Content>
+        <Flex marginTop="medium" gap="small" justifyContent="center">
+          <Carousel.Previous />
+          <Carousel.PlayPause />
+          <Carousel.Next />
+        </Flex>
+        <Carousel.Indicators />
+      </Carousel>
+    </Box>
+  ),
+};

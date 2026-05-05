@@ -146,6 +146,74 @@ describe('Carousel (native) — navegação', () => {
   });
 });
 
+describe('Carousel (native) — autoplay', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('avança ao próximo slide a cada interval (loop soft)', async () => {
+    const onChange = jest.fn();
+    render(
+      <Carousel
+        ariaLabel="X"
+        onActiveIndexChange={onChange}
+        autoplay={{ interval: 1000, pauseOnInteraction: false }}
+      >
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+          <Carousel.Item><Text>B</Text></Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    await act(async () => {
+      fireLayout('content', 300);
+    });
+
+    expect(onChange).not.toHaveBeenCalled();
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(onChange).toHaveBeenLastCalledWith(1);
+    // wrap soft: 1 (último) → 0
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(onChange).toHaveBeenLastCalledWith(0);
+  });
+
+  it('Carousel.PlayPause não renderiza quando autoplay=false', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.queryByLabelText(/Pausar|Reproduzir/)).toBeNull();
+  });
+
+  it('PlayPause toggla pause manual', () => {
+    render(
+      <Carousel
+        ariaLabel="X"
+        autoplay={{ interval: 1000, pauseOnInteraction: false }}
+      >
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByLabelText('Pausar autoplay')).toBeTruthy();
+    fireEvent.press(screen.getByLabelText('Pausar autoplay'));
+    expect(screen.getByLabelText('Reproduzir autoplay')).toBeTruthy();
+  });
+});
+
 describe('Carousel (native) — render prop', () => {
   it('Indicators chama children render prop com {index, active, total}', async () => {
     render(

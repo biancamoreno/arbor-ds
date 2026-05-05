@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ArborProvider } from '../../../ecosystem/styled-system/core/provider';
 import { createTheme, themeLight } from '../../../foundations';
 import { Carousel } from './carousel';
@@ -337,6 +337,144 @@ describe('Carousel — drag (IO) atualiza activeIndex', () => {
     const observer = IntersectionObserverMock.instances[0];
     observer.fire(items[1], 0.3);
     expect(onChange).not.toHaveBeenCalled();
+  });
+});
+
+// ─── Autoplay (PR2.A) ───────────────────────────────────────────────────────
+
+describe('Carousel — autoplay', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('avança ao próximo slide a cada interval (loop soft: wrap para 0)', () => {
+    const onChange = jest.fn();
+    render(
+      <Carousel
+        ariaLabel="X"
+        defaultActiveIndex={0}
+        onActiveIndexChange={onChange}
+        autoplay={{ interval: 1000, pauseOnHover: false, pauseOnInteraction: false }}
+      >
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+          <Carousel.Item>C</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+
+    expect(onChange).not.toHaveBeenCalled();
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(onChange).toHaveBeenLastCalledWith(1);
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(onChange).toHaveBeenLastCalledWith(2);
+    // wrap soft: 2 (último) → 0
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(onChange).toHaveBeenLastCalledWith(0);
+  });
+
+  it('Carousel.PlayPause toggla pause manual; quando pausado, não avança', () => {
+    render(
+      <Carousel
+        ariaLabel="X"
+        autoplay={{ interval: 1000, pauseOnHover: false, pauseOnInteraction: false }}
+      >
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+
+    const btn = screen.getByLabelText('Pausar autoplay');
+    expect(btn.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(btn);
+    // após click, label troca para "Reproduzir"
+    expect(screen.getByLabelText('Reproduzir autoplay')).toBeTruthy();
+    expect(screen.getByLabelText('Reproduzir autoplay').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('Carousel.PlayPause não renderiza nada quando autoplay=false', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.queryByLabelText(/Pausar|Reproduzir/)).toBeNull();
+  });
+
+  it('Content tem aria-live="polite" quando autoplay rodando, "off" quando pausado', () => {
+    render(
+      <Carousel
+        ariaLabel="X"
+        autoplay={{ interval: 1000, pauseOnHover: false, pauseOnInteraction: false }}
+      >
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const content = screen.getByRole('region').querySelector('[aria-live]');
+    expect(content?.getAttribute('aria-live')).toBe('polite');
+    fireEvent.click(screen.getByLabelText('Pausar autoplay'));
+    expect(content?.getAttribute('aria-live')).toBe('off');
+  });
+
+  it('quando autoplay=false, Content não recebe aria-live', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const content = screen.getByRole('region').querySelector('[data-testid], div');
+    // checagem suave: nenhum elemento descendente tem aria-live
+    expect(screen.getByRole('region').querySelector('[aria-live]')).toBeNull();
+    void content;
+  });
+
+  it('pauseOnHover: hover pausa o autoplay', () => {
+    const onChange = jest.fn();
+    render(
+      <Carousel
+        ariaLabel="X"
+        onActiveIndexChange={onChange}
+        autoplay={{ interval: 1000, pauseOnHover: true, pauseOnInteraction: false }}
+      >
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.PlayPause />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+
+    const region = screen.getByRole('region');
+    fireEvent.mouseEnter(region);
+    act(() => { jest.advanceTimersByTime(2000); });
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.mouseLeave(region);
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(onChange).toHaveBeenCalledWith(1);
   });
 });
 

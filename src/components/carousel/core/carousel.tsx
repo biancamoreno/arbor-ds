@@ -17,11 +17,13 @@ import {
   usePrefersReducedMotion,
 } from '../../../ecosystem/styled-system/system/hooks';
 import { CarouselContext, useCarouselContext } from '../context/carousel-context';
+import { useAutoplay } from './use-autoplay';
 import type {
   CarouselContentProps,
   CarouselIndicatorsProps,
   CarouselItemProps,
   CarouselNavProps,
+  CarouselPlayPauseProps,
   CarouselRootProps,
   CarouselSlidesPerView,
 } from '../interfaces';
@@ -79,6 +81,7 @@ function CarouselRoot({
   onActiveIndexChange,
   slidesPerView = 1,
   gap = 'medium',
+  autoplay = false,
   ariaLabel,
   className,
   style,
@@ -101,6 +104,41 @@ function CarouselRoot({
   const flatListRef = useRef<unknown>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const elementToIndex = useRef<Map<Element, number>>(new Map());
+
+  // ─── Autoplay state machine ──────────────────────────────────────────────
+  const autoplayEnabled = autoplay !== false;
+  const autoplayInterval = autoplay ? autoplay.interval : 0;
+  const pauseOnHover = autoplay ? autoplay.pauseOnHover ?? true : false;
+  const pauseOnInteraction = autoplay ? autoplay.pauseOnInteraction ?? true : false;
+
+  const [isPausedByUser, setIsPausedByUser] = useState(false);
+  const [isHovered, setHovered] = useState(false);
+  const [isFocusedWithin, setFocusedWithin] = useState(false);
+  const [isInteracting, setInteracting] = useState(false);
+  const [isPageHidden, setPageHidden] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const handler = () => setPageHidden(document.visibilityState === 'hidden');
+    document.addEventListener('visibilitychange', handler);
+    handler();
+    return () => document.removeEventListener('visibilitychange', handler);
+  }, []);
+
+  const paused =
+    isPausedByUser ||
+    prefersReducedMotion ||
+    (pauseOnHover && isHovered) ||
+    isFocusedWithin ||
+    (pauseOnInteraction && isInteracting) ||
+    isPageHidden;
+
+  const isPlaying = autoplayEnabled && !paused;
+
+  const togglePlayPause = useCallback(() => {
+    setIsPausedByUser((prev) => !prev);
+  }, []);
 
   const observe = useCallback((el: HTMLElement, index: number) => {
     elementToIndex.current.set(el, index);
@@ -128,6 +166,20 @@ function CarouselRoot({
     goTo(activeIndex - 1);
   }, [goTo, activeIndex]);
 
+  // Autoplay tick: avança um slide; faz wrap quando chega no fim (loop soft).
+  useAutoplay({
+    enabled: autoplayEnabled,
+    interval: autoplayInterval,
+    paused,
+    onTick: () => {
+      if (slideCount === 0) return;
+      const lastVisibleIndex = slideCount - resolvedSlidesPerView;
+      const nextIndex = activeIndex >= lastVisibleIndex ? 0 : activeIndex + 1;
+      setActiveIndex(nextIndex);
+      smoothScrollToIndex(contentRef.current, nextIndex, prefersReducedMotion);
+    },
+  });
+
   const indicatorPattern: 'tabs' | 'group' =
     resolvedSlidesPerView === 1 && slideCount <= TABS_PATTERN_MAX_ITEMS ? 'tabs' : 'group';
 
@@ -151,6 +203,12 @@ function CarouselRoot({
       flatListRef,
       observe,
       unobserve,
+      autoplayEnabled,
+      isPlaying,
+      togglePlayPause,
+      setHovered,
+      setFocusedWithin,
+      setInteracting,
     }),
     [
       activeIndex,
@@ -166,6 +224,9 @@ function CarouselRoot({
       indicatorPattern,
       observe,
       unobserve,
+      autoplayEnabled,
+      isPlaying,
+      togglePlayPause,
     ],
   );
 
@@ -181,6 +242,18 @@ function CarouselRoot({
         role="region"
         aria-roledescription="carousel"
         aria-label={ariaLabel}
+        onMouseEnter={autoplayEnabled && pauseOnHover ? () => setHovered(true) : undefined}
+        onMouseLeave={autoplayEnabled && pauseOnHover ? () => setHovered(false) : undefined}
+        onFocus={autoplayEnabled ? () => setFocusedWithin(true) : undefined}
+        onBlur={
+          autoplayEnabled
+            ? (e: React.FocusEvent<HTMLElement>) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                  setFocusedWithin(false);
+                }
+              }
+            : undefined
+        }
         {...slots.root}
         className={className}
         style={style}
@@ -241,7 +314,7 @@ function CarouselObserverBootstrap({
 
 // ─── Content ────────────────────────────────────────────────────────────────
 
-function CarouselContent({ children, className, style }: CarouselContentProps) {
+function CarouselContent({ children, className, style, testID }: CarouselContentProps) {
   const ctx = useCarouselContext();
   const slots = useSlotRecipe<CarouselSlots>('carousel');
   const gapPx = useToken('space', ctx.gap) as string;
@@ -258,10 +331,37 @@ function CarouselContent({ children, className, style }: CarouselContentProps) {
     ctx.setSlideCount(items.length);
   }, [items.length, ctx]);
 
+  // Pause on interaction (touchstart/mousedown/scroll). Reset 1500ms apos
+  // ultima interacao via timer.
+  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!ctx.autoplayEnabled) return;
+    const el = ctx.contentRef.current;
+    if (!el) return;
+
+    const ping = () => {
+      ctx.setInteracting(true);
+      if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
+      interactionTimerRef.current = setTimeout(() => ctx.setInteracting(false), 1500);
+    };
+    el.addEventListener('touchstart', ping, { passive: true });
+    el.addEventListener('mousedown', ping);
+    el.addEventListener('scroll', ping, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', ping);
+      el.removeEventListener('mousedown', ping);
+      el.removeEventListener('scroll', ping);
+      if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
+    };
+  }, [ctx]);
+
   return (
     <Box
       innerRef={ctx.contentRef}
       gap={ctx.gap}
+      data-testid={testID}
+      aria-live={ctx.autoplayEnabled ? (ctx.isPlaying ? 'polite' : 'off') : undefined}
       {...slots.content}
       className={className}
       style={{
@@ -496,6 +596,41 @@ function CarouselIndicators({
   );
 }
 
+// ─── PlayPause (APG: obrigatório quando autoplay ativo) ─────────────────────
+
+function CarouselPlayPause({
+  ariaLabel,
+  children,
+  className,
+  style,
+}: CarouselPlayPauseProps) {
+  const ctx = useCarouselContext();
+  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  if (!ctx.autoplayEnabled) return null;
+
+  const labels = ariaLabel ?? { play: 'Reproduzir autoplay', pause: 'Pausar autoplay' };
+  const label = ctx.isPlaying ? labels.pause : labels.play;
+
+  if (children) {
+    return <>{children({ isPlaying: ctx.isPlaying, toggle: ctx.togglePlayPause })}</>;
+  }
+
+  return (
+    <Clickable
+      as="button"
+      type="button"
+      aria-label={label}
+      aria-pressed={!ctx.isPlaying}
+      onClick={ctx.togglePlayPause}
+      {...slots.previous}
+      className={className}
+      style={style}
+    >
+      <Icon name={ctx.isPlaying ? 'Pause' : 'Play'} decorative size="medium" />
+    </Clickable>
+  );
+}
+
 // ─── displayName ────────────────────────────────────────────────────────────
 
 CarouselRoot.displayName = 'Carousel.Root';
@@ -504,6 +639,7 @@ CarouselItem.displayName = 'Carousel.Item';
 CarouselPrevious.displayName = 'Carousel.Previous';
 CarouselNext.displayName = 'Carousel.Next';
 CarouselIndicators.displayName = 'Carousel.Indicators';
+CarouselPlayPause.displayName = 'Carousel.PlayPause';
 
 /**
  * @platform shared
@@ -543,6 +679,7 @@ export const Carousel = Object.assign(CarouselRoot, {
   Previous: CarouselPrevious,
   Next: CarouselNext,
   Indicators: CarouselIndicators,
+  PlayPause: CarouselPlayPause,
 });
 
 export default Carousel;

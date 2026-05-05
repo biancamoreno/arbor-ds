@@ -48,6 +48,21 @@ export interface CarouselContextValue {
 
   /** Escape hatch para `FlatList` (native; ignorado no web). */
   nativeListProps?: Partial<FlatListProps<ReactElement>>;
+
+  /** Autoplay ativo? Calculado pelo Root com base na config. */
+  autoplayEnabled: boolean;
+  /**
+   * `true` quando autoplay deveria estar rodando neste exato momento
+   * (não há nenhum pause flag ativo). `Carousel.Content` usa para
+   * decidir `aria-live='polite'` vs `'off'`.
+   */
+  isPlaying: boolean;
+  /** Toggle manual via `Carousel.PlayPause`. Sobrescreve outros pauses. */
+  togglePlayPause: () => void;
+  /** Hooks de interação (web Root listeners chamam quando aplicável). */
+  setHovered: (v: boolean) => void;
+  setFocusedWithin: (v: boolean) => void;
+  setInteracting: (v: boolean) => void;
 }
 
 export const CarouselContext = createContext<CarouselContextValue | null>(null);

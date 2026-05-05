@@ -4,6 +4,30 @@ import type { FlatListProps } from 'react-native';
 /** @platform shared */
 export type CarouselGap = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
+/**
+ * @platform shared
+ *
+ * Configuração de autoplay. `false` (default) desliga; objeto liga.
+ *
+ * Pause behaviors **automáticos** (não viram props — APG/UX):
+ * - `prefersReducedMotion`: usuário pediu menos movimento.
+ * - `pauseOnFocusWithin`: foco em qualquer descendente do carousel.
+ * - `pauseOnPageHidden`: aba inativa (web `document.visibilityState`).
+ * - toggle manual via `Carousel.PlayPause`.
+ *
+ * Pause behaviors **opcionais** (props):
+ * - `pauseOnHover` (default `true`): mouse sobre o carousel (web).
+ * - `pauseOnInteraction` (default `true`): touch/scroll/drag em curso.
+ */
+export interface CarouselAutoplayConfig {
+  /** Intervalo em ms entre transições. Mínimo prático: 3000. */
+  interval: number;
+  /** Pausa quando o ponteiro está sobre o carousel. Default `true`. Ignorado em native. */
+  pauseOnHover?: boolean;
+  /** Pausa enquanto o usuário interage (drag/scroll/touch). Default `true`. */
+  pauseOnInteraction?: boolean;
+}
+
 /** @platform shared */
 export type CarouselSlidesPerView =
   | number
@@ -76,6 +100,13 @@ export interface CarouselRootProps {
   /** Espaço entre itens. Token de spacing. Default `'medium'`. */
   gap?: CarouselGap;
 
+  /**
+   * Autoplay opcional. `false` (default) desliga; objeto liga.
+   * Quando ativo, `Carousel.PlayPause` torna-se obrigatório (APG)
+   * — o consumidor deve renderizá-lo dentro do compound.
+   */
+  autoplay?: false | CarouselAutoplayConfig;
+
   /** Nome acessível obrigatório do carrossel. */
   ariaLabel: string;
 
@@ -122,6 +153,26 @@ export interface CarouselNavProps {
   ariaLabel?: string;
   /** Conteúdo customizado (ex: outro ícone). Default = ChevronLeft / ChevronRight. */
   children?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+}
+
+/**
+ * @platform shared
+ *
+ * `Carousel.PlayPause` — botão obrigatório (APG) quando `autoplay`
+ * está ativo. Toggla `isPaused` manualmente; sobrescreve outros
+ * pause behaviors (focus/hover/interaction). No-op quando `autoplay`
+ * é `false` (não renderiza nada).
+ */
+export interface CarouselPlayPauseProps {
+  /**
+   * Override dos labels acessíveis. Default pt-BR
+   * (`{ play: 'Reproduzir autoplay', pause: 'Pausar autoplay' }`).
+   */
+  ariaLabel?: { play: string; pause: string };
+  /** Conteúdo customizado por estado. Default = ícones Pause/Play. */
+  children?: (args: { isPlaying: boolean; toggle: () => void }) => ReactNode;
   className?: string;
   style?: CSSProperties;
 }
