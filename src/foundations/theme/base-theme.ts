@@ -892,7 +892,6 @@ const components: ThemeComponents = {
       item: {
         flexShrink: 0,
         display: 'flex',
-        flexDirection: 'column',
       },
       previous: {
         display: 'inline-flex',
@@ -964,6 +963,16 @@ const components: ThemeComponents = {
       },
     },
     variants: {
+      orientation: {
+        horizontal: {
+          content: { flexDirection: 'row' },
+          item: { flexDirection: 'column' },
+        },
+        vertical: {
+          content: { flexDirection: 'column', height: '100%' },
+          item: { flexDirection: 'column', width: '100%' },
+        },
+      },
       state: {
         inactive: {},
         active: {
@@ -974,7 +983,7 @@ const components: ThemeComponents = {
         },
       },
     },
-    defaultVariants: { state: 'inactive' },
+    defaultVariants: { state: 'inactive', orientation: 'horizontal' },
   }),
 
   toast: defineSlotRecipe({

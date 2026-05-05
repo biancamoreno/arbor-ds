@@ -41,6 +41,9 @@ const BREAKPOINT_ORDER = ['base', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
 type BreakpointKey = (typeof BREAKPOINT_ORDER)[number];
 
 const TABS_PATTERN_MAX_ITEMS = 7;
+// rootMargin do IO de lazy mounting: monta items "perto" da viewport
+// (200px antes de entrar) para evitar flash de placeholder durante drag.
+const LAZY_ROOT_MARGIN = '200px';
 
 function resolveSlidesPerView(
   spv: CarouselSlidesPerView | undefined,
@@ -81,7 +84,9 @@ function CarouselRoot({
   onActiveIndexChange,
   slidesPerView = 1,
   gap = 'medium',
+  orientation = 'horizontal',
   autoplay = false,
+  lazy = false,
   ariaLabel,
   className,
   style,
@@ -103,7 +108,27 @@ function CarouselRoot({
   const contentRef = useRef<HTMLElement | null>(null);
   const flatListRef = useRef<unknown>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const lazyObserverRef = useRef<IntersectionObserver | null>(null);
   const elementToIndex = useRef<Map<Element, number>>(new Map());
+
+  // Sticky lazy-mount set: índices que já foram visíveis e devem
+  // permanecer montados. Se lazy=false, set fica vazio e Item ignora.
+  const [mountedSet, setMountedSet] = useState<Set<number>>(() => {
+    if (!lazy) return new Set();
+    const initial = new Set<number>();
+    const start = Math.max(0, defaultActiveIndex);
+    const end = start + (typeof slidesPerView === 'number' ? slidesPerView : 1);
+    for (let i = start; i < end; i++) initial.add(i);
+    return initial;
+  });
+  const markMounted = useCallback((index: number) => {
+    setMountedSet((prev) => {
+      if (prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }, []);
 
   // ─── Autoplay state machine ──────────────────────────────────────────────
   const autoplayEnabled = autoplay !== false;
@@ -143,11 +168,13 @@ function CarouselRoot({
   const observe = useCallback((el: HTMLElement, index: number) => {
     elementToIndex.current.set(el, index);
     observerRef.current?.observe(el);
+    lazyObserverRef.current?.observe(el);
   }, []);
 
   const unobserve = useCallback((el: HTMLElement) => {
     elementToIndex.current.delete(el);
     observerRef.current?.unobserve(el);
+    lazyObserverRef.current?.unobserve(el);
   }, []);
 
   const goTo = useCallback(
@@ -176,14 +203,12 @@ function CarouselRoot({
       const lastVisibleIndex = slideCount - resolvedSlidesPerView;
       const nextIndex = activeIndex >= lastVisibleIndex ? 0 : activeIndex + 1;
       setActiveIndex(nextIndex);
-      smoothScrollToIndex(contentRef.current, nextIndex, prefersReducedMotion);
+      smoothScrollToIndex(contentRef.current, nextIndex, prefersReducedMotion, orientation);
     },
   });
 
   const indicatorPattern: 'tabs' | 'group' =
     resolvedSlidesPerView === 1 && slideCount <= TABS_PATTERN_MAX_ITEMS ? 'tabs' : 'group';
-
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
 
   const ctxValue = useMemo(
     () => ({
@@ -199,6 +224,10 @@ function CarouselRoot({
       ariaLabel,
       baseId,
       indicatorPattern,
+      orientation,
+      lazy,
+      mountedSet,
+      markMounted,
       contentRef,
       flatListRef,
       observe,
@@ -222,6 +251,10 @@ function CarouselRoot({
       ariaLabel,
       baseId,
       indicatorPattern,
+      orientation,
+      lazy,
+      mountedSet,
+      markMounted,
       observe,
       unobserve,
       autoplayEnabled,
@@ -230,13 +263,18 @@ function CarouselRoot({
     ],
   );
 
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation });
+
   return (
     <CarouselContext.Provider value={ctxValue as never}>
       <CarouselObserverBootstrap
         contentRef={contentRef}
         observerRef={observerRef}
+        lazyObserverRef={lazyObserverRef}
         elementToIndex={elementToIndex}
         onActiveChange={setActiveIndex}
+        onMounted={markMounted}
+        lazy={lazy}
       />
       <Box
         role="region"
@@ -265,21 +303,31 @@ function CarouselRoot({
 }
 
 /**
- * Side-effect-only component: cria o `IntersectionObserver` quando o
- * `Content` monta, observando os items registrados via `observe`. Isolado
- * em componente para que `useEffect` rode após o `contentRef` ter sido
- * setado.
+ * Side-effect-only component: cria os `IntersectionObserver`s.
+ *
+ * - Observer principal (sempre): threshold 0.51, decide qual item é o
+ *   ativo para tracking de scroll.
+ * - Observer lazy (apenas quando `lazy=true`): rootMargin 200px,
+ *   threshold 0, sinaliza "perto de visível, hora de montar". Sticky:
+ *   uma vez marcado mounted, permanece (decisão deliberada — preserva
+ *   state de form/video/IO).
  */
 function CarouselObserverBootstrap({
   contentRef,
   observerRef,
+  lazyObserverRef,
   elementToIndex,
   onActiveChange,
+  onMounted,
+  lazy,
 }: {
   contentRef: React.RefObject<HTMLElement | null>;
   observerRef: React.MutableRefObject<IntersectionObserver | null>;
+  lazyObserverRef: React.MutableRefObject<IntersectionObserver | null>;
   elementToIndex: React.MutableRefObject<Map<Element, number>>;
   onActiveChange: (index: number) => void;
+  onMounted: (index: number) => void;
+  lazy: boolean;
 }) {
   useEffect(() => {
     const root = contentRef.current;
@@ -300,14 +348,33 @@ function CarouselObserverBootstrap({
     );
 
     observerRef.current = observer;
-    // Observa items que já se registraram antes do observer existir
     elementToIndex.current.forEach((_, el) => observer.observe(el));
+
+    let lazyObserver: IntersectionObserver | null = null;
+    if (lazy) {
+      lazyObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const idx = elementToIndex.current.get(entry.target);
+            if (typeof idx === 'number') onMounted(idx);
+          }
+        },
+        { root, rootMargin: LAZY_ROOT_MARGIN, threshold: 0 },
+      );
+      lazyObserverRef.current = lazyObserver;
+      elementToIndex.current.forEach((_, el) => lazyObserver!.observe(el));
+    }
 
     return () => {
       observer.disconnect();
       observerRef.current = null;
+      if (lazyObserver) {
+        lazyObserver.disconnect();
+        lazyObserverRef.current = null;
+      }
     };
-  }, [contentRef, observerRef, elementToIndex, onActiveChange]);
+  }, [contentRef, observerRef, lazyObserverRef, elementToIndex, onActiveChange, onMounted, lazy]);
 
   return null;
 }
@@ -316,7 +383,7 @@ function CarouselObserverBootstrap({
 
 function CarouselContent({ children, className, style, testID }: CarouselContentProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   const gapPx = useToken('space', ctx.gap) as string;
 
   const items = useMemo(
@@ -356,6 +423,8 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
     };
   }, [ctx]);
 
+  const isVertical = ctx.orientation === 'vertical';
+
   return (
     <Box
       innerRef={ctx.contentRef}
@@ -365,9 +434,9 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
       {...slots.content}
       className={className}
       style={{
-        overflowX: 'auto',
-        overflowY: 'hidden',
-        scrollSnapType: 'x mandatory',
+        overflowX: isVertical ? 'hidden' : 'auto',
+        overflowY: isVertical ? 'auto' : 'hidden',
+        scrollSnapType: isVertical ? 'y mandatory' : 'x mandatory',
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
         ['--arbor-carousel-gap' as string]: gapPx,
@@ -391,13 +460,17 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
 function CarouselItem({ children, id, className, style }: CarouselItemProps) {
   const ctx = useCarouselContext();
   const itemCtx = useCarouselItemContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   const ref = useRef<HTMLElement | null>(null);
 
   const slideId = id ?? itemCtx.slideId;
   const inWindow =
     itemCtx.index >= ctx.activeIndex &&
     itemCtx.index < ctx.activeIndex + ctx.resolvedSlidesPerView;
+
+  // Sticky lazy mount: uma vez montado, permanece. Preserva state de
+  // form/video/IO em re-scroll (custa mais que DOM stale).
+  const mounted = !ctx.lazy || ctx.mountedSet.has(itemCtx.index);
 
   useEffect(() => {
     const el = ref.current;
@@ -406,10 +479,15 @@ function CarouselItem({ children, id, className, style }: CarouselItemProps) {
     return () => ctx.unobserve(el);
   }, [ctx, itemCtx.index]);
 
-  const itemWidth =
-    ctx.resolvedSlidesPerView === 1
+  const isVertical = ctx.orientation === 'vertical';
+  const spv = ctx.resolvedSlidesPerView;
+  const sizeCalc =
+    spv === 1
       ? '100%'
-      : `calc((100% - ${ctx.resolvedSlidesPerView - 1} * var(--arbor-carousel-gap, 0px)) / ${ctx.resolvedSlidesPerView})`;
+      : `calc((100% - ${spv - 1} * var(--arbor-carousel-gap, 0px)) / ${spv})`;
+  const dimensionStyle: React.CSSProperties = isVertical
+    ? { width: '100%', height: sizeCalc }
+    : { width: sizeCalc, height: 'auto' };
 
   return (
     <Box
@@ -422,12 +500,12 @@ function CarouselItem({ children, id, className, style }: CarouselItemProps) {
       {...slots.item}
       className={className}
       style={{
-        width: itemWidth,
+        ...dimensionStyle,
         scrollSnapAlign: 'start',
         ...style,
       }}
     >
-      {children}
+      {mounted ? children : null}
     </Box>
   );
 }
@@ -436,14 +514,19 @@ function CarouselItem({ children, id, className, style }: CarouselItemProps) {
 
 function CarouselPrevious({ ariaLabel, children, className, style }: CarouselNavProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   const prefersReducedMotion = usePrefersReducedMotion();
   const disabled = ctx.activeIndex <= 0;
 
   const handleClick = () => {
     if (disabled) return;
     ctx.prev();
-    smoothScrollToIndex(ctx.contentRef.current, ctx.activeIndex - 1, prefersReducedMotion);
+    smoothScrollToIndex(
+      ctx.contentRef.current,
+      ctx.activeIndex - 1,
+      prefersReducedMotion,
+      ctx.orientation,
+    );
   };
 
   return (
@@ -464,14 +547,19 @@ function CarouselPrevious({ ariaLabel, children, className, style }: CarouselNav
 
 function CarouselNext({ ariaLabel, children, className, style }: CarouselNavProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   const prefersReducedMotion = usePrefersReducedMotion();
   const disabled = ctx.activeIndex >= ctx.slideCount - ctx.resolvedSlidesPerView;
 
   const handleClick = () => {
     if (disabled) return;
     ctx.next();
-    smoothScrollToIndex(ctx.contentRef.current, ctx.activeIndex + 1, prefersReducedMotion);
+    smoothScrollToIndex(
+      ctx.contentRef.current,
+      ctx.activeIndex + 1,
+      prefersReducedMotion,
+      ctx.orientation,
+    );
   };
 
   return (
@@ -494,16 +582,24 @@ function smoothScrollToIndex(
   container: HTMLElement | null,
   index: number,
   prefersReducedMotion: boolean,
+  orientation: 'horizontal' | 'vertical',
 ) {
   if (!container) return;
   const item = container.children[index] as HTMLElement | undefined;
   if (!item) return;
-  // jsdom não implementa scrollTo. Guard para ambientes sem suporte.
   if (typeof container.scrollTo !== 'function') return;
-  container.scrollTo({
-    left: item.offsetLeft - container.offsetLeft,
-    behavior: prefersReducedMotion ? 'auto' : 'smooth',
-  });
+  const behavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
+  if (orientation === 'vertical') {
+    container.scrollTo({
+      top: item.offsetTop - container.offsetTop,
+      behavior,
+    });
+  } else {
+    container.scrollTo({
+      left: item.offsetLeft - container.offsetLeft,
+      behavior,
+    });
+  }
 }
 
 // ─── Indicators ─────────────────────────────────────────────────────────────
@@ -515,9 +611,15 @@ function CarouselIndicators({
   style,
 }: CarouselIndicatorsProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
-  const slotsActive = useSlotRecipe<CarouselSlots>('carousel', { state: 'active' });
-  const slotsInactive = useSlotRecipe<CarouselSlots>('carousel', { state: 'inactive' });
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
+  const slotsActive = useSlotRecipe<CarouselSlots>('carousel', {
+    orientation: ctx.orientation,
+    state: 'active',
+  });
+  const slotsInactive = useSlotRecipe<CarouselSlots>('carousel', {
+    orientation: ctx.orientation,
+    state: 'inactive',
+  });
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const indices = useMemo(
@@ -528,18 +630,26 @@ function CarouselIndicators({
   if (ctx.slideCount === 0) return null;
 
   const isTabs = ctx.indicatorPattern === 'tabs';
+  const isVertical = ctx.orientation === 'vertical';
   const containerLabel = ariaLabel ?? 'Selecione um slide';
 
   const handleSelect = (index: number) => {
     ctx.goTo(index);
-    smoothScrollToIndex(ctx.contentRef.current, index, prefersReducedMotion);
+    smoothScrollToIndex(
+      ctx.contentRef.current,
+      index,
+      prefersReducedMotion,
+      ctx.orientation,
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (!isTabs) return;
+    const nextKey = isVertical ? 'ArrowDown' : 'ArrowRight';
+    const prevKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
     let nextIndex: number | null = null;
-    if (e.key === 'ArrowRight') nextIndex = (index + 1) % ctx.slideCount;
-    else if (e.key === 'ArrowLeft') nextIndex = (index - 1 + ctx.slideCount) % ctx.slideCount;
+    if (e.key === nextKey) nextIndex = (index + 1) % ctx.slideCount;
+    else if (e.key === prevKey) nextIndex = (index - 1 + ctx.slideCount) % ctx.slideCount;
     else if (e.key === 'Home') nextIndex = 0;
     else if (e.key === 'End') nextIndex = ctx.slideCount - 1;
     if (nextIndex !== null) {
@@ -554,6 +664,7 @@ function CarouselIndicators({
     <Box
       role={isTabs ? 'tablist' : 'group'}
       aria-label={containerLabel}
+      aria-orientation={isTabs && isVertical ? 'vertical' : undefined}
       {...slots.indicators}
       className={className}
       style={style}
@@ -605,7 +716,7 @@ function CarouselPlayPause({
   style,
 }: CarouselPlayPauseProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   if (!ctx.autoplayEnabled) return null;
 
   const labels = ariaLabel ?? { play: 'Reproduzir autoplay', pause: 'Pausar autoplay' };
@@ -645,13 +756,21 @@ CarouselPlayPause.displayName = 'Carousel.PlayPause';
  * @platform shared
  *
  * Compound de carousel cross-platform com naming alinhado a shadcn/ui
- * e a11y WAI-ARIA APG (rev. 3 RFC-0034). PR1 sem `autoplay`/`loop`/
- * `vertical`/`lazy`.
+ * e a11y WAI-ARIA APG (rev. 3 RFC-0034).
  *
  * Web: `scroll-snap` CSS + `IntersectionObserver` (`threshold: 0.51`)
  * para tracking ativo. Items fora da janela visível recebem `inert`
  * (TD-040). `Prev`/`Next`/indicator click → `scrollTo` respeitando
  * `prefers-reduced-motion`.
+ *
+ * `orientation` (horizontal default | vertical): troca eixo do
+ * scroll-snap, do calc dimensional do Item e dos atalhos de teclado
+ * dos Indicators (`ArrowUp`/`ArrowDown` em vertical). Indicators
+ * permanecem dispostos horizontalmente — convenção visual.
+ *
+ * `lazy` (default `false`): items fora da janela expandida (200px de
+ * margem) renderizam placeholder vazio; quando entram, montam e
+ * ficam montados. Princípio Embla — virtualização é opt-in.
  *
  * Indicators usa **dual pattern** APG-aligned:
  * - `tabs` (slidesPerView=1 ∧ total ≤ 7): `role="tablist"` +

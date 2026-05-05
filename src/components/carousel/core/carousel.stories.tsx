@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box, Flex, Text } from '../../core';
 import { Carousel } from './carousel';
@@ -267,4 +267,98 @@ export const Autoplay: Story = {
       </Carousel>
     </Box>
   ),
+};
+
+/**
+ * `orientation="vertical"`. Slides empilhados verticalmente com
+ * `scroll-snap-type: y mandatory`. Indicators continuam horizontais
+ * por convenção visual. O consumidor define a altura do `Content`
+ * (sem isso, o vertical não tem como dimensionar os slides).
+ *
+ * Em `Tabs pattern` (≤7 + spv=1), o tablist recebe
+ * `aria-orientation="vertical"` e os atalhos de teclado mudam para
+ * `ArrowUp`/`ArrowDown`.
+ */
+export const VerticalOrientation: Story = {
+  render: () => (
+    <Flex gap="medium" alignItems="flex-start">
+      <Box style={{ width: 320 }}>
+        <Carousel ariaLabel="Stories verticais" orientation="vertical">
+          <Carousel.Content style={{ height: 480 }}>
+            {Array.from({ length: 4 }, (_, i) => (
+              <Carousel.Item key={i}>
+                <Card index={i} color={PALETTE[i % PALETTE.length]} />
+              </Carousel.Item>
+            ))}
+          </Carousel.Content>
+          <Flex marginTop="medium" gap="small" justifyContent="center">
+            <Carousel.Previous />
+            <Carousel.Next />
+          </Flex>
+          <Carousel.Indicators />
+        </Carousel>
+      </Box>
+    </Flex>
+  ),
+};
+
+function LazyMountingExample() {
+  const renderedRef = useRef<Set<number>>(new Set());
+  const [snapshot, setSnapshot] = useState<number[]>([]);
+
+  return (
+    <Box style={{ width: 800 }}>
+      <Text fontSize="small" color="text.muted">
+        Mounted indices: {snapshot.length === 0 ? '(nenhum ainda)' : snapshot.join(', ')}
+      </Text>
+      <Carousel ariaLabel="Catálogo lazy" slidesPerView={3} gap="small" lazy>
+        <Carousel.Content>
+          {Array.from({ length: 20 }, (_, i) => (
+            <Carousel.Item key={i}>
+              <LazyTrackedCard
+                index={i}
+                color={PALETTE[i % PALETTE.length]}
+                onMount={(idx) => {
+                  renderedRef.current.add(idx);
+                  setSnapshot([...renderedRef.current].sort((a, b) => a - b));
+                }}
+              />
+            </Carousel.Item>
+          ))}
+        </Carousel.Content>
+        <Flex marginTop="medium" gap="small" justifyContent="center">
+          <Carousel.Previous />
+          <Carousel.Next />
+        </Flex>
+        <Carousel.Indicators />
+      </Carousel>
+    </Box>
+  );
+}
+
+function LazyTrackedCard({
+  index,
+  color,
+  onMount,
+}: {
+  index: number;
+  color: string;
+  onMount: (index: number) => void;
+}) {
+  useEffect(() => {
+    onMount(index);
+  }, [index, onMount]);
+  return <Card index={index} color={color} />;
+}
+
+/**
+ * `lazy=true`: items fora da janela expandida (rootMargin 200px)
+ * renderizam placeholder vazio; ao entrar, montam children e
+ * permanecem montados (sticky — preserva state de form/video). O
+ * texto acima do carousel mostra os índices que já montaram.
+ *
+ * Embla é a referência: virtualização é opt-in, não default.
+ */
+export const LazyMounting: Story = {
+  render: () => <LazyMountingExample />,
 };

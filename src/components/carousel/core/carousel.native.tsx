@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { FlatList, type ViewToken } from 'react-native';
+import { FlatList, type FlatListProps, type ViewToken } from 'react-native';
 import { Box, Clickable, Icon } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
@@ -43,6 +43,15 @@ type BreakpointKey = (typeof BREAKPOINT_ORDER)[number];
 
 const TABS_PATTERN_MAX_ITEMS = 7;
 
+// Defaults aplicados quando `lazy=true` e o consumidor não passou
+// override em `nativeListProps`. windowSize default da RN é 21 (renderiza
+// ~10 telas pra cada lado); 3 limita a 1 pra cada lado, alinhado com a
+// semântica de "lazy" da prop.
+const LAZY_NATIVE_LIST_DEFAULTS = {
+  windowSize: 3,
+  removeClippedSubviews: true,
+} as const;
+
 function resolveSlidesPerView(
   spv: CarouselSlidesPerView | undefined,
   breakpoint: string,
@@ -61,7 +70,8 @@ interface CarouselItemNativeContextValue {
   index: number;
   total: number;
   slideId: string;
-  width: number;
+  /** Tamanho do slide no eixo principal (width em horizontal, height em vertical). */
+  size: number;
   isLast: boolean;
   gapPx: number;
 }
@@ -87,6 +97,7 @@ function parsePxToken(token: unknown): number {
 
 const noopObserver = () => {};
 const noopBool = (_: boolean) => {};
+const noopMarkMounted = (_: number) => {};
 
 // ─── Root ───────────────────────────────────────────────────────────────────
 
@@ -97,7 +108,9 @@ function CarouselRoot({
   onActiveIndexChange,
   slidesPerView = 1,
   gap = 'medium',
+  orientation = 'horizontal',
   autoplay = false,
+  lazy = false,
   ariaLabel,
   nativeListProps,
   className,
@@ -176,7 +189,7 @@ function CarouselRoot({
   const indicatorPattern: 'tabs' | 'group' =
     resolvedSlidesPerView === 1 && slideCount <= TABS_PATTERN_MAX_ITEMS ? 'tabs' : 'group';
 
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation });
 
   const ctxValue = useMemo(
     () => ({
@@ -192,6 +205,10 @@ function CarouselRoot({
       ariaLabel,
       baseId,
       indicatorPattern,
+      orientation,
+      lazy,
+      mountedSet: new Set<number>(),
+      markMounted: noopMarkMounted,
       contentRef,
       flatListRef,
       observe: noopObserver,
@@ -216,6 +233,8 @@ function CarouselRoot({
       ariaLabel,
       baseId,
       indicatorPattern,
+      orientation,
+      lazy,
       nativeListProps,
       autoplayEnabled,
       isPlaying,
@@ -242,9 +261,14 @@ function CarouselRoot({
 
 function CarouselContent({ children, className, style, testID }: CarouselContentProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   const gapPx = parsePxToken(useToken('space', ctx.gap));
-  const [viewportWidth, setViewportWidth] = useState(0);
+  const [viewportSize, setViewportSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
+
+  const isVertical = ctx.orientation === 'vertical';
 
   const items = useMemo(
     () =>
@@ -258,14 +282,14 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
     ctx.setSlideCount(items.length);
   }, [items.length, ctx]);
 
-  const slideWidth =
-    viewportWidth > 0
-      ? (viewportWidth - (ctx.resolvedSlidesPerView - 1) * gapPx) / ctx.resolvedSlidesPerView
+  const viewportMain = isVertical ? viewportSize.height : viewportSize.width;
+  const slideMain =
+    viewportMain > 0
+      ? (viewportMain - (ctx.resolvedSlidesPerView - 1) * gapPx) / ctx.resolvedSlidesPerView
       : 0;
 
   const localFlatListRef = useRef<FlatList<React.ReactElement> | null>(null);
 
-  // Espelha o FlatList ref no context para Previous/Next acessarem.
   useEffect(() => {
     ctx.flatListRef.current = localFlatListRef.current;
     return () => {
@@ -275,7 +299,6 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
 
   const viewabilityConfigRef = useRef({ itemVisiblePercentThreshold: 51 });
 
-  // RN exige que onViewableItemsChanged não mude entre renders.
   const handleViewableRef = useRef<(info: { viewableItems: ViewToken[] }) => void>(() => {});
   handleViewableRef.current = ({ viewableItems }) => {
     const indices = viewableItems
@@ -288,38 +311,55 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
     (info: { viewableItems: ViewToken[] }) => handleViewableRef.current(info),
   ).current;
 
-  if (slideWidth === 0 && viewportWidth === 0) {
-    // Antes do primeiro layout: render no-op para descobrir a largura.
+  if (slideMain === 0 && viewportMain === 0) {
     return (
       <Box
         testID={testID}
         {...slots.content}
         className={className}
         style={style}
-        onLayout={(e: { nativeEvent: { layout: { width: number } } }) => setViewportWidth(e.nativeEvent.layout.width)}
+        onLayout={(e: { nativeEvent: { layout: { width: number; height: number } } }) =>
+          setViewportSize({
+            width: e.nativeEvent.layout.width,
+            height: e.nativeEvent.layout.height,
+          })
+        }
       />
     );
   }
+
+  // Ordem de spread: defaults internos → defaults lazy → nativeListProps.
+  // Consumidor sempre vence quando passa override em nativeListProps.
+  const lazyDefaults = ctx.lazy ? LAZY_NATIVE_LIST_DEFAULTS : undefined;
+
+  const flatListProps: Partial<FlatListProps<React.ReactElement>> = {
+    horizontal: !isVertical,
+    snapToInterval: slideMain + gapPx,
+    decelerationRate: 'fast',
+    disableIntervalMomentum: true,
+    getItemLayout: (_: unknown, index: number) => ({
+      length: slideMain + gapPx,
+      offset: (slideMain + gapPx) * index,
+      index,
+    }),
+  };
 
   return (
     <FlatList
       ref={localFlatListRef}
       testID={testID}
-      horizontal
       data={items}
       keyExtractor={(_, i) => String(i)}
       showsHorizontalScrollIndicator={false}
-      snapToInterval={slideWidth + gapPx}
-      decelerationRate="fast"
-      disableIntervalMomentum
-      onLayout={(e) => setViewportWidth(e.nativeEvent.layout.width)}
+      showsVerticalScrollIndicator={false}
+      onLayout={(e) =>
+        setViewportSize({
+          width: e.nativeEvent.layout.width,
+          height: e.nativeEvent.layout.height,
+        })
+      }
       onScrollBeginDrag={() => ctx.setInteracting(true)}
       onScrollEndDrag={() => ctx.setInteracting(false)}
-      getItemLayout={(_, index) => ({
-        length: slideWidth + gapPx,
-        offset: (slideWidth + gapPx) * index,
-        index,
-      })}
       onViewableItemsChanged={onViewableItemsChanged}
       viewabilityConfig={viewabilityConfigRef.current}
       renderItem={({ item, index }) => (
@@ -328,7 +368,7 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
             index,
             total: items.length,
             slideId: `${ctx.baseId}-slide-${index}`,
-            width: slideWidth,
+            size: slideMain,
             gapPx,
             isLast: index === items.length - 1,
           }}
@@ -337,6 +377,8 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
         </CarouselItemNativeContext.Provider>
       )}
       style={style as object | undefined}
+      {...flatListProps}
+      {...(lazyDefaults ?? {})}
       {...(ctx.nativeListProps ?? {})}
     />
   );
@@ -347,12 +389,24 @@ function CarouselContent({ children, className, style, testID }: CarouselContent
 function CarouselItem({ children, id, className, style }: CarouselItemProps) {
   const ctx = useCarouselContext();
   const itemCtx = useCarouselItemNativeContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
 
   const slideId = id ?? itemCtx.slideId;
   const inWindow =
     itemCtx.index >= ctx.activeIndex &&
     itemCtx.index < ctx.activeIndex + ctx.resolvedSlidesPerView;
+
+  const isVertical = ctx.orientation === 'vertical';
+  const dimensionProps = isVertical
+    ? {
+        width: '100%' as const,
+        height: itemCtx.size,
+        marginBottom: itemCtx.isLast ? 0 : itemCtx.gapPx,
+      }
+    : {
+        width: itemCtx.size,
+        marginRight: itemCtx.isLast ? 0 : itemCtx.gapPx,
+      };
 
   return (
     <Box
@@ -361,8 +415,7 @@ function CarouselItem({ children, id, className, style }: CarouselItemProps) {
       accessibilityLabel={`${itemCtx.index + 1} de ${itemCtx.total}`}
       accessibilityElementsHidden={!inWindow}
       importantForAccessibility={inWindow ? 'auto' : 'no-hide-descendants'}
-      width={itemCtx.width}
-      marginRight={itemCtx.isLast ? 0 : itemCtx.gapPx}
+      {...dimensionProps}
       {...slots.item}
       className={className}
       style={style}
@@ -376,7 +429,7 @@ function CarouselItem({ children, id, className, style }: CarouselItemProps) {
 
 function CarouselPrevious({ ariaLabel, children, className, style }: CarouselNavProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   const prefersReducedMotion = usePrefersReducedMotion();
   const disabled = ctx.activeIndex <= 0;
 
@@ -406,7 +459,7 @@ function CarouselPrevious({ ariaLabel, children, className, style }: CarouselNav
 
 function CarouselNext({ ariaLabel, children, className, style }: CarouselNavProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   const prefersReducedMotion = usePrefersReducedMotion();
   const disabled = ctx.activeIndex >= ctx.slideCount - ctx.resolvedSlidesPerView;
 
@@ -443,9 +496,15 @@ function CarouselIndicators({
   style,
 }: CarouselIndicatorsProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
-  const slotsActive = useSlotRecipe<CarouselSlots>('carousel', { state: 'active' });
-  const slotsInactive = useSlotRecipe<CarouselSlots>('carousel', { state: 'inactive' });
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
+  const slotsActive = useSlotRecipe<CarouselSlots>('carousel', {
+    orientation: ctx.orientation,
+    state: 'active',
+  });
+  const slotsInactive = useSlotRecipe<CarouselSlots>('carousel', {
+    orientation: ctx.orientation,
+    state: 'inactive',
+  });
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const indices = useMemo(
@@ -512,7 +571,7 @@ function CarouselPlayPause({
   style,
 }: CarouselPlayPauseProps) {
   const ctx = useCarouselContext();
-  const slots = useSlotRecipe<CarouselSlots>('carousel');
+  const slots = useSlotRecipe<CarouselSlots>('carousel', { orientation: ctx.orientation });
   if (!ctx.autoplayEnabled) return null;
 
   const labels = ariaLabel ?? { play: 'Reproduzir autoplay', pause: 'Pausar autoplay' };
@@ -552,18 +611,20 @@ CarouselPlayPause.displayName = 'Carousel.PlayPause';
  *
  * Carousel em React Native — paridade de API com web (RFC-0034 rev. 3).
  *
- * - `Carousel.Content` é uma `FlatList` horizontal interna com
- *   `snapToInterval` + `getItemLayout` + `onViewableItemsChanged`
+ * - `Carousel.Content` é uma `FlatList` interna com `snapToInterval` +
+ *   `getItemLayout` + `onViewableItemsChanged`
  *   (`itemVisiblePercentThreshold: 51`). `Children.toArray` extrai os
- *   items para `data`.
- * - `Carousel.Item` recebe `width` + `marginRight` calculados pelo
- *   Content baseado em `slidesPerView` resolvido pelo breakpoint atual.
+ *   items para `data`. `horizontal` deriva de `orientation` (default
+ *   `'horizontal'`).
+ * - `Carousel.Item` recebe `width`+`marginRight` (horizontal) ou
+ *   `height`+`marginBottom` (vertical), calculados pelo Content.
  *   `accessibilityElementsHidden` quando fora da janela visível.
  * - `Carousel.Previous`/`Next` chamam `flatListRef.scrollToIndex`.
  * - `Carousel.Indicators` mantém o **dual pattern** APG (tabs vs group)
  *   via `accessibilityRole`. Sem keyboard nav (touch-only).
- * - `prefers-reduced-motion` será considerado em PR2 (depende de
- *   TD-032).
+ * - `lazy=true` aplica defaults `windowSize: 3` +
+ *   `removeClippedSubviews: true` na FlatList. `nativeListProps`
+ *   continua o escape hatch para sobrescrever.
  *
  * @see {@link CarouselRootProps}
  * @see RFC-0034 (rev. 3)

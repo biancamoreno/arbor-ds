@@ -1,6 +1,6 @@
 # RFC-0034 — Carousel: componente canônico cross-platform
 
-**Status**: **Draft (2026-05-03, rev. 3)**
+**Status**: **Implemented (2026-05-05, rev. 3)** — v1 completa (PR1 + PR2 A/B/C/D)
 **Autores**: arbor-ds-architect
 **Data**: 2026-05-03
 **Origem**: review R9 (achado E-Inex-1). Componente declarado nos cenários de produto (`CLAUDE.md` skill — e-commerce vitrine, landing pages, listas) e nunca implementado. `src/components/carousel/` está vazio desde Out/2025.
@@ -9,6 +9,8 @@
 - **rev. 1 (2026-05-03)**: draft inicial.
 - **rev. 2 (2026-05-03)**: refina os pontos vagos da rev. 1 — define IO para tracking web, troca `FlatList` por `ScrollView` em native, formaliza máquina de estado de autoplay, move `loop` para PR2, condiciona `inert` à TD-040.
 - **rev. 3 (2026-05-03)**: análise crítica do mercado (Embla, Swiper, shadcn/ui, Mantine, FlatList, FlashList, reanimated-carousel, WAI-ARIA APG) — 9 deltas: nomenclatura alinhada com shadcn (`Content/Item/Previous`), volta a `FlatList` em native (precedente FlatList "basic" vence mainstream), `aria-label` do slide sem palavra "slide" (APG), Tabs pattern condicional para indicadores, `Carousel.PlayPause` obrigatório quando autoplay (APG), `onViewableItemsChanged` em vez de `onMomentumScrollEnd`, escape hatch `nativeListProps`, virtualização vira default "de graça" (FlatList windowSize), FlashList adiada explicitamente (bug Android conhecido).
+
+**Implementação**: PR1 (`e1c4f66`) → PR2.A (`936ca5c`) → PR2.C+D (próximo commit). 1081/1081 testes verdes; lint+typecheck clean; `check-platform-contract --strict` + `check-no-color-literal` verdes.
 
 ---
 

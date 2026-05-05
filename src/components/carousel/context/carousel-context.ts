@@ -35,6 +35,20 @@ export interface CarouselContextValue {
   /** Decisão dual pattern para indicadores. */
   indicatorPattern: CarouselIndicatorPattern;
 
+  /** Eixo de scroll do carousel. */
+  orientation: 'horizontal' | 'vertical';
+
+  /** Lazy mounting habilitado? */
+  lazy: boolean;
+  /**
+   * Conjunto de índices já montados (web). Sticky: nunca remove.
+   * No native, FlatList controla mount internamente — set não é
+   * usado.
+   */
+  mountedSet: Set<number>;
+  /** Marca um índice como visível (montar children). */
+  markMounted: (index: number) => void;
+
   /** Ref do `Content` (web: viewport scrollável; root do IO; alvo do scrollTo). */
   contentRef: RefObject<HTMLElement | null>;
 

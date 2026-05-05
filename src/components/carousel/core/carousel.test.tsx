@@ -478,6 +478,213 @@ describe('Carousel — autoplay', () => {
   });
 });
 
+// ─── Orientation vertical (PR2.C) ───────────────────────────────────────────
+
+describe('Carousel — orientation', () => {
+  it('default horizontal: scrollSnapType "x mandatory" no Content', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content testID="content">
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const content = screen.getByTestId('content') as HTMLElement;
+    expect(content.style.scrollSnapType).toBe('x mandatory');
+  });
+
+  it('vertical: scrollSnapType "y mandatory" + overflow trocado', () => {
+    render(
+      <Carousel ariaLabel="X" orientation="vertical">
+        <Carousel.Content testID="content" style={{ height: 400 }}>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const content = screen.getByTestId('content') as HTMLElement;
+    expect(content.style.scrollSnapType).toBe('y mandatory');
+    expect(content.style.overflowY).toBe('auto');
+    expect(content.style.overflowX).toBe('hidden');
+  });
+
+  it('vertical Tabs pattern: tablist tem aria-orientation="vertical"', () => {
+    render(
+      <Carousel ariaLabel="X" orientation="vertical">
+        <Carousel.Content style={{ height: 400 }}>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.Indicators />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const tablist = screen.getByRole('tablist');
+    expect(tablist.getAttribute('aria-orientation')).toBe('vertical');
+  });
+
+  it('horizontal Tabs pattern: tablist NÃO tem aria-orientation', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.Indicators />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const tablist = screen.getByRole('tablist');
+    expect(tablist.hasAttribute('aria-orientation')).toBe(false);
+  });
+
+  it('vertical: ArrowDown avança / ArrowUp retrocede no Tabs pattern', () => {
+    render(
+      <Carousel ariaLabel="X" orientation="vertical">
+        <Carousel.Content style={{ height: 400 }}>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+          <Carousel.Item>C</Carousel.Item>
+        </Carousel.Content>
+        <Carousel.Indicators />
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.keyDown(tabs[0], { key: 'ArrowDown' });
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+    fireEvent.keyDown(tabs[1], { key: 'ArrowUp' });
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    // Em vertical, ArrowRight/ArrowLeft NÃO navegam (não correspondem ao eixo).
+    fireEvent.keyDown(tabs[0], { key: 'ArrowRight' });
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('vertical (spv=1): Item ocupa width 100% e height 100%', () => {
+    render(
+      <Carousel ariaLabel="X" orientation="vertical">
+        <Carousel.Content style={{ height: 400 }}>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const items = screen.getAllByRole('group');
+    expect(items[0].style.width).toBe('100%');
+    expect(items[0].style.height).toBe('100%');
+  });
+
+  it('horizontal (spv=1): Item ocupa width 100% e height auto', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    const items = screen.getAllByRole('group');
+    expect(items[0].style.width).toBe('100%');
+    expect(items[0].style.height).toBe('auto');
+  });
+});
+
+// ─── Lazy mounting (PR2.D) ──────────────────────────────────────────────────
+
+describe('Carousel — lazy mounting', () => {
+  it('default (lazy=false): todos os children montam', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content>
+          <Carousel.Item><span data-testid="child-0">A</span></Carousel.Item>
+          <Carousel.Item><span data-testid="child-1">B</span></Carousel.Item>
+          <Carousel.Item><span data-testid="child-2">C</span></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByTestId('child-0')).toBeTruthy();
+    expect(screen.getByTestId('child-1')).toBeTruthy();
+    expect(screen.getByTestId('child-2')).toBeTruthy();
+  });
+
+  it('lazy=true: apenas a janela inicial monta children; restante é placeholder', () => {
+    render(
+      <Carousel ariaLabel="X" lazy defaultActiveIndex={0}>
+        <Carousel.Content>
+          <Carousel.Item><span data-testid="child-0">A</span></Carousel.Item>
+          <Carousel.Item><span data-testid="child-1">B</span></Carousel.Item>
+          <Carousel.Item><span data-testid="child-2">C</span></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByTestId('child-0')).toBeTruthy();
+    expect(screen.queryByTestId('child-1')).toBeNull();
+    expect(screen.queryByTestId('child-2')).toBeNull();
+    // Os 3 placeholders Box mantêm aria-label "N de M" (a anatomia
+    // continua, só os children somem).
+    const items = screen.getAllByRole('group');
+    expect(items.length).toBe(3);
+  });
+
+  it('lazy=true: cria 2 IntersectionObservers (tracking + lazy mount)', () => {
+    render(
+      <Carousel ariaLabel="X" lazy>
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(IntersectionObserverMock.instances.length).toBe(2);
+  });
+
+  it('lazy=false: cria apenas 1 IntersectionObserver (tracking)', () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content>
+          <Carousel.Item>A</Carousel.Item>
+          <Carousel.Item>B</Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(IntersectionObserverMock.instances.length).toBe(1);
+  });
+
+  it('lazy=true: quando o IO lazy sinaliza visível, children montam (sticky)', () => {
+    render(
+      <Carousel ariaLabel="X" lazy>
+        <Carousel.Content>
+          <Carousel.Item><span data-testid="child-0">A</span></Carousel.Item>
+          <Carousel.Item><span data-testid="child-1">B</span></Carousel.Item>
+          <Carousel.Item><span data-testid="child-2">C</span></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.queryByTestId('child-2')).toBeNull();
+
+    const items = screen.getAllByRole('group');
+    // O segundo observer é o "lazy" (rootMargin: '200px').
+    const lazyObs = IntersectionObserverMock.instances[1];
+    expect(lazyObs).toBeTruthy();
+    act(() => { lazyObs.fire(items[2], 1); });
+    expect(screen.getByTestId('child-2')).toBeTruthy();
+
+    // Sticky: mesmo após "perder" visibilidade, o child permanece.
+    act(() => { lazyObs.fire(items[0], 1); });
+    expect(screen.getByTestId('child-2')).toBeTruthy();
+  });
+});
+
 // ─── Erro ao renderizar fora do Root ────────────────────────────────────────
 
 describe('Carousel — error boundaries', () => {

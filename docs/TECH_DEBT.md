@@ -39,7 +39,7 @@
 | [TD-032](#td-032) | `usePrefersReducedMotion.native` ausente — animações native ignoram a11y | R1-C4 + R7 (2026-05-02) | Open | Média (a11y mobile) | Implementar shim consumindo `AccessibilityInfo.isReduceMotionEnabled()`; substituir `Animated.loop` em Spinner/Skeleton/ProgressCircle/Toast por versão que respeita o hook. |
 | [TD-033](#td-033) | Labels hardcoded pt-BR sem ponto de extensão sistêmico | R7 + R8 (2026-05-02) | Open | Média (DX/i18n) | "Fechar"/"Notificações"/"Remover"/"Carregando" espalhados. Decidir entre prop `texts={}` por componente (padrão FileUpload) ou `<ArborProvider texts={}>` central. RFC dedicada. |
 | [TD-034](#td-034) | Tag/Chip sem slot recipe completo (`getTagColors` / `getChipColors` locais) | R8 sweep (2026-05-02) | Resolved (2026-05-03) | Baixa (refactor) | Slot recipes `tag` (12 compoundVariants `tone × selected`) e `chip` (24 compoundVariants `variant × tone × selected`) modelam toda a anatomia + cor; `SlotRecipeConfig` + `useSlotRecipe` + `TypedSlotRecipeConfig` ganharam suporte a `compoundVariants`; `tag-colors.ts` e `chip-colors.ts` deletados; produto consumidor consegue override completo via `createTheme()`. |
-| [TD-035](#td-035) | Carousel inexistente (pasta vazia, sem export) | R9 sondagem (2026-05-03) | Open | Média (bloqueio de produto — vitrines/landing) | Aguarda RFC-0034 (anatomia compound + scroll-snap web / FlatList native + a11y region/slide + autoplay com reduced-motion). 2 PRs previstos. |
+| [TD-035](#td-035) | Carousel inexistente (pasta vazia, sem export) | R9 sondagem (2026-05-03) | **Resolved (2026-05-05)** | Média | RFC-0034 v1 entregue: PR1 (anatomia + a11y APG) + PR2.A (autoplay + PlayPause) + PR2.B (loop soft) + PR2.C (orientation vertical) + PR2.D (lazy mounting). 1081 testes verdes. |
 | [TD-036](#td-036) | Sweep `style→props` em components R9 (~30 hits) | R9 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (resíduo) | Sub-onda 9.B — ~30 hits reduzidos para ~9 em produção, todos justificados pelo runtime do engine: `transition`/`whiteSpace` typed mas não-handled (TD-031), `gridTemplateRows` não whitelisted, Avatar `width/height` lidos como inline pelo teste (RFC-0035 tematiza via `sizes.avatar.*`), AvatarGroup `boxShadow` ring + `Card.Media` bleed dependem de RFCs (0035/0036). |
 | [TD-037](#td-037) | Tag `@platform native-ready` não-canônica em interfaces | R9 (2026-05-03) | **Resolved (2026-05-03)** | — | Sub-onda 9.A — 23 ocorrências migradas (interfaces e `.tsx` shared → `@platform shared`; arquivos `.native.tsx` → `@platform native`); `scripts/check-platform-contract.js` re-alinhado para o vocabulário canônico `shared\|web\|native\|placeholder` com Rule 1 substituída pela classificação por prioridade de tag (evita falso-positivo em diretórios com mistura `shared` + `native`). |
 | [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | **Resolved (2026-05-03)** | Baixa (resolvida) | RFC-0036 — `defineSlotRecipe('card')` com variant `interactive: { true: { _hover, _active, transition } }`; CSS global e `--arbor-shadow-card-hover` deletados do provider; `card.tsx`/`card.native.tsx` cross-platform paritários; bleed via anatomia reflow (cada slot dona seu padding, `media` edge-to-edge por construção). |
@@ -1927,12 +1927,21 @@ Baixa — código atual funciona e está consolidado num único arquivo `interna
 
 ### Critério para fechar
 
-- [ ] RFC-0034 aceita.
+- [x] RFC-0034 aceita.
 - [x] TD-040 fechada (pré-requisito de PR1).
-- [ ] PR1 entregue (anatomia + tracking IO/onViewableItemsChanged + a11y APG + Tabs pattern condicional + `nativeListProps`).
-- [ ] PR2 entregue (autoplay + `Carousel.PlayPause` + loop + vertical + lazy).
-- [ ] Stories cobrindo: 1/2/4 slides simultâneos, responsive (`{ base, md, lg }`), render prop em `Indicators`, controlled vs uncontrolled, **8+ items mostrando Group fallback** (PR1) + autoplay on/off, vertical, loop on/off (PR2).
-- [ ] Bateria verde web + native (incluindo teste de "drag → activeIndex muda").
+- [x] PR1 entregue (commit `e1c4f66`: anatomia + tracking IO/onViewableItemsChanged + a11y APG + Tabs pattern condicional + `nativeListProps`).
+- [x] PR2 entregue:
+  - PR2.A — autoplay + `Carousel.PlayPause` + máquina de pause (commit `936ca5c`).
+  - PR2.B — `loop` soft via wrap (entregue junto com PR2.A — autoplay tick implementa `i >= last ? 0 : i+1`).
+  - PR2.C — `orientation: 'vertical'`.
+  - PR2.D — `lazy?: boolean` (sticky mount no web via 2º IO `rootMargin: 200px`; `windowSize: 3` + `removeClippedSubviews: true` no FlatList native).
+- [x] Stories cobrindo: 1/2/4 slides simultâneos, responsive, render prop em `Indicators`, controlled vs uncontrolled, **8+ items mostrando Group fallback**, autoplay, vertical, lazy mounting.
+- [x] Bateria verde web + native (1081/1081), incluindo "drag → activeIndex muda" via mock IO.
+
+**Pós-v1 (não bloqueante):**
+- PR3 (não escopo): virtualização web opt-in via `virtualizeWhenAtLeast?: number`. Aguarda demanda real; precedente Embla.
+
+**Status final:** **Resolved (2026-05-05)** — RFC-0034 v1 entregue.
 
 ---
 

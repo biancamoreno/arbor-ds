@@ -214,6 +214,86 @@ describe('Carousel (native) — autoplay', () => {
   });
 });
 
+describe('Carousel (native) — orientation', () => {
+  it('default horizontal: FlatList recebe horizontal=true', async () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+          <Carousel.Item><Text>B</Text></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    await act(async () => { fireLayout('content', 300, 200); });
+    const list = screen.getByTestId('content');
+    expect(list.props.horizontal).toBe(true);
+  });
+
+  it('vertical: FlatList recebe horizontal=false', async () => {
+    render(
+      <Carousel ariaLabel="X" orientation="vertical">
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+          <Carousel.Item><Text>B</Text></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    await act(async () => { fireLayout('content', 300, 400); });
+    const list = screen.getByTestId('content');
+    expect(list.props.horizontal).toBe(false);
+  });
+});
+
+describe('Carousel (native) — lazy mounting', () => {
+  it('lazy=true: FlatList recebe windowSize=3 e removeClippedSubviews=true por default', async () => {
+    render(
+      <Carousel ariaLabel="X" lazy>
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+          <Carousel.Item><Text>B</Text></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    await act(async () => { fireLayout('content', 300, 200); });
+    const list = screen.getByTestId('content');
+    expect(list.props.windowSize).toBe(3);
+    expect(list.props.removeClippedSubviews).toBe(true);
+  });
+
+  it('lazy=false: defaults da RN preservados (windowSize undefined)', async () => {
+    render(
+      <Carousel ariaLabel="X">
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+          <Carousel.Item><Text>B</Text></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    await act(async () => { fireLayout('content', 300, 200); });
+    const list = screen.getByTestId('content');
+    expect(list.props.windowSize).toBeUndefined();
+  });
+
+  it('lazy=true + nativeListProps.windowSize: consumidor sobrescreve default', async () => {
+    render(
+      <Carousel ariaLabel="X" lazy nativeListProps={{ windowSize: 7 }}>
+        <Carousel.Content testID="content">
+          <Carousel.Item><Text>A</Text></Carousel.Item>
+          <Carousel.Item><Text>B</Text></Carousel.Item>
+        </Carousel.Content>
+      </Carousel>,
+      { wrapper: Wrapper },
+    );
+    await act(async () => { fireLayout('content', 300, 200); });
+    const list = screen.getByTestId('content');
+    expect(list.props.windowSize).toBe(7);
+  });
+});
+
 describe('Carousel (native) — render prop', () => {
   it('Indicators chama children render prop com {index, active, total}', async () => {
     render(

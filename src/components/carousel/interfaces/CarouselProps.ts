@@ -101,11 +101,41 @@ export interface CarouselRootProps {
   gap?: CarouselGap;
 
   /**
+   * Eixo de scroll. Default `'horizontal'`.
+   *
+   * Em `'vertical'`, o consumidor deve definir altura no
+   * `Carousel.Content` (web) ou no Box envolvente (native) — análogo
+   * a Embla/Swiper, sem default mágico. Sem altura, o vertical não
+   * tem como calcular o tamanho do slide.
+   *
+   * Indicators continuam dispostos horizontalmente (decisão deliberada;
+   * convenção visual). Previous/Next mantêm o visual; o consumidor
+   * reposiciona como quiser.
+   */
+  orientation?: 'horizontal' | 'vertical';
+
+  /**
    * Autoplay opcional. `false` (default) desliga; objeto liga.
    * Quando ativo, `Carousel.PlayPause` torna-se obrigatório (APG)
    * — o consumidor deve renderizá-lo dentro do compound.
    */
   autoplay?: false | CarouselAutoplayConfig;
+
+  /**
+   * Lazy mounting de slides fora da janela visível. Default `false`.
+   *
+   * Web: items fora da viewport renderizam um placeholder (Box vazio
+   * com mesmas dimensões); children montam quando o item entra na
+   * janela expandida (rootMargin 200px). Sticky mount: uma vez
+   * montado, o conteúdo permanece (preserva state de form/video/IO).
+   *
+   * Native: ajusta defaults da `FlatList` interna (`windowSize: 3`,
+   * `removeClippedSubviews: true`); `nativeListProps` continua o
+   * escape hatch para override.
+   *
+   * Princípio Embla: virtualização é opt-in, não default.
+   */
+  lazy?: boolean;
 
   /** Nome acessível obrigatório do carrossel. */
   ariaLabel: string;
