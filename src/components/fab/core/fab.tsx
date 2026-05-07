@@ -63,7 +63,7 @@ export function FloatingActionButton({
 
   const variantTokens = {
     primary: { bg: 'interactive.default' as const, fg: 'text.inverse' as const },
-    secondary: { bg: 'brand.subtle' as const, fg: 'text.primary' as const },
+    secondary: { bg: 'brand.bgElement' as const, fg: 'text.primary' as const },
     surface: { bg: 'surface.default' as const, fg: 'text.primary' as const },
   };
 

@@ -20,7 +20,7 @@ import type { SpinnerProps } from '../interfaces';
 export function Spinner({ size = 'medium', color, label = 'Carregando', style, ...props }: SpinnerProps) {
   const theme = useTheme();
   const px = SIZE_MAP[size];
-  const strokeColor = color ?? theme.colors.brand.base;
+  const strokeColor = color ?? theme.colors.brand.solid;
   const rotation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

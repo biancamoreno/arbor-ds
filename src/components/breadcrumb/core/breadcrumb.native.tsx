@@ -64,7 +64,7 @@ function BreadcrumbLink({ children, onClick, style, ...props }: BreadcrumbLinkPr
       <Text
         as="span"
         style={{
-          color: theme.colors.brand.base,
+          color: theme.colors.brand.solid,
           fontSize: 14,
         }}
       >

@@ -11,12 +11,12 @@ export function FieldLabel({ children }: FieldLabelProps) {
     <ArborTransform
       as="label"
       htmlFor={ctx?.fieldId}
-      color={ctx?.invalid ? 'feedback.critical.base' : 'text.primary'}
+      color={ctx?.invalid ? 'feedback.critical.solid' : 'text.primary'}
       {...(labelStyles ?? {})}
     >
       {children}
       {ctx?.required && (
-        <ArborTransform as="span" color="feedback.critical.base" aria-hidden="true">
+        <ArborTransform as="span" color="feedback.critical.solid" aria-hidden="true">
           {' *'}
         </ArborTransform>
       )}

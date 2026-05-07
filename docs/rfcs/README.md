@@ -19,6 +19,8 @@ Ver [`docs/reviews/_followups.md`](../reviews/_followups.md) para o índice acio
 | [RFC-0012](./RFC-0012-loading-e-error-states-em-image.md) | Estados de loading/error em `Image` | R3 | Draft |
 | [RFC-0016](./RFC-0016-ambiente-de-testes-cross-platform.md) | Ambiente de testes cross-platform | TD-013 | Draft |
 | [RFC-0031](./RFC-0031-sp1-naming-size-componente.md) | SP-1 — alinhar `size` de componentes para `small \| medium \| large` | R7 + R8 (sub-onda 8.D) | Draft |
+| [RFC-0039](./RFC-0039-paleta-12-papeis-nominais.md) | Paleta com 12 papéis nominais (Radix-style) | `ARCHITECTURE_DIRECTION.md` §2.2 | Draft |
+| [RFC-0040](./RFC-0040-component-tokens-estruturados.md) | Component tokens estruturados (variant/state) + emissão de CSS vars | `ARCHITECTURE_DIRECTION.md` §2.2 + §2.5 | Draft |
 
 ---
 

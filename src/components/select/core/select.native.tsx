@@ -242,7 +242,7 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
     >
       <Flex
         {...slots.item}
-        backgroundColor={isSelected ? 'brand.subtle' : 'transparent'}
+        backgroundColor={isSelected ? 'brand.bgElement' : 'transparent'}
         opacity={disabled ? 0.5 : 1}
       >
         <Text {...slots.itemText}>{children}</Text>

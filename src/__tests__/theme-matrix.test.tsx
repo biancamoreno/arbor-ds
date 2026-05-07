@@ -12,29 +12,21 @@ import { createTheme } from '../foundations/theme/create-theme';
 import { createBrandPalette } from '../foundations/theme/create-brand-palette';
 import type { ArborTheme } from '../foundations/theme/Theme';
 
-const violetBrand = createBrandPalette({
-  primary: '#7C3AED',
-  secondary: '#5B21B6',
-  accent: '#A855F7',
-  subtle: '#EDE9FE',
-  soft: '#C4B5FD',
-  strong: '#5B21B6',
-  hover: '#5B21B6',
-  active: '#4C1D95',
-});
+const violet = createBrandPalette('#7C3AED');
+const violetBrand = violet.light;
 
 const productB = createTheme(themeLight as unknown as ArborTheme, {
   mode: 'product-b-light',
   colors: {
     brand: violetBrand,
     interactive: {
-      default: violetBrand.primary,
-      hover: violetBrand.hover,
-      active: violetBrand.active,
+      default: violetBrand.solid,
+      hover: violetBrand.solidHover,
+      active: violetBrand.textContrast,
     },
-    border: { interactive: violetBrand.primary },
-    icon: { interactive: violetBrand.primary },
-    focus: { ring: violetBrand.primary },
+    border: { interactive: violetBrand.solid },
+    icon: { interactive: violetBrand.solid },
+    focus: { ring: violetBrand.solid },
   },
   motion: {
     duration: { fast: '50ms', normal: '120ms' },
@@ -102,7 +94,7 @@ describe('multi-product theming matrix', () => {
   });
 
   it('themeLight remains unchanged (createTheme is non-mutating)', () => {
-    expect(themeLight.colors.brand.primary).not.toBe(VIOLET);
+    expect(themeLight.colors.brand.solid).not.toBe(VIOLET);
     expect(themeLight.motion.duration.fast).not.toBe('50ms');
   });
 
@@ -134,6 +126,13 @@ describe('multi-product theming matrix', () => {
   });
 
   it('focus.ring propagates to product B theme', () => {
-    expect(productB.colors.focus.ring).toBe(violetBrand.primary);
+    expect(productB.colors.focus.ring).toBe(violetBrand.solid);
+  });
+
+  it('createBrandPalette generates 12-step ColorScale (numeric + nominal)', () => {
+    expect(violetBrand[9]).toBe(violetBrand.solid);
+    expect(violetBrand[1]).toBe(violetBrand.bg);
+    expect(violetBrand[12]).toBe(violetBrand.textContrast);
+    expect(violet.dark[9]).toBeTruthy();
   });
 });

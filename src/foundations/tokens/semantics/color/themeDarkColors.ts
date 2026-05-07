@@ -1,87 +1,135 @@
 import { color as primitiveColor } from '../../primitives';
+import { makeDarkColorScale, type ColorScale } from './scale';
 
-const darkBrandPrimary = primitiveColor.aqua['40'];
-const darkBrandHover = primitiveColor.aqua['50'];
-const darkBrandActive = primitiveColor.aqua['70'];
+const brandScale = makeDarkColorScale(primitiveColor.aqua);
+const grayScale = makeDarkColorScale({
+  10: primitiveColor.neutral[10],
+  20: primitiveColor.neutral[20],
+  30: primitiveColor.neutral[30],
+  40: primitiveColor.neutral[40],
+  50: primitiveColor.neutral[50],
+  60: primitiveColor.neutral[60],
+  70: primitiveColor.neutral[70],
+  80: primitiveColor.neutral[80],
+  90: primitiveColor.neutral[90],
+  100: primitiveColor.neutral[100],
+  110: primitiveColor.neutral[110],
+  120: primitiveColor.neutral[120],
+});
+const infoScale = makeDarkColorScale(primitiveColor.ocean);
+const successScale = makeDarkColorScale({
+  10: primitiveColor.emerald[10],
+  20: primitiveColor.emerald[20],
+  30: primitiveColor.emerald[30],
+  40: primitiveColor.emerald[40],
+  50: primitiveColor.emerald[50],
+  60: primitiveColor.emerald[60],
+  70: primitiveColor.emerald[70],
+  80: primitiveColor.emerald[80],
+  90: primitiveColor.emerald[90],
+  100: primitiveColor.emerald[100],
+  110: primitiveColor.emerald[110],
+  120: primitiveColor.emerald[120],
+});
+const warningScale = makeDarkColorScale({
+  10: primitiveColor.orange[10],
+  20: primitiveColor.orange[20],
+  30: primitiveColor.orange[30],
+  40: primitiveColor.orange[40],
+  50: primitiveColor.orange[50],
+  60: primitiveColor.orange[60],
+  70: primitiveColor.orange[70],
+  80: primitiveColor.orange[80],
+  90: primitiveColor.orange[90],
+  100: primitiveColor.orange[100],
+  110: primitiveColor.orange[110],
+  120: primitiveColor.orange[120],
+});
+const criticalScale = makeDarkColorScale({
+  10: primitiveColor.red[10],
+  20: primitiveColor.red[20],
+  30: primitiveColor.red[30],
+  40: primitiveColor.red[40],
+  50: primitiveColor.red[50],
+  60: primitiveColor.red[60],
+  70: primitiveColor.red[70],
+  80: primitiveColor.red[80],
+  90: primitiveColor.red[90],
+  100: primitiveColor.red[100],
+  110: primitiveColor.red[110],
+  120: primitiveColor.red[120],
+});
 
 export const themeDarkColors = {
   background: {
-    default: primitiveColor.neutral['100'],
-    contrast: primitiveColor.neutral['80'],
-    subtle: primitiveColor.neutral['100'],
-    interactive: primitiveColor.neutral['70'],
+    default: primitiveColor.neutral[100],
+    contrast: primitiveColor.neutral[80],
+    subtle: primitiveColor.neutral[100],
+    interactive: primitiveColor.neutral[70],
     overlay: 'rgba(0, 0, 0, 0.6)',
   },
   surface: {
-    default: primitiveColor.neutral['90'],
-    highlight: primitiveColor.neutral['80'],
-    raised: primitiveColor.neutral['70'],
+    default: primitiveColor.neutral[90],
+    highlight: primitiveColor.neutral[80],
+    raised: primitiveColor.neutral[70],
     translucent: 'rgba(20, 20, 20, 0.85)',
   },
   border: {
-    default: primitiveColor.neutral['70'],
-    subtle: primitiveColor.neutral['80'],
-    strong: primitiveColor.neutral['50'],
-    interactive: primitiveColor.aqua['60'],
+    default: primitiveColor.neutral[70],
+    subtle: primitiveColor.neutral[80],
+    strong: primitiveColor.neutral[50],
+    interactive: brandScale.border,
   },
   text: {
     primary: primitiveColor.neutral.white,
-    secondary: primitiveColor.neutral['40'],
-    tertiary: primitiveColor.neutral['50'],
-    inverse: primitiveColor.neutral['100'],
-    disabled: primitiveColor.neutral['70'],
+    secondary: primitiveColor.neutral[40],
+    tertiary: primitiveColor.neutral[50],
+    inverse: primitiveColor.neutral[100],
+    disabled: primitiveColor.neutral[70],
   },
   icon: {
     primary: primitiveColor.neutral.white,
-    secondary: primitiveColor.neutral['50'],
-    interactive: darkBrandPrimary,
-    disabled: primitiveColor.neutral['70'],
+    secondary: primitiveColor.neutral[50],
+    interactive: brandScale.solid,
+    disabled: primitiveColor.neutral[70],
   },
   interactive: {
-    default: darkBrandPrimary,
-    hover: darkBrandHover,
-    active: darkBrandActive,
-    disabled: primitiveColor.neutral['70'],
+    default: brandScale.solid,
+    hover: brandScale.solidHover,
+    active: brandScale.text,
+    disabled: primitiveColor.neutral[70],
   },
-  brand: {
-    primary: primitiveColor.aqua['50'],
-    secondary: primitiveColor.ocean['40'],
-    accent: primitiveColor.emerald['40'],
-    onPrimary: primitiveColor.neutral['100'],
-    onSecondary: primitiveColor.neutral['100'],
-    subtle: primitiveColor.aqua['30'],
-    soft: primitiveColor.aqua['40'],
-    base: primitiveColor.aqua['50'],
-    strong: primitiveColor.aqua['60'],
-  },
+  brand: brandScale,
+  gray: grayScale,
   feedback: {
-    info: {
-      subtle: primitiveColor.ocean['20'],
-      base: primitiveColor.ocean['40'],
-      strong: primitiveColor.ocean['60'],
-    },
-    success: {
-      subtle: primitiveColor.emerald['20'],
-      base: primitiveColor.emerald['40'],
-      strong: primitiveColor.emerald['60'],
-    },
-    warning: {
-      subtle: primitiveColor.orange['20'],
-      base: primitiveColor.orange['50'],
-      strong: primitiveColor.orange['70'],
-    },
-    critical: {
-      subtle: primitiveColor.red['20'],
-      base: primitiveColor.red['50'],
-      strong: primitiveColor.red['70'],
-    },
+    info: infoScale,
+    success: successScale,
+    warning: warningScale,
+    critical: criticalScale,
   },
   shadow: {
-    color: primitiveColor.neutral['100'],
+    color: primitiveColor.neutral[100],
   },
   focus: {
-    ring: darkBrandPrimary,
+    ring: brandScale.solid,
   },
+} satisfies {
+  background: Record<string, string>;
+  surface: Record<string, string>;
+  border: Record<string, string>;
+  text: Record<string, string>;
+  icon: Record<string, string>;
+  interactive: Record<string, string>;
+  brand: ColorScale;
+  gray: ColorScale;
+  feedback: {
+    info: ColorScale;
+    success: ColorScale;
+    warning: ColorScale;
+    critical: ColorScale;
+  };
+  shadow: Record<string, string>;
+  focus: Record<string, string>;
 };
 
 export type ThemeDarkColors = typeof themeDarkColors;

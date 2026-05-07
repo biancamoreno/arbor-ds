@@ -90,7 +90,7 @@ function FieldLabel({ children }: FieldLabelProps) {
     <Text
       nativeID={ctx?.labelId}
       accessibilityRole="text"
-      color={ctx?.invalid ? 'feedback.critical.base' : 'text.primary'}
+      color={ctx?.invalid ? 'feedback.critical.solid' : 'text.primary'}
       {...(labelStyles ?? {})}
     >
       {children}
@@ -179,7 +179,7 @@ function FieldError({ children }: FieldErrorProps) {
     <Text
       nativeID={ctx?.errorId}
       accessibilityRole="alert"
-      color="feedback.critical.base"
+      color="feedback.critical.solid"
       {...(errorStyles ?? {})}
     >
       {children}

@@ -93,17 +93,17 @@ const colorFamilies = [
   {
     title: 'Brand',
     items: [
-      { name: 'subtle', path: 'colors.brand.subtle' },
-      { name: 'base', path: 'colors.brand.base' },
-      { name: 'strong', path: 'colors.brand.strong' },
+      { name: 'bgElement', path: 'colors.brand.bgElement' },
+      { name: 'solid', path: 'colors.brand.solid' },
+      { name: 'solidHover', path: 'colors.brand.solidHover' },
     ],
   },
   {
     title: 'Feedback',
     items: [
-      { name: 'success', path: 'colors.feedback.success.base' },
-      { name: 'warning', path: 'colors.feedback.warning.base' },
-      { name: 'critical', path: 'colors.feedback.critical.base' },
+      { name: 'success', path: 'colors.feedback.success.solid' },
+      { name: 'warning', path: 'colors.feedback.warning.solid' },
+      { name: 'critical', path: 'colors.feedback.critical.solid' },
     ],
   },
 ];
@@ -361,7 +361,7 @@ function FoundationsSection() {
             <Text as="p" variant="caption" style={{ color: theme.colors.text.secondary }}>
               caption / Supporting information and metadata.
             </Text>
-            <Text as="span" variant="tag" style={{ color: theme.colors.brand.strong }}>
+            <Text as="span" variant="tag" style={{ color: theme.colors.brand.solidHover }}>
               tag / uppercase accent
             </Text>
           </div>

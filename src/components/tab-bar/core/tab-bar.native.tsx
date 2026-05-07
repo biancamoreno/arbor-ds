@@ -14,9 +14,9 @@ function TabBarItem({ value, icon, label, badge, disabled = false }: TabBarItemP
   const isActive = value === activeValue;
   const theme = useTheme();
 
-  const activeColor = theme.colors.brand.base;
+  const activeColor = theme.colors.brand.solid;
   const inactiveColor = theme.colors.text.secondary;
-  const badgeBg = theme.colors.feedback.critical.base;
+  const badgeBg = theme.colors.feedback.critical.solid;
   const badgeFg = theme.colors.text.inverse;
 
   const hasBadge = badge !== undefined && badge !== false && badge !== 0;

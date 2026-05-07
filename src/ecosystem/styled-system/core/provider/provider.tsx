@@ -48,7 +48,7 @@ export function ArborProvider({ theme = themeLight, children, ...rest }: Partial
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    document.documentElement.style.setProperty('--arbor-brand', theme.colors.brand.base);
+    document.documentElement.style.setProperty('--arbor-brand', theme.colors.brand.solid);
     document.documentElement.style.setProperty('--arbor-surface', theme.colors.surface.default);
   }, [theme]);
 

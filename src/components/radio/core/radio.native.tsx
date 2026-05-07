@@ -89,7 +89,7 @@ function RadioIndicator({ style: _style }: RadioIndicatorProps) {
         width={10}
         height={10}
         borderRadius="full"
-        backgroundColor={ctx.checked ? 'brand.base' : 'transparent'}
+        backgroundColor={ctx.checked ? 'brand.solid' : 'transparent'}
       />
     </Flex>
   );

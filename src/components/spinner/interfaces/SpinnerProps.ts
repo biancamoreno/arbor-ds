@@ -10,7 +10,7 @@ import type { SpinnerSize } from '../internal/sizes';
  */
 export interface SpinnerProps {
   size?: SpinnerSize;
-  /** Substitui a cor padrão do stroke (default: `theme.colors.brand.base`) */
+  /** Substitui a cor padrão do stroke (default: `theme.colors.brand.solid`) */
   color?: string;
   /** @default "Carregando" */
   label?: string;

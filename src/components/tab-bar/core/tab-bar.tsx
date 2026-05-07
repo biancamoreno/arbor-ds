@@ -65,7 +65,7 @@ function TabBarItem({ value, icon, label, badge, disabled = false }: TabBarItemP
             alignItems="center"
             justifyContent="center"
             borderRadius="full"
-            backgroundColor="feedback.critical.base"
+            backgroundColor="feedback.critical.solid"
             color="text.inverse"
             style={{
               top: badge === true ? 0 : -4,

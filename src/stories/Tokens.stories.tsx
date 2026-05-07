@@ -5,6 +5,35 @@ import { spacing } from '../foundations/tokens/primitives/spacing';
 import { fontSize } from '../foundations/tokens/primitives/typography/font-size';
 import { borderRadius } from '../foundations/tokens/primitives/borders/border-radius';
 import { themeLightColors } from '../foundations/tokens/semantics/color/themeLightColors';
+import { themeDarkColors } from '../foundations/tokens/semantics/color/themeDarkColors';
+import type { ColorScale } from '../foundations/tokens/semantics/color/scale';
+
+function hexToRgb(hex: string) {
+  const cleaned = hex.replace(/^#/, '');
+  const full = cleaned.length === 3
+    ? cleaned.split('').map((c) => c + c).join('')
+    : cleaned;
+  const num = Number.parseInt(full, 16);
+  return {
+    r: ((num >> 16) & 0xff) / 255,
+    g: ((num >> 8) & 0xff) / 255,
+    b: (num & 0xff) / 255,
+  };
+}
+
+function relativeLuminance(hex: string) {
+  const { r, g, b } = hexToRgb(hex);
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+function contrastRatio(fg: string, bg: string) {
+  const l1 = relativeLuminance(fg);
+  const l2 = relativeLuminance(bg);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
 
 const meta = {
   title: 'Foundations/Tokens',
@@ -86,6 +115,153 @@ export const SemanticColors: Story = {
             </div>
           </div>
         ))}
+      </Section>
+    </div>
+  ),
+};
+
+const CANONICAL_ROLES: Array<keyof ColorScale> = [
+  'bg',
+  'bgSubtle',
+  'bgElement',
+  'bgElementHover',
+  'bgElementActive',
+  'borderSubtle',
+  'border',
+  'borderHover',
+  'solid',
+  'solidHover',
+  'text',
+  'textContrast',
+];
+
+function ScaleRow({ scale, themeMode }: { scale: ColorScale; themeMode: 'light' | 'dark' }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 4 }}>
+      {CANONICAL_ROLES.map((role, idx) => {
+        const value = scale[role];
+        return (
+          <div key={role} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div
+              style={{
+                width: '100%',
+                aspectRatio: '1 / 1',
+                background: value,
+                borderRadius: 6,
+                border: themeMode === 'light' ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.12)',
+              }}
+              title={value}
+            />
+            <span style={{ fontSize: 10, color: '#666', fontWeight: 600 }}>{idx + 1}</span>
+            <span style={{ fontSize: 9, color: '#888', textAlign: 'center', wordBreak: 'break-word' }}>{role}</span>
+            <span style={{ fontSize: 9, color: '#aaa' }}>{value}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ContrastBadge({ ratio, target, label }: { ratio: number; target: number; label: string }) {
+  const passes = ratio >= target;
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: '2px 6px',
+        borderRadius: 4,
+        background: passes ? '#e6f4ea' : '#fde7e7',
+        color: passes ? '#137333' : '#8a1f11',
+        fontSize: 11,
+        fontWeight: 500,
+      }}
+    >
+      {label}: {ratio.toFixed(2)}:1 {passes ? '✓' : '✗'}
+    </span>
+  );
+}
+
+function ContrastRow({ scale }: { scale: ColorScale }) {
+  const pairs = [
+    { fg: scale.text, bg: scale.bg, target: 4.5, label: 'text/bg AA' },
+    { fg: scale.textContrast, bg: scale.bg, target: 7, label: 'textContrast/bg AAA' },
+    { fg: scale.border, bg: scale.bg, target: 3, label: 'border/bg AA' },
+  ];
+  return (
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+      {pairs.map((p) => (
+        <ContrastBadge
+          key={p.label}
+          ratio={contrastRatio(p.fg, p.bg)}
+          target={p.target}
+          label={p.label}
+        />
+      ))}
+    </div>
+  );
+}
+
+function FamilyBlock({
+  title,
+  light,
+  dark,
+}: {
+  title: string;
+  light: ColorScale;
+  dark: ColorScale;
+}) {
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, textTransform: 'capitalize' }}>{title}</p>
+      <div style={{ marginBottom: 12 }}>
+        <p style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>light</p>
+        <ScaleRow scale={light} themeMode="light" />
+        <ContrastRow scale={light} />
+      </div>
+      <div style={{ background: '#1f1f1f', padding: 12, borderRadius: 6 }}>
+        <p style={{ fontSize: 11, color: '#aaa', marginBottom: 6 }}>dark</p>
+        <ScaleRow scale={dark} themeMode="dark" />
+        <ContrastRow scale={dark} />
+      </div>
+    </div>
+  );
+}
+
+export const ColorScales12Roles: Story = {
+  name: 'Color Scales · 12 papéis (RFC-0039)',
+  render: () => (
+    <div>
+      <Section title="Famílias themable — 12 papéis canônicos">
+        <p style={{ fontSize: 12, color: '#666', marginBottom: 24 }}>
+          Cada família themable expõe 12 steps (numérico + alias nominal Radix-style).
+          Light/dark mapeiam intensidades distintas — em dark, `solid` desce uma intensidade
+          para preservar legibilidade sobre fundo escuro. Os badges abaixo de cada escala
+          mostram contraste WCAG calculado nos pares canônicos.
+        </p>
+        <FamilyBlock title="brand" light={themeLightColors.brand} dark={themeDarkColors.brand} />
+        <FamilyBlock title="gray" light={themeLightColors.gray} dark={themeDarkColors.gray} />
+        <FamilyBlock
+          title="feedback.info"
+          light={themeLightColors.feedback.info}
+          dark={themeDarkColors.feedback.info}
+        />
+        <FamilyBlock
+          title="feedback.success"
+          light={themeLightColors.feedback.success}
+          dark={themeDarkColors.feedback.success}
+        />
+        <FamilyBlock
+          title="feedback.warning"
+          light={themeLightColors.feedback.warning}
+          dark={themeDarkColors.feedback.warning}
+        />
+        <FamilyBlock
+          title="feedback.critical"
+          light={themeLightColors.feedback.critical}
+          dark={themeDarkColors.feedback.critical}
+        />
       </Section>
     </div>
   ),

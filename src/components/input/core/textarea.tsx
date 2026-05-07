@@ -85,7 +85,7 @@ export const TextArea = markFieldAware(
           <Text
             as="span"
             fontSize="xsmall"
-            color={charCount > maxLength * 0.9 ? 'feedback.critical.base' : 'text.secondary'}
+            color={charCount > maxLength * 0.9 ? 'feedback.critical.solid' : 'text.secondary'}
           >
             {charCount} / {maxLength}
           </Text>

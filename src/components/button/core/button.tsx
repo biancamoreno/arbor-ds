@@ -100,8 +100,8 @@ export function Button({
       color: theme.colors.text.inverse,
     },
     secondary: {
-      backgroundColor: theme.colors.brand.subtle,
-      borderColor: theme.colors.brand.soft,
+      backgroundColor: theme.colors.brand.bgElement,
+      borderColor: theme.colors.brand.bgElementActive,
       color: theme.colors.text.primary,
     },
     ghost: {
@@ -110,8 +110,8 @@ export function Button({
       color: theme.colors.text.primary,
     },
     danger: {
-      backgroundColor: theme.colors.feedback.critical.base,
-      borderColor: theme.colors.feedback.critical.base,
+      backgroundColor: theme.colors.feedback.critical.solid,
+      borderColor: theme.colors.feedback.critical.solid,
       color: theme.colors.text.inverse,
     },
   } as const;

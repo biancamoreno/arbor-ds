@@ -16,7 +16,7 @@ const Item = ({ children }: { children: React.ReactNode }) => (
   <Box
     paddingX="medium"
     paddingY="small"
-    backgroundColor="semantic.brand.base"
+    backgroundColor="semantic.brand.solid"
     borderRadius="small"
     color="semantic.text.inverse"
   >

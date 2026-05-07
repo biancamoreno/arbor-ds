@@ -7,7 +7,7 @@ import { DemoBlock } from '../components/DemoBlock';
 const DS_VERSION = '1.1.0';
 
 const tokenRows: { label: string; value: string; swatch?: string }[] = [
-  { label: 'brand.base', value: '#18736A', swatch: '#18736A' },
+  { label: 'brand.solid', value: '#116754', swatch: '#116754' },
   { label: 'background.default', value: '#FFFFFF', swatch: '#FFFFFF' },
   { label: 'text.primary', value: '#111827', swatch: '#111827' },
   { label: 'feedback.success', value: '#16A34A', swatch: '#16A34A' },

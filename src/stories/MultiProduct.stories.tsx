@@ -71,7 +71,7 @@ function ProductColumn({ panel }: { panel: ProductPanel }) {
               borderWidth="hairline"
               borderStyle="solid"
               borderColor="border.subtle"
-              backgroundColor="brand.primary"
+              backgroundColor="brand.solid"
             />
             <Flex flexDirection="column" gap="nano">
               <Text fontSize="medium" fontWeight="bold" color="text.primary">
@@ -197,7 +197,7 @@ export const ProductBOnly: Story = {
       description: {
         story:
           'Apenas o produto B em destaque. Usado para inspeção fina do override violet ' +
-          '(brand.primary/secondary/accent + interactive + border.interactive + icon.interactive + focus.ring + motion + radii).',
+          '(brand.solid + interactive + border.interactive + icon.interactive + focus.ring + motion + radii).',
       },
     },
   },

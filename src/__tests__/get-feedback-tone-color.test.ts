@@ -23,22 +23,24 @@ describe('getFeedbackToneColor', () => {
       expect(result).toBe(expected);
     });
 
-    test.each(SLOTS)('brand × %s resolve para colors.brand.*', (slot) => {
+    test.each(SLOTS)('brand × %s resolve para papel canônico em colors.brand', (slot) => {
       const result = getFeedbackToneColor(theme, 'brand', slot);
       const expected =
-        slot === 'subtle' ? theme.colors.brand.subtle :
-        slot === 'strong' ? theme.colors.brand.strong :
-        theme.colors.brand.base;
+        slot === 'subtle' ? theme.colors.brand.bgElement :
+        slot === 'strong' ? theme.colors.brand.text :
+        theme.colors.brand.solid;
       expect(result).toBe(expected);
     });
 
     test.each(['success', 'warning', 'critical', 'info'] as const)(
-      '%s consome colors.feedback.{tone}.{slot} direto',
+      '%s consome papel canônico em colors.feedback.{tone}',
       (tone) => {
         SLOTS.forEach((slot) => {
-          expect(getFeedbackToneColor(theme, tone, slot)).toBe(
-            theme.colors.feedback[tone][slot],
-          );
+          const expected =
+            slot === 'subtle' ? theme.colors.feedback[tone].bgElement :
+            slot === 'strong' ? theme.colors.feedback[tone].text :
+            theme.colors.feedback[tone].solid;
+          expect(getFeedbackToneColor(theme, tone, slot)).toBe(expected);
         });
       },
     );
@@ -60,7 +62,7 @@ describe('getFeedbackToneColor', () => {
   });
 
   test('override de tema propaga via createTheme', () => {
-    // Smoke: trocar feedback.warning.base num override e confirmar que o helper lê o novo valor.
+    // Smoke: trocar feedback.warning.solid num override e confirmar que o helper lê o novo valor.
     const overridden: ArborTheme = {
       ...(themeLight as unknown as ArborTheme),
       colors: {
@@ -69,7 +71,7 @@ describe('getFeedbackToneColor', () => {
           ...themeLight.colors.feedback,
           warning: {
             ...themeLight.colors.feedback.warning,
-            base: '#FF00FF',
+            solid: '#FF00FF',
           },
         },
       },
@@ -77,7 +79,7 @@ describe('getFeedbackToneColor', () => {
     expect(getFeedbackToneColor(overridden, 'warning', 'base')).toBe('#FF00FF');
     // Outros slots intocados.
     expect(getFeedbackToneColor(overridden, 'warning', 'subtle')).toBe(
-      themeLight.colors.feedback.warning.subtle,
+      themeLight.colors.feedback.warning.bgElement,
     );
   });
 });

@@ -33,12 +33,12 @@ function Card({ index, color }: { index: number; color: string }) {
 }
 
 const PALETTE = [
-  'brand.base',
-  'brand.secondary',
-  'feedback.success.base',
-  'feedback.warning.base',
-  'feedback.critical.base',
-  'feedback.info.base',
+  'brand.solid',
+  'gray.solid',
+  'feedback.success.solid',
+  'feedback.warning.solid',
+  'feedback.critical.solid',
+  'feedback.info.solid',
 ];
 
 // ─── Stories canônicas ──────────────────────────────────────────────────────
@@ -191,8 +191,8 @@ export const CustomIndicators: Story = {
               borderRadius="small"
               borderWidth="hairline"
               borderStyle="solid"
-              borderColor={active ? 'brand.base' : 'border.subtle'}
-              backgroundColor={active ? 'brand.base' : 'surface.raised'}
+              borderColor={active ? 'brand.solid' : 'border.subtle'}
+              backgroundColor={active ? 'brand.solid' : 'surface.raised'}
               color={active ? 'text.inverse' : 'text.primary'}
               fontWeight="medium"
               cursor="pointer"

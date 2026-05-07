@@ -105,7 +105,7 @@ function RadioIndicator({ style }: RadioIndicatorProps) {
         width={10}
         height={10}
         borderRadius="full"
-        backgroundColor={ctx.checked ? 'brand.base' : 'transparent'}
+        backgroundColor={ctx.checked ? 'brand.solid' : 'transparent'}
         transition={transitionFn('background-color', 'fast')}
       />
     </Flex>

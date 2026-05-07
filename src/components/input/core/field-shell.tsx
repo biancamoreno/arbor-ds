@@ -9,8 +9,8 @@ interface FieldShellProps {
 }
 
 export function FieldShell({ label, helperText, error, children }: FieldShellProps) {
-  const helperColor = error ? 'feedback.critical.base' : 'text.secondary';
-  const labelColor = error ? 'feedback.critical.base' : 'text.primary';
+  const helperColor = error ? 'feedback.critical.solid' : 'text.secondary';
+  const labelColor = error ? 'feedback.critical.solid' : 'text.primary';
 
   return (
     <Flex flexDirection="column" gap="micro">

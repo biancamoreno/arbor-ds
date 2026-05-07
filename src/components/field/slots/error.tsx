@@ -23,7 +23,7 @@ export function FieldError({ children }: FieldErrorProps) {
       as="p"
       id={ctx?.errorId}
       role="alert"
-      color="feedback.critical.base"
+      color="feedback.critical.solid"
       {...(errorStyles ?? {})}
     >
       {children}

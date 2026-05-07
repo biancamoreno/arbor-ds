@@ -90,6 +90,211 @@ Sua responsabilidade é elevar isso para um nível de ecossistema maduro, escal�
 
 O Arbor-DS é uma plataforma **multi-produto**. Sua proposta de valor é permitir que diferentes produtos — cada um com sua identidade de marca, voz tipográfica e linguagem visual — convivam sobre a mesma base de código com consistência interna e autonomia de identidade. A tematização é o canal preferencial dessa diferenciação: cores, tipografia, espaçamento, raios, sombras, motion, foco e densidade devem estar acessíveis ao consumidor como pontos de extensão estáveis, de modo que cada produto expresse sua identidade ajustando o tema, sem precisar editar recipes, importar primitives diretamente ou colar valores inline. Quando uma decisão arquitetural cria um caminho que dificulta esse fluxo, vale revisitá-la antes de prosseguir.
 
+> **Referência canônica deste direcional**: `docs/ARCHITECTURE_DIRECTION.md`. Este arquivo carrega o resumo operacional; em caso de divergência, o documento do projeto prevalece.
+
+---
+
+## Strategic Positioning
+
+O Arbor-DS se posiciona explicitamente como **Themable Kit**:
+
+- **não é Headless puro** (Radix UI, Headless UI, Ariakit) — esses entregam comportamento e a11y sem opinião visual; o Arbor traz defaults razoáveis e tema rico.
+- **não é Kit completo opinionado** (Material UI, Ant Design, Mantine full) — esses embarcam packs verticais e componentes de domínio; o Arbor mantém-se enxuto.
+
+A postura é **motor enxuto, primitivos auto-suficientes, tema rico**. O consumidor monta tela como lego: importa, compõe, aplica tema, entrega valor. Esse posicionamento ancora todas as decisões arquiteturais.
+
+### O que o Arbor-DS entrega
+
+- **Componentes de layout** (Box, Flex, Grid, Container, Stack, Spacer, Center, Square, Circle) — aceleram montagem dentro do padrão do ecossistema.
+- **Componentes primitivos funcionais** (Button, Input, Card, Field, Tabs, Dialog, Toast, Tag, Chip, Avatar, Accordion, Carousel, Menu, Popover, Tooltip, Drawer, Select, Switch, Checkbox, Radio, Counter, Spinner, Skeleton, Alert, Badge, ProgressBar, ProgressCircle, Pagination, Breadcrumb, Table, Image, Icon, Clickable, Text) — auto-suficientes, com a11y embutida e variants estruturais.
+- **Sistema de tema** robusto: cores, tipografia, raios, espaçamentos, sombras, motion, foco e densidade ajustáveis sem editar arquivos do DS.
+- **Cross-platform real**: paridade web ↔ native em API, comportamento e a11y.
+
+### O que o Arbor-DS não entrega (por escolha)
+
+- **Componentes de domínio** — `ProductCard`, `Hero`, `PricingTable`, `CheckoutStepper`, `OrderTracker`, `ChatBubble`, `Receipt`, `MarkerCard`, `TimeSlotPicker`, `KPICard` e similares pertencem ao produto consumidor. Podem ser reavaliados como pack vertical com slots **somente** após (1) primitivos consolidados, (2) sistema de tema maduro e (3) três ou mais produtos consumidores demonstrando demanda recorrente. Entrada de pack vertical exige RFC formal e fica como módulo opcional, fora do bundle base.
+- **Estilos prontos de marca** — o DS entrega o motor; a marca vem do consumidor via tema.
+- **Lógica de negócio** — regras de domínio (carrinho, autenticação, validação de cupom) ficam fora.
+- **Ilustrações, lottie, assets visuais com personalidade** — DS expõe slots/escape hatches; consumidor traz seus assets.
+
+### Princípios de adoção
+
+- **Importar e usar**: defaults razoáveis cobrem 80% dos casos sem configuração.
+- **Customizar via tema, não via override**: identidade do produto vem do `createTheme()`, não de inline styles ou edição de recipes.
+- **Bundle disciplinado**: cada componente paga o próprio peso; tree-shaking por construção; peers externalizadas.
+- **Longo prazo vence oportunismo**: estabilidade de contratos públicos sobrepõe ganho imediato.
+
+Toda decisão arquitetural deve ser consistente com este posicionamento. Quando uma proposta empurrar o DS na direção de "kit completo opinionado" (componente de domínio, lógica de produto, asset de marca), confronte com os gatilhos acima antes de prosseguir.
+
+---
+
+## Theming Architecture
+
+A tematização segue um modelo de cascade com cinco camadas, do mais amplo ao mais específico. **Override mais específico sempre vence** o mais amplo.
+
+```
+1. baseTheme defaults                     ← o que o DS provê pronto
+2. presets de personalidade               ← macro: shape/density/motion/weight/surface
+3. tokens semantic (overrides)            ← role tokens: brand, interactive, surface, text, border, focus, feedback
+4. tokens component (overrides)           ← bindings: button.*, input.*, card.*, ...
+5. CSS vars (somente web, runtime)        ← override por subtree, sem rebuild
+```
+
+`extendTheme()` é caminho **paralelo** para o produto **adicionar tokens próprios** fora do contrato do DS. Não substitui camadas — agrega.
+
+### 1. Tokens em camadas
+
+```
+primitive   →  brutos       (color.aqua.60, spacing.16)
+       ↓
+semantic    →  papéis       (border.default, brand.base, interactive.primary, text.primary)
+       ↓
+component   →  bindings     (button.primary.bg, input.borderRadius, card.padding.medium)
+       ↓
+component CSS
+```
+
+A camada **semantic** é deliberadamente rica e cobre, no mínimo:
+
+- **Brand**: escala completa `brand.1...brand.12` + `base/subtle/contrast`.
+- **Interactive**: `interactive.primary{,hover,active}`, `interactive.secondary{,...}`, `interactive.disabled`.
+- **Surface**: `surface.{app,subtle,default,raised,elevated,translucent,overlay}`.
+- **Text**: `text.{primary,secondary,tertiary,link,contrast,onBrand,disabled,inverse}`.
+- **Border**: `border.{subtle,default,strong,interactive,error}`.
+- **Focus**: `focus.ring` (cor); anatomia (largura/offset/estilo) é decisão estrutural com defaults WCAG AA.
+- **Feedback**: `feedback.{info,success,warning,critical}.{subtle,base,strong,onColor}`.
+
+Component tokens defaultam para aliases dessa camada. Override em qualquer nível cascateia para baixo. Componentes e recipes **nunca** consomem primitives diretamente — só aliases por string.
+
+### 2. Recipes apenas para variants reais
+
+Recipe é instrumento de **escolha de estilo discreta**, não de tweak de valor. A regra prática:
+
+> Se a diferença entre dois valores é apenas trocar token, isso é **token**, não variant.
+> Recipe entra quando há mudança de **anatomia, decoração, layout ou semântica**.
+
+| Caso | Recipe? |
+|---|---|
+| `Card.variant: outlined \| elevated \| flat` | ✅ — anatomia muda |
+| `Tabs.variant: underline \| pill` | ✅ — decoração estrutural muda |
+| `Button.variant: primary \| secondary \| ghost \| danger` | ✅ — combinações cromáticas + bordas discretas |
+| `Chip.selectable: true \| false` (discriminated) | ✅ — semântica e a11y mudam |
+| `Input.state: idle \| error \| focus \| disabled` | ✅ — recipe mapeia state → component token |
+| "Borda do input mais arredondada" | ❌ — token (`input.borderRadius`) |
+| "Cor de borda diferente em todos os inputs" | ❌ — token (`input.border.default`) |
+| "Hover do botão primary com cor diferente" | ❌ — token (`button.primary.bg.hover`) |
+
+Recipes nunca têm valor literal. Recipes têm **referência por string** a component tokens. Override no token cascateia para a recipe sem editar recipe.
+
+```ts
+// Component tokens estruturados por variant/state
+input: {
+  border: {
+    default:  'border.default',
+    error:    'feedback.critical.base',
+    focus:    'brand.base',
+    disabled: 'border.subtle',
+  },
+  borderRadius: 'small',
+}
+
+// Recipe consome por string, sem valor hardcoded
+input: defineSlotRecipe({
+  variants: {
+    state: {
+      idle:     { frame: { borderColor: '$input.border.default'  } },
+      error:    { frame: { borderColor: '$input.border.error'    } },
+      focus:    { frame: { borderColor: '$input.border.focus'    } },
+      disabled: { frame: { borderColor: '$input.border.disabled' } },
+    },
+  },
+})
+```
+
+### 3. Presets de personalidade
+
+`createTheme()` aceita um campo `presets` com macros que reescrevem tokens em bloco. Permite ao consumidor mudar a "cara" do produto com 1 linha por dial:
+
+| Dial | Valores | O que reescreve |
+|---|---|---|
+| `shape` | `'sharp' \| 'subtle' \| 'rounded' \| 'pill'` | `radii.*`, defaults de borderRadius nos component tokens |
+| `density` | `'compact' \| 'comfortable' \| 'spacious'` | `spacing.*`, `controlSize.*`, `dialogSize.*` |
+| `motion` | `'minimal' \| 'normal' \| 'expressive'` | `motion.duration.*`, `motion.easing.*`, springs |
+| `weight` | `'crisp' \| 'soft' \| 'bold'` | `borderWidth.*`, fontWeight defaults, intensidade de shadows |
+| `surface` | `'flat' \| 'subtle' \| 'elevated' \| 'glass'` | `shadows.*`, `surface.translucent`, blur tokens |
+
+Defaults: `shape: 'subtle'`, `density: 'comfortable'`, `motion: 'normal'`, `weight: 'soft'`, `surface: 'subtle'`.
+
+Presets resolvem em **build-time** dentro de `createTheme()`. O resultado é um tema JS estático consumido idêntica e simultaneamente por web e native.
+
+```ts
+// Produto vitrine + marca jovem
+createTheme(themeLight, {
+  colors: { brand: { base: '#FF3366' } },
+  presets: { shape: 'rounded', density: 'spacious', motion: 'expressive' },
+});
+
+// Produto fintech sério
+createTheme(themeLight, {
+  colors: { brand: { base: '#0B46E6' } },
+  presets: { shape: 'sharp', density: 'compact', motion: 'minimal', weight: 'crisp' },
+});
+```
+
+Override explícito sempre ganha do preset:
+
+```ts
+createTheme(themeLight, {
+  presets: { shape: 'rounded' },
+  tokens: { input: { borderRadius: 'small' } },  // overrida o preset só para input
+});
+```
+
+### 4. CSS variables (web only)
+
+`<ArborProvider>` emite custom properties no escopo da árvore web (`--arbor-brand-9`, `--arbor-button-primary-bg`, etc.). Permite override em runtime sem rebuild, por subtree CSS-only ou integração com framework externo.
+
+**Não funciona em React Native.** RN não tem CSS nem DOM. Por isso CSS vars são **escape hatch só de web** — não fazem parte do contrato cross-platform.
+
+| Plataforma | `createTheme()` | CSS var |
+|---|---|---|
+| Web | ✅ | ✅ |
+| Native | ✅ | ❌ |
+
+Times que precisam de paridade rigorosa entre plataformas devem usar **apenas** `createTheme()` como caminho de override. CSS vars são bônus de produtividade no web.
+
+### 5. `extendTheme()` para tokens de produto
+
+Quando o produto consumidor precisa de **tokens fora do contrato do DS** (semântica de domínio que não cabe nos role tokens existentes), usa `extendTheme()` em vez de inflar o DS:
+
+```ts
+const cryptoTheme = extendTheme(themeLight, {
+  tokens: {
+    crypto: { bg: '#FF9500', onBg: '#FFFFFF', borderHot: '#FF3B30' },
+    fiat:   { bg: '#0066CC', onBg: '#FFFFFF' },
+  },
+});
+```
+
+Esses tokens passam a estar disponíveis no tema do produto **sem virar API pública do Arbor-DS**. `extendTheme()` aceita também presets, tokens de componente e overrides — é a forma canônica do produto **estender** o motor sem editá-lo.
+
+### Heurística de decisão
+
+Em qualquer ajuste de tema, percorra a cascata em ordem. Use a primeira camada que resolve a necessidade:
+
+1. **Mudar a "cara" do produto inteiro?** → presets.
+2. **Decisão de marca / cor / role?** → token semantic.
+3. **Binding de um componente específico?** → component token.
+4. **Override pontual em escopo limitado (web)?** → CSS var no subtree.
+5. **Algo que o DS não cobre, mas o produto precisa?** → `extendTheme()`.
+6. **Escolha estrutural discreta entre estilos?** → recipe variant (normalmente evolução do DS, não config do produto).
+
+Se nenhuma das opções couber, é sinal de que a API do componente está incompleta — abrir RFC, **não** inline style.
+
+### Cross-platform — regra de ouro
+
+API pública dos componentes é **única** entre plataformas. Diferenças ficam em adapters/internals. Quando um recurso só existe em uma plataforma (CSS var, `backdropFilter` direto), é escape hatch documentado, não default.
+
 ---
 
 ## Mission
@@ -743,6 +948,13 @@ Critique e evite explicitamente:
 - identidade duplicada em múltiplos papéis semânticos sem agregação por `brand.*` — duplicar referências à mesma primitive convida inconsistência futura
 - tipo de tema fechado em união de modos (`'light' | 'dark'`) — limita extensão por produto no contrato público
 - `mode` interpretado como "claro/escuro" — `mode` é o nome do tema; identidade é responsabilidade do produto consumidor
+- recipe criada para o que se resolve com troca de token — override de raio único, cor única, espaçamento único. Recipe só entra quando há mudança de anatomia, decoração, layout ou semântica. Caso contrário, component token resolve.
+- recipe com valor literal (cor, pixel, ms) ou import direto de primitive em vez de referência por string a token — quebra a cascata e impede override propagar
+- componente de domínio (`ProductCard`, `Hero`, `PricingTable`, `OrderTracker`, `ChatBubble`, `KPICard`, etc.) entrando no DS antes dos três gatilhos de pack vertical (primitivos consolidados + tema maduro + 3+ produtos com demanda recorrente)
+- preset de personalidade definido com valores não-coordenados (ex: `shape: 'rounded'` que mexe só em alguns radii e não nos defaults dos component tokens) — preset deve ser uma macro **completa e coerente**
+- CSS var sendo proposta como contrato cross-platform — CSS var é escape hatch web-only, paridade nativa exige caminho via `createTheme()`
+- token semantic novo entrando no DS para resolver caso específico de um produto — produto adiciona via `extendTheme()`, contrato canônico só cresce com demanda recorrente
+- override de tema feito por edição direta de arquivo do DS em vez de `createTheme()` — quebra capacidade do produto evoluir em paralelo ao DS
 
 ---
 

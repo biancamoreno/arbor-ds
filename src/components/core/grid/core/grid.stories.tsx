@@ -15,7 +15,7 @@ type Story = StoryObj;
 const Cell = ({ children, variant = 'brand' }: { children: React.ReactNode; variant?: 'brand' | 'success' }) => (
   <Box
     padding="medium"
-    backgroundColor={variant === 'brand' ? 'semantic.brand.base' : 'semantic.feedback.success.base'}
+    backgroundColor={variant === 'brand' ? 'semantic.brand.solid' : 'semantic.feedback.success.solid'}
     borderRadius="small"
     color="semantic.text.inverse"
     display="flex"

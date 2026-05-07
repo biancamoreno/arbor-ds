@@ -74,7 +74,7 @@ export function IconShowcase({ size = 20, color = 'currentColor', strokeWidth = 
             padding="micro"
             paddingX="micro"
             borderRadius="micro"
-            backgroundColor={copied === name ? 'feedback.success.subtle' : 'transparent'}
+            backgroundColor={copied === name ? 'feedback.success.bgElement' : 'transparent'}
           >
             <Icon name={name} size={size} color={color} strokeWidth={strokeWidth} decorative />
             <Text

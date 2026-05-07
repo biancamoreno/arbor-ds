@@ -31,8 +31,8 @@ export function FloatingActionButton({
   const dim = SIZE_MAP[size];
   const iconSize = ICON_SIZE_MAP[size];
   const variantColors = {
-    primary: { bg: theme.colors.brand.base, fg: theme.colors.text.inverse },
-    secondary: { bg: theme.colors.brand.subtle, fg: theme.colors.text.primary },
+    primary: { bg: theme.colors.brand.solid, fg: theme.colors.text.inverse },
+    secondary: { bg: theme.colors.brand.bgElement, fg: theme.colors.text.primary },
     surface: { bg: theme.colors.surface.default, fg: theme.colors.text.primary },
   } as const;
   const { bg, fg } = variantColors[variant];

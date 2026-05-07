@@ -516,7 +516,7 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
       cursor={disabled ? 'not-allowed' : 'pointer'}
       opacity={disabled ? 0.5 : 1}
       backgroundColor={
-        isSelected ? 'brand.subtle' : isActive ? 'background.interactive' : 'transparent'
+        isSelected ? 'brand.bgElement' : isActive ? 'background.interactive' : 'transparent'
       }
       outline="none"
       userSelect="none"

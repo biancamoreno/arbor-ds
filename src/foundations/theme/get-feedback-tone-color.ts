@@ -7,17 +7,21 @@ import type {
 /**
  * Resolve um par `tone × slot` para a cor concreta do tema ativo.
  *
- * Substitui mapeamentos locais (`TONE_COLORS`, `TONE_BORDER`,
- * `getTagColors`, `getChipColors`) que cada componente de feedback
- * mantinha duplicado — eliminando drift e centralizando a decisão de
- * paleta num único ponto de override (`createTheme()`).
+ * Substitui mapeamentos locais que cada componente de feedback (Alert, Toast,
+ * Badge, ProgressBar, ProgressCircle, Tag, Chip) mantinha duplicado.
  *
- * Mapeamento:
+ * Mapeamento de slot semântico para o papel canônico da escala (RFC-0039):
+ * - `subtle` → `bgElement` (step 3, fundo discreto)
+ * - `base`   → `solid`     (step 9, cor enfática para borda/ícone/fill)
+ * - `strong` → `text`      (step 11, texto sobre fundo subtle)
+ *
+ * Casos especiais:
  * - `neutral` consome `text.*` / `background.subtle` (fora de `feedback.*`).
- * - `brand` consome `brand.*` (fora de `feedback.*`).
- * - demais tons consomem `feedback.{tone}.{slot}` direto.
+ * - `brand` consome `colors.brand.*` direto.
+ * - demais tons consomem `colors.feedback.{tone}.*` direto.
  *
  * @see RFC-0032
+ * @see RFC-0039
  */
 export function getFeedbackToneColor(
   theme: ArborTheme,
@@ -30,11 +34,9 @@ export function getFeedbackToneColor(
     return theme.colors.text.secondary;
   }
 
-  if (tone === 'brand') {
-    if (slot === 'subtle') return theme.colors.brand.subtle;
-    if (slot === 'strong') return theme.colors.brand.strong;
-    return theme.colors.brand.base;
-  }
+  const palette = tone === 'brand' ? theme.colors.brand : theme.colors.feedback[tone];
 
-  return theme.colors.feedback[tone][slot];
+  if (slot === 'subtle') return palette.bgElement;
+  if (slot === 'strong') return palette.text;
+  return palette.solid;
 }

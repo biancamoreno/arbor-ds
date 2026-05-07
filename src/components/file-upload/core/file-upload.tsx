@@ -136,9 +136,9 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
             borderRadius="small"
             borderWidth="1px"
             borderStyle="solid"
-            borderColor="feedback.critical.base"
+            borderColor="feedback.critical.solid"
             backgroundColor="transparent"
-            color="feedback.critical.base"
+            color="feedback.critical.solid"
             fontSize="small"
           >
             <Flex as="span" alignItems="center" gap="micro">
@@ -149,7 +149,7 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
         </Flex>
         {hiddenInput}
         {error && !fieldCtx && (
-          <Text as="span" fontSize="xsmall" color="feedback.critical.base">
+          <Text as="span" fontSize="xsmall" color="feedback.critical.solid">
             {error}
           </Text>
         )}
@@ -158,14 +158,14 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
   }
 
   const dropZoneBorderColor = isDragging
-    ? 'brand.base'
+    ? 'brand.solid'
     : isInvalid
-      ? 'feedback.critical.base'
+      ? 'feedback.critical.solid'
       : 'border.default';
   const dropZoneBackgroundColor = isDragging
-    ? 'brand.subtle'
+    ? 'brand.bgElement'
     : isInvalid
-      ? 'feedback.critical.subtle'
+      ? 'feedback.critical.bgElement'
       : 'background.subtle';
 
   return (
@@ -211,7 +211,7 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
       </Flex>
       {hiddenInput}
       {error && !fieldCtx && (
-        <Text as="span" fontSize="xsmall" color="feedback.critical.base">
+        <Text as="span" fontSize="xsmall" color="feedback.critical.solid">
           {error}
         </Text>
       )}

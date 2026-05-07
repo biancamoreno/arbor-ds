@@ -68,8 +68,8 @@ function PaginationButton({
       style={{
         minWidth: 36,
         paddingHorizontal: 8,
-        borderColor: current ? theme.colors.brand.base : theme.colors.border.default,
-        backgroundColor: current ? theme.colors.brand.base : 'transparent',
+        borderColor: current ? theme.colors.brand.solid : theme.colors.border.default,
+        backgroundColor: current ? theme.colors.brand.solid : 'transparent',
         opacity: disabled ? 0.5 : 1,
         ...style,
       }}

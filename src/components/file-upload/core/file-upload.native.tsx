@@ -22,7 +22,7 @@ const FileUploadNativeBase: React.FC<FileUploadProps> = ({
 }) => {
   const theme = useTheme();
   const iconColor = theme.colors.text.secondary;
-  const criticalColor = theme.colors.feedback.critical.base;
+  const criticalColor = theme.colors.feedback.critical.solid;
   const t: Required<FileUploadTexts> = { ...DEFAULT_TEXTS, ...textsProp };
 
   if (previewUrl) {
@@ -60,14 +60,14 @@ const FileUploadNativeBase: React.FC<FileUploadProps> = ({
           borderRadius="small"
           borderWidth="1px"
           borderStyle="solid"
-          borderColor="feedback.critical.base"
+          borderColor="feedback.critical.solid"
           backgroundColor="transparent"
-          color="feedback.critical.base"
+          color="feedback.critical.solid"
           fontSize="small"
         >
           <Flex alignItems="center" gap="micro">
             <Icon name="X" size="small" color={criticalColor} decorative />
-            <Text fontSize="small" color="feedback.critical.base">
+            <Text fontSize="small" color="feedback.critical.solid">
               {t.removeLabel}
             </Text>
           </Flex>

@@ -23,13 +23,15 @@ export type FeedbackTone =
   | 'info';
 
 /**
- * Slot dentro de um tone de feedback. Cada combinação `tone × slot`
- * resolve para uma cor concreta via `getFeedbackToneColor()`.
+ * Slot semântico dentro de um tone de feedback. Cada combinação `tone × slot`
+ * resolve para uma cor concreta via `getFeedbackToneColor()`, que mapeia para
+ * os papéis canônicos da escala (RFC-0039):
  *
- * - `subtle`: fundo discreto (banner, badge subtle).
- * - `base`: cor principal do tone (border, ícone, texto enfático).
- * - `strong`: ênfase máxima (texto sobre subtle, hover de elementos solid).
+ * - `subtle` → `bgElement` (fundo discreto: banner, badge outline, alert subtle).
+ * - `base`   → `solid`     (cor enfática: border, ícone, fill de progresso).
+ * - `strong` → `text`      (texto sobre fundo subtle, ênfase máxima).
  *
  * @see RFC-0032
+ * @see RFC-0039
  */
 export type FeedbackToneSlot = 'subtle' | 'base' | 'strong';

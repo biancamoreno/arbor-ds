@@ -50,7 +50,7 @@ export const Nested: Story = {
 
 export const Responsive: Story = {
   render: () => (
-    <Box padding={{ base: 'tiny', md: 'medium' }} backgroundColor="semantic.brand.subtle" borderRadius="medium">
+    <Box padding={{ base: 'tiny', md: 'medium' }} backgroundColor="semantic.brand.bgElement" borderRadius="medium">
       Padding responsivo: tiny em mobile, medium em md+
     </Box>
   ),

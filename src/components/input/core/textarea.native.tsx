@@ -101,7 +101,7 @@ const TextAreaComponent = forwardRef<RNTextInput, TextAreaProps>(function TextAr
     <Flex justifyContent="flex-end">
       <Text
         fontSize="xsmall"
-        color={charCount > maxLength * 0.9 ? 'feedback.critical.base' : 'text.secondary'}
+        color={charCount > maxLength * 0.9 ? 'feedback.critical.solid' : 'text.secondary'}
       >
         {charCount} / {maxLength}
       </Text>
