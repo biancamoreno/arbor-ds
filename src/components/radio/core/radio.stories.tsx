@@ -86,7 +86,7 @@ export const Sizes: Story = {
 export const Theming: Story = {
   render: () => {
     const customTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         radio: {
           slots: ['root', 'control', 'indicator', 'label', 'description'],
           base: { control: { borderRadius: 'huge' } },

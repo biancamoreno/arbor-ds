@@ -1,0 +1,12 @@
+export const dialog = {
+  borderRadius: 'large',
+  shadow: 'xl',
+  fontWeight: {
+    title: 'medium',
+  },
+  size: {
+    small: { maxWidth: 'dialog.small', padding: 'medium' },
+    medium: { maxWidth: 'dialog.medium', padding: 'large' },
+    large: { maxWidth: 'dialog.large', padding: 'large' },
+  },
+};

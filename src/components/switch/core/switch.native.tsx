@@ -62,7 +62,7 @@ markFieldAware(SwitchRoot);
  * `Switch` em React Native: usa `<RNSwitch>` (API restrita —
  * `trackColor`/`thumbColor`) consumindo cores diretamente de `theme.colors.*`,
  * já que o spread completo dos slots da recipe `switch` não é aceito pelo
- * componente nativo. Limitação conhecida: override via `theme.components.switch`
+ * componente nativo. Limitação conhecida: override via `theme.recipes.switch`
  * afeta apenas web; para customizar visual de switch nos dois targets, use
  * tokens semânticos de cor.
  *

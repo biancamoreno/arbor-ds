@@ -7,6 +7,7 @@ export const opacity = {
   light: primitiveOpacity[24],
   medium: primitiveOpacity[40],
   strong: primitiveOpacity[56],
+  disabled: 0.6,
   stronger: primitiveOpacity[72],
   strongest: primitiveOpacity[88],
   solid: primitiveOpacity[100],

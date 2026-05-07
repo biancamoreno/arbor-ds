@@ -149,7 +149,7 @@ Work:
   - category accent green as either `brand.subtle/soft` or a semantic `status`/`interactive` override
   - `fonts.sans = Clear Sans`
   - optional title recipe using League Spartan
-- Ensure `theme.components.text` can express title/display variants with a distinct font family.
+- Ensure `theme.recipes.text` can express title/display variants with a distinct font family.
 - Ensure button, input/search, card, chip/tag, drawer, and empty-state styling can be theme-driven instead of hardcoded.
 
 Definition of done:

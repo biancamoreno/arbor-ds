@@ -393,7 +393,7 @@ describe('Select slot recipe (RFC-0017)', () => {
 
   it('createTheme override on select recipe injects custom styles', () => {
     const overriddenTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         select: {
           slots: ['root', 'trigger', 'value', 'icon', 'content', 'item', 'itemText'],
           base: {

@@ -179,7 +179,7 @@ describe('Switch slot recipe (RFC-0017)', () => {
 
   it('createTheme override on switch recipe injects custom styles', () => {
     const overriddenTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         switch: {
           slots: ['root', 'track', 'thumb'],
           base: {

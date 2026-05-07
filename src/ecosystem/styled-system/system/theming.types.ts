@@ -9,8 +9,8 @@ export interface ThemeTypings {
   radii: string;
   sizes: string;
   space: string;
-  components: {
-    [componentName: string]: {
+  recipes: {
+    [recipeName: string]: {
       sizes: string;
       variants: string;
     };

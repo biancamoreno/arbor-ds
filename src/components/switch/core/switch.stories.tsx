@@ -57,7 +57,7 @@ export const Sizes: Story = {
 export const Theming: Story = {
   render: () => {
     const customTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         switch: {
           slots: ['root', 'track', 'thumb'],
           base: { track: { borderRadius: 'huge' } },

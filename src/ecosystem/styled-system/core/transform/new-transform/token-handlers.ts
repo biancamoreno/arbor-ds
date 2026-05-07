@@ -17,19 +17,38 @@ export const getRawNumber = (value: string | number) => {
   return Number(value);
 };
 
-export const getTokenValue = <T extends string>(scale: string, theme: Theme, tokenValue: T) => {
+const resolveAtPath = (root: any, path: string) => {
+  const keys = path.split('.');
+  return keys.reduce((obj: any, key: string) => {
+    if (obj && typeof obj === 'object' && key in obj) return obj[key];
+    return undefined;
+  }, root);
+};
+
+export const getTokenValue = <T extends string>(scale: string, theme: Theme, tokenValue: T): any => {
+  // Component-token alias ($name.path) — resolves via theme.components, then recurses
+  // through the returned alias (typically a semantic-token string) until a concrete value.
+  if (typeof tokenValue === 'string' && tokenValue.startsWith('$')) {
+    const componentPath = `components.${tokenValue.slice(1)}`;
+    const cached = getFromTokenCache(theme, componentPath);
+    let resolved = cached;
+    if (resolved === undefined) {
+      resolved = resolveAtPath(theme, componentPath);
+      if (resolved !== undefined) setInTokenCache(theme, componentPath, resolved);
+    }
+    if (resolved === undefined) return undefined;
+    if (typeof resolved === 'string') {
+      const recursed = getTokenValue(scale, theme, resolved as T);
+      return recursed !== undefined ? recursed : resolved;
+    }
+    return resolved;
+  }
+
   const path = `${scale}.${tokenValue}`;
   const cached = getFromTokenCache(theme, path);
   if (cached !== undefined) return cached;
 
-  const keys = path.split('.');
-  const result = keys.reduce((obj: any, key: string) => {
-    if (obj && typeof obj === 'object' && key in obj) {
-      return obj[key];
-    } else {
-      return undefined;
-    }
-  }, theme);
+  const result = resolveAtPath(theme, path);
 
   if (result !== undefined) {
     setInTokenCache(theme, path, result);

@@ -11,7 +11,7 @@ export function useSlotRecipe<S extends string = string>(
   props: Record<string, unknown> = {},
 ): Partial<Record<S, StyleProps>> {
   const theme = useTheme();
-  const entry = theme.components?.[recipeName];
+  const entry = theme.recipes?.[recipeName];
 
   if (!entry || typeof entry !== 'object' || !isSlotRecipeConfig(entry)) {
     return {} as Partial<Record<S, StyleProps>>;

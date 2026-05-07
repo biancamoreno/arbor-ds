@@ -165,7 +165,7 @@ describe('Checkbox slot recipe (RFC-0017)', () => {
 
   it('createTheme override on checkbox recipe injects custom styles', () => {
     const overriddenTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         checkbox: {
           slots: ['root', 'indicator', 'label', 'description'],
           base: {

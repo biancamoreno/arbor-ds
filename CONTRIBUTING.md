@@ -77,7 +77,7 @@ O workflow `release.yml` é **tag-gated** — push em `main` não publica. Para 
 Para um componente ser considerado estável e mergeável:
 
 - [ ] Props tipadas sem `any` sem justificativa.
-- [ ] Recipe em `theme.components` (se aplicável).
+- [ ] Recipe em `theme.recipes` (se aplicável).
 - [ ] Implementação `.native.tsx` (se classificado como `shared`).
 - [ ] Tag `@platform` documentada nos tipos (`web`, `native`, `shared`).
 - [ ] ≥ 15 testes cobrindo comportamento e acessibilidade.
@@ -309,7 +309,7 @@ Sem `'hover'` decorativo — quando interativo, hover/active são affordances re
 </Card>
 ```
 
-Hover/active themable via `interactive: true` na slot recipe — produto consumidor sobreescreve via `createTheme({ components: { card: { variants: { interactive: { true: { root: { _hover: { boxShadow: '...' } } } } } } } })`. Em RN, `_hover`/`_active` são no-ops naturais; nada quebra.
+Hover/active themable via `interactive: true` na slot recipe — produto consumidor sobreescreve via `createTheme({ recipes: { card: { variants: { interactive: { true: { root: { _hover: { boxShadow: '...' } } } } } } } })`. Em RN, `_hover`/`_active` são no-ops naturais; nada quebra.
 
 ### 11. Accordion — discriminated union por `type` + slot recipe themable (RFC-0037)
 

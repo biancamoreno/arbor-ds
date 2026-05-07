@@ -135,4 +135,56 @@ describe('multi-product theming matrix', () => {
     expect(violetBrand[12]).toBe(violetBrand.textContrast);
     expect(violet.dark[9]).toBeTruthy();
   });
+
+  describe('component-tokens override (RFC-0040)', () => {
+    it('input.borderRadius override propagates to recipe', () => {
+      const t = createTheme(themeLight as unknown as ArborTheme, {
+        components: { input: { borderRadius: 'large' } },
+      });
+      expect(t.components.input.borderRadius).toBe('large');
+    });
+
+    it('button.colors.primary.bg override propagates to recipe', () => {
+      const t = createTheme(themeLight as unknown as ArborTheme, {
+        components: { button: { colors: { primary: { bg: 'feedback.success.solid' } } } },
+      });
+      expect(t.components.button.colors.primary.bg).toBe('feedback.success.solid');
+    });
+
+    it('card.padding.medium override propagates to recipe', () => {
+      const t = createTheme(themeLight as unknown as ArborTheme, {
+        components: { card: { padding: { medium: 'huge' } } },
+      });
+      expect(t.components.card.padding.medium).toBe('huge');
+    });
+
+    it('field.control.minHeight override propagates to recipe', () => {
+      const t = createTheme(themeLight as unknown as ArborTheme, {
+        components: { field: { control: { minHeight: { medium: 'control.large' } } } },
+      });
+      expect(t.components.field.control.minHeight.medium).toBe('control.large');
+    });
+
+    it('tabs.trigger.fontWeight.active override propagates to recipe', () => {
+      const t = createTheme(themeLight as unknown as ArborTheme, {
+        components: { tabs: { trigger: { fontWeight: { active: 'bold' } } } },
+      });
+      expect(t.components.tabs.trigger.fontWeight.active).toBe('bold');
+    });
+
+    it('dialog.borderRadius override propagates to recipe', () => {
+      const t = createTheme(themeLight as unknown as ArborTheme, {
+        components: { dialog: { borderRadius: 'small' } },
+      });
+      expect(t.components.dialog.borderRadius).toBe('small');
+    });
+
+    it('baseTheme.components.input is not mutated by override', () => {
+      const before = themeLight.components.input.borderRadius;
+      createTheme(themeLight as unknown as ArborTheme, {
+        components: { input: { borderRadius: 'huge' } },
+      });
+      expect(themeLight.components.input.borderRadius).toBe(before);
+    });
+  });
 });

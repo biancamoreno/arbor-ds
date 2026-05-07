@@ -269,7 +269,7 @@ export const WithFieldContext: Story = {
 export const Theming: Story = {
   render: () => {
     const customTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         select: {
           slots: ['root', 'trigger', 'value', 'icon', 'content', 'item', 'itemText'],
           base: { trigger: { borderRadius: 'huge' } },

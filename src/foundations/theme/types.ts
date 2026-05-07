@@ -23,7 +23,7 @@ export type SlotRecipeConfig = {
   defaultVariants?: Record<string, unknown>;
 };
 
-export type ThemeComponents = {
+export type ThemeRecipes = {
   text?: RecipeConfig;
   button?: RecipeConfig;
   field?: SlotRecipeConfig;

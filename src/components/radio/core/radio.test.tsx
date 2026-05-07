@@ -154,7 +154,7 @@ describe('Radio slot recipe (RFC-0017)', () => {
 
   it('createTheme override on radio recipe injects custom styles', () => {
     const overriddenTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         radio: {
           slots: ['root', 'control', 'indicator', 'label', 'description'],
           base: {

@@ -8,7 +8,7 @@ function isRecipeConfig(value: RecipeConfig | object): value is RecipeConfig {
 
 export function useRecipe(recipeName: string, props: Record<string, unknown>): StyleProps {
   const theme = useTheme();
-  const entry = theme.components?.[recipeName];
+  const entry = theme.recipes?.[recipeName];
 
   if (!entry || typeof entry !== 'object' || !isRecipeConfig(entry)) return {} as StyleProps;
 

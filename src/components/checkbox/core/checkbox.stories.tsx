@@ -75,7 +75,7 @@ export const Group: Story = {
 export const Theming: Story = {
   render: () => {
     const customTheme = createTheme(themeLight, {
-      components: {
+      recipes: {
         checkbox: {
           slots: ['root', 'indicator', 'label', 'description'],
           base: { indicator: { borderRadius: 'huge' } },
