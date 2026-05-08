@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { ArborProvider } from '../ecosystem/styled-system';
 import { TextInput } from '../components/input';
+import { Button } from '../components/button';
 import { themeLight } from '../foundations/theme/themeLight';
 import { createTheme } from '../foundations/theme/create-theme';
 import type { ArborTheme } from '../foundations/theme/Theme';
@@ -47,6 +48,21 @@ describe('component-tokens cascade end-to-end (RFC-0040)', () => {
     const css = getStyleSheets();
     const subtle = overridden.colors.background.subtle;
     expect(css.toLowerCase()).toContain(subtle.toLowerCase());
+  });
+
+  it('overriding button.colors.primary.bg propagates to the rendered Button background', () => {
+    const overridden = createTheme(themeLight as unknown as ArborTheme, {
+      components: { button: { colors: { primary: { bg: 'feedback.success.solid' } } } },
+    });
+    const expected = overridden.colors.feedback.success.solid;
+
+    render(
+      <ArborProvider theme={overridden}>
+        <Button data-testid="b">Save</Button>
+      </ArborProvider>,
+    );
+    const css = getStyleSheets();
+    expect(css.toLowerCase()).toContain(expected.toLowerCase());
   });
 
   it('overriding component token does not mutate baseTheme', () => {

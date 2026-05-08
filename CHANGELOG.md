@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- **Button consome a recipe `button` via `useRecipe`** — antes aplicava `variantStyles` lendo `theme.colors.*` direto e fixava `paddingInline`/`paddingBlock` em px hardcoded local. Agora override via `createTheme({ components: { button: { colors: { primary: { bg: '...' } } } } })` propaga ao CSS renderizado (validado em `component-tokens-cascade.test.tsx`). Mesma raiz de TD-008/RFC-0017 antes do slot recipe vir. Token `button` ganhou variant `danger` (alinhada com a interface) + slot `padding.{block}`. Recipe `button` ganhou cascata completa (`borderColor`, `transition`, `borderStyle`). ButtonGroup `attached` continua colapsando radii via override pontual.
+
 ### Breaking
 
 - **RFC-0040 PR1 — Component tokens estruturados + reconciliação `theme.recipes`:** a chave `theme.components` (que carregava recipes desde sempre) foi renomeada para `theme.recipes` para alinhar com o vocabulário que o resto da engine já usa (`useRecipe`, `defineRecipe`, `RecipeConfig`, pasta `recipes/`). A chave `theme.components` agora carrega **tokens de componente** (camada 4 da cascata documentada em `docs/ARCHITECTURE_DIRECTION.md` §2.1).

@@ -3,13 +3,14 @@ import { Clickable } from '../../core';
 import { Spinner } from '../../spinner';
 import type { ButtonProps } from '../interfaces';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useButtonGroup, useButtonGroupItem } from '../../button-group/core/button-group-context';
-import { transition } from '../../../ecosystem/utils/functions';
 
-const buttonSizeMap = {
-  small: { paddingInline: '12px', paddingBlock: '4px' },
-  medium: { paddingInline: '16px', paddingBlock: '8px' },
-  large: { paddingInline: '20px', paddingBlock: '12px' },
+const spinnerColorByVariant = {
+  primary: 'text.inverse',
+  secondary: 'text.primary',
+  ghost: 'text.primary',
+  danger: 'text.inverse',
 } as const;
 
 /**
@@ -40,8 +41,8 @@ export function Button({
   const radiusSmall = theme.radii.small;
 
   const isDisabled = loading || disabled || (groupCtx?.disabled ?? false);
+  const recipeStyles = useRecipe('button', { variant, size });
 
-  // Radii colapsados quando dentro de ButtonGroup attached
   let attachedStyle: CSSProperties = {};
   if (groupCtx?.attached && itemCtx) {
     const { index, totalItems } = itemCtx;
@@ -90,64 +91,26 @@ export function Button({
     }
   }
 
-  // em attached mode, borderRadius é controlado via style (individual corners)
-  const borderRadiusProps = groupCtx?.attached ? {} : { borderRadius: 'small' as const };
-
-  const variantStyles = {
-    primary: {
-      backgroundColor: theme.colors.interactive.default,
-      borderColor: theme.colors.interactive.default,
-      color: theme.colors.text.inverse,
-    },
-    secondary: {
-      backgroundColor: theme.colors.brand.bgElement,
-      borderColor: theme.colors.brand.bgElementActive,
-      color: theme.colors.text.primary,
-    },
-    ghost: {
-      backgroundColor: 'transparent',
-      borderColor: theme.colors.border.default,
-      color: theme.colors.text.primary,
-    },
-    danger: {
-      backgroundColor: theme.colors.feedback.critical.solid,
-      borderColor: theme.colors.feedback.critical.solid,
-      color: theme.colors.text.inverse,
-    },
-  } as const;
+  const recipeProps = groupCtx?.attached
+    ? Object.fromEntries(Object.entries(recipeStyles).filter(([k]) => k !== 'borderRadius'))
+    : recipeStyles;
 
   return (
     <Clickable
       as="button"
       type={type}
       disabled={isDisabled}
-      alignItems="center"
-      display="inline-flex"
-      gap="8px"
-      justifyContent="center"
-      {...borderRadiusProps}
-      borderStyle="solid"
-      borderWidth="hairline"
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
       opacity={isDisabled ? 0.45 : 1}
       pointerEvents={isDisabled ? 'none' : 'auto'}
       onClick={isDisabled ? undefined : onClick}
       aria-busy={loading || undefined}
       data-arbor-focusable=""
-      style={{
-        ...buttonSizeMap[size],
-        fontSize: size === 'large' ? theme.fontSizes.medium : theme.fontSizes.small,
-        fontWeight: theme.fontWeights.medium,
-        lineHeight: 1,
-        transition: transition(['background-color', 'border-color', 'opacity', 'filter', 'transform'], 'fast'),
-        ...variantStyles[variant],
-        ...attachedStyle,
-        ...style,
-      }}
-      {...variantStyles[variant]}
+      {...recipeProps}
+      style={{ ...attachedStyle, ...style }}
       {...rest}
     >
-      {loading && <Spinner size="small" color={variantStyles[variant].color} label="" />}
+      {loading && <Spinner size="small" color={spinnerColorByVariant[variant]} label="" />}
       {children}
     </Clickable>
   );

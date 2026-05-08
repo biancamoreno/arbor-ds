@@ -40,17 +40,21 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 
 const VIOLET = 'rgb(124, 58, 237)';
 
+function getEmittedCss(): string {
+  return Array.from(document.head.querySelectorAll('style')).map(n => n.textContent ?? '').join('\n');
+}
+
 describe('multi-product theming matrix', () => {
   it('Button primary uses product B brand color as background', () => {
     render(<Button data-testid="btn">Click</Button>, { wrapper: Wrapper });
-    const btn = screen.getByTestId('btn');
-    expect(btn.style.backgroundColor).toBe(VIOLET);
+    const css = getEmittedCss().toLowerCase();
+    expect(css).toMatch(/background-color:\s*(rgb\(124,\s*58,\s*237\)|#7c3aed)/);
   });
 
   it('Button primary uses product B brand color as border', () => {
     render(<Button data-testid="btn">Click</Button>, { wrapper: Wrapper });
-    const btn = screen.getByTestId('btn');
-    expect(btn.style.borderColor.toLowerCase()).toBe('#7c3aed');
+    const css = getEmittedCss().toLowerCase();
+    expect(css).toMatch(/border-color:\s*(rgb\(124,\s*58,\s*237\)|#7c3aed)/);
   });
 
   it('Switch renders within product B without crashing', () => {

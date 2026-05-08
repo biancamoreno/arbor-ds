@@ -2,32 +2,42 @@ export const button = {
   borderRadius: 'small',
   borderWidth: 'hairline',
   fontWeight: 'medium',
+  gap: 'micro',
   height: {
     small: 'control.small',
     medium: 'control.medium',
     large: 'control.large',
   },
   padding: {
-    small: { inline: 'small' },
-    medium: { inline: 'medium' },
-    large: { inline: 'large' },
+    small: { inline: 'small', block: 'nano' },
+    medium: { inline: 'medium', block: 'micro' },
+    large: { inline: 'large', block: 'tiny' },
   },
   fontSize: {
-    small: 'sm',
+    small: 'small',
     medium: 'small',
-    large: 'md',
+    large: 'medium',
   },
   colors: {
     primary: {
-      bg: 'semantic.brand.solid',
+      bg: 'interactive.default',
+      border: 'interactive.default',
       text: 'text.inverse',
     },
     secondary: {
-      bg: 'transparent',
-      border: 'semantic.brand.solid',
+      bg: 'brand.bgElement',
+      border: 'brand.bgElementActive',
+      text: 'text.primary',
     },
     ghost: {
       bg: 'transparent',
+      border: 'border.default',
+      text: 'text.primary',
+    },
+    danger: {
+      bg: 'feedback.critical.solid',
+      border: 'feedback.critical.solid',
+      text: 'text.inverse',
     },
   },
 };
