@@ -2278,6 +2278,56 @@ A RFC-0034 (Carousel) precisa marcar slides fora da janela visível como `inert`
 
 ---
 
+## TD-042 — `pnpm tokens:validate` quebrado por path legado pós-RFC-0040 PR1
+
+**Origem:** RFC-0040 PR1 (introdução de `tokens/components/`) — descoberto na revisão da RFC-0040 PR2 (2026-05-08)
+**Status:** Open
+**Severidade:** Baixa (script não está em CI; não bloqueia release)
+
+### Contexto
+
+`scripts/validate-tokens.js` foi escrito antes da RFC-0040 e lê **caminhos que nunca existiram** na nova estrutura:
+
+```js
+const textSrc = readSource('components/text/text.ts');
+```
+
+A RFC-0040 PR1 criou `src/foundations/tokens/components/` com 1 arquivo por componente themable (`button.ts`, `input.ts`, etc.), mas **não** criou `text/text.ts` — `text` é uma recipe pura sem component tokens (não há binding cromático ou estrutural variant-by-variant que justifique).
+
+Resultado:
+
+```
+$ pnpm tokens:validate
+ENOENT: no such file or directory, open
+'src/foundations/tokens/components/text/text.ts'
+```
+
+Confirmado que a quebra **antecede** a RFC-0040 PR2: roda `git stash && pnpm tokens:validate` em `d51a5f0` (último commit antes do PR2) e o erro aparece igual.
+
+### Impacto
+
+- **DX**: dev rodando o script localmente recebe falso negativo. Tem aparência de "quebrei algo".
+- **Governança**: existe um script de validação de tokens que ninguém pode rodar — sintoma de processo de migração inacabado.
+- **CI**: nenhum — `tokens:validate` **não está** em `.github/workflows/*` e não é chamado por outros scripts. A regressão real (literais cromáticos, alias quebrado em recipe) é coberta por `test:no-color-literal`, `test:component-tokens-no-literal`, `test:recipe-aliases` e `test:contrast` — todos verdes.
+
+### Resolução proposta
+
+Três caminhos, em ordem de preferência:
+
+1. **Reescrever o script para a estrutura nova**: validar que aliases consumidos por `tokens/components/*.ts` resolvem em `theme.colors`/`theme.radii`/etc., e que recipes em `base-theme.ts` consomem só alias `$x.y.z`. Mas isso já é feito por `test:recipe-aliases` — duplicaria cobertura.
+2. **Deletar o script + entrada `tokens:validate` no `package.json`**: a cobertura migrou para os guards canônicos. Esse é o caminho mais provável.
+3. **Manter o script só para typography (mapping `text` recipe ↔ `fontSize` semantic ↔ `fontSize` primitive)**: válido, mas hoje o `text` recipe é puro alias e a engine já valida em runtime. Sem caso de uso defensável.
+
+Recomendação: **opção 2** após confirmar que CI/playbooks não chamam o script.
+
+### Critério para fechar
+
+- [ ] Decidir entre opções 1/2/3 (sessão de housekeeping ou junto à próxima RFC que tocar tokens).
+- [ ] `pnpm tokens:validate` executa sem erro **ou** é removido do `package.json` + script deletado.
+- [ ] Se removido, garantir que `test:recipe-aliases` + `test:component-tokens-no-literal` + `test:no-color-literal` + `test:contrast` seguem verdes (cobertura preservada).
+
+---
+
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
 Mapeamento das demais 2 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.
