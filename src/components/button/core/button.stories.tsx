@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Button, IconButton } from '../core';
-import { Flex } from '../../core';
+import { Flex, Icon } from '../../core';
 
 const meta = {
   title: 'Components/Button',
@@ -68,8 +68,12 @@ export const AllVariants: Story = {
 export const IconButtonExample: Story = {
   render: () => (
     <Flex gap="8px">
-      <IconButton aria-label="Fechar" shape="circle">✕</IconButton>
-      <IconButton aria-label="Adicionar" shape="square">+</IconButton>
+      <IconButton aria-label="Fechar" shape="circle">
+        <Icon name="X" decorative />
+      </IconButton>
+      <IconButton aria-label="Adicionar" shape="square">
+        <Icon name="Plus" decorative />
+      </IconButton>
     </Flex>
   ),
 };
