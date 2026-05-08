@@ -103,9 +103,9 @@ describe('multi-product theming matrix', () => {
   });
 
   it('density tokens are exposed in theme.sizes.control', () => {
-    expect(productB.sizes.control.small).toBe('32px');
-    expect(productB.sizes.control.medium).toBe('40px');
-    expect(productB.sizes.control.large).toBe('48px');
+    expect(productB.sizes.control.small).toBe('36px');
+    expect(productB.sizes.control.medium).toBe('44px');
+    expect(productB.sizes.control.large).toBe('52px');
   });
 
   it('density tokens are exposed in theme.sizes.dialog', () => {

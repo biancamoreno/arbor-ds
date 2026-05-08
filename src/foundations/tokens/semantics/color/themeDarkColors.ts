@@ -1,7 +1,7 @@
 import { color as primitiveColor } from '../../primitives';
 import { makeDarkColorScale, type ColorScale } from './scale';
 
-const brandScale = makeDarkColorScale(primitiveColor.aqua);
+const brandScale = makeDarkColorScale(primitiveColor.ultraviolet);
 const grayScale = makeDarkColorScale({
   10: primitiveColor.neutral[10],
   20: primitiveColor.neutral[20],
@@ -60,11 +60,24 @@ const criticalScale = makeDarkColorScale({
   120: primitiveColor.red[120],
 });
 
+function hexToRgba(hex: string, alpha: number): string {
+  const cleaned = hex.replace(/^#/, '');
+  const full = cleaned.length === 3
+    ? cleaned.split('').map((c) => c + c).join('')
+    : cleaned;
+  const num = Number.parseInt(full, 16);
+  const r = (num >> 16) & 0xff;
+  const g = (num >> 8) & 0xff;
+  const b = num & 0xff;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export const themeDarkColors = {
   background: {
     default: primitiveColor.neutral[100],
     contrast: primitiveColor.neutral[80],
     subtle: primitiveColor.neutral[100],
+    muted: primitiveColor.neutral[110],
     interactive: primitiveColor.neutral[70],
     overlay: 'rgba(0, 0, 0, 0.6)',
   },
@@ -112,6 +125,7 @@ export const themeDarkColors = {
   },
   focus: {
     ring: brandScale.solid,
+    ringGlow: hexToRgba(brandScale.solid, 0.25),
   },
 } satisfies {
   background: Record<string, string>;

@@ -1,8 +1,11 @@
 export const button = {
   borderRadius: 'small',
   borderWidth: 'hairline',
-  fontWeight: 'medium',
+  fontWeight: 'semibold',
   gap: 'micro',
+  hover: {
+    shadow: 'sm',
+  },
   height: {
     small: 'control.small',
     medium: 'control.medium',

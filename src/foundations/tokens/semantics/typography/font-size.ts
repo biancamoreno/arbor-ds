@@ -19,4 +19,12 @@ export const fontSize = {
   large: primitiveFontSize[28],
   /** 32px */
   xlarge: primitiveFontSize[32],
+  /** 40px — display ramp para landing/hero */
+  displaySmall: primitiveFontSize[40],
+  /** 48px */
+  displayMedium: primitiveFontSize[48],
+  /** 60px */
+  displayLarge: primitiveFontSize[60],
+  /** 72px — hero */
+  displayHero: primitiveFontSize[72],
 };

@@ -146,7 +146,15 @@ const recipes: ThemeRecipes = {
       borderStyle: 'solid',
       fontWeight: '$button.fontWeight',
       cursor: 'pointer',
-      transition: transition(['background-color', 'border-color', 'opacity', 'filter', 'transform'], 'fast'),
+      transition: transition(['background-color', 'border-color', 'opacity', 'filter', 'transform', 'box-shadow'], 'fast'),
+      _hover: {
+        transform: 'translateY(-1px)',
+        boxShadow: '$button.hover.shadow',
+      },
+      _active: {
+        transform: 'translateY(0)',
+        boxShadow: 'none',
+      },
     },
     variants: {
       variant: {

@@ -25,10 +25,9 @@ const GLOBAL_CSS = `
   100% { left: 100%; right: -90%; }
 }
 [data-arbor-focusable]:focus-visible {
-  outline: 2px solid transparent;
-  box-shadow:
-    0 0 0 2px var(--arbor-color-surface-default, #fff),
-    0 0 0 4px var(--arbor-color-focus-ring, #3b82f6);
+  outline: 2px solid var(--arbor-color-focus-ring, #3b82f6);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--arbor-color-focus-ring-glow, rgba(59,130,246,0.20));
 }
 `;
 

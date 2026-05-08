@@ -10,7 +10,16 @@ export const fontWeight = {
    */
   medium: primitiveFontWeight[500],
   /**
-   * value: 700
+   * value: 600 — peso padrão de heading moderno (Linear/Vercel/Stripe).
    */
-  bold: primitiveFontWeight[700],
+  semibold: primitiveFontWeight[600],
+  /**
+   * value: 600 — alinhado a `semibold` por decisão da RFC-0041.
+   * Heading "bold" pesa 600, não 700, para identidade contemporânea.
+   */
+  bold: primitiveFontWeight[600],
+  /**
+   * value: 700 — preservado para casos de ênfase máxima.
+   */
+  extrabold: primitiveFontWeight[700],
 };

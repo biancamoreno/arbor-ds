@@ -1,7 +1,7 @@
 export const controlSize = {
-  small: '32px',
-  medium: '40px',
-  large: '48px',
+  small: '36px',
+  medium: '44px',
+  large: '52px',
 };
 
 export type ControlSize = typeof controlSize;
