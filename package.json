@@ -59,7 +59,6 @@
     "test:component-tokens-no-literal": "node scripts/check-component-tokens-no-literal.js",
     "test:recipe-no-component-literal": "node scripts/check-recipe-no-component-literal.js",
     "test:recipe-aliases": "node scripts/check-recipe-aliases.mjs",
-    "tokens:validate": "node scripts/validate-tokens.js",
     "depcheck": "depcruise src --config .dependency-cruiser.cjs",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",

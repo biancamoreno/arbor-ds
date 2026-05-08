@@ -2281,8 +2281,17 @@ A RFC-0034 (Carousel) precisa marcar slides fora da janela visível como `inert`
 ## TD-042 — `pnpm tokens:validate` quebrado por path legado pós-RFC-0040 PR1
 
 **Origem:** RFC-0040 PR1 (introdução de `tokens/components/`) — descoberto na revisão da RFC-0040 PR2 (2026-05-08)
-**Status:** Open
+**Status:** Resolved (2026-05-08)
 **Severidade:** Baixa (script não está em CI; não bloqueia release)
+
+### Resolução (2026-05-08)
+
+Aplicada **opção 2**: `scripts/validate-tokens.js` + `scripts/validate-tokens.ts` (ambos órfãos) deletados, entrada `tokens:validate` removida do `package.json`, sweep de menção em `README.md`, `CONTRIBUTING.md` e `CLAUDE.md`. Cobertura preservada por:
+
+- `test:no-color-literal` — literais cromáticos em componentes/recipes
+- `test:component-tokens-no-literal` — `tokens/components/*.ts` consome só alias por string
+- `test:recipe-aliases` — recipes em `base-theme.ts` resolvem aliases `$x.y.z`
+- `test:contrast` — paleta de 12 papéis cumpre WCAG AA
 
 ### Contexto
 

@@ -705,7 +705,6 @@ pnpm typecheck                  # TypeScript
 pnpm build:lib                  # Build da biblioteca
 pnpm size                       # Verificar budget de bundle
 pnpm storybook                  # Docs interativa
-pnpm tokens:validate            # Validar tokens
 pnpm depcheck                   # Verificar fronteiras de dependência
 pnpm test:platform-contract     # Paridade .tsx ↔ .native.tsx ↔ .native.test.tsx
 pnpm test:no-color-literal      # Sem cores literais em componentes (RFC-0027)

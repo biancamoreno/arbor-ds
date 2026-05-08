@@ -234,7 +234,6 @@ pnpm storybook                  # Storybook local
 pnpm build:lib                  # Build da biblioteca
 pnpm test                       # Suíte completa
 pnpm test:platform-contract     # Verifica paridade web/native
-pnpm tokens:validate            # Valida tokens
 pnpm typecheck                  # tsc estrito
 pnpm lint                       # ESLint
 pnpm size                       # Orçamento de bundle

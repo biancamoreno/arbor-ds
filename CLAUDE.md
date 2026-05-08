@@ -26,7 +26,6 @@ pnpm lint              # Verificação ESLint
 pnpm test              # Executa todos os testes (jest)
 pnpm test -- <padrão>  # Executa um arquivo de teste (ex: pnpm test -- box.test)
 pnpm preview           # Preview do build do playground localmente
-pnpm tokens:validate   # Valida as definições de tokens
 pnpm depcheck          # Análise de dependências com dependency cruiser
 ```
 
