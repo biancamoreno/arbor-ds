@@ -192,6 +192,107 @@ Use `extendTheme()` (futuro RFC-0046) — não infle o DS com tokens de domínio
 
 ---
 
+## Cascade completa: 5 níveis de override
+
+A tematização opera em camadas. Override mais específico vence o mais amplo. Em ordem do mais específico ao mais amplo:
+
+```
+1. style inline / prop literal               (escape hatch absoluto)
+2. CSS var no subtree (web only)             (override runtime, sem rebuild)
+3. theme.components[name].…                  (override do produto via createTheme)
+4. baseTheme.components[name].…              (default do DS)
+5. recipe base/variant                       (declara qual chave consultar)
+6. theme.colors / theme.sizes / theme.radii  (alias semantic resolvido)
+7. primitive                                 (valor bruto)
+```
+
+### Nível 1 — `style` inline
+
+Escape hatch absoluto. Use só quando nada mais cabe (ver "Anti-padrões" abaixo — estilo declarativo via prop é preferido sempre que existir equivalente).
+
+```tsx
+<Box style={{ backdropFilter: 'blur(8px)' }} />
+```
+
+### Nível 2 — CSS var no subtree (web only)
+
+`<ArborProvider>` emite todas as folhas do tema como CSS custom properties no `:root`. Subtrees podem redeclarar essas vars sem rebuild — bom para preview, A/B, marca por seção:
+
+```tsx
+<div
+  style={{
+    '--arbor-color-brand-9': '#FF3366',
+    '--arbor-color-focus-ring': '#FF3366',
+    '--arbor-button-colors-primary-bg': 'var(--arbor-color-brand-9)',
+  } as React.CSSProperties}
+>
+  <Button>Botão na marca da seção</Button>
+</div>
+```
+
+Convenção: `--arbor-{categoria}-{path-em-kebab-case}`. Exemplos:
+
+- `--arbor-color-brand-1` … `--arbor-color-brand-12`
+- `--arbor-color-brand-bg-element` (camelCase → kebab)
+- `--arbor-color-feedback-critical-solid`
+- `--arbor-color-focus-ring`
+- `--arbor-radii-small`, `--arbor-space-medium`
+- `--arbor-motion-duration-fast`, `--arbor-motion-easing-standard`
+- `--arbor-input-border-radius`, `--arbor-button-colors-primary-bg`
+
+**React Native não consome CSS vars.** Para paridade rigorosa entre plataformas, use somente `createTheme()` como canal de override.
+
+### Nível 3 — `theme.components` via `createTheme()`
+
+Forma canônica do produto sobrescrever component tokens sem editar o DS. Override é **deep merge** contra o default:
+
+```ts
+createTheme(themeLight, {
+  components: {
+    input: { borderRadius: 'medium' },
+    button: { colors: { primary: { bg: '#0066CC' } } },
+    card: { padding: { medium: 'large' } },
+  },
+});
+```
+
+Aliases por string em component tokens são resolvidos contra o tema em runtime. Override em `theme.colors.brand.solid` propaga para todos os componentes que consomem `'brand.solid'` ou `'$button.colors.primary.bg'`.
+
+### Nível 4 — `baseTheme.components`
+
+Defaults do DS, em `src/foundations/tokens/components/`. Cada arquivo expõe um objeto cujas folhas são strings (aliases) ou números — **nunca** literais cromáticos. Lint guard `pnpm test:component-tokens-no-literal` mantém a regra.
+
+### Nível 5 — recipes consomem por string
+
+Recipes referenciam component tokens via prefixo `$`:
+
+```ts
+input: defineSlotRecipe({
+  base: {
+    frame: {
+      borderRadius: '$input.borderRadius',
+      borderColor: '$input.colors.border.default',
+    },
+  },
+});
+```
+
+Resolver da engine reconhece `$x.y.z` e busca em `theme.components.x.y.z`. O retorno (string semantic) é resolvido novamente contra `theme.colors`/`theme.radii`/etc.
+
+### Heurística de decisão
+
+Em qualquer ajuste, percorra a cascade na ordem inversa (do mais amplo ao mais específico) e use a primeira camada que resolve:
+
+1. **Mudar a "cara" do produto inteiro?** → presets (RFC-0045, futuro).
+2. **Decisão de marca / cor / role?** → token semantic (`createTheme({ colors: {…} })`).
+3. **Binding de um componente específico?** → component token (`createTheme({ components: {…} })`).
+4. **Override pontual em escopo limitado (web)?** → CSS var no subtree.
+5. **Algo que o DS não cobre, mas o produto precisa?** → `extendTheme()` (RFC-0046, futuro).
+
+Se nenhuma camada couber, é sinal de que a API do componente está incompleta — abrir RFC, **não** inline style.
+
+---
+
 ## Anti-padrões
 
 - **Importar primitive direto em componente**: `import { color } from 'arbor-ds/foundations'; color.aqua[60]` — congela o valor no module-load, override do tema não propaga. Sempre consuma via `theme.colors.X.role` ou alias por string (`'brand.solid'`).

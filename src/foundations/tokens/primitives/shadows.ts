@@ -7,8 +7,8 @@ export const shadows = {
   cardHover: '0 8px 24px rgba(0,0,0,0.12)',
   /**
    * Anel de empilhamento usado em `AvatarGroup`. Resolve a cor via
-   * CSS custom property `--arbor-surface` (emitida pelo `ArborProvider`),
+   * CSS custom property `--arbor-color-surface-default` (emitida pelo `ArborProvider`),
    * com fallback `#fff` para SSR/render fora do provider.
    */
-  avatarRing: '0 0 0 2px var(--arbor-surface, #fff)',
+  avatarRing: '0 0 0 2px var(--arbor-color-surface-default, #fff)',
 };

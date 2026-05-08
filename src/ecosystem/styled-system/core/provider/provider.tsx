@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { type ArborTheme, themeLight } from '../../../../foundations';
 import { cssInJs, type ThemeProviderProps as ArborProviderProps } from '../../adapters';
+import { walkTokenTree, tokenTreeToCssText } from './walk-token-tree';
 
 export type { ArborProviderProps };
 
@@ -25,12 +26,15 @@ const GLOBAL_CSS = `
 }
 [data-arbor-focusable]:focus-visible {
   outline: 2px solid transparent;
-  box-shadow: 0 0 0 2px var(--arbor-surface, #fff), 0 0 0 4px var(--arbor-brand, #3b82f6);
+  box-shadow:
+    0 0 0 2px var(--arbor-color-surface-default, #fff),
+    0 0 0 4px var(--arbor-color-focus-ring, #3b82f6);
 }
 `;
 
 const REDUCED_MOTION_STYLE_ID = 'arbor-reduced-motion';
 const GLOBAL_STYLE_ID = 'arbor-global-styles';
+const CSS_VARS_STYLE_ID = 'arbor-theme-vars';
 
 function injectStyle(id: string, css: string) {
   if (typeof document === 'undefined' || document.getElementById(id)) return;
@@ -40,6 +44,17 @@ function injectStyle(id: string, css: string) {
   document.head.appendChild(style);
 }
 
+function ensureCssVarsNode(): HTMLStyleElement | null {
+  if (typeof document === 'undefined') return null;
+  let node = document.getElementById(CSS_VARS_STYLE_ID) as HTMLStyleElement | null;
+  if (!node) {
+    node = document.createElement('style');
+    node.id = CSS_VARS_STYLE_ID;
+    document.head.appendChild(node);
+  }
+  return node;
+}
+
 export function ArborProvider({ theme = themeLight, children, ...rest }: Partial<ArborProviderProps<ArborTheme>>) {
   useEffect(() => {
     injectStyle(REDUCED_MOTION_STYLE_ID, REDUCED_MOTION_CSS);
@@ -47,9 +62,10 @@ export function ArborProvider({ theme = themeLight, children, ...rest }: Partial
   }, []);
 
   useEffect(() => {
-    if (typeof document === 'undefined') return;
-    document.documentElement.style.setProperty('--arbor-brand', theme.colors.brand.solid);
-    document.documentElement.style.setProperty('--arbor-surface', theme.colors.surface.default);
+    const node = ensureCssVarsNode();
+    if (!node) return;
+    const vars = walkTokenTree(theme);
+    node.textContent = `:root{${tokenTreeToCssText(vars)}}`;
   }, [theme]);
 
   return (
