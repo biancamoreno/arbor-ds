@@ -1,103 +1,62 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ArborProvider } from '../ecosystem';
-import { themeLight, createBrandPalette, createTheme } from '../foundations';
-import type { ArborTheme } from '../foundations/theme/Theme';
+import { themeLight } from '../foundations';
 import { Box } from '../components/core/box';
 import { Flex } from '../components/core/flex';
 import { Text } from '../components/core/text';
 import { Button } from '../components/button';
 import { Card } from '../components/card';
 
-const sapphire = createBrandPalette('#0B46E6');
-const violet = createBrandPalette('#9F23FB');
+const BRAND_ROLES = [
+  'bg', 'bgSubtle', 'bgElement', 'bgElementHover', 'bgElementActive',
+  'borderSubtle', 'border', 'borderHover',
+  'solid', 'solidHover', 'text', 'textContrast',
+] as const;
 
-function withBrand(name: string, brand: ReturnType<typeof createBrandPalette>): ArborTheme {
-  return createTheme(themeLight as unknown as ArborTheme, {
-    mode: name,
-    colors: {
-      brand: brand.light,
-      interactive: {
-        default: brand.light.solid,
-        hover: brand.light.solidHover,
-        active: brand.light.textContrast,
+const meta = {
+  title: 'Foundations/Polish v1 — Default visual',
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Showcase do default visual aplicado na RFC-0041 PR1. ' +
+          'Brand `forestGreen` (folha viva — alusão direta ao nome "arbor"); ' +
+          'hover/active expressos por fade de opacidade (sem deslocamento físico do componente); ' +
+          'motion snap (160ms · easeOutQuart); foco com glow externo; ' +
+          'Button fontWeight `semibold`. Aprovação destrava PR2 (sweep coletivo).',
       },
-      border: { interactive: brand.light.solid },
-      icon: { interactive: brand.light.solid },
-      focus: { ring: brand.light.solid },
     },
-  });
-}
-
-const themeSapphire = withBrand('polish-sapphire', sapphire);
-const themeViolet = withBrand('polish-violet', violet);
-
-type Candidate = {
-  label: string;
-  hex: string;
-  description: string;
-  theme: ArborTheme;
-};
-
-const candidates: Candidate[] = [
-  {
-    label: 'Sapphire 70',
-    hex: '#0B46E6',
-    description: 'Azul royal · fintech-friendly · contraste AAA',
-    theme: themeSapphire,
   },
-  {
-    label: 'Ultraviolet 70 (recomendado)',
-    hex: '#6352E1',
-    description: 'Violeta moderno · Linear-feel · contraste AA · default da RFC-0041',
-    theme: themeLight,
-  },
-  {
-    label: 'Violet 70',
-    hex: '#9F23FB',
-    description: 'Magenta-violeta · expressivo · polariza por setor',
-    theme: themeViolet,
-  },
-];
+} satisfies Meta;
 
-function CandidateColumn({ candidate }: { candidate: Candidate }) {
-  return (
-    <ArborProvider theme={candidate.theme}>
-      <Box
-        backgroundColor="surface.default"
-        borderColor="border.default"
-        borderWidth="hairline"
-        borderStyle="solid"
-        borderRadius="medium"
-        padding="large"
-        width="100%"
-      >
-        <Flex flexDirection="column" gap="medium">
-          <Flex alignItems="center" gap="small">
-            <Box
-              width="24px"
-              height="24px"
-              borderRadius="full"
-              borderWidth="hairline"
-              borderStyle="solid"
-              borderColor="border.subtle"
-              backgroundColor="brand.solid"
-            />
-            <Flex flexDirection="column" gap="nano">
-              <Text fontSize="medium" fontWeight="bold" color="text.primary">
-                {candidate.label}
-              </Text>
-              <Text fontSize="xsmall" color="text.secondary">
-                {candidate.hex} — {candidate.description}
-              </Text>
-            </Flex>
+export default meta;
+type Story = StoryObj;
+
+export const Showcase: Story = {
+  name: 'Default v1 (ForestGreen)',
+  render: () => (
+    <ArborProvider theme={themeLight}>
+      <Box padding="large" backgroundColor="background.subtle" minHeight="100vh">
+        <Flex flexDirection="column" gap="large" maxWidth="960px">
+          <Flex flexDirection="column" gap="nano">
+            <Text fontSize="xlarge" fontWeight="bold" color="text.primary">
+              Polish v1 — default visual
+            </Text>
+            <Text fontSize="small" color="text.secondary">
+              Brand forestGreen (folha viva, identidade arbor) · hover/active por fade de opacidade ·
+              motion snap · foco com glow.
+            </Text>
           </Flex>
 
-          <Box height="1px" backgroundColor="border.subtle" />
-
-          <Card variant="outlined" padding="medium">
+          <Card variant="outlined" padding="large">
             <Flex flexDirection="column" gap="medium">
-              <Text fontSize="small" fontWeight="bold" color="text.primary">
-                Button piloto · hover lift + shadow
+              <Text fontSize="medium" fontWeight="bold" color="text.primary">
+                Button piloto
+              </Text>
+              <Text fontSize="xsmall" color="text.tertiary">
+                Hover: opacity 0.92 (fade suave). Active (pressed): opacity 0.80. Tab para inspecionar foco com glow.
               </Text>
               <Flex gap="small" flexWrap="wrap">
                 <Button variant="primary" size="medium">Primary</Button>
@@ -105,23 +64,25 @@ function CandidateColumn({ candidate }: { candidate: Candidate }) {
                 <Button variant="ghost" size="medium">Ghost</Button>
                 <Button variant="danger" size="medium">Danger</Button>
               </Flex>
-              <Text fontSize="xsmall" color="text.tertiary">
-                Hover sobre cada botão para ver translateY(-1px) + shadow.sm e transition snap (160ms · easeOutQuart).
-              </Text>
+              <Flex gap="small" flexWrap="wrap" alignItems="center">
+                <Button variant="primary" size="small">Small</Button>
+                <Button variant="primary" size="medium">Medium · 44px</Button>
+                <Button variant="primary" size="large">Large</Button>
+              </Flex>
             </Flex>
           </Card>
 
-          <Card variant="outlined" padding="medium">
+          <Card variant="outlined" padding="large">
             <Flex flexDirection="column" gap="medium">
-              <Text fontSize="small" fontWeight="bold" color="text.primary">
-                Brand swatches (papéis canônicos)
+              <Text fontSize="medium" fontWeight="bold" color="text.primary">
+                Brand swatches (12 papéis canônicos)
               </Text>
               <Flex gap="nano" flexWrap="wrap">
-                {(['bg', 'bgSubtle', 'bgElement', 'bgElementHover', 'bgElementActive', 'borderSubtle', 'border', 'borderHover', 'solid', 'solidHover', 'text', 'textContrast'] as const).map((role) => (
-                  <Flex key={role} flexDirection="column" alignItems="center" gap="nano" width="56px">
+                {BRAND_ROLES.map((role) => (
+                  <Flex key={role} flexDirection="column" alignItems="center" gap="nano" width="64px">
                     <Box
-                      width="40px"
-                      height="40px"
+                      width="48px"
+                      height="48px"
                       borderRadius="small"
                       borderWidth="hairline"
                       borderStyle="solid"
@@ -134,62 +95,30 @@ function CandidateColumn({ candidate }: { candidate: Candidate }) {
               </Flex>
             </Flex>
           </Card>
+
+          <Card variant="outlined" padding="large">
+            <Flex flexDirection="column" gap="medium">
+              <Text fontSize="medium" fontWeight="bold" color="text.primary">
+                Display sizes (semantic novo)
+              </Text>
+              <Flex flexDirection="column" gap="small">
+                <Text fontSize="displayHero" fontWeight="bold" color="text.primary">
+                  Hero · 72px
+                </Text>
+                <Text fontSize="displayLarge" fontWeight="bold" color="text.primary">
+                  Display large · 60px
+                </Text>
+                <Text fontSize="displayMedium" fontWeight="bold" color="text.primary">
+                  Display medium · 48px
+                </Text>
+                <Text fontSize="displaySmall" fontWeight="bold" color="text.primary">
+                  Display small · 40px
+                </Text>
+              </Flex>
+            </Flex>
+          </Card>
         </Flex>
       </Box>
     </ArborProvider>
-  );
-}
-
-const meta = {
-  title: 'Foundations/Polish v1 — Brand candidates',
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'fullscreen',
-    docs: {
-      description: {
-        component:
-          'Comparativo lado-a-lado dos 3 candidatos de brand default para v1 (RFC-0041). ' +
-          'Default já aplicado em themeLight é Ultraviolet 70 (#6352E1, recomendação do arquiteto). ' +
-          'A coluna do meio mostra exatamente o que sai como default; as outras duas mostram alternativas via createBrandPalette + createTheme. ' +
-          'Aprovação final destrava PR2 (sweep coletivo dos demais ~25 componentes).',
-      },
-    },
-  },
-} satisfies Meta;
-
-export default meta;
-type Story = StoryObj;
-
-export const SideBySide: Story = {
-  name: 'Comparativo dos 3 candidatos',
-  render: () => (
-    <Box padding="large" backgroundColor="background.subtle" minHeight="100vh">
-      <Flex flexDirection="column" gap="large">
-        <Flex flexDirection="column" gap="nano">
-          <Text fontSize="xlarge" fontWeight="bold" color="text.primary">
-            Polish v1 — escolha do brand default
-          </Text>
-          <Text fontSize="small" color="text.secondary">
-            Mesmo Button piloto sob 3 temas. Avalia identidade, hover lift, glow no foco (Tab + Enter para inspecionar).
-          </Text>
-        </Flex>
-        <Flex gap="large" alignItems="stretch" flexWrap="wrap">
-          {candidates.map((c) => (
-            <Box key={c.label} flex="1 1 320px" minWidth="320px">
-              <CandidateColumn candidate={c} />
-            </Box>
-          ))}
-        </Flex>
-      </Flex>
-    </Box>
-  ),
-};
-
-export const UltravioletOnly: Story = {
-  name: 'Ultraviolet (default) isolado',
-  render: () => (
-    <Box padding="large" backgroundColor="background.subtle" minHeight="100vh">
-      <CandidateColumn candidate={candidates[1]} />
-    </Box>
   ),
 };

@@ -3,9 +3,6 @@ export const button = {
   borderWidth: 'hairline',
   fontWeight: 'semibold',
   gap: 'micro',
-  hover: {
-    shadow: 'sm',
-  },
   height: {
     small: 'control.small',
     medium: 'control.medium',

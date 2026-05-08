@@ -1,7 +1,7 @@
 import { color as primitiveColor } from '../../primitives';
 import { makeDarkColorScale, type ColorScale } from './scale';
 
-const brandScale = makeDarkColorScale(primitiveColor.ultraviolet);
+const brandScale = makeDarkColorScale(primitiveColor.forestGreen);
 const grayScale = makeDarkColorScale({
   10: primitiveColor.neutral[10],
   20: primitiveColor.neutral[20],
