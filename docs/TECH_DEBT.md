@@ -2337,6 +2337,49 @@ Recomendação: **opção 2** após confirmar que CI/playbooks não chamam o scr
 
 ---
 
+## TD-043 — Carousel `slidesPerView=N` aparenta renderizar mais slides visíveis que o configurado
+
+**Origem:** review humano da RFC-0041 PR1 (2026-05-08) — usuária relatou que "Carousel de 2 slides mostra 4" em alguma story do Storybook.
+**Status:** Open
+**Severidade:** Média (correção visual/funcional; não bloqueia v1 mas deve ser confirmada antes do release)
+
+### Contexto
+
+Em revisão de Storybook do Carousel, observado visualmente que o número de slides simultâneos não corresponde ao `slidesPerView` declarado. Repro precisa ainda não isolada — possíveis causas a investigar:
+
+1. Cálculo de largura por slide dividindo `100% / slidesPerView` quando o consumidor já passou `gap` em px → soma de gaps comprime cada slide e expõe vizinhos.
+2. Lazy mounting (`windowSize: 3` na FlatList native; IO web com `rootMargin: 200px`) montando placeholders adicionais que renderizam vazio mas ocupam espaço visual.
+3. Loop soft duplicando refs em layouts curtos (slides < windowSize).
+4. Confusão da story `TwoSlidesPerView` — declara `slidesPerView={2}` com 6 itens, mas a usuária pode ter visto outra story.
+
+Stories candidatas em `src/components/carousel/core/carousel.stories.tsx`:
+- `TwoSlidesPerView` — `slidesPerView={2}`, 6 itens
+- `Responsive` — `slidesPerView={{ base: 1, md: 2, lg: 4 }}`
+- `LazyMounting` — comportamento de virtualização
+
+### Impacto
+
+- **Visual/funcional:** consumidor declara N e enxerga M ≠ N, quebrando expectativa.
+- **Confiança no componente:** Carousel é showcase em landing/vitrine — bug aqui afeta percepção de qualidade do default.
+
+### Plano
+
+1. Reproduzir abrindo o Storybook das três stories candidatas e medindo quantos `Carousel.Item` são `aria-hidden=false` simultaneamente.
+2. Conforme causa-raiz:
+   - Erro de cálculo → ajuste em `useResolvedSlidesPerView` ou no track CSS (`scroll-snap-align` + `flex-basis`).
+   - Lazy montando placeholders visíveis → garantir `display: none` ou `visibility: hidden` no placeholder.
+   - Loop soft → não duplicar quando `total <= slidesPerView`.
+3. Adicionar testes que medem itens visíveis vs configurados.
+
+### Critério para fechar
+
+- [ ] Repro isolada (story + screenshot anotado).
+- [ ] Causa-raiz identificada e documentada.
+- [ ] Fix aplicado com teste de regressão.
+- [ ] Storybook das 3 stories citadas valida visualmente quantidade correta de slides.
+
+---
+
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
 Mapeamento das demais 2 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.
