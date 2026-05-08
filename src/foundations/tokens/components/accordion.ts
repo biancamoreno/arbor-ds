@@ -4,7 +4,7 @@ export const accordion = {
   border: 'border.subtle',
   trigger: {
     padding: { inline: 'medium', block: 'small' },
-    fontWeight: 'medium',
+    fontWeight: 'semibold',
     fontSize: 'small',
     colors: {
       text: 'text.primary',

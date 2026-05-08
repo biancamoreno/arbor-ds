@@ -1,7 +1,7 @@
 export const alert = {
   borderLeftWidth: 'thick',
   fontWeight: {
-    title: 'medium',
+    title: 'semibold',
   },
   fontSize: {
     title: 'small',

@@ -2,7 +2,7 @@ export const dialog = {
   borderRadius: 'large',
   shadow: 'xl',
   fontWeight: {
-    title: 'medium',
+    title: 'semibold',
   },
   size: {
     small: { maxWidth: 'dialog.small', padding: 'medium' },

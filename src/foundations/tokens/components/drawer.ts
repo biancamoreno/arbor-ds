@@ -1,7 +1,7 @@
 export const drawer = {
   shadow: 'xl',
   fontWeight: {
-    title: 'medium',
+    title: 'semibold',
   },
   size: {
     small: { padding: 'small' },

@@ -664,9 +664,9 @@ const recipes: ThemeRecipes = {
         true: {
           root: {
             cursor: 'pointer',
-            transition: transition(['transform', 'box-shadow'], 'normal', 'decelerate'),
-            _hover: { transform: 'translateY(-2px)', boxShadow: '$card.shadow.hover' },
-            _active: { transform: 'scale(0.99)' },
+            transition: transition(['opacity'], 'fast'),
+            _hover: { opacity: 0.92 },
+            _active: { opacity: 0.8 },
             _focusVisible: focusRing,
           },
         },
@@ -743,7 +743,7 @@ const recipes: ThemeRecipes = {
         borderWidth: '$chip.borderWidth',
         borderStyle: 'solid',
         fontWeight: '$chip.fontWeight',
-        transition: transition(['background-color', 'border-color', 'color'], 'fast'),
+        transition: transition(['background-color', 'border-color', 'color', 'opacity'], 'fast'),
       },
       label: { lineHeight: 'inherit' },
       icon: { display: 'inline-flex', alignItems: 'center', flexShrink: 0 },
@@ -786,7 +786,12 @@ const recipes: ThemeRecipes = {
       },
       selectable: {
         true: {
-          root: { _focusVisible: focusRing },
+          root: {
+            cursor: 'pointer',
+            _focusVisible: focusRing,
+            _hover: { opacity: 0.92 },
+            _active: { opacity: 0.8 },
+          },
           remove: { _focusVisible: focusRing },
         },
         false: {},

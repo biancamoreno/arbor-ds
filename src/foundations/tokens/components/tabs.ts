@@ -7,7 +7,7 @@ export const tabs = {
   trigger: {
     fontWeight: {
       inactive: 'regular',
-      active: 'medium',
+      active: 'semibold',
     },
     color: {
       inactive: 'text.secondary',

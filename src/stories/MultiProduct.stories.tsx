@@ -55,9 +55,6 @@ function ProductColumn({ panel }: { panel: ProductPanel }) {
     <ArborProvider theme={panel.theme}>
       <Box
         backgroundColor="surface.default"
-        borderColor="border.default"
-        borderWidth="hairline"
-        borderStyle="solid"
         borderRadius="medium"
         padding="large"
         width="100%"

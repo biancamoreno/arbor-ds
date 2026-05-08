@@ -2,7 +2,7 @@ export const toast = {
   borderRadius: 'small',
   borderLeftWidth: 'thick',
   fontWeight: {
-    title: 'medium',
+    title: 'semibold',
   },
   fontSize: {
     title: 'small',

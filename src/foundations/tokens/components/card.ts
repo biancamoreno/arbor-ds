@@ -4,7 +4,6 @@ export const card = {
   background: 'surface.default',
   shadow: {
     elevated: 'md',
-    hover: 'cardHover',
   },
   border: 'border.subtle',
   padding: {
