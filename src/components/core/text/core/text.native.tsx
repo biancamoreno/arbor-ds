@@ -1,6 +1,19 @@
 import { forwardRef } from 'react';
 import { ArborTransform, useRecipe } from '../../../../ecosystem';
 import { type TextProps } from '../interfaces';
+import { type TextVariant } from '../interfaces/TextVariant';
+
+const AS_TO_VARIANT: Partial<Record<NonNullable<TextProps<string>['as']>, TextVariant>> = {
+  h1: 'headingLarge',
+  h2: 'headingMedium',
+  h3: 'headingSmall',
+  h4: 'subheading',
+  h5: 'subheading',
+  h6: 'overline',
+  p: 'bodyMedium',
+  label: 'label',
+  legend: 'label',
+};
 
 /**
  * @platform native
@@ -12,13 +25,14 @@ import { type TextProps } from '../interfaces';
  * @see {@link TextProps}
  */
 export const Text = forwardRef<unknown, TextProps<string>>(function Text({
-  variant = 'caption',
+  variant,
   numberOfLines,
   as = 'p',
   children,
   ...props
 }: TextProps<string>, ref) {
-  const styles = useRecipe('text', { variant });
+  const resolvedVariant = variant ?? AS_TO_VARIANT[as] ?? 'bodyMedium';
+  const styles = useRecipe('text', { variant: resolvedVariant });
 
   return (
     <ArborTransform

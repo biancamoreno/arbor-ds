@@ -5,4 +5,8 @@ export const lineHeight = {
   28: '28px',
   32: '32px',
   36: '36px',
+  44: '44px',
+  56: '56px',
+  64: '64px',
+  76: '76px',
 };
