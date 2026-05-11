@@ -17,6 +17,7 @@ import {
   dialogSize,
   avatarSize,
   avatarOverlap,
+  spinnerSize,
   touchTarget,
   componentTokens,
 } from '../tokens';
@@ -1155,6 +1156,7 @@ export const baseTheme = {
     dialog: dialogSize,
     avatar: avatarSize,
     avatarOverlap,
+    spinner: spinnerSize,
     touchTarget,
   },
   space: spacing,

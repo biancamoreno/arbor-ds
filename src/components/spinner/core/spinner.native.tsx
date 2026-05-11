@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks';
 import { Flex } from '../../core';
 import { Icon } from '../../core';
-import { SIZE_MAP } from '../internal/sizes';
 import type { SpinnerProps } from '../interfaces';
 
 /**
@@ -12,19 +12,28 @@ import type { SpinnerProps } from '../interfaces';
  * `Spinner` em React Native: rotação contínua via `Animated.loop`
  * interpolando 0..1 → 0deg..360deg (sem keyframes CSS — paridade visual com
  * o web). `accessibilityRole='progressbar'` + `accessibilityLabel` para
- * leitores de tela. Em ambiente de teste a animação é resolvida
+ * leitores de tela.
+ *
+ * Reduced-motion (TD-041): quando `AccessibilityInfo.isReduceMotionEnabled()`
+ * retorna `true`, a rotação é suprimida (snap em 0deg). O anúncio para
+ * leitores de tela permanece. Em ambiente de teste a animação é resolvida
  * instantaneamente.
  *
  * @see {@link SpinnerProps}
  */
 export function Spinner({ size = 'medium', color, label = 'Carregando', style, ...props }: SpinnerProps) {
   const theme = useTheme();
-  const px = SIZE_MAP[size];
+  const px = theme.sizes.spinner[size];
   const strokeColor = color ?? theme.colors.brand.solid;
+  const reducedMotion = usePrefersReducedMotion();
   const rotation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'test') return;
+    if (reducedMotion) {
+      rotation.setValue(0);
+      return;
+    }
     const animation = Animated.loop(
       Animated.timing(rotation, {
         toValue: 1,
@@ -35,7 +44,7 @@ export function Spinner({ size = 'medium', color, label = 'Carregando', style, .
     );
     animation.start();
     return () => animation.stop();
-  }, [rotation]);
+  }, [rotation, reducedMotion]);
 
   const spin = rotation.interpolate({
     inputRange: [0, 1],

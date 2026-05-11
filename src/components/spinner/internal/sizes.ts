@@ -1,9 +1,6 @@
 /**
- * Pixel sizes shared between `spinner.tsx` and `spinner.native.tsx`.
- *
- * **Não** é token themable — produto consumidor não consegue reescalar via tema
- * hoje. Migração para `theme.sizes.control` está catalogada em SP-2/RFC-0027 follow-up.
+ * Re-export do tipo themable `SpinnerSize` (foundations / RFC-0042 PCV-4).
+ * Os valores físicos vivem em `theme.sizes.spinner.{small|medium|large}`
+ * e podem ser override via `createTheme()`.
  */
-export const SIZE_MAP = { small: 16, medium: 24, large: 40 } as const;
-
-export type SpinnerSize = keyof typeof SIZE_MAP;
+export type { SpinnerSize } from '../../../foundations';
