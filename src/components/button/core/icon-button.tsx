@@ -1,19 +1,14 @@
 import type { IconButtonProps } from '../interfaces';
 import { Button } from './button';
-
-const iconButtonSizeMap = {
-  small: { width: '32px', height: '32px', padding: 0 },
-  medium: { width: '40px', height: '40px', padding: 0 },
-  large: { width: '48px', height: '48px', padding: 0 },
-} as const;
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 
 /**
  * @platform shared
  *
- * `Button` quadrado que recebe apenas um ícone via `children`. Tamanho fixo por
- * size token (`small` 32px / `medium` 40px / `large` 48px) e formato controlado por
- * `shape` (`circle` — default, `square`). Reutiliza variantes/loading/disabled
- * do `Button`.
+ * `Button` quadrado que recebe apenas um ícone via `children`. Tamanho fixo via
+ * `theme.sizes.control.{small|medium|large}` (themable) e formato controlado por
+ * `shape` (`circle` — default usa `theme.radii.full`; `square` usa
+ * `theme.radii.small`). Reutiliza variantes/loading/disabled do `Button`.
  *
  * @see {@link IconButtonProps}
  */
@@ -24,13 +19,19 @@ export function IconButton({
   style,
   ...props
 }: IconButtonProps) {
+  const theme = useTheme();
+  const dimension = theme.sizes.control[size];
+  const radius = shape === 'circle' ? theme.radii.full : theme.radii.small;
+
   return (
     <Button
       size={size}
       style={{
-        ...iconButtonSizeMap[size],
-        minWidth: iconButtonSizeMap[size].width,
-        borderRadius: shape === 'circle' ? '999px' : '12px',
+        width: dimension,
+        height: dimension,
+        minWidth: dimension,
+        padding: 0,
+        borderRadius: radius,
         ...style,
       }}
       {...props}

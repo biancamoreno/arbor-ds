@@ -167,7 +167,7 @@ export function Button({
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      onClick={isDisabled ? undefined : onClick}
+      onClick={onClick}
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -180,7 +180,6 @@ export function Button({
         paddingVertical: sizing.paddingVertical,
         backgroundColor: colors.backgroundColor,
         borderColor: colors.borderColor,
-        opacity: isDisabled ? 0.45 : 1,
         ...attachedStyle,
         ...(style as ViewStyle),
       }}

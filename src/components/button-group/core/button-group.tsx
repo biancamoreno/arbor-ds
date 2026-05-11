@@ -18,7 +18,7 @@ export function ButtonGroup({
   children,
   orientation = 'horizontal',
   attached = false,
-  spacing = '8px',
+  spacing = 'micro',
   disabled = false,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,

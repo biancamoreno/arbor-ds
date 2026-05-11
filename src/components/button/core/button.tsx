@@ -22,6 +22,9 @@ const spinnerColorByVariant = {
  * detecta `attached` e colapsa os raios do canto interno automaticamente para
  * formar um conjunto contíguo.
  *
+ * Tratamento de disabled (opacity, cursor, pointer-events, bloqueio de onClick)
+ * e foco visível são entregues pelo `Clickable` por construção.
+ *
  * @see {@link ButtonProps}
  */
 export function Button({
@@ -100,12 +103,8 @@ export function Button({
       as="button"
       type={type}
       disabled={isDisabled}
-      cursor={isDisabled ? 'not-allowed' : 'pointer'}
-      opacity={isDisabled ? 0.45 : 1}
-      pointerEvents={isDisabled ? 'none' : 'auto'}
-      onClick={isDisabled ? undefined : onClick}
+      onClick={onClick}
       aria-busy={loading || undefined}
-      data-arbor-focusable=""
       {...recipeProps}
       style={{ ...attachedStyle, ...style }}
       {...rest}

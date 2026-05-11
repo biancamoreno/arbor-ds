@@ -160,7 +160,6 @@ const recipes: ThemeRecipes = {
       borderWidth: '$button.borderWidth',
       borderStyle: 'solid',
       fontWeight: '$button.fontWeight',
-      cursor: 'pointer',
       transition: transition(['background-color', 'border-color', 'opacity', 'filter'], 'fast'),
       _hover: { opacity: 0.92 },
       _active: { opacity: 0.8 },

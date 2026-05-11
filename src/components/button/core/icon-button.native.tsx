@@ -2,20 +2,20 @@ import type { CSSProperties } from 'react';
 import type { ViewStyle } from 'react-native';
 import type { IconButtonProps } from '../interfaces';
 import { Button } from './button.native';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 
-const iconButtonSizeMap = {
-  small: { width: 32, height: 32 },
-  medium: { width: 40, height: 40 },
-  large: { width: 48, height: 48 },
-} as const;
+function parsePx(value: string | number): number {
+  if (typeof value === 'number') return value;
+  return parseFloat(value.replace('px', '')) || 0;
+}
 
 /**
  * @platform native
  *
  * `IconButton` em React Native: wrapper sobre `Button.native` que força
- * footprint quadrado/circular. Mesma API do equivalente web — `aria-label`
- * acaba forwardado e mapeado para `accessibilityLabel` pelo `Clickable.native`
- * usado dentro do `Button.native`.
+ * footprint quadrado/circular consumindo `theme.sizes.control.*` (themable).
+ * Mesma API do equivalente web — `aria-label` acaba forwardado e mapeado para
+ * `accessibilityLabel` pelo `Clickable.native` usado dentro do `Button.native`.
  *
  * @see {@link IconButtonProps}
  */
@@ -26,14 +26,17 @@ export function IconButton({
   style,
   ...props
 }: IconButtonProps) {
-  const sizing = iconButtonSizeMap[size];
+  const theme = useTheme();
+  const dimension = parsePx(theme.sizes.control[size]);
+  const radiusFull = typeof theme.radii.full === 'number' ? theme.radii.full : parsePx(theme.radii.full);
+  const radiusSmall = typeof theme.radii.small === 'number' ? theme.radii.small : parsePx(theme.radii.small);
   const overrideStyle: ViewStyle = {
-    width: sizing.width,
-    height: sizing.height,
-    minWidth: sizing.width,
+    width: dimension,
+    height: dimension,
+    minWidth: dimension,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    borderRadius: shape === 'circle' ? 999 : 12,
+    borderRadius: shape === 'circle' ? radiusFull : radiusSmall,
   };
 
   return (

@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-03 (RFC-0036 implementada — Card slot recipe + behavior split + paridade native + bleed via anatomia reflow; TD-038 fechada definitivamente; CSS global `.arbor-card-*` deletado do provider; 1002/1002 testes verdes).
+**Última atualização:** 2026-05-11 (PCV-8 entregue — Camada 3 da RFC-0042 em 2/4; TD-044 aberta para divergência sistêmica `Button.native` vs web — não consome `useRecipe('button')` nem `tokens.components.button.*`; suite 1104/1104 verde).
 
 ---
 
@@ -2377,6 +2377,48 @@ Stories candidatas em `src/components/carousel/core/carousel.stories.tsx`:
 - [ ] Causa-raiz identificada e documentada.
 - [ ] Fix aplicado com teste de regressão.
 - [ ] Storybook das 3 stories citadas valida visualmente quantidade correta de slides.
+
+---
+
+## TD-044 — `Button.native` em divergência sistêmica vs web
+
+**Origem:** PCV-8 — Camada 3 da RFC-0042 (2026-05-11)
+**Status:** Open
+**Severidade:** Alta (quebra de contrato themable cross-platform; override por `createTheme` não propaga em native)
+
+### Contexto
+
+`src/components/button/core/button.native.tsx` reimplementa cores, sizes e fontes do botão sem passar pela cascade canônica do tema:
+
+1. **Cores:** `getVariantColors(variant, theme)` lê `theme.colors.interactive.default`, `theme.colors.brand.bgElement`, `theme.colors.feedback.critical.solid` diretamente — ignora `theme.components.button.colors.{primary|secondary|ghost|danger}.{bg|border|text}` que a recipe `button` (web) consome via `useRecipe`.
+2. **Sizes/padding:** `buttonSizeMap = { small: { paddingHorizontal: 12, paddingVertical: 4, fontSize: 14 }, medium: ..., large: ... }` em px literal — ignora `theme.components.button.padding.*` + `theme.components.button.fontSize.*` (que o recipe web consome via `$button.padding.*`/`$button.fontSize.*`).
+3. **Border:** `borderWidth: 1` literal em vez de `$button.borderWidth` (= `'hairline'`).
+4. **Gap interno:** `gap: 8` em style — em vez de `$button.gap` (= `'micro'`).
+5. **Tipografia do Text interno:** `fontWeight: '500'` literal em style (recipe web usa `$button.fontWeight` = `'semibold'`/600).
+
+### Impacto
+
+- Consumidor que faz `createTheme(themeLight, { components: { button: { colors: { primary: { bg: '#FF3366' } } } } })` vê a mudança **somente no web**. Native continua renderizando `theme.colors.interactive.default` — quebra do contrato "createTheme propaga em ambas as plataformas".
+- Sweep visual da RFC-0041 PR2 (`button.fontWeight` `medium` → `semibold`) não chegou ao native — buttons mobile renderizam mais leves.
+- Validação dessa divergência precisa de matriz produto B native — hoje inexistente, então o gap fica silencioso.
+
+### Plano
+
+1. **Caminho preferencial:** migrar `button.native.tsx` para consumir `useRecipe('button', { variant, size })` igual ao web — engine native deve resolver as strings de token (`$button.colors.primary.bg`, etc.) contra o tema runtime. Validar com matriz produto B native.
+2. **Caminho alternativo (se `useRecipe` no native exigir mais infra):** substituir `getVariantColors`/`buttonSizeMap` por acessos a `theme.components.button.*` via `useToken('components', 'button.colors.primary.bg')` etc.
+3. Sweep paralelo: aplicar mesma migração em `button.native.tsx` para `gap`, `borderWidth`, `fontWeight`, `paddingHorizontal/Vertical`, `fontSize`.
+4. Possível RFC dedicada se gap se confirmar arquitetural (engine native não consumir `$` aliases).
+
+### Critério para fechar
+
+- [ ] `button.native.tsx` consome `theme.components.button.*` (via recipe ou acesso direto).
+- [ ] Override `createTheme({ components: { button: { colors: { primary: { bg: '...' } } } } })` propaga em ambas as plataformas (teste de matriz native).
+- [ ] Sem literais `12 | 4 | 14 | 16 | 8 | 20 | 1 | '500'` no arquivo (todos vindos do tema).
+- [ ] Teste de regressão garantindo paridade cromática web↔native.
+
+### Componentes correlatos (verificar drift análogo)
+
+`button.native.tsx` é o caso emblemático; varredura sugerida nos demais native que reimplementam visual em vez de consumir recipe: Tag, Chip, Card (já refatorado RFC-0036), Avatar (já RFC-0035), Tabs (já RFC-0038). Pode haver outros — abrir TD-044-correlated se aparecer no PCV-9/10/12.
 
 ---
 
