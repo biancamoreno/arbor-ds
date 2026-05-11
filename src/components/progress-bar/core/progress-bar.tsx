@@ -1,19 +1,19 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { Box } from '../../core';
-import { transition } from '../../../ecosystem/utils/functions';
-import { getFeedbackToneColor } from '../../../foundations';
 import type { ProgressBarProps } from '../interfaces';
 
-const HEIGHT_MAP = { small: 4, medium: 8, large: 12 } as const;
+type ProgressBarSlots = 'root' | 'fill' | 'indeterminate';
 
 /**
  * @platform shared
  *
  * Barra de progresso linear. `progress` é percentual 0-100 (clampado).
  * `indeterminate` ativa animação contínua quando o progresso não é
- * determinável. `tone` controla a cor do preenchimento
- * (`brand`/`success`/`warning`/`critical`/`info`); `size` define a altura
- * (`small` 4px, `medium` 8px, `large` 12px). `label` é texto SR-only para leitores.
+ * determinável. `tone` controla a cor do preenchimento; `size` controla a
+ * altura. Anatomia/cor/tamanho resolvidos pela slot recipe `progressBar` —
+ * override completo via `createTheme({ recipes: { progressBar: ... },
+ * components: { progressBar: ... } })`.
  *
  * @see {@link ProgressBarProps}
  */
@@ -23,13 +23,14 @@ export function ProgressBar({
   label,
   size = 'medium',
   tone = 'brand',
+  className,
   style,
-  ...props
 }: ProgressBarProps) {
   const theme = useTheme();
+  const slots = useSlotRecipe<ProgressBarSlots>('progressBar', { size, tone });
   const clampedProgress = Math.min(100, Math.max(0, progress));
-  const height = HEIGHT_MAP[size];
-  const fill = getFeedbackToneColor(theme, tone, 'base');
+  const { duration, easing } = theme.components.progressBar.indeterminate;
+  const indeterminateAnimation = `arbor-progress-indeterminate ${duration} ${easing} infinite`;
 
   return (
     <Box
@@ -39,35 +40,14 @@ export function ProgressBar({
       aria-valuemax={100}
       aria-label={label}
       aria-busy={indeterminate || undefined}
-      {...props}
-      position="relative"
-      width="100%"
-      borderRadius="full"
-      backgroundColor="background.subtle"
-      overflow="hidden"
-      style={{ height, ...style }}
+      className={className}
+      style={style}
+      {...slots.root}
     >
       {indeterminate ? (
-        <Box
-          position="absolute"
-          height="100%"
-          borderRadius="full"
-          style={{
-            width: '35%',
-            backgroundColor: fill,
-            animation: 'arbor-progress-indeterminate 2.1s cubic-bezier(0.65,0.815,0.735,0.395) infinite',
-          }}
-        />
+        <Box {...slots.indeterminate} style={{ animation: indeterminateAnimation }} />
       ) : (
-        <Box
-          height="100%"
-          borderRadius="full"
-          style={{
-            width: `${clampedProgress}%`,
-            backgroundColor: fill,
-            transition: transition(['width'], 'slow', 'standard'),
-          }}
-        />
+        <Box {...slots.fill} style={{ width: `${clampedProgress}%` }} />
       )}
     </Box>
   );

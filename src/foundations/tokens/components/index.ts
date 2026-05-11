@@ -11,6 +11,7 @@ export { dialog } from './dialog';
 export { drawer } from './drawer';
 export { field } from './field';
 export { input } from './input';
+export { progressBar } from './progress-bar';
 export { radio } from './radio';
 export { select } from './select';
 export { switchToken as switch } from './switch';

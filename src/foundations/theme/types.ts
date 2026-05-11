@@ -44,5 +44,6 @@ export type ThemeRecipes = {
   avatar?: SlotRecipeConfig;
   tabs?: SlotRecipeConfig;
   toast?: SlotRecipeConfig;
+  progressBar?: SlotRecipeConfig;
   [key: string]: RecipeConfig | SlotRecipeConfig | undefined;
 };

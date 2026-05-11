@@ -44,14 +44,20 @@ describe('ProgressBar', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0');
   });
 
-  it('aceita size small', () => {
-    render(<ProgressBar progress={50} size="small" />, { wrapper });
-    expect(screen.getByRole('progressbar').style.height).toBe('4px');
+  it('aceita size small (smoke; height aplicado via recipe — CSS class, não inline)', () => {
+    render(<ProgressBar progress={50} size="small" label="sm" />, { wrapper });
+    expect(screen.getByLabelText('sm')).toBeTruthy();
   });
 
-  it('aceita size large', () => {
-    render(<ProgressBar progress={50} size="large" />, { wrapper });
-    expect(screen.getByRole('progressbar').style.height).toBe('12px');
+  it('aceita size large (smoke; height aplicado via recipe — CSS class, não inline)', () => {
+    render(<ProgressBar progress={50} size="large" label="lg" />, { wrapper });
+    expect(screen.getByLabelText('lg')).toBeTruthy();
+  });
+
+  it('contrato de altura por size resolve via tokens', () => {
+    expect(themeLight.components.progressBar.height.small).toBe('4px');
+    expect(themeLight.components.progressBar.height.medium).toBe('8px');
+    expect(themeLight.components.progressBar.height.large).toBe('12px');
   });
 
   it('aceita tone success', () => {

@@ -679,6 +679,45 @@ const recipes: ThemeRecipes = {
     defaultVariants: { tone: 'neutral', variant: 'solid', size: 'medium' },
   }),
 
+  progressBar: defineSlotRecipe({
+    slots: ['root', 'fill', 'indeterminate'] as const,
+    base: {
+      root: {
+        position: 'relative',
+        width: '100%',
+        borderRadius: '$progressBar.borderRadius',
+        backgroundColor: '$progressBar.track.background',
+        overflow: 'hidden',
+      },
+      fill: {
+        height: '100%',
+        borderRadius: '$progressBar.borderRadius',
+        transition: transition(['width'], 'slow', 'standard'),
+      },
+      indeterminate: {
+        position: 'absolute',
+        height: '100%',
+        width: '$progressBar.indeterminate.width',
+        borderRadius: '$progressBar.borderRadius',
+      },
+    },
+    variants: {
+      size: {
+        small:  { root: { height: '$progressBar.height.small'  } },
+        medium: { root: { height: '$progressBar.height.medium' } },
+        large:  { root: { height: '$progressBar.height.large'  } },
+      },
+      tone: {
+        brand:    { fill: { backgroundColor: 'brand.solid'             }, indeterminate: { backgroundColor: 'brand.solid'             } },
+        success:  { fill: { backgroundColor: 'feedback.success.solid'  }, indeterminate: { backgroundColor: 'feedback.success.solid'  } },
+        warning:  { fill: { backgroundColor: 'feedback.warning.solid'  }, indeterminate: { backgroundColor: 'feedback.warning.solid'  } },
+        critical: { fill: { backgroundColor: 'feedback.critical.solid' }, indeterminate: { backgroundColor: 'feedback.critical.solid' } },
+        info:     { fill: { backgroundColor: 'feedback.info.solid'     }, indeterminate: { backgroundColor: 'feedback.info.solid'     } },
+      },
+    },
+    defaultVariants: { size: 'medium', tone: 'brand' },
+  }),
+
   card: defineSlotRecipe({
     slots: ['root', 'header', 'body', 'footer', 'media'] as const,
     base: {
