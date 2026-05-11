@@ -122,4 +122,5 @@ export const AVAILABLE_STYLE_PROPERTIES = new Set([
   'zIndex',
   'textTransform',
   'pointerEvents',
+  'cursor',
 ]);

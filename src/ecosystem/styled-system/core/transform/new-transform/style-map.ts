@@ -10,6 +10,7 @@ import {
   getOpacity,
   getRadius,
   getRawNumber,
+  getRawValue,
   getSize,
   getSpace,
   getTokenValueByScale,
@@ -112,5 +113,7 @@ styleMap.set('fontWeight', getFontWeight);
 styleMap.set('letterSpacing', getTokenValueByScale('letterSpacings'));
 styleMap.set('lineHeight', getLineHeight);
 styleMap.set('fontFamily', getTokenValueByScale('fonts'));
+styleMap.set('cursor', getRawValue);
+styleMap.set('pointerEvents', getRawValue);
 
 export { styleMap };

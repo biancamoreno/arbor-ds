@@ -133,3 +133,11 @@ export const getSpace = getNumericTokenByScale('space');
 export const getSize = getNumericTokenByScale('sizes');
 
 export const getRadius = getNumericTokenByScale('radii');
+
+/**
+ * Passthrough handler para props cujo valor é literal CSS sem token scale
+ * (ex: `cursor`, `pointerEvents`).
+ */
+export const getRawValue = (value: string, _theme: Theme, propKey: string) => ({
+  [propKey]: value,
+});
