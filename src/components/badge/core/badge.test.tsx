@@ -19,6 +19,11 @@ describe('Badge', () => {
     expect(screen.getByText('Label').tagName).toBe('SPAN');
   });
 
+  it('não expõe role="button"', () => {
+    render(<Badge>3</Badge>, { wrapper });
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
   it('aceita tone neutral', () => {
     render(<Badge tone="neutral">Neutro</Badge>, { wrapper });
     expect(screen.getByText('Neutro')).toBeTruthy();
@@ -49,14 +54,28 @@ describe('Badge', () => {
     expect(screen.getByText('Info')).toBeTruthy();
   });
 
-  it('aceita variant solid', () => {
-    render(<Badge variant="solid">Sólido</Badge>, { wrapper });
-    expect(screen.getByText('Sólido')).toBeTruthy();
+  it('aceita variant subtle', () => {
+    render(<Badge variant="subtle">Sutil</Badge>, { wrapper });
+    expect(screen.getByText('Sutil')).toBeTruthy();
   });
 
   it('aceita size small', () => {
     render(<Badge size="small">Small</Badge>, { wrapper });
     expect(screen.getByText('Small')).toBeTruthy();
+  });
+
+  it('renderiza com icon e children', () => {
+    render(
+      <Badge icon={<span data-testid="ic">★</span>}>3</Badge>,
+      { wrapper },
+    );
+    expect(screen.getByTestId('ic')).toBeTruthy();
+    expect(screen.getByText('3')).toBeTruthy();
+  });
+
+  it('renderiza com icon sem children (dot/ícone puro)', () => {
+    render(<Badge icon={<span data-testid="dot">●</span>} />, { wrapper });
+    expect(screen.getByTestId('dot')).toBeTruthy();
   });
 
   it('Badge.Anchor posiciona badge sobre o elemento', () => {

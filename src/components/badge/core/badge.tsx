@@ -1,69 +1,59 @@
 import React from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
-import { Box, Flex } from '../../core';
-import { getFeedbackToneColor, type FeedbackTone } from '../../../foundations';
+import { Box } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import type { BadgeProps, BadgeAnchorProps } from '../interfaces';
 
-function getBadgeColors(
-  tone: FeedbackTone,
-  variant: NonNullable<BadgeProps['variant']>,
-  theme: ReturnType<typeof useTheme>,
-) {
-  const isSolid = variant === 'solid';
-  const bg = getFeedbackToneColor(theme, tone, isSolid ? 'base' : 'subtle');
-  const text = isSolid ? theme.colors.text.inverse : getFeedbackToneColor(theme, tone, 'strong');
-  const border = bg;
-  return { bg, text, border };
-}
+type BadgeSlots = 'root' | 'label' | 'icon';
 
-function BadgeRoot({ children, tone = 'neutral', variant = 'subtle', size = 'medium', style, ...props }: BadgeProps) {
-  const theme = useTheme();
-  const colors = getBadgeColors(tone, variant, theme);
-  const padding = size === 'small' ? '2px 6px' : '3px 8px';
-  const fontSize = theme.fontSizes.xsmall;
+/**
+ * @platform shared
+ *
+ * Indicador denso textual/numérico. Renderiza um `<span>` estilizado pela slot
+ * recipe `badge` (`tone × variant × size`). Anatomia e cor resolvidas via
+ * tokens (`tokens/components/badge.ts`) — produto consumidor consegue override
+ * completo via `createTheme({ recipes: { badge: ... }, components: { badge: ... } })`.
+ *
+ * Para indicador clicável/selecionável, use `Chip` (RFC-0033).
+ *
+ * @see {@link BadgeProps}
+ */
+function BadgeRoot({
+  children,
+  icon,
+  tone = 'neutral',
+  variant = 'solid',
+  size = 'medium',
+  className,
+  style,
+}: BadgeProps) {
+  const slots = useSlotRecipe<BadgeSlots>('badge', { tone, variant, size });
+  const hasIcon = icon != null;
+  const hasChildren = children != null && children !== '';
 
   return (
-    <Flex
-      as="span"
-      {...props}
-      display="inline-flex"
-      alignItems="center"
-      justifyContent="center"
-      gap="4px"
-      borderRadius="full"
-      borderWidth={1}
-      borderStyle="solid"
-      backgroundColor={colors.bg}
-      color={colors.text}
-      borderColor={colors.border}
-      fontWeight="medium"
-      style={{
-        padding,
-        fontSize,
-        lineHeight: 1.4,
-        whiteSpace: 'nowrap',
-        ...style,
-      }}
-    >
-      {children}
-    </Flex>
+    <Box as="span" className={className} style={style} {...slots.root}>
+      {hasIcon && <Box as="span" {...slots.icon}>{icon}</Box>}
+      {hasChildren && (hasIcon
+        ? <Box as="span" {...slots.label}>{children}</Box>
+        : children)}
+    </Box>
   );
 }
 
 BadgeRoot.displayName = 'Badge';
 
-function BadgeAnchor({ children, badge, placement = 'top-right', style, ...props }: BadgeAnchorProps) {
+function BadgeAnchor({ children, badge, placement = 'top-right', style, className }: BadgeAnchorProps) {
   const placementStyle: Record<NonNullable<BadgeAnchorProps['placement']>, React.CSSProperties> = {
-    'top-right': { top: 0, right: 0, transform: 'translate(50%, -50%)' },
-    'top-left': { top: 0, left: 0, transform: 'translate(-50%, -50%)' },
+    'top-right':    { top: 0,    right: 0, transform: 'translate(50%, -50%)' },
+    'top-left':     { top: 0,    left: 0,  transform: 'translate(-50%, -50%)' },
     'bottom-right': { bottom: 0, right: 0, transform: 'translate(50%, 50%)' },
-    'bottom-left': { bottom: 0, left: 0, transform: 'translate(-50%, 50%)' },
+    'bottom-left':  { bottom: 0, left: 0,  transform: 'translate(-50%, 50%)' },
   };
 
   return (
     <Box
       as="span"
-      {...props}
+      className={className}
       position="relative"
       display="inline-flex"
       style={style}
@@ -77,21 +67,15 @@ function BadgeAnchor({ children, badge, placement = 'top-right', style, ...props
 BadgeAnchor.displayName = 'Badge.Anchor';
 
 /**
- * @platform shared
- *
- * Compound de badge — pequeno indicador numérico/textual. Standalone exibe
- * apenas o conteúdo; junto com `Badge.Anchor` posiciona-se sobreposto a um
- * elemento âncora (ícone, avatar). `Badge.Root` controla `tone`, `variant`
- * (`solid`/`subtle`) e `size`.
+ * Compound de badge.
  *
  * @example
  * // Badge sobre um avatar:
- * <Badge.Anchor>
+ * <Badge.Anchor badge={<Badge tone="critical" size="small">3</Badge>}>
  *   <Avatar><Avatar.Image src={url} /></Avatar>
- *   <Badge tone="critical">3</Badge>
  * </Badge.Anchor>
  *
- * @see {@link BadgeRootProps}
+ * @see {@link BadgeProps}
  */
 export const Badge = Object.assign(BadgeRoot, {
   Root: BadgeRoot,

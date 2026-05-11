@@ -73,8 +73,8 @@ describe('multi-product theming matrix', () => {
   });
 
   it('Badge renders within product B without crashing', () => {
-    render(<Badge data-testid="badge">3</Badge>, { wrapper: Wrapper });
-    expect(screen.getByTestId('badge')).toBeTruthy();
+    render(<Badge>3</Badge>, { wrapper: Wrapper });
+    expect(screen.getByText('3')).toBeTruthy();
   });
 
   it('Avatar renders within product B without crashing', () => {

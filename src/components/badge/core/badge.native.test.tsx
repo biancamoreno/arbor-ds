@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text as RNText } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 import { createTheme, themeLight } from '../../../foundations';
 import { ArborProvider } from '../../../ecosystem/styled-system';
@@ -11,12 +12,12 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe('Badge (native)', () => {
-  it('renders children', () => {
+  it('renderiza children como texto', () => {
     render(<Badge>3</Badge>, { wrapper: Wrapper });
     expect(screen.getByText('3')).toBeTruthy();
   });
 
-  it('renders with tone and variant props', () => {
+  it('aceita tone × variant', () => {
     render(
       <Badge tone="critical" variant="solid">
         Erro
@@ -26,7 +27,31 @@ describe('Badge (native)', () => {
     expect(screen.getByText('Erro')).toBeTruthy();
   });
 
-  it('renders Badge.Anchor with badge slot', () => {
+  it('aceita variant subtle', () => {
+    render(
+      <Badge tone="info" variant="subtle">
+        Info
+      </Badge>,
+      { wrapper: Wrapper }
+    );
+    expect(screen.getByText('Info')).toBeTruthy();
+  });
+
+  it('renderiza com icon e children', () => {
+    render(
+      <Badge icon={<RNText>★</RNText>}>3</Badge>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByText('★')).toBeTruthy();
+    expect(screen.getByText('3')).toBeTruthy();
+  });
+
+  it('não expõe accessibilityRole="button"', () => {
+    render(<Badge>x</Badge>, { wrapper: Wrapper });
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('renderiza Badge.Anchor com badge slot', () => {
     render(
       <Badge.Anchor badge={<Badge tone="critical">9</Badge>}>
         <Badge>icon</Badge>

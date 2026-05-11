@@ -1,12 +1,14 @@
 export const badge = {
+  gap: 'nano',
   borderRadius: 'full',
+  borderWidth: 'hairline',
   fontWeight: 'medium',
   padding: {
-    small: { inline: 'micro', block: 'nano' },
-    medium: { inline: 'small', block: 'nano' },
+    small:  { inline: 'micro', block: 'nano' },
+    medium: { inline: 'tiny',  block: 'nano' },
   },
   fontSize: {
-    small: 'xsmall',
+    small:  'xsmall',
     medium: 'xsmall',
   },
 };

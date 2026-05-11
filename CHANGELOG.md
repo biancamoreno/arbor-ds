@@ -4,6 +4,14 @@
 
 ### Breaking
 
+- **RFC-0042 PCV-11 — `Badge` migrado para slot recipe + tokens; default `variant` mudou de `'subtle'` para `'solid'`.** Pré-v1, sem aliases legacy (precedente TD-012).
+  - **Default visual:** `Badge.variant` default `'subtle'` → `'solid'`. Identidade do Badge é indicador denso de alta saliência (contagem/dot sobre Avatar/Icon/IconButton). Consumidores que dependiam de `subtle` por omissão devem passar `variant="subtle"` explicitamente. Padrão simétrico com Tag (default `'outline'`, discreto) e Badge (default `'solid'`, enfático).
+  - **API adicionada:** `icon?: ReactNode` — ícone opcional renderizado antes de `children`. Quando presente, slot `icon` da recipe aplica `display: inline-flex` + `flexShrink: 0`. Tipicamente `<Icon name="..." size="xsmall" decorative />`. Permite badge "ícone-puro" (sem children + ícone único) para dot decorativo.
+  - **Estrutura interna:** `badge.tsx` migrou de `<Flex as="span">` com `style` inline + helper JS `getBadgeColors` para `<Box as="span">` consumindo slot recipe `useSlotRecipe('badge', { tone, variant, size })`. `useTheme()` e `getFeedbackToneColor` removidos do componente. Override completo via `createTheme({ recipes: { badge: ... }, components: { badge: ... } })`.
+  - **Recipe `badge` (base-theme):** promovida de recipe simples para slot recipe com slots `['root', 'label', 'icon']`. Ganha axes `tone` (6 valores) e `variant` (`solid`/`subtle`) + 12 compoundVariants (`tone × variant`) com mapeamento por alias string (`brand.solid`, `feedback.success.text` etc.). Override do tema propaga via cascata.
+  - **`tokens/components/badge.ts`:** ganha `gap: 'nano'` (era `gap="4px"` literal) e `borderWidth: 'hairline'` (era `borderWidth={1}` literal). `padding.small.block` 2px literal → `nano` (4); `padding.medium.block` 3px literal → `nano` (4). `padding.{small,medium}.inline` permanecem `micro`/`tiny`. `fontSize.{small,medium}` permanecem ambos `xsmall` (sem hierarquia tipográfica entre sizes — diferenciação só por padding, identidade ultradensa).
+  - **Cross-platform:** novo `badge.native.tsx` (antes Badge era `@platform shared` sem implementação dedicada). RN agora envolve children em `<Text>` por construção, evitando string-as-child-of-View. `Badge.Anchor` native usa offsets `top/right -8px` em vez de `transform translate(±50%, ±50%)` (RN não tem porcentagem confiável de translate).
+
 - **RFC-0042 PCV-10 — `Tag` decorativa pura (sem mais comportamento interativo).** Pré-v1, sem aliases legacy (precedente TD-012).
   - **API removida:** `onClick`, `selected`, `disabled`.
   - **API adicionada:** `variant: 'solid' | 'outline'` (default `'outline'`) — substitui `selected` como discriminador visual. Anatomia/cor inalteradas (mesmas 12 compoundVariants `tone × variant`).

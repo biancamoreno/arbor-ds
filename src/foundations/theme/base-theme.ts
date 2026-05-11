@@ -616,29 +616,68 @@ const recipes: ThemeRecipes = {
     defaultVariants: {},
   }),
 
-  badge: {
+  badge: defineSlotRecipe({
+    slots: ['root', 'label', 'icon'] as const,
     base: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      borderRadius: '$badge.borderRadius',
-      fontWeight: '$badge.fontWeight',
+      root: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '$badge.gap',
+        borderRadius: '$badge.borderRadius',
+        borderWidth: '$badge.borderWidth',
+        borderStyle: 'solid',
+        fontFamily: 'sans',
+        fontWeight: '$badge.fontWeight',
+        lineHeight: 'xsmall',
+      },
+      label: {},
+      icon: { display: 'inline-flex', alignItems: 'center', flexShrink: 0 },
     },
     variants: {
       size: {
         small: {
-          paddingInline: '$badge.padding.small.inline',
-          paddingBlock: '$badge.padding.small.block',
-          fontSize: '$badge.fontSize.small',
+          root: {
+            paddingLeft: '$badge.padding.small.inline',
+            paddingRight: '$badge.padding.small.inline',
+            paddingTop: '$badge.padding.small.block',
+            paddingBottom: '$badge.padding.small.block',
+            fontSize: '$badge.fontSize.small',
+          },
         },
         medium: {
-          paddingInline: '$badge.padding.medium.inline',
-          paddingBlock: '$badge.padding.medium.block',
-          fontSize: '$badge.fontSize.medium',
+          root: {
+            paddingLeft: '$badge.padding.medium.inline',
+            paddingRight: '$badge.padding.medium.inline',
+            paddingTop: '$badge.padding.medium.block',
+            paddingBottom: '$badge.padding.medium.block',
+            fontSize: '$badge.fontSize.medium',
+          },
         },
       },
+      tone: {
+        neutral: {}, brand: {}, success: {}, warning: {}, critical: {}, info: {},
+      },
+      variant: {
+        solid: {}, subtle: {},
+      },
     },
-    defaultVariants: { size: 'medium' },
-  },
+    compoundVariants: [
+      { conditions: { tone: 'neutral',  variant: 'solid'  }, style: { root: { backgroundColor: 'text.secondary',            borderColor: 'text.secondary',                color: 'text.inverse'              } } },
+      { conditions: { tone: 'neutral',  variant: 'subtle' }, style: { root: { backgroundColor: 'background.subtle',         borderColor: 'border.subtle',                 color: 'text.secondary'            } } },
+      { conditions: { tone: 'brand',    variant: 'solid'  }, style: { root: { backgroundColor: 'brand.solid',               borderColor: 'brand.solid',                   color: 'text.inverse'              } } },
+      { conditions: { tone: 'brand',    variant: 'subtle' }, style: { root: { backgroundColor: 'brand.bgSubtle',            borderColor: 'brand.borderSubtle',            color: 'brand.text'                } } },
+      { conditions: { tone: 'success',  variant: 'solid'  }, style: { root: { backgroundColor: 'feedback.success.solid',    borderColor: 'feedback.success.solid',        color: 'text.inverse'              } } },
+      { conditions: { tone: 'success',  variant: 'subtle' }, style: { root: { backgroundColor: 'feedback.success.bgSubtle', borderColor: 'feedback.success.borderSubtle', color: 'feedback.success.text'     } } },
+      { conditions: { tone: 'warning',  variant: 'solid'  }, style: { root: { backgroundColor: 'feedback.warning.solid',    borderColor: 'feedback.warning.solid',        color: 'text.inverse'              } } },
+      { conditions: { tone: 'warning',  variant: 'subtle' }, style: { root: { backgroundColor: 'feedback.warning.bgSubtle', borderColor: 'feedback.warning.borderSubtle', color: 'feedback.warning.text'     } } },
+      { conditions: { tone: 'critical', variant: 'solid'  }, style: { root: { backgroundColor: 'feedback.critical.solid',   borderColor: 'feedback.critical.solid',       color: 'text.inverse'              } } },
+      { conditions: { tone: 'critical', variant: 'subtle' }, style: { root: { backgroundColor: 'feedback.critical.bgSubtle',borderColor: 'feedback.critical.borderSubtle',color: 'feedback.critical.text'    } } },
+      { conditions: { tone: 'info',     variant: 'solid'  }, style: { root: { backgroundColor: 'feedback.info.solid',       borderColor: 'feedback.info.solid',           color: 'text.inverse'              } } },
+      { conditions: { tone: 'info',     variant: 'subtle' }, style: { root: { backgroundColor: 'feedback.info.bgSubtle',    borderColor: 'feedback.info.borderSubtle',    color: 'feedback.info.text'        } } },
+    ],
+    defaultVariants: { tone: 'neutral', variant: 'solid', size: 'medium' },
+  }),
 
   card: defineSlotRecipe({
     slots: ['root', 'header', 'body', 'footer', 'media'] as const,
