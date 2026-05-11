@@ -1,6 +1,6 @@
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { transition } from '../../../ecosystem/utils/functions';
-import { getToneColor } from '../internal/colors';
+import { getFeedbackToneColor } from '../../../foundations';
 import type { ProgressCircleProps } from '../interfaces';
 
 /**
@@ -8,30 +8,36 @@ import type { ProgressCircleProps } from '../interfaces';
  *
  * Indicador circular de progresso renderizado em SVG. `progress` é
  * percentual 0-100 (clampado). `indeterminate` ativa rotação contínua
- * quando o progresso não é determinável. `size` em px (default `48`),
- * `strokeWidth` controla a espessura da circunferência (default `4`).
- * `tone` (`brand`/`success`/`warning`/`critical`/`info`) define a cor do
- * traço. `label` é texto SR-only.
+ * quando o progresso não é determinável. `size` é nominal SP-1
+ * (`small`/`medium`/`large`) — diâmetro e strokeWidth resolvem via
+ * `theme.components.progressCircle.{size,strokeWidth}.{size}`.
+ * `tone` define a cor do traço. `label` é texto SR-only para leitores.
  *
  * @see {@link ProgressCircleProps}
  */
 export function ProgressCircle({
   progress,
   indeterminate = false,
-  size = 48,
-  strokeWidth = 4,
+  size = 'medium',
+  strokeWidth,
   tone = 'brand',
   label,
   style,
   testID,
 }: ProgressCircleProps) {
   const theme = useTheme();
+  const tokens = theme.components.progressCircle;
+  const diameter = tokens.size[size];
+  const stroke = strokeWidth ?? tokens.strokeWidth[size];
   const clampedProgress = Math.min(100, Math.max(0, progress));
 
-  const r = (size - strokeWidth * 2) / 2;
+  const r = (diameter - stroke * 2) / 2;
   const circumference = 2 * Math.PI * r;
-  const offset = indeterminate ? circumference * 0.75 : circumference * (1 - clampedProgress / 100);
-  const traceColor = getToneColor(tone, theme);
+  const offset = indeterminate
+    ? circumference * tokens.indeterminate.offsetRatio
+    : circumference * (1 - clampedProgress / 100);
+  const traceColor = getFeedbackToneColor(theme, tone, 'base');
+  const trackColor = theme.colors.background.subtle;
 
   return (
     <svg
@@ -42,29 +48,29 @@ export function ProgressCircle({
       aria-label={label}
       aria-busy={indeterminate || undefined}
       data-testid={testID}
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
+      width={diameter}
+      height={diameter}
+      viewBox={`0 0 ${diameter} ${diameter}`}
       fill="none"
       style={{
         transform: indeterminate ? undefined : 'rotate(-90deg)',
-        animation: indeterminate ? 'arbor-spin 1.2s linear infinite' : undefined,
+        animation: indeterminate ? `arbor-spin ${tokens.indeterminate.duration} linear infinite` : undefined,
         ...style,
       }}
     >
       <circle
-        cx={size / 2}
-        cy={size / 2}
+        cx={diameter / 2}
+        cy={diameter / 2}
         r={r}
-        stroke={theme.colors.background.subtle}
-        strokeWidth={strokeWidth}
+        stroke={trackColor}
+        strokeWidth={stroke}
       />
       <circle
-        cx={size / 2}
-        cy={size / 2}
+        cx={diameter / 2}
+        cy={diameter / 2}
         r={r}
         stroke={traceColor}
-        strokeWidth={strokeWidth}
+        strokeWidth={stroke}
         strokeLinecap="round"
         strokeDasharray={circumference}
         strokeDashoffset={offset}

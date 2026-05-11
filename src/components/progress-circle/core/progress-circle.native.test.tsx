@@ -32,8 +32,8 @@ describe('ProgressCircle (native)', () => {
     expect(screen.getByLabelText('Abaixo').props.accessibilityValue.now).toBe(0);
   });
 
-  it('aceita size customizado', () => {
-    render(<ProgressCircle progress={50} size={64} label="S" />, { wrapper: Wrapper });
+  it('aceita size nominal SP-1 (large → 64px via tokens)', () => {
+    render(<ProgressCircle progress={50} size="large" label="S" />, { wrapper: Wrapper });
     const node = screen.getByLabelText('S');
     const flat = Array.isArray(node.props.style)
       ? Object.assign({}, ...node.props.style)

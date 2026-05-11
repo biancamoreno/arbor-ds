@@ -17,9 +17,18 @@ export interface ProgressCircleProps {
   progress: number;
   /** Quando true, exibe animação de progresso indeterminado. */
   indeterminate?: boolean;
-  /** Diâmetro em px. Default: 48. */
-  size?: number;
-  /** Espessura do traço. Default: 4. */
+  /**
+   * Tamanho nominal SP-1. Resolve diâmetro via
+   * `theme.components.progressCircle.size.{size}` (24/48/64 default).
+   * Para tamanhos arbitrários, override via `createTheme`.
+   *
+   * @default 'medium'
+   */
+  size?: 'small' | 'medium' | 'large';
+  /**
+   * Espessura do traço em px. Override pontual; default resolve via
+   * `theme.components.progressCircle.strokeWidth.{size}`.
+   */
   strokeWidth?: number;
   /**
    * Subset de `FeedbackTone` excluindo `neutral` — paridade com `ProgressBar`

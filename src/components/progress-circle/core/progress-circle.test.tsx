@@ -36,9 +36,14 @@ describe('ProgressCircle', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0');
   });
 
-  it('aceita size customizado', () => {
-    render(<ProgressCircle progress={50} size={64} />, { wrapper });
+  it('aceita size nominal SP-1 (large → 64px via tokens)', () => {
+    render(<ProgressCircle progress={50} size="large" />, { wrapper });
     expect(screen.getByRole('progressbar').getAttribute('width')).toBe('64');
+  });
+
+  it('aceita size nominal SP-1 (small → 24px via tokens)', () => {
+    render(<ProgressCircle progress={50} size="small" />, { wrapper });
+    expect(screen.getByRole('progressbar').getAttribute('width')).toBe('24');
   });
 
   it('aceita aria-label via prop label', () => {
