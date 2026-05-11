@@ -1,36 +1,24 @@
 import React, { Children, isValidElement, useState } from 'react';
 import { Box, Flex, Image } from '../../core';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { AvatarContext, useAvatarContext } from '../context/avatar-context';
 import type {
   AvatarRootProps,
   AvatarImageProps,
   AvatarFallbackProps,
   AvatarGroupProps,
-  AvatarSize,
 } from '../interfaces';
 
-const sizeToken = (size: AvatarSize) => `avatar.${size}` as const;
+type AvatarSlots = 'root' | 'image' | 'fallback' | 'overflow';
 
 function AvatarRoot({ size = 'medium', shape = 'circle', children, className, style }: AvatarRootProps) {
   const [imageStatus, setImageStatus] = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
+  const slots = useSlotRecipe<AvatarSlots>('avatar', { size, shape });
 
   return (
     <AvatarContext.Provider value={{ imageStatus, setImageStatus }}>
-      <Flex
-        as="span"
-        display="inline-flex"
-        alignItems="center"
-        justifyContent="center"
-        borderRadius={shape === 'circle' ? 'full' : 'small'}
-        backgroundColor="background.subtle"
-        overflow="hidden"
-        flexShrink={0}
-        width={sizeToken(size)}
-        height={sizeToken(size)}
-        className={className}
-        style={style}
-      >
+      <Flex as="span" className={className} style={style} {...slots.root}>
         {children}
       </Flex>
     </AvatarContext.Provider>
@@ -39,14 +27,16 @@ function AvatarRoot({ size = 'medium', shape = 'circle', children, className, st
 
 function AvatarImage({ src, alt, onLoad, onError, style }: AvatarImageProps) {
   const { setImageStatus } = useAvatarContext();
+  const slots = useSlotRecipe<AvatarSlots>('avatar');
+  const imageStyle = (slots.image ?? {}) as Record<string, unknown>;
 
   return (
     <Image
       mode="img"
       source={src}
       alt={alt}
-      width="100%"
-      height="100%"
+      width={imageStyle.width as string | number | undefined}
+      height={imageStyle.height as string | number | undefined}
       resizeMode="cover"
       fallback="none"
       errorFallback="none"
@@ -60,6 +50,7 @@ function AvatarImage({ src, alt, onLoad, onError, style }: AvatarImageProps) {
 function AvatarFallback({ children, delayMs = 0, className, style }: AvatarFallbackProps) {
   const { imageStatus } = useAvatarContext();
   const [show, setShow] = React.useState(delayMs === 0);
+  const slots = useSlotRecipe<AvatarSlots>('avatar');
 
   React.useEffect(() => {
     if (delayMs === 0) return;
@@ -70,20 +61,7 @@ function AvatarFallback({ children, delayMs = 0, className, style }: AvatarFallb
   if (!show || imageStatus === 'loaded') return null;
 
   return (
-    <Flex
-      as="span"
-      aria-hidden="true"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      width="100%"
-      height="100%"
-      fontSize="small"
-      fontWeight="medium"
-      color="text.secondary"
-      className={className}
-      style={style}
-    >
+    <Flex as="span" aria-hidden="true" className={className} style={style} {...slots.fallback}>
       {children}
     </Flex>
   );
@@ -91,11 +69,11 @@ function AvatarFallback({ children, delayMs = 0, className, style }: AvatarFallb
 
 function AvatarGroup({ children, max, size = 'medium', className, style }: AvatarGroupProps) {
   const theme = useTheme();
+  const slots = useSlotRecipe<AvatarSlots>('avatar', { size, shape: 'circle' });
   const childArray = Children.toArray(children).filter(isValidElement);
   const visible = max !== undefined ? childArray.slice(0, max) : childArray;
   const overflow = max !== undefined ? childArray.length - max : 0;
-  const overlapValue = theme.sizes.avatarOverlap[size];
-  const negativeOverlap = `-${overlapValue}`;
+  const negativeOverlap = `-${theme.sizes.avatarOverlap[size]}`;
 
   return (
     <Flex
@@ -121,17 +99,8 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
       {overflow > 0 && (
         <Flex
           as="span"
+          {...slots.overflow}
           position="relative"
-          display="inline-flex"
-          alignItems="center"
-          justifyContent="center"
-          width={sizeToken(size)}
-          height={sizeToken(size)}
-          borderRadius="full"
-          backgroundColor="background.interactive"
-          fontSize="xsmall"
-          fontWeight="medium"
-          color="text.secondary"
           marginLeft={negativeOverlap as unknown as number}
           zIndex={0}
           boxShadow="avatarRing"
@@ -152,8 +121,9 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
  * `Avatar.Fallback` exibe iniciais ou conteúdo customizado em loading/erro
  * (`delayMs` evita flash).
  *
- * Tamanhos resolvem via `theme.sizes.avatar.{size}` — override completo
- * via `createTheme`.
+ * Anatomia e cor (tamanhos, shape, background placeholder, fallback color,
+ * overflow color) resolvidas pela slot recipe `avatar` — override completo
+ * via `createTheme({ recipes: { avatar: ... }, components: { avatar: ... } })`.
  *
  * @example
  * <Avatar size="medium">
@@ -174,8 +144,10 @@ export const Avatar = Object.assign(AvatarRoot, {
  *
  * Empilha múltiplos `Avatar` lado a lado com sobreposição negativa
  * (`theme.sizes.avatarOverlap.{size}`). Quando o número de filhos excede
- * `max`, exibe um avatar contador com `+N`. Anel via `shadows.avatarRing`
- * (web) — produto pode redefinir cor/espessura via `createTheme`.
+ * `max`, exibe um avatar contador com `+N` cuja anatomia é resolvida pelo
+ * slot `overflow` da recipe `avatar` (cores temáticas via tokens). Anel
+ * via `shadows.avatarRing` (web) — produto pode redefinir cor/espessura
+ * via `createTheme`.
  *
  * @see {@link AvatarGroupProps}
  */

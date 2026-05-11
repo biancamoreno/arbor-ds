@@ -1,35 +1,24 @@
 import React, { Children, isValidElement, useState } from 'react';
 import { Box, Flex, Image, Text } from '../../core';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { AvatarContext, useAvatarContext } from '../context/avatar-context';
 import type {
   AvatarRootProps,
   AvatarImageProps,
   AvatarFallbackProps,
   AvatarGroupProps,
-  AvatarSize,
 } from '../interfaces';
 
-const sizeToken = (size: AvatarSize) => `avatar.${size}` as const;
+type AvatarSlots = 'root' | 'image' | 'fallback' | 'overflow';
 
 function AvatarRoot({ size = 'medium', shape = 'circle', children, className, style }: AvatarRootProps) {
   const [imageStatus, setImageStatus] = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
+  const slots = useSlotRecipe<AvatarSlots>('avatar', { size, shape });
 
   return (
     <AvatarContext.Provider value={{ imageStatus, setImageStatus }}>
-      <Flex
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        borderRadius={shape === 'circle' ? 'full' : 'small'}
-        backgroundColor="background.subtle"
-        overflow="hidden"
-        flexShrink={0}
-        width={sizeToken(size)}
-        height={sizeToken(size)}
-        className={className}
-        style={style}
-      >
+      <Flex className={className} style={style} {...slots.root} display="flex">
         {children}
       </Flex>
     </AvatarContext.Provider>
@@ -38,14 +27,16 @@ function AvatarRoot({ size = 'medium', shape = 'circle', children, className, st
 
 function AvatarImage({ src, alt, onLoad, onError, style }: AvatarImageProps) {
   const { setImageStatus } = useAvatarContext();
+  const slots = useSlotRecipe<AvatarSlots>('avatar');
+  const imageStyle = (slots.image ?? {}) as Record<string, unknown>;
 
   return (
     <Image
       mode="img"
       source={src}
       alt={alt}
-      width="100%"
-      height="100%"
+      width={imageStyle.width as string | number | undefined}
+      height={imageStyle.height as string | number | undefined}
       resizeMode="cover"
       fallback="none"
       errorFallback="none"
@@ -59,6 +50,7 @@ function AvatarImage({ src, alt, onLoad, onError, style }: AvatarImageProps) {
 function AvatarFallback({ children, delayMs = 0, className, style }: AvatarFallbackProps) {
   const { imageStatus } = useAvatarContext();
   const [show, setShow] = React.useState(delayMs === 0);
+  const slots = useSlotRecipe<AvatarSlots>('avatar');
 
   React.useEffect(() => {
     if (delayMs === 0) return;
@@ -68,31 +60,32 @@ function AvatarFallback({ children, delayMs = 0, className, style }: AvatarFallb
 
   if (!show || imageStatus === 'loaded') return null;
 
+  const fallbackStyles = (slots.fallback ?? {}) as Record<string, unknown>;
+  const textColor = fallbackStyles.color as string | undefined;
+  const textFontSize = fallbackStyles.fontSize as string | undefined;
+  const textFontWeight = fallbackStyles.fontWeight as string | undefined;
+
   return (
-    <Flex
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      width="100%"
-      height="100%"
-      fontSize="small"
-      fontWeight="medium"
-      color="text.secondary"
-      className={className}
-      style={style}
-    >
-      {children}
+    <Flex className={className} style={style} {...slots.fallback} display="flex">
+      <Text color={textColor} fontSize={textFontSize} fontWeight={textFontWeight}>
+        {children}
+      </Text>
     </Flex>
   );
 }
 
 function AvatarGroup({ children, max, size = 'medium', className, style }: AvatarGroupProps) {
   const theme = useTheme();
+  const slots = useSlotRecipe<AvatarSlots>('avatar', { size, shape: 'circle' });
   const childArray = Children.toArray(children).filter(isValidElement);
   const visible = max !== undefined ? childArray.slice(0, max) : childArray;
   const overflow = max !== undefined ? childArray.length - max : 0;
-  const overlapValue = theme.sizes.avatarOverlap[size];
-  const negativeOverlap = `-${overlapValue}`;
+  const negativeOverlap = `-${theme.sizes.avatarOverlap[size]}`;
+
+  const overflowStyles = (slots.overflow ?? {}) as Record<string, unknown>;
+  const overflowTextColor = overflowStyles.color as string | undefined;
+  const overflowFontSize = overflowStyles.fontSize as string | undefined;
+  const overflowFontWeight = overflowStyles.fontWeight as string | undefined;
 
   return (
     <Flex display="flex" flexDirection="row" alignItems="center" className={className} style={style}>
@@ -112,24 +105,18 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
       ))}
       {overflow > 0 && (
         <Flex
+          {...slots.overflow}
           position="relative"
           display="flex"
-          alignItems="center"
-          justifyContent="center"
-          width={sizeToken(size)}
-          height={sizeToken(size)}
-          borderRadius="full"
           borderWidth={2}
           borderStyle="solid"
           borderColor="surface.default"
-          backgroundColor="background.interactive"
-          fontSize="xsmall"
-          fontWeight="medium"
-          color="text.secondary"
           marginLeft={negativeOverlap as unknown as number}
           zIndex={0}
         >
-          <Text fontSize="xsmall" fontWeight="medium" color="text.secondary">+{overflow}</Text>
+          <Text color={overflowTextColor} fontSize={overflowFontSize} fontWeight={overflowFontWeight}>
+            +{overflow}
+          </Text>
         </Flex>
       )}
     </Flex>
@@ -139,15 +126,16 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
 /**
  * @platform native
  *
- * Avatar em React Native — paridade com web pós-RFC-0035.
+ * Avatar em React Native — paridade com web pós-RFC-0035 + PCV-13.
  *
  * - `Avatar.Image` consome `<Image>` do DS (já cross-platform via
- *   RFC-0011/0012). Sem fork de implementação.
+ *   RFC-0011/0012).
+ * - `Avatar.Fallback` extrai `color`/`fontSize`/`fontWeight` da slot recipe
+ *   e aplica em um `<Text>` interno (RN não cascateia text props de View).
  * - `AvatarGroup` substitui `boxShadow: 'avatarRing'` (CSS-only) por
  *   `borderWidth: 2` + `borderColor: 'surface.default'` — efeito visual
  *   equivalente, suportado pelo runtime native.
- * - Tamanhos via `theme.sizes.avatar.{size}` e overlap via
- *   `theme.sizes.avatarOverlap.{size}`.
+ * - Tamanhos/shape/cores via slot recipe `avatar` (PCV-13).
  *
  * @see {@link AvatarRootProps}
  * @see RFC-0035

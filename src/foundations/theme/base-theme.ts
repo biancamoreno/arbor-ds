@@ -905,22 +905,77 @@ const recipes: ThemeRecipes = {
   }),
 
   avatar: defineSlotRecipe({
-    slots: ['root', 'image', 'fallback'] as const,
+    slots: ['root', 'image', 'fallback', 'overflow'] as const,
     base: {
-      root: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
+      root: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        flexShrink: 0,
+        backgroundColor: '$avatar.background',
+      },
       image: { width: '100%', height: '100%', objectFit: 'cover' },
-      fallback: { display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '$avatar.fontWeight.fallback' },
+      fallback: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+        fontWeight: '$avatar.fontWeight.fallback',
+        color: '$avatar.fallback.color',
+      },
+      overflow: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        overflow: 'hidden',
+        backgroundColor: '$avatar.overflow.background',
+        color: '$avatar.overflow.color',
+        fontWeight: '$avatar.fontWeight.fallback',
+      },
     },
     variants: {
       size: {
-        xsmall: { root: { width: '$avatar.size.xsmall', height: '$avatar.size.xsmall' }, fallback: { fontSize: '$avatar.fontSize.fallback.xsmall' } },
-        small:  { root: { width: '$avatar.size.small',  height: '$avatar.size.small'  }, fallback: { fontSize: '$avatar.fontSize.fallback.small'  } },
-        medium: { root: { width: '$avatar.size.medium', height: '$avatar.size.medium' }, fallback: { fontSize: '$avatar.fontSize.fallback.medium' } },
-        large:  { root: { width: '$avatar.size.large',  height: '$avatar.size.large'  }, fallback: { fontSize: '$avatar.fontSize.fallback.large'  } },
-        xlarge: { root: { width: '$avatar.size.xlarge', height: '$avatar.size.xlarge' }, fallback: { fontSize: '$avatar.fontSize.fallback.xlarge' } },
+        xsmall: {
+          root:     { width: '$avatar.size.xsmall', height: '$avatar.size.xsmall' },
+          overflow: { width: '$avatar.size.xsmall', height: '$avatar.size.xsmall', fontSize: '$avatar.fontSize.fallback.xsmall' },
+          fallback: { fontSize: '$avatar.fontSize.fallback.xsmall' },
+        },
+        small: {
+          root:     { width: '$avatar.size.small',  height: '$avatar.size.small'  },
+          overflow: { width: '$avatar.size.small',  height: '$avatar.size.small',  fontSize: '$avatar.fontSize.fallback.small'  },
+          fallback: { fontSize: '$avatar.fontSize.fallback.small'  },
+        },
+        medium: {
+          root:     { width: '$avatar.size.medium', height: '$avatar.size.medium' },
+          overflow: { width: '$avatar.size.medium', height: '$avatar.size.medium', fontSize: '$avatar.fontSize.fallback.medium' },
+          fallback: { fontSize: '$avatar.fontSize.fallback.medium' },
+        },
+        large: {
+          root:     { width: '$avatar.size.large',  height: '$avatar.size.large'  },
+          overflow: { width: '$avatar.size.large',  height: '$avatar.size.large',  fontSize: '$avatar.fontSize.fallback.large'  },
+          fallback: { fontSize: '$avatar.fontSize.fallback.large'  },
+        },
+        xlarge: {
+          root:     { width: '$avatar.size.xlarge', height: '$avatar.size.xlarge' },
+          overflow: { width: '$avatar.size.xlarge', height: '$avatar.size.xlarge', fontSize: '$avatar.fontSize.fallback.xlarge' },
+          fallback: { fontSize: '$avatar.fontSize.fallback.xlarge' },
+        },
+      },
+      shape: {
+        circle: {
+          root:     { borderRadius: '$avatar.borderRadius.circle' },
+          overflow: { borderRadius: '$avatar.borderRadius.circle' },
+        },
+        square: {
+          root:     { borderRadius: '$avatar.borderRadius.square' },
+          overflow: { borderRadius: '$avatar.borderRadius.square' },
+        },
       },
     },
-    defaultVariants: { size: 'medium' },
+    defaultVariants: { size: 'medium', shape: 'circle' },
   }),
 
   alert: defineSlotRecipe({

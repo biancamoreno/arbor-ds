@@ -2,6 +2,18 @@ export const avatar = {
   fontWeight: {
     fallback: 'medium',
   },
+  borderRadius: {
+    circle: 'full',
+    square: 'small',
+  },
+  background: 'background.subtle',
+  fallback: {
+    color: 'text.secondary',
+  },
+  overflow: {
+    background: 'background.interactive',
+    color: 'text.secondary',
+  },
   size: {
     xsmall: '24px',
     small: '32px',
