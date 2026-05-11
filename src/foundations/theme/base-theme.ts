@@ -811,6 +811,12 @@ const recipes: ThemeRecipes = {
         borderRadius: '$chip.remove.borderRadius',
         backgroundColor: 'transparent',
         marginLeft: '$chip.remove.marginLeft',
+        padding: 0,
+        borderWidth: 0,
+        color: 'inherit',
+        cursor: 'pointer',
+        _focusVisible: focusRing,
+        _hover: { backgroundColor: 'background.interactive' },
         transition: transition(['background-color', 'color'], 'fast'),
       },
     },
@@ -844,7 +850,6 @@ const recipes: ThemeRecipes = {
             _hover: { opacity: 0.92 },
             _active: { opacity: 0.8 },
           },
-          remove: { _focusVisible: focusRing },
         },
         false: {},
       },
@@ -858,6 +863,13 @@ const recipes: ThemeRecipes = {
       },
       selected: {
         true: {}, false: {},
+      },
+      disabled: {
+        true: {
+          root: { cursor: 'not-allowed', opacity: '$chip.opacity.disabled' },
+          remove: { cursor: 'not-allowed' },
+        },
+        false: {},
       },
     },
     compoundVariants: [
@@ -889,7 +901,7 @@ const recipes: ThemeRecipes = {
       { conditions: { variant: 'subtle', tone: 'critical', selected: 'true' }, style: { root: { backgroundColor: 'feedback.critical.bgElement',color: 'feedback.critical.solidHover' } } },
       { conditions: { variant: 'subtle', tone: 'info',     selected: 'true' }, style: { root: { backgroundColor: 'feedback.info.bgElement',    color: 'feedback.info.solidHover'     } } },
     ],
-    defaultVariants: { size: 'medium', selectable: 'false', variant: 'subtle', tone: 'neutral', selected: 'false' },
+    defaultVariants: { size: 'medium', selectable: 'false', variant: 'subtle', tone: 'neutral', selected: 'false', disabled: 'false' },
   }),
 
   avatar: defineSlotRecipe({

@@ -1,5 +1,4 @@
 import { useCallback, type KeyboardEvent } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { Box, Flex, Clickable } from '../../core';
@@ -27,13 +26,13 @@ function ChipRoot(props: ChipRootProps) {
     onChange: selectable ? props.onSelectedChange : undefined,
   });
 
-  const theme = useTheme();
   const slots = useSlotRecipe<ChipSlots>('chip', {
     size,
     selectable: selectable ? 'true' : 'false',
     variant,
     tone,
     selected: selected ? 'true' : 'false',
+    disabled: disabled ? 'true' : 'false',
   });
 
   const handleToggle = useCallback(() => {
@@ -61,8 +60,6 @@ function ChipRoot(props: ChipRootProps) {
           className={className}
           style={{ whiteSpace: 'nowrap', ...style }}
           {...slots.root}
-          cursor={disabled ? 'not-allowed' : 'pointer'}
-          opacity={disabled ? theme.opacity.medium : 1}
         >
           {children}
         </Clickable>
@@ -77,8 +74,6 @@ function ChipRoot(props: ChipRootProps) {
         className={className}
         style={{ whiteSpace: 'nowrap', ...style }}
         {...slots.root}
-        cursor={disabled ? 'not-allowed' : 'default'}
-        opacity={disabled ? theme.opacity.medium : 1}
       >
         {children}
       </Flex>
@@ -112,7 +107,10 @@ function ChipIcon({ children, className, style }: ChipIconProps) {
 
 function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemoveProps) {
   const { disabled, selectable } = useChipContext();
-  const slots = useSlotRecipe<ChipSlots>('chip', { selectable: selectable ? 'true' : 'false' });
+  const slots = useSlotRecipe<ChipSlots>('chip', {
+    selectable: selectable ? 'true' : 'false',
+    disabled: disabled ? 'true' : 'false',
+  });
 
   if (selectable) {
     const handleClick = (event: React.MouseEvent | React.KeyboardEvent) => {
@@ -139,9 +137,6 @@ function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemove
         className={className}
         style={style}
         {...slots.remove}
-        cursor={disabled ? 'not-allowed' : 'pointer'}
-        color="inherit"
-        _hover={{ backgroundColor: 'background.interactive' }}
       >
         <Icon name="X" size="xsmall" decorative />
       </Box>
@@ -158,12 +153,6 @@ function ChipRemove({ label = 'Remover', onClick, className, style }: ChipRemove
       className={className}
       style={style}
       {...slots.remove}
-      cursor={disabled ? 'not-allowed' : 'pointer'}
-      color="inherit"
-      padding={0}
-      borderWidth={0}
-      _hover={{ backgroundColor: 'background.interactive' }}
-      _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
     >
       <Icon name="X" size="xsmall" decorative />
     </Clickable>
@@ -184,30 +173,17 @@ ChipRemove.displayName = 'Chip.Remove';
  * - **Decorativo (default):** `<Chip>` renderiza `<span>` puramente visual.
  *   Sem foco, sem teclado, sem ARIA de interação.
  *
- *   ```tsx
- *   <Chip variant="filled" tone="warning">
- *     <Chip.Icon><Icon name="Bell" /></Chip.Icon>
- *     <Chip.Label>Pendente</Chip.Label>
- *   </Chip>
- *   ```
- *
  * - **Interativo:** `<Chip selectable selected onSelectedChange={...}>`
  *   vira botão focável (`<button>`) com `aria-pressed` + ativação por
  *   Space/Enter. Cobre filtros toggleable e seleção múltipla.
- *
- *   ```tsx
- *   <Chip selectable selected={isActive} onSelectedChange={setIsActive}>
- *     <Chip.Label>Em estoque</Chip.Label>
- *     <Chip.Remove onClick={onRemove} />
- *   </Chip>
- *   ```
  *
  * `Chip.Remove` ramifica anatomia automaticamente: em modo decorativo é
  * `<button>`; em modo selectable vira `<span role="button">` para evitar
  * nested-button no DOM.
  *
- * Anatomia e cor (`variant × tone × selected`) resolvidas pela slot recipe
- * `chip` (TD-034) — override completo via `createTheme`.
+ * Anatomia, cor e estados (`variant × tone × selected × disabled`)
+ * resolvidos pela slot recipe `chip` (RFC-0033 / TD-034) — override completo
+ * via `createTheme({ recipes: { chip: ... }, components: { chip: ... } })`.
  *
  * @see {@link ChipRootProps}
  */

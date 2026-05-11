@@ -20,4 +20,7 @@ export const chip = {
     borderRadius: 'full',
     marginLeft: 'micro',
   },
+  opacity: {
+    disabled: 'disabled',
+  },
 };
