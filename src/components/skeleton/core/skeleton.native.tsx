@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, type ViewStyle } from 'react-native';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks';
 import { Flex } from '../../core';
 import type { SkeletonProps } from '../interfaces';
 
@@ -9,6 +10,10 @@ import type { SkeletonProps } from '../interfaces';
  *
  * Pulse via `Animated` em opacity (0.4 ↔ 1.0). Sem gradient shimmer (paridade visual
  * aceitável no MVP — gradient cross-platform exigiria `expo-linear-gradient`).
+ *
+ * Reduced-motion (TD-041): quando `AccessibilityInfo.isReduceMotionEnabled()` retorna
+ * `true`, o pulse é congelado em opacity 0.6 (estado intermediário visualmente
+ * estável). O anúncio para leitores de tela permanece.
  */
 function SkeletonLine({
   width,
@@ -50,10 +55,15 @@ export function Skeleton({
   style,
   ...props
 }: SkeletonProps) {
+  const reducedMotion = usePrefersReducedMotion();
   const pulse = useRef(new Animated.Value(0.4)).current;
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'test') return;
+    if (reducedMotion) {
+      pulse.setValue(0.6);
+      return;
+    }
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, {
@@ -72,7 +82,7 @@ export function Skeleton({
     );
     animation.start();
     return () => animation.stop();
-  }, [pulse]);
+  }, [pulse, reducedMotion]);
 
   const a11yProps =
     label === false
