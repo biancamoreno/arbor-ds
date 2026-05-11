@@ -1,10 +1,15 @@
-import { Text } from 'react-native';
-import { Clickable, Icon } from '../../core';
+import { Clickable, Icon, Text } from '../../core';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 
-const SIZE_MAP = { small: 40, medium: 56, large: 72 } as const;
-const ICON_SIZE_MAP = { small: 16, medium: 20, large: 24 } as const;
+const SIZE_MAP = { small: 44, medium: 56, large: 72 } as const;
+const ICON_SIZE_MAP = { small: 'small', medium: 'medium', large: 'large' } as const;
+
+const variantColorTokens = {
+  primary: { bg: 'interactive.default' as const, fg: 'text.inverse' as const },
+  secondary: { bg: 'brand.bgElement' as const, fg: 'text.primary' as const },
+  surface: { bg: 'surface.default' as const, fg: 'text.primary' as const },
+};
 
 /**
  * @platform native
@@ -13,6 +18,10 @@ const ICON_SIZE_MAP = { small: 16, medium: 20, large: 24 } as const;
  * absolutamente dentro da tela (sem `position: fixed` — RN não suporta;
  * `position: 'absolute'` é colocado pelo container do app). Sem animação de
  * entrada nem `prefers-reduced-motion` — a versão simplificada do FAB web.
+ *
+ * Cores via tokens semânticos (paridade com web). Shadow (elevation +
+ * shadowOffset/Opacity/Radius) é particularidade de plataforma RN — mantida
+ * em literal por API nativa não ter equivalente cross-platform via tokens.
  *
  * @see {@link FloatingActionButtonProps}
  */
@@ -30,13 +39,11 @@ export function FloatingActionButton({
   const theme = useTheme();
   const dim = SIZE_MAP[size];
   const iconSize = ICON_SIZE_MAP[size];
-  const variantColors = {
-    primary: { bg: theme.colors.brand.solid, fg: theme.colors.text.inverse },
-    secondary: { bg: theme.colors.brand.bgElement, fg: theme.colors.text.primary },
-    surface: { bg: theme.colors.surface.default, fg: theme.colors.text.primary },
-  } as const;
-  const { bg, fg } = variantColors[variant];
   const isExtended = !!label;
+  const variantTokens = variantColorTokens[variant];
+  const radiusFull =
+    typeof theme.radii.full === 'number' ? theme.radii.full : parseFloat(String(theme.radii.full)) || 1000;
+  const shadowColor = theme.colors.shadow.color;
 
   if (process.env.NODE_ENV !== 'production' && !label && !ariaLabel) {
     console.warn('[FloatingActionButton] aria-label is required when label is not provided.');
@@ -54,32 +61,31 @@ export function FloatingActionButton({
 
   return (
     <Clickable
-      onClick={disabled ? undefined : (onPress as unknown as React.MouseEventHandler<HTMLElement>)}
+      onClick={onPress as unknown as React.MouseEventHandler<HTMLElement>}
       disabled={disabled}
       aria-label={label ?? ariaLabel}
+      backgroundColor={variantTokens.bg}
+      flexDirection="row"
+      alignItems="center"
+      justifyContent="center"
+      gap={isExtended ? 'micro' : undefined}
+      paddingX={isExtended ? 'small' : undefined}
+      width={isExtended ? undefined : dim}
+      height={dim}
+      minWidth={dim}
       style={{
         ...positionStyle,
-        width: isExtended ? undefined : dim,
-        height: dim,
-        minWidth: dim,
-        borderRadius: 1000,
-        backgroundColor: bg,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'row',
-        gap: isExtended ? 8 : 0,
-        paddingHorizontal: isExtended ? 16 : 0,
+        borderRadius: radiusFull,
         elevation: 8,
-        shadowColor: theme.colors.shadow.color,
+        shadowColor,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8,
-        opacity: disabled ? 0.5 : 1,
       }}
     >
-      <Icon name={icon} size={iconSize} color={fg} decorative />
+      <Icon name={icon} size={iconSize} color={variantTokens.fg} decorative />
       {isExtended && (
-        <Text style={{ color: fg, fontSize: 14, fontWeight: '500', lineHeight: 20 }}>
+        <Text as="span" variant="label" color={variantTokens.fg}>
           {label}
         </Text>
       )}

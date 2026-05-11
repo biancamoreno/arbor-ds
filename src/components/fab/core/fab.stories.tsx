@@ -27,41 +27,56 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-  <Box height="100vh" position="relative" backgroundColor="#f9fafb" padding="24px">
-    <Text as="p" color="#6b7280" fontSize={14}>Conteúdo da página</Text>
+  <Box
+    height="100vh"
+    position="relative"
+    backgroundColor="background.subtle"
+    padding="large"
+  >
+    <Text as="p" variant="bodyMedium" color="text.secondary">
+      Conteúdo da página
+    </Text>
     {children}
   </Box>
 );
 
-export const Default: Story = {
+export const Anatomy: Story = {
+  name: 'Anatomia — ícone único, posicionado fixed bottom-right',
   render: () => (
     <PageWrapper>
+      <Text variant="overline" color="text.tertiary">
+        `position='bottom-right'` (default) usa `position: fixed` no web. `aria-label`
+        é obrigatório quando não há `label` visível.
+      </Text>
       <FloatingActionButton icon="Plus" onPress={() => alert('Adicionar!')} aria-label="Adicionar item" />
     </PageWrapper>
   ),
 };
 
 export const Extended: Story = {
+  name: 'Extended — ícone + label',
   render: () => (
     <PageWrapper>
-      <FloatingActionButton
-        icon="Plus"
-        label="Nova venda"
-        onPress={() => alert('Nova venda!')}
-      />
+      <Text variant="overline" color="text.tertiary">
+        Quando `label` é informado, o FAB vira extended (ícone + texto). `label`
+        funciona como `aria-label` automaticamente. Tipografia usa
+        `Text variant='label'` (PCV-1).
+      </Text>
+      <FloatingActionButton icon="Plus" label="Nova venda" onPress={() => alert('Nova venda!')} />
     </PageWrapper>
   ),
 };
 
 export const Sizes: Story = {
+  name: 'Sizes — small (44) / medium (56) / large (72)',
   render: () => (
     <PageWrapper>
       <Flex
         position="fixed"
-        bottom="24px"
-        right="24px"
+        bottom="medium"
+        right="medium"
         flexDirection="column"
-        gap="16px"
+        gap="small"
         alignItems="flex-end"
       >
         <FloatingActionButton icon="Plus" size="small" position="none" onPress={() => {}} aria-label="Pequeno" />
@@ -73,19 +88,39 @@ export const Sizes: Story = {
 };
 
 export const Variants: Story = {
+  name: 'Variants — primary / secondary / surface',
   render: () => (
     <PageWrapper>
       <Flex
         position="fixed"
-        bottom="24px"
-        right="24px"
+        bottom="medium"
+        right="medium"
         flexDirection="column"
-        gap="16px"
+        gap="small"
         alignItems="flex-end"
       >
         <FloatingActionButton icon="Pencil" variant="primary" position="none" onPress={() => {}} aria-label="Primary" />
         <FloatingActionButton icon="Pencil" variant="secondary" position="none" onPress={() => {}} aria-label="Secondary" />
         <FloatingActionButton icon="Pencil" variant="surface" position="none" onPress={() => {}} aria-label="Surface" />
+      </Flex>
+    </PageWrapper>
+  ),
+};
+
+export const Disabled: Story = {
+  name: 'Estado disabled — opacity.disabled (themable) via Clickable',
+  render: () => (
+    <PageWrapper>
+      <Flex
+        position="fixed"
+        bottom="medium"
+        right="medium"
+        flexDirection="column"
+        gap="small"
+        alignItems="flex-end"
+      >
+        <FloatingActionButton icon="Plus" disabled position="none" onPress={() => {}} aria-label="Desabilitado" />
+        <FloatingActionButton icon="Plus" label="Indisponível" disabled position="none" onPress={() => {}} />
       </Flex>
     </PageWrapper>
   ),

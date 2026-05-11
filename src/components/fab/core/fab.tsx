@@ -6,7 +6,13 @@ import { transition } from '../../../ecosystem/utils/functions/transition';
 import type { FloatingActionButtonProps } from '../interfaces/FabProps';
 
 const SIZE_MAP = { small: 44, medium: 56, large: 72 } as const;
-const ICON_SIZE_MAP = { small: 16, medium: 20, large: 24 } as const;
+const ICON_SIZE_MAP = { small: 'small', medium: 'medium', large: 'large' } as const;
+
+const variantTokens = {
+  primary: { bg: 'interactive.default', fg: 'text.inverse' },
+  secondary: { bg: 'brand.bgElement', fg: 'text.primary' },
+  surface: { bg: 'surface.default', fg: 'text.primary' },
+} as const;
 
 /**
  * @platform shared
@@ -17,6 +23,8 @@ const ICON_SIZE_MAP = { small: 16, medium: 20, large: 24 } as const;
  * Anima a entrada com `scale`+`opacity` (`animateOnMount`, default `true`) e
  * respeita `prefers-reduced-motion`. `aria-label` é obrigatório quando não há
  * `label` visível — em desenvolvimento, ausência dispara `console.warn`.
+ *
+ * Tratamento de disabled/cursor/foco visível vem do `Clickable` (PCV-7).
  *
  * @see {@link FloatingActionButtonProps}
  */
@@ -61,12 +69,6 @@ export function FloatingActionButton({
           zIndex: theme.zIndices.fab,
         };
 
-  const variantTokens = {
-    primary: { bg: 'interactive.default' as const, fg: 'text.inverse' as const },
-    secondary: { bg: 'brand.bgElement' as const, fg: 'text.primary' as const },
-    surface: { bg: 'surface.default' as const, fg: 'text.primary' as const },
-  };
-
   const { bg, fg } = variantTokens[variant];
 
   const animStyle: CSSProperties =
@@ -86,44 +88,29 @@ export function FloatingActionButton({
       type="button"
       aria-label={label || ariaLabel}
       disabled={disabled}
-      onClick={disabled ? undefined : onPress}
-      display="inline-flex"
-      alignItems="center"
-      justifyContent="center"
+      onClick={onPress}
       borderRadius="full"
       backgroundColor={bg}
       color={fg}
-      cursor={disabled ? 'not-allowed' : 'pointer'}
-      opacity={disabled ? 0.5 : 1}
       outline="none"
       borderWidth={variant === 'surface' ? 1 : 0}
       borderStyle={variant === 'surface' ? 'solid' : undefined}
       borderColor={variant === 'surface' ? 'border.default' : undefined}
       boxShadow="xl"
+      gap={isExtended ? 'micro' : undefined}
+      paddingX={isExtended ? 'small' : undefined}
       style={{
         ...positionStyle,
-        gap: isExtended ? 8 : 0,
         width: isExtended ? 'auto' : dim,
         height: dim,
         minWidth: dim,
-        paddingInline: isExtended ? 16 : 0,
         fontFamily: 'inherit',
         ...animStyle,
       }}
     >
       <Icon name={icon} size={iconSize} decorative />
       {isExtended && (
-        <Text
-          as="span"
-          color={fg}
-          whiteSpace="nowrap"
-          style={{
-            fontSize: 14,
-            fontWeight: 500,
-            lineHeight: 1,
-            transition: transition(['opacity'], 'fast'),
-          }}
-        >
+        <Text as="span" variant="label" color={fg} whiteSpace="nowrap">
           {label}
         </Text>
       )}
