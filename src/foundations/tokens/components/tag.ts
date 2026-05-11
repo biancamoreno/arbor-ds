@@ -1,12 +1,11 @@
 export const tag = {
-  gap: 'micro',
+  gap: 'nano',
   borderRadius: 'full',
   borderWidth: 'hairline',
   fontWeight: 'medium',
-  fontSize: 'xsmall',
-  minHeight: 'touchTarget.minimum',
+  fontSize: 'sm',
   padding: {
-    inline: 'small',
-    block: 'micro',
+    inline: 'tiny',
+    block: 'nano',
   },
 };

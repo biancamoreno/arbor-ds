@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Tag } from './tag';
 import { ArborProvider } from '../../../ecosystem';
 import { themeLight } from '../../../foundations';
@@ -9,9 +9,15 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 describe('Tag (web)', () => {
-  it('renderiza com role="button"', () => {
+  it('renderiza como <span> (não-interativo)', () => {
     render(<Tag>Filtro</Tag>, { wrapper });
-    expect(screen.getByRole('button', { name: 'Filtro' })).toBeTruthy();
+    const el = screen.getByText('Filtro');
+    expect(el.tagName).toBe('SPAN');
+  });
+
+  it('não expõe role="button"', () => {
+    render(<Tag>Filtro</Tag>, { wrapper });
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('renderiza children', () => {
@@ -19,33 +25,18 @@ describe('Tag (web)', () => {
     expect(screen.getByText('React')).toBeTruthy();
   });
 
-  it('selected expõe aria-pressed=true', () => {
-    render(<Tag selected>Ativo</Tag>, { wrapper });
-    expect(screen.getByRole('button').getAttribute('aria-pressed')).toBe('true');
-  });
-
-  it('default expõe aria-pressed=false', () => {
-    render(<Tag>Inativo</Tag>, { wrapper });
-    expect(screen.getByRole('button').getAttribute('aria-pressed')).toBe('false');
-  });
-
-  it('dispara onClick ao clicar', () => {
-    const onClick = jest.fn();
-    render(<Tag onClick={onClick}>Press</Tag>, { wrapper });
-    fireEvent.click(screen.getByRole('button'));
-    expect(onClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('disabled bloqueia onClick', () => {
-    const onClick = jest.fn();
-    render(<Tag disabled onClick={onClick}>X</Tag>, { wrapper });
-    fireEvent.click(screen.getByRole('button'));
-    expect(onClick).not.toHaveBeenCalled();
-    expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(true);
-  });
-
   it('aceita tone="brand"', () => {
-    render(<Tag tone="brand" selected>Brand</Tag>, { wrapper });
+    render(<Tag tone="brand">Brand</Tag>, { wrapper });
     expect(screen.getByText('Brand')).toBeTruthy();
+  });
+
+  it('aceita variant="solid"', () => {
+    render(<Tag variant="solid">Solid</Tag>, { wrapper });
+    expect(screen.getByText('Solid')).toBeTruthy();
+  });
+
+  it('aceita combinação tone × variant', () => {
+    render(<Tag tone="success" variant="solid">Sucesso</Tag>, { wrapper });
+    expect(screen.getByText('Sucesso')).toBeTruthy();
   });
 });

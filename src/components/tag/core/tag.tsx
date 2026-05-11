@@ -1,44 +1,30 @@
-import { Clickable } from '../../core';
+import { Box } from '../../core';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import type { TagProps } from '../interfaces';
 
 type TagSlots = 'root' | 'label' | 'icon';
 
-function TagComponent({ children, tone = 'neutral', selected = false, disabled, onClick, className, style }: TagProps) {
-  const slots = useSlotRecipe<TagSlots>('tag', { tone, selected: selected ? 'true' : 'false' });
-
-  return (
-    <Clickable
-      as="button"
-      type="button"
-      aria-pressed={selected}
-      disabled={disabled}
-      onClick={onClick}
-      className={className}
-      style={style}
-      {...slots.root}
-      cursor={disabled ? 'not-allowed' : 'pointer'}
-    >
-      {children}
-    </Clickable>
-  );
-}
-
-TagComponent.displayName = 'Tag';
-
 /**
  * @platform shared
  *
- * Pílula clicável simples — variante elementar do `Chip`. Aceita o conjunto
- * canônico `FeedbackTone` (RFC-0032) e `selected` (alterna preenchimento
- * sólido vs. outline). Diferente de `Chip`, não é compound: o conteúdo é
- * flat. Use para tags filtráveis em listas, badges de status interativos ou
- * pílulas de seleção simples. Web expõe `aria-pressed={selected}`; native
- * expõe `accessibilityState.selected`.
+ * Badge textual decorativo (não-interativo). Renderiza um `<span>` estilizado
+ * com `tone × variant`. Para casos selecionáveis ou removíveis use `Chip`
+ * (`selectable: boolean` + `Chip.Remove`, RFC-0033).
  *
- * Anatomia e cor (`tone × selected`) resolvidas pela slot recipe `tag`
- * (TD-034) — produto consumidor consegue override completo via `createTheme`.
+ * Anatomia e cor resolvidas pela slot recipe `tag` (RFC-0040 PR1 + TD-034) —
+ * produto consumidor consegue override completo via
+ * `createTheme({ recipes: { tag: ... }, components: { tag: ... } })`.
  *
  * @see {@link TagProps}
  */
-export const Tag = TagComponent;
+export function Tag({ children, tone = 'neutral', variant = 'outline', className, style }: TagProps) {
+  const slots = useSlotRecipe<TagSlots>('tag', { tone, variant });
+
+  return (
+    <Box as="span" className={className} style={style} {...slots.root}>
+      {children}
+    </Box>
+  );
+}
+
+Tag.displayName = 'Tag';

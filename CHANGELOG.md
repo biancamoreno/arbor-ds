@@ -4,6 +4,15 @@
 
 ### Breaking
 
+- **RFC-0042 PCV-10 — `Tag` decorativa pura (sem mais comportamento interativo).** Pré-v1, sem aliases legacy (precedente TD-012).
+  - **API removida:** `onClick`, `selected`, `disabled`.
+  - **API adicionada:** `variant: 'solid' | 'outline'` (default `'outline'`) — substitui `selected` como discriminador visual. Anatomia/cor inalteradas (mesmas 12 compoundVariants `tone × variant`).
+  - **Estrutura:** `tag.tsx` web renderiza `<Box as="span">` (era `<Clickable as="button">`); `tag.native.tsx` renderiza `<Box>` + `<Text>` (era `<Clickable.native>`). Sem `aria-pressed`/`accessibilityRole='button'`/`accessibilityState`. Sem foco visível/touch target/microfeedback.
+  - **Recipe `tag` (base-theme):** discriminador `selected: true|false` → `variant: solid|outline`; removidos `_focusVisible` e `transition`.
+  - **`tokens/components/tag.ts`:** densidade calibrada para badge — `gap: 'micro'` → `'nano'`, `fontSize: 'xsmall'` (10px) → `'sm'` (14px, legível), `padding.inline: 'small'` → `'tiny'`, `padding.block: 'micro'` → `'nano'`, `minHeight: 'touchTarget.minimum'` removido.
+  - **Casos interativos:** migrar para `Chip` (`selectable: boolean`, RFC-0033; `Chip.Remove` para botão de remoção). `Chip` é o caminho canônico para "tag clicável/filtrável/selecionável".
+  - **Codemod:** consumidores que faziam `<Tag selected onClick={...}>` viram `<Chip selectable onSelectedChange={...}>`. Sem `disabled` em badges decorativos — se for indicador de estado "inativo", use tone diferente (ex.: `tone='neutral'`) ou wrapper opaco.
+
 - **RFC-0041 PR1 — Polish visual default (foundations + Button piloto):** refinamento coordenado em 8 eixos. Pré-v1 sem consumidores externos; sem aliases legacy. Override pelo tema continua trivial (`createTheme(themeLight, { ... })`).
   - **Brand default trocado de `aqua` para `forestGreen`.** Decisão de identidade alusiva ao nome "arbor" (folha viva). `themeLight.colors.brand.solid` agora é `#1C541A` (forestGreen 90, derivado de ForestGreen 70 `#2D8229` que é a face viva da marca). `themeDark` segue simétrico via `makeDarkColorScale`. Primitive `forestGreen` estendida com steps `110` e `120` (derivados linearmente de `100` ↔ preto). Para reverter: `createTheme(themeLight, { colors: { brand: createBrandPalette('#1BA285').light } })`.
   - **Tipografia:** primitive `fontWeight` ganhou `600`; primitive `fontSize` ganhou `40/48/60/72`. Semantic `fontWeight` ganhou `semibold` (= 600); **`bold` agora redireciona para 600** (antes 700) por decisão de identidade contemporânea (Linear/Vercel/Stripe). `extrabold` (= 700) preservado para ênfase máxima. Semantic `fontSize` ganhou `displaySmall/displayMedium/displayLarge/displayHero`.
