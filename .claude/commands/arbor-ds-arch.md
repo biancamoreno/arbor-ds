@@ -955,6 +955,20 @@ Critique e evite explicitamente:
 - CSS var sendo proposta como contrato cross-platform — CSS var é escape hatch web-only, paridade nativa exige caminho via `createTheme()`
 - token semantic novo entrando no DS para resolver caso específico de um produto — produto adiciona via `extendTheme()`, contrato canônico só cresce com demanda recorrente
 - override de tema feito por edição direta de arquivo do DS em vez de `createTheme()` — quebra capacidade do produto evoluir em paralelo ao DS
+- **compound `Component.Root > Component.Trigger > Component.Content` cerimonial** (RFC-0043) — quando a anatomia padrão é fixa (nenhum dos 4 gatilhos de compound legítimo se aplica), top-level DEVE expor props planas (`label`/`title`/`description`/`footer`/`action`/`trigger`/`options`). Compound `.Root` permanece exportado mas é reservado a layouts não-triviais. Replicar compound obrigatório onde plano resolve é violação de DX (baixa fricção de adoção) e de Strategic Positioning ("importar e usar — defaults razoáveis cobrem 80% sem configuração").
+- **discriminar modo plano × compound por introspecção de children** (`React.Children.map`, type-checking de filhos) — frágil, opaco, mata tree-shaking, quebra autocompletion. Roteamento DEVE ser por prop (`usesFlatApi = label !== undefined || ... || children === undefined`).
+- **modo mixed plano + compound simultâneo** (passar `label` e `<Component.Label>` ao mesmo tempo) — ambíguo, sem dono claro. Plano e compound são mutuamente exclusivos por construção. Exceção controlada: Dialog/Drawer onde `title`/`description`/`footer` montam header/footer e `children` ocupa body — anatomia de 3 zonas com 2 padronizadas + 1 livre, documentada em RFC-0043.
+
+### Gatilhos de compound LEGÍTIMO (RFC-0043)
+
+Compound é o default **apenas** se um destes for verdade:
+
+1. **Ordem semântica do consumidor importa** (Card pode ter Media-Header-Body ou Header-Body-Media).
+2. **Slots são arbitrariamente repetidos** (Tabs.List, Breadcrumb, Menu, Table).
+3. **Conteúdo é árvore composta pelo consumidor** (Popover.Content, Field, Tooltip.Content avançado).
+4. **Slots opcionais não-discriminantes** (Carousel: Previous + Next + Indicators em qualquer combinação).
+
+Se nenhum dos quatro se aplica → API plana como default.
 
 ---
 
