@@ -7,6 +7,7 @@ export { card } from './card';
 export { carousel } from './carousel';
 export { checkbox } from './checkbox';
 export { chip } from './chip';
+export { counter } from './counter';
 export { dialog } from './dialog';
 export { drawer } from './drawer';
 export { field } from './field';

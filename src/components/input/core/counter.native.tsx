@@ -1,16 +1,16 @@
 import React, { useId, useState } from 'react';
 import { TextInput as RNTextInput } from 'react-native';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable, Text } from '../../core';
 import type { CounterProps } from '../interfaces';
 
-const sizeMap = {
-  small: { button: 24, font: 'xsmall' as const },
-  medium: { button: 32, font: 'small' as const },
-  large: { button: 40, font: 'medium' as const },
-};
+type CounterSlot = 'root' | 'label' | 'controls' | 'button' | 'input' | 'display';
+
+const fontSizeBySize = { small: 'xsmall', medium: 'small', large: 'medium' } as const;
+const buttonSizePxBySize = { small: 36, medium: 44, large: 52 } as const;
 
 const CounterBase: React.FC<CounterProps> = ({
   value,
@@ -29,7 +29,10 @@ const CounterBase: React.FC<CounterProps> = ({
   const inputId = fieldCtx?.fieldId ?? autoId;
 
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
-  const { button: buttonSize, font: fontToken } = sizeMap[size];
+  const slots = useSlotRecipe<CounterSlot>('counter', {
+    size,
+    state: effectiveDisabled ? 'disabled' : 'idle',
+  });
 
   const [editValue, setEditValue] = useState(String(value));
 
@@ -54,37 +57,23 @@ const CounterBase: React.FC<CounterProps> = ({
     }
   };
 
+  const fontSizeToken = fontSizeBySize[size];
+  const buttonPx = buttonSizePxBySize[size];
+
   return (
-    <Flex flexDirection="column" gap="micro">
+    <Box {...slots.root}>
       {label && !fieldCtx ? (
-        <Text fontSize="xsmall" fontWeight="semibold" color="text.primary">
-          {label}
-        </Text>
+        <Text {...slots.label}>{label}</Text>
       ) : null}
-      <Flex
-        flexDirection="row"
-        alignItems="center"
-        gap="micro"
-        opacity={effectiveDisabled ? 0.5 : 1}
-      >
+      <Flex {...slots.controls}>
         <Clickable
           accessibilityLabel="Decrementar"
           onClick={handleDecrement}
           disabled={!canDecrement}
-          width={buttonSize}
-          height={buttonSize}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          borderRadius="medium"
-          borderWidth="hairline"
-          borderColor="border.default"
-          backgroundColor={!canDecrement ? 'background.subtle' : 'surface.default'}
+          {...slots.button}
+          backgroundColor={canDecrement ? 'surface.default' : 'background.subtle'}
         >
-          <Text
-            fontSize={fontToken}
-            color={!canDecrement ? 'text.tertiary' : 'text.primary'}
-          >
+          <Text fontSize={fontSizeToken} color={canDecrement ? 'text.primary' : 'text.tertiary'}>
             −
           </Text>
         </Clickable>
@@ -100,12 +89,12 @@ const CounterBase: React.FC<CounterProps> = ({
             accessibilityState={effectiveDisabled ? { disabled: true } : undefined}
             style={{
               width: 48,
-              height: buttonSize,
-              borderWidth: 1,
+              height: buttonPx,
+              borderWidth: theme.borderWidths.hairline,
               borderColor: theme.colors.border.default,
-              borderRadius: 6,
+              borderRadius: theme.radii.small,
               textAlign: 'center',
-              fontSize: theme.fontSizes[fontToken],
+              fontSize: theme.fontSizes[fontSizeToken],
               fontWeight: '600',
               color: theme.colors.text.primary,
               backgroundColor: theme.colors.surface.default,
@@ -115,41 +104,25 @@ const CounterBase: React.FC<CounterProps> = ({
             testID={`${inputId}-input`}
           />
         ) : (
-          <Box
-            width={48}
-            height={buttonSize}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Text fontSize={fontToken} fontWeight="semibold" color="text.primary">
+          <Flex {...slots.display}>
+            <Text fontSize={fontSizeToken} fontWeight="semibold" color="text.primary">
               {value}
             </Text>
-          </Box>
+          </Flex>
         )}
         <Clickable
           accessibilityLabel="Incrementar"
           onClick={handleIncrement}
           disabled={!canIncrement}
-          width={buttonSize}
-          height={buttonSize}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          borderRadius="medium"
-          borderWidth="hairline"
-          borderColor="border.default"
-          backgroundColor={!canIncrement ? 'background.subtle' : 'surface.default'}
+          {...slots.button}
+          backgroundColor={canIncrement ? 'surface.default' : 'background.subtle'}
         >
-          <Text
-            fontSize={fontToken}
-            color={!canIncrement ? 'text.tertiary' : 'text.primary'}
-          >
+          <Text fontSize={fontSizeToken} color={canIncrement ? 'text.primary' : 'text.tertiary'}>
             +
           </Text>
         </Clickable>
       </Flex>
-    </Flex>
+    </Box>
   );
 };
 
@@ -159,9 +132,12 @@ CounterBase.displayName = 'Counter';
  * @platform native
  *
  * `Counter` em React Native: `Clickable.native` (botões −/+) + display do
- * valor (`<Text>` ou `<TextInput numeric>`). `showInput=true` (default)
- * exibe input numérico editável; `showInput=false` exibe apenas o valor.
- * Mesma semântica de `min`/`max`/`step`/`disabled` do web.
+ * valor (`<Text>` ou `<TextInput numeric>`). Geometria, raios e cores
+ * compartilhadas com web via `useSlotRecipe('counter', ...)`. RN não dispara
+ * `_disabled`/`_before`, então o visual de boundary (background subtle, texto
+ * terciário) é aplicado por override explícito no `Clickable`/`Text` quando
+ * `canDecrement`/`canIncrement` é `false`. RNTextInput recebe estilo resolvido
+ * do tema (pattern do `textinput.native`).
  *
  * @see {@link CounterProps}
  */

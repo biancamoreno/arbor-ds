@@ -729,6 +729,102 @@ const recipes: ThemeRecipes = {
     defaultVariants: { tone: 'neutral', variant: 'solid', size: 'medium' },
   }),
 
+  counter: defineSlotRecipe({
+    slots: ['root', 'label', 'controls', 'button', 'input', 'display'] as const,
+    base: {
+      root: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$counter.gap',
+      },
+      label: {
+        fontSize: '$counter.fontSize.label',
+        fontWeight: '$counter.fontWeight.label',
+        color: '$counter.colors.label',
+      },
+      controls: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '$counter.controls.gap',
+      },
+      button: {
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '$counter.borderRadius',
+        borderWidth: '$counter.borderWidth',
+        borderStyle: 'solid',
+        borderColor: '$counter.colors.button.border',
+        backgroundColor: '$counter.colors.button.background.default',
+        color: '$counter.colors.button.text.default',
+        cursor: 'pointer',
+        transition: transition(['background-color', 'color'], 'fast'),
+        _focusVisible: focusRing,
+        _disabled: {
+          backgroundColor: '$counter.colors.button.background.disabled',
+          color: '$counter.colors.button.text.disabled',
+          cursor: 'not-allowed',
+        },
+        _before: {
+          content: '""',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '$counter.minTouch',
+          minHeight: '$counter.minTouch',
+        },
+      },
+      input: {
+        width: '$counter.input.width',
+        borderRadius: '$counter.borderRadius',
+        borderWidth: '$counter.borderWidth',
+        borderStyle: 'solid',
+        borderColor: '$counter.colors.input.border',
+        backgroundColor: '$counter.colors.input.background',
+        color: '$counter.colors.input.text',
+        fontWeight: '$counter.fontWeight.value',
+        textAlign: 'center',
+        outline: 'none',
+        transition: transition(['border-color', 'box-shadow'], 'fast'),
+        _focusVisible: focusRing,
+      },
+      display: {
+        width: '$counter.input.width',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: '$counter.fontWeight.value',
+        color: '$counter.colors.input.text',
+      },
+    },
+    variants: {
+      size: {
+        small: {
+          button:  { width: '$counter.button.size.small',  height: '$counter.button.size.small',  fontSize: '$counter.fontSize.small'  },
+          input:   { height: '$counter.button.size.small', fontSize: '$counter.fontSize.small'  },
+          display: { height: '$counter.button.size.small', fontSize: '$counter.fontSize.small'  },
+        },
+        medium: {
+          button:  { width: '$counter.button.size.medium', height: '$counter.button.size.medium', fontSize: '$counter.fontSize.medium' },
+          input:   { height: '$counter.button.size.medium', fontSize: '$counter.fontSize.medium' },
+          display: { height: '$counter.button.size.medium', fontSize: '$counter.fontSize.medium' },
+        },
+        large: {
+          button:  { width: '$counter.button.size.large',  height: '$counter.button.size.large',  fontSize: '$counter.fontSize.large'  },
+          input:   { height: '$counter.button.size.large', fontSize: '$counter.fontSize.large'  },
+          display: { height: '$counter.button.size.large', fontSize: '$counter.fontSize.large'  },
+        },
+      },
+      state: {
+        idle: {},
+        disabled: { root: { opacity: '$counter.opacity.disabled', pointerEvents: 'none' } },
+      },
+    },
+    defaultVariants: { size: 'medium', state: 'idle' },
+  }),
+
   progressBar: defineSlotRecipe({
     slots: ['root', 'fill', 'indeterminate'] as const,
     base: {

@@ -40,6 +40,7 @@ export type ThemeRecipes = {
   accordion?: SlotRecipeConfig;
   card?: SlotRecipeConfig;
   chip?: SlotRecipeConfig;
+  counter?: SlotRecipeConfig;
   tag?: SlotRecipeConfig;
   avatar?: SlotRecipeConfig;
   tabs?: SlotRecipeConfig;

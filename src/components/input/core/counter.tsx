@@ -1,10 +1,11 @@
 import React, { useId, useState } from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
-import { useTransition } from '../../../ecosystem/utils/functions/use-transition';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Clickable } from '../../core';
 import type { CounterProps } from '../interfaces';
+
+type CounterSlot = 'root' | 'label' | 'controls' | 'button' | 'input' | 'display';
 
 const CounterBase: React.FC<CounterProps> = ({
   value,
@@ -17,39 +18,28 @@ const CounterBase: React.FC<CounterProps> = ({
   disabled,
   showInput = true,
 }) => {
-  const theme = useTheme();
-  const transitionFn = useTransition();
   const fieldCtx = useFieldContext();
   const autoId = useId();
   const inputId = fieldCtx?.fieldId ?? autoId;
 
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
+  const slots = useSlotRecipe<CounterSlot>('counter', {
+    size,
+    state: effectiveDisabled ? 'disabled' : 'idle',
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(String(value));
 
-  const sizeMap = {
-    small: { button: '32px', font: theme.fontSizes.xsmall, padding: '0.25rem 0.5rem' },
-    medium: { button: '40px', font: theme.fontSizes.small, padding: '0.5rem 0.75rem' },
-    large: { button: '48px', font: theme.fontSizes.medium, padding: '0.75rem 1rem' },
-  };
-
-  const hitTargetOverlay = {
-    content: '""',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    minWidth: '44px',
-    minHeight: '44px',
-  } as const;
+  const canDecrement = !effectiveDisabled && value > min;
+  const canIncrement = !effectiveDisabled && value < max;
 
   const handleDecrement = () => {
-    if (!effectiveDisabled && value > min) onValueChange?.(Math.max(value - step, min));
+    if (canDecrement) onValueChange?.(Math.max(value - step, min));
   };
 
   const handleIncrement = () => {
-    if (!effectiveDisabled && value < max) onValueChange?.(Math.min(value + step, max));
+    if (canIncrement) onValueChange?.(Math.min(value + step, max));
   };
 
   const handleInputBlur = () => {
@@ -64,50 +54,21 @@ const CounterBase: React.FC<CounterProps> = ({
     setIsEditing(false);
   };
 
-  const canDecrement = !effectiveDisabled && value > min;
-  const canIncrement = !effectiveDisabled && value < max;
-
   return (
-    <Flex flexDirection="column" gap="micro">
+    <Box {...slots.root}>
       {label && !fieldCtx && (
-        <Box
-          as="label"
-          htmlFor={inputId}
-          fontSize="xsmall"
-          fontWeight="semibold"
-          color="text.primary"
-        >
+        <Box as="label" htmlFor={inputId} {...slots.label}>
           {label}
         </Box>
       )}
-      <Flex
-        alignItems="center"
-        gap="4px"
-        opacity={effectiveDisabled ? 0.5 : 1}
-        pointerEvents={effectiveDisabled ? 'none' : 'auto'}
-      >
+      <Flex {...slots.controls}>
         <Clickable
           as="button"
           type="button"
           aria-label="Decrementar"
           onClick={handleDecrement}
-          disabled={effectiveDisabled || value <= min}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          borderRadius="medium"
-          cursor={!canDecrement ? 'not-allowed' : 'pointer'}
-          position="relative"
-          _before={hitTargetOverlay}
-          transition={transitionFn('background-color', 'normal')}
-          style={{
-            width: sizeMap[size].button,
-            height: sizeMap[size].button,
-            border: `1px solid ${theme.colors.border.default}`,
-            backgroundColor: !canDecrement ? theme.colors.background.subtle : 'white',
-            fontSize: sizeMap[size].font,
-            color: !canDecrement ? theme.colors.text.tertiary : theme.colors.text.primary,
-          }}
+          disabled={!canDecrement}
+          {...slots.button}
         >
           −
         </Clickable>
@@ -125,33 +86,10 @@ const CounterBase: React.FC<CounterProps> = ({
             aria-required={fieldCtx?.required || undefined}
             aria-invalid={fieldCtx?.invalid || undefined}
             aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
-            borderRadius="medium"
-            outline="none"
-            style={{
-              width: '3rem',
-              height: sizeMap[size].button,
-              border: `1px solid ${theme.colors.border.default}`,
-              textAlign: 'center',
-              fontSize: sizeMap[size].font,
-              fontWeight: 600,
-              cursor: 'text',
-              backgroundColor: 'white',
-              color: theme.colors.text.primary,
-            }}
+            {...slots.input}
           />
         ) : (
-          <Flex
-            as="span"
-            alignItems="center"
-            justifyContent="center"
-            style={{
-              width: '3rem',
-              height: sizeMap[size].button,
-              fontSize: sizeMap[size].font,
-              fontWeight: 600,
-              color: theme.colors.text.primary,
-            }}
-          >
+          <Flex as="span" {...slots.display}>
             {value}
           </Flex>
         )}
@@ -160,28 +98,13 @@ const CounterBase: React.FC<CounterProps> = ({
           type="button"
           aria-label="Incrementar"
           onClick={handleIncrement}
-          disabled={effectiveDisabled || value >= max}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          borderRadius="medium"
-          cursor={!canIncrement ? 'not-allowed' : 'pointer'}
-          position="relative"
-          _before={hitTargetOverlay}
-          transition={transitionFn('background-color', 'normal')}
-          style={{
-            width: sizeMap[size].button,
-            height: sizeMap[size].button,
-            border: `1px solid ${theme.colors.border.default}`,
-            backgroundColor: !canIncrement ? theme.colors.background.subtle : 'white',
-            fontSize: sizeMap[size].font,
-            color: !canIncrement ? theme.colors.text.tertiary : theme.colors.text.primary,
-          }}
+          disabled={!canIncrement}
+          {...slots.button}
         >
           +
         </Clickable>
       </Flex>
-    </Flex>
+    </Box>
   );
 };
 
@@ -190,9 +113,10 @@ CounterBase.displayName = 'Counter';
 /**
  * @platform shared
  *
- * Stepper numérico Field-aware. Botões de incremento/decremento com touch
- * target garantido (44×44 via overlay `::before`), input central editável por
- * default (`showInput` `true`) ou apenas display (`showInput` `false`).
+ * Stepper numérico Field-aware. Botões `−` e `+` carregam touch target 44×44
+ * via overlay `_before` (WCAG 2.5.5) e visualizam estado de boundary via
+ * `:disabled` nativo (sem JS pintando cor). Input central é editável por
+ * default (`showInput` `true`) ou exibe apenas valor (`showInput` `false`).
  * `step` controla o salto (default `1`); `min`/`max` (default `0` e `999`)
  * fazem clamp tanto via setas quanto via blur do input. Quando aninhado em
  * `<Field>`, herda `disabled` e cabeia `aria-*`.
