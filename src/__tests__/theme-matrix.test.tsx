@@ -162,11 +162,11 @@ describe('multi-product theming matrix', () => {
       expect(t.components.card.padding.medium).toBe('huge');
     });
 
-    it('field.control.minHeight override propagates to recipe', () => {
+    it('field.colors.label.invalid override propagates to recipe', () => {
       const t = createTheme(themeLight as unknown as ArborTheme, {
-        components: { field: { control: { minHeight: { medium: 'control.large' } } } },
+        components: { field: { colors: { label: { invalid: 'brand.solid' } } } },
       });
-      expect(t.components.field.control.minHeight.medium).toBe('control.large');
+      expect(t.components.field.colors.label.invalid).toBe('brand.solid');
     });
 
     it('tabs.trigger.fontWeight.active override propagates to recipe', () => {

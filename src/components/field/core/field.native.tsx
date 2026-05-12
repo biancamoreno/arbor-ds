@@ -36,7 +36,7 @@ function FieldRoot({
   const registerError = useCallback(() => setErrorRegistered((n) => n + 1), []);
   const unregisterError = useCallback(() => setErrorRegistered((n) => Math.max(0, n - 1)), []);
 
-  const slots = useSlotRecipe('field', {});
+  const slots = useSlotRecipe('field', { invalid });
   const rootStyles = (slots as Record<string, unknown>).root as Record<string, unknown> | undefined;
 
   const value = useMemo<FieldContextValue>(
@@ -83,18 +83,16 @@ function FieldRoot({
 
 function FieldLabel({ children }: FieldLabelProps) {
   const ctx = useFieldContext();
-  const slots = useSlotRecipe('field', {});
+  const slots = useSlotRecipe('field', { invalid: ctx?.invalid ?? false });
   const labelStyles = (slots as Record<string, unknown>).label as Record<string, unknown> | undefined;
+  const requiredStyles = (slots as Record<string, unknown>).requiredIndicator as
+    | Record<string, unknown>
+    | undefined;
 
   return (
-    <Text
-      nativeID={ctx?.labelId}
-      accessibilityRole="text"
-      color={ctx?.invalid ? 'feedback.critical.solid' : 'text.primary'}
-      {...(labelStyles ?? {})}
-    >
+    <Text nativeID={ctx?.labelId} accessibilityRole="text" {...(labelStyles ?? {})}>
       {children}
-      {ctx?.required ? ' *' : ''}
+      {ctx?.required ? <Text {...(requiredStyles ?? {})}>{' *'}</Text> : null}
     </Text>
   );
 }
@@ -142,7 +140,7 @@ function FieldControl({ children }: FieldControlProps) {
 
 function FieldDescription({ children }: FieldDescriptionProps) {
   const ctx = useFieldContext();
-  const slots = useSlotRecipe('field', {});
+  const slots = useSlotRecipe('field', { invalid: ctx?.invalid ?? false });
   const descriptionStyles = (slots as Record<string, unknown>).description as
     | Record<string, unknown>
     | undefined;
@@ -154,7 +152,7 @@ function FieldDescription({ children }: FieldDescriptionProps) {
   }, [ctx]);
 
   return (
-    <Text nativeID={ctx?.descriptionId} color="text.secondary" {...(descriptionStyles ?? {})}>
+    <Text nativeID={ctx?.descriptionId} {...(descriptionStyles ?? {})}>
       {children}
     </Text>
   );
@@ -162,7 +160,7 @@ function FieldDescription({ children }: FieldDescriptionProps) {
 
 function FieldError({ children }: FieldErrorProps) {
   const ctx = useFieldContext();
-  const slots = useSlotRecipe('field', {});
+  const slots = useSlotRecipe('field', { invalid: ctx?.invalid ?? false });
   const errorStyles = (slots as Record<string, unknown>).error as Record<string, unknown> | undefined;
 
   const shouldRender = !ctx || ctx.invalid;
@@ -176,12 +174,7 @@ function FieldError({ children }: FieldErrorProps) {
   if (!shouldRender) return null;
 
   return (
-    <Text
-      nativeID={ctx?.errorId}
-      accessibilityRole="alert"
-      color="feedback.critical.solid"
-      {...(errorStyles ?? {})}
-    >
+    <Text nativeID={ctx?.errorId} accessibilityRole="alert" {...(errorStyles ?? {})}>
       {children}
     </Text>
   );

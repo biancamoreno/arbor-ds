@@ -3,18 +3,23 @@ export const field = {
   label: {
     fontSize: 'sm',
     fontWeight: 'medium',
+    lineHeight: 'small',
   },
   description: {
     fontSize: 'xs',
+    lineHeight: 'xsmall',
   },
   error: {
     fontSize: 'xs',
+    lineHeight: 'xsmall',
   },
-  control: {
-    minHeight: {
-      small: 'touchTarget.minimum',
-      medium: 'touchTarget.minimum',
-      large: 'touchTarget.dense',
+  colors: {
+    label: {
+      default: 'text.primary',
+      invalid: 'feedback.critical.solid',
     },
+    description: 'text.secondary',
+    error: 'feedback.critical.solid',
+    requiredIndicator: 'feedback.critical.solid',
   },
 };

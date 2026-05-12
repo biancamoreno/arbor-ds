@@ -218,21 +218,34 @@ const recipes: ThemeRecipes = {
   },
 
   field: defineSlotRecipe({
-    slots: ['root', 'label', 'control', 'description', 'error'] as const,
+    slots: ['root', 'label', 'requiredIndicator', 'control', 'description', 'error'] as const,
     base: {
       root: { display: 'flex', flexDirection: 'column', gap: '$field.gap' },
-      label: { fontSize: '$field.label.fontSize', fontWeight: '$field.label.fontWeight' },
-      description: { fontSize: '$field.description.fontSize' },
-      error: { fontSize: '$field.error.fontSize' },
-    },
-    variants: {
-      size: {
-        small: { control: { minHeight: '$field.control.minHeight.small' } },
-        medium: { control: { minHeight: '$field.control.minHeight.medium' } },
-        large: { control: { minHeight: '$field.control.minHeight.large' } },
+      label: {
+        fontSize: '$field.label.fontSize',
+        fontWeight: '$field.label.fontWeight',
+        lineHeight: '$field.label.lineHeight',
+        color: '$field.colors.label.default',
+      },
+      requiredIndicator: { color: '$field.colors.requiredIndicator' },
+      description: {
+        fontSize: '$field.description.fontSize',
+        lineHeight: '$field.description.lineHeight',
+        color: '$field.colors.description',
+      },
+      error: {
+        fontSize: '$field.error.fontSize',
+        lineHeight: '$field.error.lineHeight',
+        color: '$field.colors.error',
       },
     },
-    defaultVariants: { size: 'medium' },
+    variants: {
+      invalid: {
+        true: { label: { color: '$field.colors.label.invalid' } },
+        false: {},
+      },
+    },
+    defaultVariants: { invalid: false },
   }),
 
   input: defineSlotRecipe({

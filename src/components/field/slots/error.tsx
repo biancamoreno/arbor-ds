@@ -5,7 +5,7 @@ import type { FieldErrorProps } from '../interfaces/FieldProps';
 
 export function FieldError({ children }: FieldErrorProps) {
   const ctx = useFieldContext();
-  const slots = useSlotRecipe('field', {});
+  const slots = useSlotRecipe('field', { invalid: ctx?.invalid ?? false });
   const errorStyles = (slots as Record<string, unknown>).error as Record<string, unknown> | undefined;
 
   const shouldRender = !ctx || ctx.invalid;
@@ -19,13 +19,7 @@ export function FieldError({ children }: FieldErrorProps) {
   if (!shouldRender) return null;
 
   return (
-    <ArborTransform
-      as="p"
-      id={ctx?.errorId}
-      role="alert"
-      color="feedback.critical.solid"
-      {...(errorStyles ?? {})}
-    >
+    <ArborTransform as="p" id={ctx?.errorId} role="alert" {...(errorStyles ?? {})}>
       {children}
     </ArborTransform>
   );

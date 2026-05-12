@@ -29,7 +29,7 @@ function FieldRoot({
   const registerError = useCallback(() => setErrorRegistered((n) => n + 1), []);
   const unregisterError = useCallback(() => setErrorRegistered((n) => Math.max(0, n - 1)), []);
 
-  const slots = useSlotRecipe('field', {});
+  const slots = useSlotRecipe('field', { invalid });
   const rootStyles = (slots as Record<string, unknown>).root as Record<string, unknown> | undefined;
 
   const value = useMemo<FieldContextValue>(
@@ -86,6 +86,10 @@ FieldRoot.displayName = 'Field.Root';
  * `accessibility*` em native. Os states `disabled`/`required`/`invalid`
  * cascateiam para qualquer descendente Field-aware (TextInput, TextArea,
  * Counter, Checkbox, Radio, Switch, Select, FileUpload).
+ *
+ * Compound legítimo (RFC-0043): gatilho #3 — lógica field-aware via context +
+ * ordem dos slots decidida pelo consumidor (Description antes ou depois de
+ * Control, Error antes ou depois de Description).
  *
  * @example
  * <Field invalid={!!error} required>

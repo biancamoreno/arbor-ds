@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- **PCV-20 Field** (Camada 6 — Form composto, RFC-0042). Compound legítimo confirmado via RFC-0043 (gatilho #3: lógica field-aware via `FieldContext` + ordem dos slots decidida pelo consumidor); API plana **não cabe** e Field segue compound. Refactor visual: cores `label.default`/`label.invalid`/`description`/`error`/`requiredIndicator` viram tokens themables em `tokens/components/field.ts` e entram na recipe `field` (axis novo `invalid: boolean`); slot novo `requiredIndicator` carrega anatomia do asterisco. Drop axis `size` órfão da recipe (nunca foi ativado; `defaultVariants.size` salvava o render mas era cerimônia). Drop `control.minHeight` do token (consequência). `lineHeight` adicionado a `description` e `error` para controle de altura de linha em texto fino. Componentes web + native dropam `color="..."` aplicado como prop — cor agora vem 100% da recipe; native ganha paridade com web no required indicator (`<Text>` colorido em vez de string concatenada). Tema agora override cor de label/description/error via `createTheme({ tokens: { field: { colors: { ... } } } })`. Sem breaking de API pública. Story reescrita em padrão PCV (Anatomia / WithDescription / Required / Invalid / Disabled / FullComposition / LongContent / VariosControles / Theming). Suite 1132/1132 mantida.
+
 ### Added
 
 - **`Alert`, `Tooltip` e `Avatar` ganham API plana** seguindo o mesmo pattern de `Checkbox`/`Radio`. Sem breaking — `.Root` preservado em todos para layouts não-triviais.

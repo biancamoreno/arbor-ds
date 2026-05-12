@@ -5,7 +5,7 @@ import type { FieldDescriptionProps } from '../interfaces/FieldProps';
 
 export function FieldDescription({ children }: FieldDescriptionProps) {
   const ctx = useFieldContext();
-  const slots = useSlotRecipe('field', {});
+  const slots = useSlotRecipe('field', { invalid: ctx?.invalid ?? false });
   const descriptionStyles = (slots as Record<string, unknown>).description as Record<string, unknown> | undefined;
 
   useEffect(() => {
@@ -15,12 +15,7 @@ export function FieldDescription({ children }: FieldDescriptionProps) {
   }, [ctx]);
 
   return (
-    <ArborTransform
-      as="p"
-      id={ctx?.descriptionId}
-      color="text.secondary"
-      {...(descriptionStyles ?? {})}
-    >
+    <ArborTransform as="p" id={ctx?.descriptionId} {...(descriptionStyles ?? {})}>
       {children}
     </ArborTransform>
   );
