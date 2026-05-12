@@ -1,18 +1,14 @@
 import { useId } from 'react';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks/use-prefers-reduced-motion';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex } from '../../core';
-import type { SwitchRootProps, SwitchSize, SwitchState } from '../interfaces/SwitchProps';
+import type { SwitchRootProps, SwitchState } from '../interfaces/SwitchProps';
 
 type SwitchSlot = 'root' | 'track' | 'thumb';
-
-const trackGeometry: Record<SwitchSize, { width: number; thumb: number; padding: number }> = {
-  small: { width: 36, thumb: 16, padding: 2 },
-  medium: { width: 44, thumb: 20, padding: 2 },
-  large: { width: 52, thumb: 24, padding: 2 },
-};
 
 function resolveState(isDisabled: boolean, isInvalid: boolean, isChecked: boolean): SwitchState {
   if (isDisabled) return 'disabled';
@@ -39,6 +35,8 @@ function SwitchRoot({
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const effectiveInvalid = fieldCtx?.invalid ?? false;
+  const theme = useTheme();
+  const reducedMotion = usePrefersReducedMotion();
 
   const [isChecked, setIsChecked] = useControllableState({
     value: checked,
@@ -48,8 +46,12 @@ function SwitchRoot({
 
   const state = resolveState(effectiveDisabled, effectiveInvalid, isChecked);
   const slots = useSlotRecipe<SwitchSlot>('switch', { size, state });
-  const geometry = trackGeometry[size];
-  const translateX = isChecked ? geometry.width - geometry.thumb - geometry.padding * 2 : 0;
+
+  const switchTokens = theme.components.switch;
+  const trackWidth = parseFloat(switchTokens.track.size[size].width);
+  const thumbWidth = parseFloat(switchTokens.thumb.size[size]);
+  const padding = theme.space[switchTokens.track.padding as keyof typeof theme.space] as number;
+  const translateX = isChecked ? trackWidth - thumbWidth - padding * 2 : 0;
 
   return (
     <Flex
@@ -84,23 +86,15 @@ function SwitchRoot({
         {...slots.track}
         onClick={() => !effectiveDisabled && setIsChecked(!isChecked)}
         aria-hidden="true"
-        position="relative"
-        _before={{
-          content: '""',
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          minWidth: '44px',
-          minHeight: '44px',
-        }}
-        style={{ boxSizing: 'border-box' }}
       >
         <Box
           as="span"
           display="block"
           {...slots.thumb}
-          style={{ transform: `translateX(${translateX}px)` }}
+          style={{
+            transform: `translateX(${translateX}px)`,
+            ...(reducedMotion ? { transition: 'none' } : null),
+          }}
         />
       </Box>
       {children}
@@ -117,10 +111,12 @@ markFieldAware(SwitchRoot);
  *
  * Toggle on/off com semântica `role="switch"`. Renderiza input nativo escondido
  * (para suporte a teclado e formulário) sobreposto a um track + thumb visuais
- * com transição animada. Field-aware: herda `disabled`/`invalid` do `<Field>`.
- * Use `onCheckedChange(checked)` para reagir ao toggle. Como o controle não
- * tem label visual embutido, passe `aria-label` ou `aria-labelledby` quando
- * standalone.
+ * com transição animada. Geometria deriva integralmente de
+ * `theme.components.switch.track.size` / `thumb.size` / `track.padding` —
+ * override do tema propaga para o `translateX` do thumb. Field-aware: herda
+ * `disabled`/`invalid` do `<Field>`. Use `onCheckedChange(checked)` para reagir
+ * ao toggle. Como o controle não tem label visual embutido, passe `aria-label`
+ * ou `aria-labelledby` quando standalone.
  *
  * @see {@link SwitchRootProps}
  */

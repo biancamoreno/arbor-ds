@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-11 (PCV-8 entregue — Camada 3 da RFC-0042 em 2/4; TD-044 aberta para divergência sistêmica `Button.native` vs web — não consome `useRecipe('button')` nem `tokens.components.button.*`; suite 1104/1104 verde).
+**Última atualização:** 2026-05-11 (PCV-16 entregue — Camada 5 da RFC-0042 em 1/4; TD-045 aberta para `Switch.native` ainda usar `<RNSwitch>` com API restrita, sem paridade visual completa com web; suite 1109/1109 verde).
 
 ---
 
@@ -44,8 +44,9 @@
 | [TD-037](#td-037) | Tag `@platform native-ready` não-canônica em interfaces | R9 (2026-05-03) | **Resolved (2026-05-03)** | — | Sub-onda 9.A — 23 ocorrências migradas (interfaces e `.tsx` shared → `@platform shared`; arquivos `.native.tsx` → `@platform native`); `scripts/check-platform-contract.js` re-alinhado para o vocabulário canônico `shared\|web\|native\|placeholder` com Rule 1 substituída pela classificação por prioridade de tag (evita falso-positivo em diretórios com mistura `shared` + `native`). |
 | [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | **Resolved (2026-05-03)** | Baixa (resolvida) | RFC-0036 — `defineSlotRecipe('card')` com variant `interactive: { true: { _hover, _active, transition } }`; CSS global e `--arbor-shadow-card-hover` deletados do provider; `card.tsx`/`card.native.tsx` cross-platform paritários; bleed via anatomia reflow (cada slot dona seu padding, `media` edge-to-edge por construção). |
 | [TD-039](#td-039) | Dead surface: `Tabs.variant 'pill'` declarado e não implementado + `tabs/slots/` vazio | R9 — TB-Mod-1/3 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (cleanup) | Sub-onda 9.A — `src/components/tabs/slots/` deletado (diretório vazio). `Tabs.variant: 'pill'` permanece no tipo público até a **RFC-0038** implementar de fato (mantido como contrato a cumprir, não como ghost — RFC já está Draft com `pill` real previsto no slot recipe). |
+| [TD-045](#td-045) | `Switch.native` usa `<RNSwitch>` com API restrita — recipe `switch` não propaga em native | PCV-16 — Camada 5 da RFC-0042 (2026-05-11) | Open | Média (cross-platform — override de `theme.recipes.switch` não chega ao native) | RFC dedicada pós-v1: substituir `<RNSwitch>` por implementação custom (`Animated.View` + `Pressable`) que consome `theme.components.switch.*` igual ao web (geometria + cores) |
 
-**Total:** 11 dívidas abertas (3 com resolução parcial — TD-036/TD-039; TD-038 fechada definitivamente), 19 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037, TD-038 e TD-039 em 2026-05-03).
+**Total:** 12 dívidas abertas (3 com resolução parcial — TD-036/TD-039; TD-038 fechada definitivamente), 19 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037, TD-038 e TD-039 em 2026-05-03).
 
 ---
 
@@ -2419,6 +2420,48 @@ Stories candidatas em `src/components/carousel/core/carousel.stories.tsx`:
 ### Componentes correlatos (verificar drift análogo)
 
 `button.native.tsx` é o caso emblemático; varredura sugerida nos demais native que reimplementam visual em vez de consumir recipe: Tag, Chip, Card (já refatorado RFC-0036), Avatar (já RFC-0035), Tabs (já RFC-0038). Pode haver outros — abrir TD-044-correlated se aparecer no PCV-9/10/12.
+
+---
+
+## TD-045 — `Switch.native` usa `<RNSwitch>` com API restrita
+
+**Origem:** PCV-16 — Camada 5 da RFC-0042 (2026-05-11)
+**Status:** Open
+**Severidade:** Média (cross-platform — override de `theme.recipes.switch` ou `theme.components.switch.*` não propaga em native)
+
+### Contexto
+
+`src/components/switch/core/switch.native.tsx` usa `<RNSwitch>` do `react-native`, cuja API é restrita a `trackColor: { false, true }` + `thumbColor`. O componente nativo do RN:
+
+- Não aceita o spread completo dos slots da recipe `switch` (track + thumb com largura/altura/borderRadius/padding individuais)
+- Aplica visual nativo da plataforma (Material/iOS look) que diverge do visual de marca do web
+- Geometria fixa (não consome `theme.components.switch.track.size.{small,medium,large}` nem `thumb.size.*`)
+- Não respeita `usePrefersReducedMotion()` (a animação é interna do RN)
+- Limitação documentada no JSDoc do `switch.native.tsx` desde 2026-04-25, agora promovida a TD formal
+
+### Impacto
+
+- Consumidor que faz `createTheme(themeLight, { recipes: { switch: { ... } } })` vê a mudança **somente no web** — native segue com aparência nativa do SO.
+- `theme.components.switch.track.minTouch`, `borderRadius`, `track.padding`, `thumb.borderRadius` — nenhum desses tokens chega ao native.
+- Sweep visual da RFC-0041 PR1 (brand `ultraviolet`, focus glow) não pode ser inspecionado em mobile com fidelidade.
+- Calibração de SW-3 (alinhamento `interactive.default` → `brand.solid` em `colors.track.checked`) foi aplicada também no `switch.native.tsx` via leitura direta de `theme.colors.brand.solid`, mas é o único token de cor que chega — qualquer outro override fica isolado no web.
+
+### Plano
+
+1. **Caminho preferencial:** substituir `<RNSwitch>` por implementação custom — `Animated.View` (track) + `Animated.View` (thumb) + `Pressable` envolvendo. Consome `theme.components.switch.*` direto (mesma fonte de verdade do `switch.tsx` web). `Animated.spring`/`Animated.timing` no `translateX` do thumb com easing/duration vindos de `theme.motion`. Respeita `usePrefersReducedMotion()` via `AccessibilityInfo.isReduceMotionEnabled()`.
+2. **Caminho alternativo:** manter `<RNSwitch>` mas expandir as variáveis lidas do tema — pelo menos `track.{checked,default,invalid}` + `thumb.default` (hoje cobre só `track.checked|default`). Menor blast radius, mas não fecha o gap visual.
+
+### Critério para fechar
+
+- [ ] `switch.native.tsx` consome `theme.components.switch.track.size` + `thumb.size` + `track.padding` (geometria themable).
+- [ ] Override `createTheme({ components: { switch: { track: { size: { medium: { width: '60px' } } } } } })` propaga em ambas as plataformas (teste de matriz native).
+- [ ] Reduced-motion respeitado no native.
+- [ ] Foco visível (anel) renderizado por construção (não via `<RNSwitch>`).
+- [ ] Sem regressão de a11y (`accessibilityRole="switch"`, `accessibilityState.checked`, `accessibilityLabel` mantidos).
+
+### Não-objetivos
+
+- Não tentar parear gestos de drag (swipe do thumb). Toggle por tap é suficiente — paridade com web.
 
 ---
 

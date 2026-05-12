@@ -426,11 +426,21 @@ const recipes: ThemeRecipes = {
         _focusVisibleWithin: focusRing,
       },
       track: {
+        position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
         borderRadius: '$switch.borderRadius',
         backgroundColor: '$switch.colors.track.default',
         transition: transition('background-color', 'normal'),
+        _before: {
+          content: '""',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '$switch.track.minTouch',
+          minHeight: '$switch.track.minTouch',
+        },
       },
       thumb: {
         borderRadius: '$switch.thumb.borderRadius',

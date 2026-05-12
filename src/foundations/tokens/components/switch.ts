@@ -8,6 +8,7 @@ export const switchToken = {
       large: { width: '52px', height: '28px' },
     },
     padding: 'nano',
+    minTouch: 'touchTarget.minimum',
   },
   thumb: {
     borderRadius: 'full',
@@ -20,7 +21,7 @@ export const switchToken = {
   colors: {
     track: {
       default: 'border.strong',
-      checked: 'interactive.default',
+      checked: 'brand.solid',
       invalid: 'feedback.critical.solid',
     },
     thumb: {

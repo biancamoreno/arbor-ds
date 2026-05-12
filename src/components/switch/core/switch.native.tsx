@@ -26,7 +26,7 @@ function SwitchRoot({
 
   const trackOnColor = effectiveInvalid
     ? theme.colors.feedback.critical.solid
-    : theme.colors.interactive.default;
+    : theme.colors.brand.solid;
 
   return (
     <View
