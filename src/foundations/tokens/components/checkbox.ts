@@ -7,6 +7,14 @@ export const checkbox = {
     medium: '18px',
     large: '20px',
   },
+  minTouch: 'touchTarget.minimum',
+  mark: {
+    size: {
+      small: 'xsmall',
+      medium: 'small',
+      large: 'small',
+    },
+  },
   fontSize: {
     label: {
       small: 'xsmall',
@@ -29,6 +37,7 @@ export const checkbox = {
         default: 'surface.default',
         checked: 'interactive.default',
       },
+      mark: 'text.inverse',
     },
     label: 'text.primary',
     description: 'text.secondary',

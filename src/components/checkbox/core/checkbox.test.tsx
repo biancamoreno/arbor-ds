@@ -15,6 +15,10 @@ function renderCb(ui: React.ReactElement) {
   return render(ui, { wrapper: Wrapper });
 }
 
+function getInput(): HTMLInputElement {
+  return screen.getByRole('checkbox') as HTMLInputElement;
+}
+
 describe('Checkbox compound anatomy', () => {
   it('renders Checkbox.Root with children', () => {
     renderCb(
@@ -29,28 +33,28 @@ describe('Checkbox compound anatomy', () => {
   it('renders unchecked by default', () => {
     renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    expect((screen.getByTestId('cb') as HTMLInputElement).checked).toBe(false);
+    expect(getInput().checked).toBe(false);
   });
 
   it('renders checked when defaultChecked=true', () => {
     renderCb(
       <Checkbox.Root defaultChecked onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    expect((screen.getByTestId('cb') as HTMLInputElement).checked).toBe(true);
+    expect(getInput().checked).toBe(true);
   });
 
   it('toggles state on click (uncontrolled)', () => {
     renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    const input = screen.getByTestId('cb') as HTMLInputElement;
+    const input = getInput();
     fireEvent.click(input);
     expect(input.checked).toBe(true);
   });
@@ -59,58 +63,58 @@ describe('Checkbox compound anatomy', () => {
     const onCheckedChange = jest.fn();
     renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={onCheckedChange}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    fireEvent.click(screen.getByTestId('cb'));
+    fireEvent.click(getInput());
     expect(onCheckedChange).toHaveBeenCalledWith(true);
   });
 
   it('respects controlled checked prop', () => {
     renderCb(
       <Checkbox.Root checked onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    expect((screen.getByTestId('cb') as HTMLInputElement).checked).toBe(true);
+    expect(getInput().checked).toBe(true);
   });
 
   it('renders as disabled when disabled=true', () => {
     renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}} disabled>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    expect((screen.getByTestId('cb') as HTMLInputElement).disabled).toBe(true);
+    expect(getInput().disabled).toBe(true);
   });
 
   it('does not toggle when disabled', () => {
     const onCheckedChange = jest.fn();
     renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={onCheckedChange} disabled>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    fireEvent.click(screen.getByTestId('cb'));
+    fireEvent.click(getInput());
     expect(onCheckedChange).not.toHaveBeenCalled();
   });
 
   it('sets indeterminate on native input', () => {
     renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}} indeterminate>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    expect((screen.getByTestId('cb') as HTMLInputElement).indeterminate).toBe(true);
+    expect(getInput().indeterminate).toBe(true);
   });
 
-  it('Checkbox.Indicator has type="checkbox"', () => {
+  it('renders an input[type=checkbox] in the Root', () => {
     renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    expect(screen.getByTestId('cb').getAttribute('type')).toBe('checkbox');
+    expect(getInput().getAttribute('type')).toBe('checkbox');
   });
 
   it('Checkbox.Label renders children', () => {
@@ -132,33 +136,60 @@ describe('Checkbox compound anatomy', () => {
     );
     expect(screen.getByText('Extra info')).toBeTruthy();
   });
+
+  it('renders Check icon when checked', () => {
+    const { container } = renderCb(
+      <Checkbox.Root defaultChecked onCheckedChange={() => {}}>
+        <Checkbox.Indicator />
+      </Checkbox.Root>,
+    );
+    expect(container.querySelector('svg.lucide-check')).toBeTruthy();
+  });
+
+  it('renders Minus icon when indeterminate', () => {
+    const { container } = renderCb(
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}} indeterminate>
+        <Checkbox.Indicator />
+      </Checkbox.Root>,
+    );
+    expect(container.querySelector('svg.lucide-minus')).toBeTruthy();
+  });
+
+  it('renders no glyph in idle state', () => {
+    const { container } = renderCb(
+      <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
+        <Checkbox.Indicator />
+      </Checkbox.Root>,
+    );
+    expect(container.querySelector('svg')).toBeNull();
+  });
 });
 
 describe('Checkbox slot recipe (RFC-0017)', () => {
   it('accepts size prop without runtime error', () => {
     renderCb(
       <Checkbox.Root size="small" defaultChecked={false} onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    expect(screen.getByTestId('cb')).toBeTruthy();
+    expect(getInput()).toBeTruthy();
   });
 
-  it('produces different classNames for different sizes (recipe is consumed)', () => {
-    const { unmount } = renderCb(
+  it('produces different indicator classNames for different sizes (recipe is consumed)', () => {
+    const { container, unmount } = renderCb(
       <Checkbox.Root size="small" defaultChecked={false} onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb-sm" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    const smClass = (screen.getByTestId('cb-sm') as HTMLInputElement).className;
+    const smClass = (container.querySelector('[aria-hidden="true"]') as HTMLElement).className;
     unmount();
 
-    renderCb(
+    const { container: container2 } = renderCb(
       <Checkbox.Root size="large" defaultChecked={false} onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb-lg" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    const lgClass = (screen.getByTestId('cb-lg') as HTMLInputElement).className;
+    const lgClass = (container2.querySelector('[aria-hidden="true"]') as HTMLElement).className;
 
     expect(smClass).not.toEqual(lgClass);
   });
@@ -180,7 +211,7 @@ describe('Checkbox slot recipe (RFC-0017)', () => {
     render(
       <ArborProvider theme={overriddenTheme}>
         <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-          <Checkbox.Indicator data-testid="cb-themed" />
+          <Checkbox.Indicator />
         </Checkbox.Root>
       </ArborProvider>,
     );
@@ -198,13 +229,13 @@ describe('Checkbox FieldContext integration', () => {
       <Field id="cb-field">
         <Field.Control>
           <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-            <Checkbox.Indicator data-testid="cb" />
+            <Checkbox.Indicator />
           </Checkbox.Root>
         </Field.Control>
         <Field.Description>Helper</Field.Description>
       </Field>,
     );
-    expect(screen.getByTestId('cb').getAttribute('aria-describedby')).toBe('cb-field-description');
+    expect(getInput().getAttribute('aria-describedby')).toBe('cb-field-description');
   });
 
   it('receives aria-invalid from Field context', () => {
@@ -212,23 +243,23 @@ describe('Checkbox FieldContext integration', () => {
       <Field id="cb-field" invalid>
         <Field.Control>
           <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-            <Checkbox.Indicator data-testid="cb" />
+            <Checkbox.Indicator />
           </Checkbox.Root>
         </Field.Control>
       </Field>,
     );
-    expect(screen.getByTestId('cb').getAttribute('aria-invalid')).toBe('true');
+    expect(getInput().getAttribute('aria-invalid')).toBe('true');
   });
 
   it('receives disabled from Field context', () => {
     renderCb(
       <Field id="cb-field" disabled>
         <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-          <Checkbox.Indicator data-testid="cb" />
+          <Checkbox.Indicator />
         </Checkbox.Root>
       </Field>,
     );
-    expect((screen.getByTestId('cb') as HTMLInputElement).disabled).toBe(true);
+    expect(getInput().disabled).toBe(true);
   });
 
   it('receives aria-required from Field context', () => {
@@ -236,25 +267,26 @@ describe('Checkbox FieldContext integration', () => {
       <Field id="cb-field" required>
         <Field.Control>
           <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-            <Checkbox.Indicator data-testid="cb" />
+            <Checkbox.Indicator />
           </Checkbox.Root>
         </Field.Control>
       </Field>,
     );
-    expect(screen.getByTestId('cb').getAttribute('aria-required')).toBe('true');
+    expect(getInput().getAttribute('aria-required')).toBe('true');
   });
 });
 
 describe('Checkbox accessibility — visible focus (TD-014, WCAG 2.4.7)', () => {
-  it('emits :focus-visible outline rule for the indicator', () => {
-    renderCb(
+  it('emits :has(:focus-visible) outline rule for the root', () => {
+    const { container } = renderCb(
       <Checkbox.Root defaultChecked={false} onCheckedChange={() => {}}>
-        <Checkbox.Indicator data-testid="cb" />
+        <Checkbox.Indicator />
       </Checkbox.Root>,
     );
-    const indicatorClass = (screen.getByTestId('cb') as HTMLInputElement).className;
+    const rootClass = (container.querySelector('label') as HTMLElement).className;
     const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
-    const focusRule = new RegExp(`\\.${indicatorClass.split(' ').pop()}:focus-visible\\{[^}]*outline`);
+    const lastClass = rootClass.split(' ').pop() ?? '';
+    const focusRule = new RegExp(`\\.${lastClass}:has\\(:focus-visible\\)\\{[^}]*outline`);
     expect(sheet).toMatch(focusRule);
   });
 });

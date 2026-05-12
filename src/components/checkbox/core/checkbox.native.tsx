@@ -4,12 +4,23 @@ import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
-import { Box, Flex, Text } from '../../core';
+import { Flex, Icon, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
-import type { CheckboxState } from '../context/checkbox-context';
-import type { CheckboxRootProps, CheckboxLabelProps, CheckboxDescriptionProps } from '../interfaces';
+import type { CheckboxSize, CheckboxState } from '../context/checkbox-context';
+import type {
+  CheckboxRootProps,
+  CheckboxIndicatorProps,
+  CheckboxLabelProps,
+  CheckboxDescriptionProps,
+} from '../interfaces';
 
 type CheckboxSlot = 'root' | 'indicator' | 'label' | 'description';
+
+const MARK_SIZE: Record<CheckboxSize, 'xsmall' | 'small' | 'medium'> = {
+  small: 'xsmall',
+  medium: 'small',
+  large: 'small',
+};
 
 function resolveState(disabled: boolean, invalid: boolean, checked: boolean): CheckboxState {
   if (disabled) return 'disabled';
@@ -45,6 +56,8 @@ function CheckboxRoot({
   const state = resolveState(effectiveDisabled, effectiveInvalid, checkedState || indeterminate);
   const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size, state });
 
+  const accessibilityChecked = indeterminate ? 'mixed' : checkedState;
+
   return (
     <CheckboxContext.Provider
       value={{
@@ -64,7 +77,9 @@ function CheckboxRoot({
         onPress={() => !effectiveDisabled && setCheckedState(!checkedState)}
         disabled={effectiveDisabled}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: checkedState, disabled: effectiveDisabled }}
+        accessibilityState={{ checked: accessibilityChecked, disabled: effectiveDisabled }}
+        nativeID={inputId}
+        accessibilityLabelledBy={fieldCtx?.labelId}
       >
         <Flex {...slots.root}>{children}</Flex>
       </Pressable>
@@ -72,32 +87,26 @@ function CheckboxRoot({
   );
 }
 
-function CheckboxIndicator() {
+function CheckboxIndicator(_props: CheckboxIndicatorProps) {
   const ctx = useCheckboxContext();
   const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
-
-  const isActive = ctx.checked || ctx.indeterminate;
+  const showCheck = ctx.checked && !ctx.indeterminate;
+  const showDash = ctx.indeterminate;
 
   return (
     <Flex {...slots.indicator}>
-      {isActive && (
-        <Box
-          width="10px"
-          height="2px"
-          backgroundColor="text.inverse"
-          style={{
-            transform: ctx.indeterminate ? [] : [{ rotate: '-45deg' }],
-          }}
-        />
-      )}
+      {showCheck && <Icon name="Check" size={MARK_SIZE[ctx.size]} decorative />}
+      {showDash && <Icon name="Minus" size={MARK_SIZE[ctx.size]} decorative />}
     </Flex>
   );
 }
 
+CheckboxIndicator.displayName = 'Checkbox.Indicator';
+
 function CheckboxLabel({ children }: CheckboxLabelProps) {
   const ctx = useCheckboxContext();
   const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
-  return <Text as="span" {...slots.label}>{children}</Text>;
+  return <Text {...slots.label}>{children}</Text>;
 }
 
 CheckboxLabel.displayName = 'Checkbox.Label';
@@ -105,25 +114,23 @@ CheckboxLabel.displayName = 'Checkbox.Label';
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
   const ctx = useCheckboxContext();
   const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
-  return <Text as="span" {...slots.description}>{children}</Text>;
+  return <Text {...slots.description}>{children}</Text>;
 }
 
 CheckboxDescription.displayName = 'Checkbox.Description';
 
 CheckboxRoot.displayName = 'Checkbox';
-CheckboxIndicator.displayName = 'Checkbox.Indicator';
 
 markFieldAware(CheckboxRoot);
-markFieldAware(CheckboxIndicator);
 
 /**
  * @platform native
  *
- * `Checkbox` em React Native: `Pressable` + `Box` interno como indicator
- * customizado (RN não tem `<input type="checkbox">`). `accessibilityRole`
- * `'checkbox'` + `accessibilityState.checked` espelham o estado para leitor
- * de tela. `indeterminate` é refletido como `'mixed'` em
- * `accessibilityState.checked`.
+ * `Checkbox` em React Native: `Pressable` no Root reflete o estado para
+ * leitor de tela (`accessibilityRole="checkbox"` + `accessibilityState.checked`
+ * com `'mixed'` para indeterminate). `Indicator` consome o slot recipe
+ * `checkbox.indicator` e exibe glifo Lucide (`Check` ou `Minus`) com paridade
+ * total ao web.
  *
  * @see {@link CheckboxRootProps}
  */

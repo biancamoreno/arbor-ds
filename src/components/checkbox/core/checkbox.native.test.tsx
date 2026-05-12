@@ -65,4 +65,14 @@ describe('Checkbox (native)', () => {
     );
     expect(screen.getByRole('checkbox').props.accessibilityState.checked).toBe(true);
   });
+
+  it('reflects indeterminate as accessibilityState.checked="mixed"', () => {
+    render(
+      <Checkbox aria-label="agree" indeterminate onCheckedChange={() => {}}>
+        <Checkbox.Indicator />
+      </Checkbox>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByRole('checkbox').props.accessibilityState.checked).toBe('mixed');
+  });
 });

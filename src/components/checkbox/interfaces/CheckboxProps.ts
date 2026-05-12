@@ -1,10 +1,14 @@
-import type { InputHTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { CheckboxSize } from '../context/checkbox-context';
 
 /**
  * @platform shared
- * Checkbox compound props. Web consome `<input type=checkbox>` (APIs DOM);
- * `checkbox.native.tsx` re-implementa o indicador com `Pressable` + tokens.
+ *
+ * Checkbox compound props.
+ *
+ * `Root` renderiza um `<input type="checkbox">` visualmente escondido (web) ou
+ * `<Pressable>` (native). `Indicator` é puramente visual — não aceita props
+ * HTML do input (essas migraram para `Root`).
  */
 export interface CheckboxRootProps {
   checked?: boolean;
@@ -19,9 +23,13 @@ export interface CheckboxRootProps {
   children: ReactNode;
 }
 
-export interface CheckboxIndicatorProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'checked' | 'onChange' | 'disabled' | 'size'> {
-  style?: React.CSSProperties;
-}
+/**
+ * `Checkbox.Indicator` é decorativo: lê estado do contexto e renderiza glifo
+ * (`Check`/`Minus`) sobre a caixa. Sem props consumidas — slot existe para
+ * permitir composição (`<Indicator />` entre `Label` e outros children).
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CheckboxIndicatorProps {}
 
 export interface CheckboxLabelProps {
   children: ReactNode;

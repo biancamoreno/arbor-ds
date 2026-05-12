@@ -302,9 +302,25 @@ const recipes: ThemeRecipes = {
   checkbox: defineSlotRecipe({
     slots: ['root', 'indicator', 'label', 'description'] as const,
     base: {
-      root: { display: 'flex', alignItems: 'flex-start', gap: '$checkbox.gap' },
+      root: {
+        display: 'inline-flex',
+        alignItems: 'flex-start',
+        gap: '$checkbox.gap',
+        position: 'relative',
+        borderRadius: '$checkbox.borderRadius',
+        _focusVisibleWithin: focusRing,
+        _before: {
+          content: '""',
+          position: 'absolute',
+          top: '50%',
+          left: 0,
+          transform: 'translateY(-50%)',
+          width: '$checkbox.minTouch',
+          height: '$checkbox.minTouch',
+        },
+      },
       indicator: {
-        display: 'flex',
+        display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
@@ -312,7 +328,8 @@ const recipes: ThemeRecipes = {
         borderWidth: '$checkbox.borderWidth',
         borderColor: '$checkbox.colors.indicator.border.default',
         backgroundColor: '$checkbox.colors.indicator.background.default',
-        _focusVisible: focusRing,
+        color: '$checkbox.colors.indicator.mark',
+        transition: transition(['background-color', 'border-color'], 'fast'),
       },
       label: {
         fontSize: '$checkbox.fontSize.label.medium',
