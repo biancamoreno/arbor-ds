@@ -1,10 +1,10 @@
-import { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
 import { Box } from '../../core';
 import { TooltipContext, type TooltipContextValue } from '../context/tooltip-context';
 import { TooltipTrigger } from '../slots/tooltip-trigger';
 import { TooltipContent } from '../slots/tooltip-content';
-import type { TooltipRootProps } from '../interfaces/TooltipProps';
+import type { TooltipProps, TooltipRootProps } from '../interfaces/TooltipProps';
 
 function TooltipRoot({
   open: openProp,
@@ -46,25 +46,51 @@ function TooltipRoot({
   );
 }
 
+TooltipRoot.displayName = 'Tooltip.Root';
+
 /**
  * @platform shared
  *
- * Compound de tooltip — descrição curta exibida ao foco/hover do trigger.
- * `Tooltip.Root` controla a abertura via `open`/`onOpenChange` e respeita
- * `disabled` (não abre quando true). `Trigger` envolve o controle alvo
- * (botão, input, ícone clicável); `Content` é o painel pequeno ancorado ao
- * trigger e montado em `Portal`. Para conteúdo rico ou interativo, prefira
- * `Popover`. Usa nomenclatura canônica `open` (RFC-0013/RFC-0030).
+ * Tooltip — descrição curta exibida ao foco/hover. API plana (recomendada
+ * para 95% dos casos) — children é o trigger, `label` é o conteúdo:
  *
  * @example
- * <Tooltip>
- *   <Tooltip.Trigger><IconButton aria-label="Excluir"><Icon name="Trash" /></IconButton></Tooltip.Trigger>
- *   <Tooltip.Content>Excluir item permanentemente</Tooltip.Content>
+ * <Tooltip label="Excluir item">
+ *   <IconButton aria-label="Excluir" icon="Trash" />
  * </Tooltip>
  *
- * @see {@link TooltipRootProps}
+ * Para placement custom ou content multi-linha rico, passe `placement` ou
+ * use o compound:
+ *
+ * @example
+ * <Tooltip.Root>
+ *   <Tooltip.Trigger><IconButton aria-label="Excluir" icon="Trash" /></Tooltip.Trigger>
+ *   <Tooltip.Content placement="right">
+ *     <strong>Excluir</strong> item permanentemente
+ *   </Tooltip.Content>
+ * </Tooltip.Root>
+ *
+ * Para conteúdo rico ou interativo, prefira `Popover`. Nomenclatura canônica
+ * `open` (RFC-0013/RFC-0030).
+ *
+ * @see {@link TooltipProps} para API plana
+ * @see {@link TooltipRootProps} para API compound
  */
-export const Tooltip = Object.assign(TooltipRoot, {
+function TooltipFlat({ label, placement, maxWidth, children, ...rootProps }: TooltipProps) {
+  if (label !== undefined) {
+    return (
+      <TooltipRoot {...rootProps}>
+        <TooltipTrigger>{children as React.ReactElement}</TooltipTrigger>
+        <TooltipContent placement={placement} maxWidth={maxWidth}>{label}</TooltipContent>
+      </TooltipRoot>
+    );
+  }
+  return <TooltipRoot {...rootProps}>{children}</TooltipRoot>;
+}
+
+TooltipFlat.displayName = 'Tooltip';
+
+export const Tooltip = Object.assign(TooltipFlat, {
   Root: TooltipRoot,
   Trigger: TooltipTrigger,
   Content: TooltipContent,

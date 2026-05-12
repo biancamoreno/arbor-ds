@@ -106,3 +106,42 @@ describe('Alert', () => {
     expect(screen.getByRole('alert')).toBeTruthy();
   });
 });
+
+describe('Alert flat API (title/description/icon/onClose props)', () => {
+  it('renderiza Icon + Title + Description automaticamente via props', () => {
+    const { container } = render(
+      <Alert tone="warning" title="Atenção" description="Verifique." />,
+      { wrapper },
+    );
+    expect(screen.getByText('Atenção')).toBeTruthy();
+    expect(screen.getByText('Verifique.')).toBeTruthy();
+    expect(container.querySelector('svg')).toBeTruthy();
+  });
+
+  it('renderiza Close button quando onClose é definido', () => {
+    const onClose = jest.fn();
+    const { container } = render(
+      <Alert tone="info" title="X" onClose={onClose} />,
+      { wrapper },
+    );
+    const closeBtn = container.querySelector('[aria-label="Fechar"]') as HTMLElement;
+    expect(closeBtn).toBeTruthy();
+    fireEvent.click(closeBtn);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('não renderiza Close button quando onClose é undefined', () => {
+    const { container } = render(<Alert tone="info" title="X" />, { wrapper });
+    expect(container.querySelector('[aria-label="Fechar"]')).toBeNull();
+  });
+
+  it('compound API continua disponível quando todas as props planas são undefined', () => {
+    render(
+      <Alert tone="info">
+        <Alert.Title>Compound</Alert.Title>
+      </Alert>,
+      { wrapper },
+    );
+    expect(screen.getByText('Compound')).toBeTruthy();
+  });
+});

@@ -27,7 +27,7 @@ export const radio = {
       },
       background: {
         outline: 'surface.default',
-        filled: 'background.subtle',
+        filled: 'background.muted',
         checked: 'surface.default',
       },
       dot: 'brand.solid',

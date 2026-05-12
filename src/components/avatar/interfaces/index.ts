@@ -1,4 +1,5 @@
 export type {
+  AvatarProps,
   AvatarRootProps,
   AvatarImageProps,
   AvatarFallbackProps,

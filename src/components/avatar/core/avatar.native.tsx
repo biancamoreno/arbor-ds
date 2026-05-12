@@ -4,6 +4,7 @@ import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { AvatarContext, useAvatarContext } from '../context/avatar-context';
 import type {
+  AvatarProps,
   AvatarRootProps,
   AvatarImageProps,
   AvatarFallbackProps,
@@ -123,24 +124,42 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
   );
 }
 
+AvatarRoot.displayName = 'Avatar.Root';
+AvatarImage.displayName = 'Avatar.Image';
+AvatarFallback.displayName = 'Avatar.Fallback';
+
 /**
  * @platform native
  *
- * Avatar em React Native — paridade com web pós-RFC-0035 + PCV-13.
+ * Avatar em React Native — API plana (95% dos casos) com escape compound via
+ * `Avatar.Root`. Paridade com web pós-RFC-0035 + PCV-13. `Avatar.Image`
+ * consome `<Image>` do DS; `Avatar.Fallback` extrai cor/peso da slot recipe;
+ * `AvatarGroup` substitui `boxShadow: 'avatarRing'` por `borderWidth: 2`.
  *
- * - `Avatar.Image` consome `<Image>` do DS (já cross-platform via
- *   RFC-0011/0012).
- * - `Avatar.Fallback` extrai `color`/`fontSize`/`fontWeight` da slot recipe
- *   e aplica em um `<Text>` interno (RN não cascateia text props de View).
- * - `AvatarGroup` substitui `boxShadow: 'avatarRing'` (CSS-only) por
- *   `borderWidth: 2` + `borderColor: 'surface.default'` — efeito visual
- *   equivalente, suportado pelo runtime native.
- * - Tamanhos/shape/cores via slot recipe `avatar` (PCV-13).
+ * @example
+ * <Avatar src={user.photo} alt={user.name} fallback={getInitials(user.name)} />
  *
- * @see {@link AvatarRootProps}
- * @see RFC-0035
+ * @see {@link AvatarProps} para API plana
+ * @see {@link AvatarRootProps} para API compound
  */
-export const Avatar = Object.assign(AvatarRoot, {
+function AvatarFlat({ src, alt, fallback, fallbackDelayMs, children, ...rootProps }: AvatarProps) {
+  const usesFlatApi = src !== undefined || alt !== undefined || fallback !== undefined;
+  if (!usesFlatApi) {
+    return <AvatarRoot {...rootProps}>{children}</AvatarRoot>;
+  }
+  return (
+    <AvatarRoot {...rootProps}>
+      {src !== undefined && <AvatarImage src={src} alt={alt ?? ''} />}
+      {fallback !== undefined && (
+        <AvatarFallback delayMs={fallbackDelayMs}>{fallback}</AvatarFallback>
+      )}
+    </AvatarRoot>
+  );
+}
+
+AvatarFlat.displayName = 'Avatar';
+
+export const Avatar = Object.assign(AvatarFlat, {
   Root: AvatarRoot,
   Image: AvatarImage,
   Fallback: AvatarFallback,

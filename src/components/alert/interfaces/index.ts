@@ -1,4 +1,5 @@
 export type {
+  AlertProps,
   AlertRootProps,
   AlertIconProps,
   AlertTitleProps,

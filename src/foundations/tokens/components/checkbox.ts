@@ -35,7 +35,7 @@ export const checkbox = {
       },
       background: {
         outline: 'surface.default',
-        filled: 'background.subtle',
+        filled: 'background.muted',
         checked: 'interactive.default',
       },
       mark: 'text.inverse',

@@ -4,6 +4,7 @@ import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { AvatarContext, useAvatarContext } from '../context/avatar-context';
 import type {
+  AvatarProps,
   AvatarRootProps,
   AvatarImageProps,
   AvatarFallbackProps,
@@ -112,28 +113,52 @@ function AvatarGroup({ children, max, size = 'medium', className, style }: Avata
   );
 }
 
+AvatarRoot.displayName = 'Avatar.Root';
+AvatarImage.displayName = 'Avatar.Image';
+AvatarFallback.displayName = 'Avatar.Fallback';
+
 /**
  * @platform shared
  *
- * Compound de avatar (cross-platform). `Avatar.Root` controla `size` (SP-1
- * completo) e `shape` (`circle`/`square`). `Avatar.Image` consome
- * `<Image>` do DS (RFC-0011/0012) — paridade web/native automática.
- * `Avatar.Fallback` exibe iniciais ou conteúdo customizado em loading/erro
- * (`delayMs` evita flash).
- *
- * Anatomia e cor (tamanhos, shape, background placeholder, fallback color,
- * overflow color) resolvidas pela slot recipe `avatar` — override completo
- * via `createTheme({ recipes: { avatar: ... }, components: { avatar: ... } })`.
+ * Avatar cross-platform. API plana (recomendada para 95% dos casos):
  *
  * @example
- * <Avatar size="medium">
- *   <Avatar.Image src={user.photo} alt={user.name} />
- *   <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
- * </Avatar>
+ * <Avatar src={user.photo} alt={user.name} fallback={getInitials(user.name)} />
  *
- * @see {@link AvatarRootProps}
+ * Para anatomia custom (delay no fallback, layout não-trivial, ring custom),
+ * use o compound:
+ *
+ * @example
+ * <Avatar.Root size="medium">
+ *   <Avatar.Image src={user.photo} alt={user.name} />
+ *   <Avatar.Fallback delayMs={300}>{getInitials(user.name)}</Avatar.Fallback>
+ * </Avatar.Root>
+ *
+ * Anatomia (tamanhos, shape, background placeholder, fallback color, overflow
+ * color) resolvida pela slot recipe `avatar`; override via
+ * `createTheme({ recipes: { avatar: ... }, components: { avatar: ... } })`.
+ *
+ * @see {@link AvatarProps} para API plana
+ * @see {@link AvatarRootProps} para API compound
  */
-export const Avatar = Object.assign(AvatarRoot, {
+function AvatarFlat({ src, alt, fallback, fallbackDelayMs, children, ...rootProps }: AvatarProps) {
+  const usesFlatApi = src !== undefined || alt !== undefined || fallback !== undefined;
+  if (!usesFlatApi) {
+    return <AvatarRoot {...rootProps}>{children}</AvatarRoot>;
+  }
+  return (
+    <AvatarRoot {...rootProps}>
+      {src !== undefined && <AvatarImage src={src} alt={alt ?? ''} />}
+      {fallback !== undefined && (
+        <AvatarFallback delayMs={fallbackDelayMs}>{fallback}</AvatarFallback>
+      )}
+    </AvatarRoot>
+  );
+}
+
+AvatarFlat.displayName = 'Avatar';
+
+export const Avatar = Object.assign(AvatarFlat, {
   Root: AvatarRoot,
   Image: AvatarImage,
   Fallback: AvatarFallback,

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tooltip } from './tooltip';
-import { Box, Text, Clickable } from '../../core';
+import { Box, Text, Clickable, Flex } from '../../core';
 
 const meta = {
   title: 'Overlay/Tooltip',
@@ -14,14 +14,38 @@ type Story = StoryObj;
 
 export const Default: Story = {
   render: () => (
-    <Tooltip.Root>
-      <Tooltip.Trigger>
-        <button style={{ padding: '8px 16px', borderRadius: 4, cursor: 'pointer' }}>
-          Passe o mouse
-        </button>
-      </Tooltip.Trigger>
-      <Tooltip.Content>Dica útil para o usuário</Tooltip.Content>
-    </Tooltip.Root>
+    <Tooltip label="Dica útil para o usuário">
+      <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default" borderWidth="1px" borderStyle="solid" borderColor="border.default">
+        Passe o mouse
+      </Clickable>
+    </Tooltip>
+  ),
+};
+
+export const Placements: Story = {
+  render: () => (
+    <Flex gap="medium" padding="xlarge" flexWrap="wrap" justifyContent="center">
+      {(['top', 'bottom', 'left', 'right'] as const).map((placement) => (
+        <Tooltip key={placement} label={`Tooltip ${placement}`} placement={placement}>
+          <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default" borderWidth="1px" borderStyle="solid" borderColor="border.default" minWidth={80}>
+            {placement}
+          </Clickable>
+        </Tooltip>
+      ))}
+    </Flex>
+  ),
+};
+
+export const WithLongContent: Story = {
+  render: () => (
+    <Tooltip
+      label="Esta é uma dica mais detalhada que pode conter múltiplas linhas de texto para explicar melhor a funcionalidade."
+      maxWidth={240}
+    >
+      <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default" borderWidth="1px" borderStyle="solid" borderColor="border.default">
+        Texto longo
+      </Clickable>
+    </Tooltip>
   ),
 };
 
@@ -42,50 +66,27 @@ export const InsideOverflowClip: Story = {
         borderRadius="medium"
         padding="medium"
       >
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default">
-              Hover
-            </Clickable>
-          </Tooltip.Trigger>
-          <Tooltip.Content placement="top">
-            Tooltip escapa do clip via Portal
-          </Tooltip.Content>
-        </Tooltip.Root>
+        <Tooltip label="Tooltip escapa do clip via Portal">
+          <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default">
+            Hover
+          </Clickable>
+        </Tooltip>
       </Box>
     </Box>
   ),
 };
 
-export const Placements: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: 32, padding: 64, flexWrap: 'wrap', justifyContent: 'center' }}>
-      {(['top', 'bottom', 'left', 'right'] as const).map((placement) => (
-        <Tooltip.Root key={placement}>
-          <Tooltip.Trigger>
-            <button style={{ padding: '8px 12px', borderRadius: 4, cursor: 'pointer', minWidth: 80 }}>
-              {placement}
-            </button>
-          </Tooltip.Trigger>
-          <Tooltip.Content placement={placement}>
-            Tooltip {placement}
-          </Tooltip.Content>
-        </Tooltip.Root>
-      ))}
-    </div>
-  ),
-};
-
-export const WithLongContent: Story = {
+export const AdvancedCompound: Story = {
+  name: 'API compound — controle granular',
   render: () => (
     <Tooltip.Root>
       <Tooltip.Trigger>
-        <button style={{ padding: '8px 16px', borderRadius: 4, cursor: 'pointer' }}>
-          Texto longo
-        </button>
+        <Clickable as="button" type="button" paddingX="medium" paddingY="small" borderRadius="small" backgroundColor="surface.default" borderWidth="1px" borderStyle="solid" borderColor="border.default">
+          Compound API
+        </Clickable>
       </Tooltip.Trigger>
-      <Tooltip.Content maxWidth={240}>
-        Esta é uma dica mais detalhada que pode conter múltiplas linhas de texto para explicar melhor a funcionalidade.
+      <Tooltip.Content placement="right" maxWidth={280}>
+        Use `Tooltip.Root` quando precisar de controle granular (open controlado externamente, conteúdo rich com markup, placement dinâmico).
       </Tooltip.Content>
     </Tooltip.Root>
   ),

@@ -52,10 +52,34 @@ export const Anatomy: Story = {
 export const Default: Story = {
   args: { size: 'medium', shape: 'circle' },
   render: (args) => (
-    <Avatar {...args}>
-      <Avatar.Image src="https://i.pravatar.cc/120?img=20" alt="Usuário" />
-      <Avatar.Fallback>US</Avatar.Fallback>
-    </Avatar>
+    <Avatar
+      {...args}
+      src="https://i.pravatar.cc/120?img=20"
+      alt="Usuário"
+      fallback="US"
+    />
+  ),
+};
+
+export const FlatAPI: Story = {
+  name: 'API plana — src/alt/fallback props',
+  render: () => (
+    <Flex flexDirection="column" gap="medium" maxWidth="640px">
+      <Text variant="overline" color="text.tertiary">
+        API plana: `&lt;Avatar src alt fallback /&gt;` cobre 95% dos casos. O
+        compound `&lt;Avatar.Root&gt;` continua disponível para anatomia custom
+        (delay no fallback, layout não-trivial).
+      </Text>
+      <Flex gap="medium" alignItems="center">
+        <Avatar size="medium" src="https://i.pravatar.cc/120?img=30" alt="Foto carregada" fallback="FC" />
+        <Avatar size="medium" fallback="JD" />
+        <Avatar size="medium" fallback={<Icon name="User" size="small" decorative />} />
+        <Avatar size="medium" src="https://invalid.example/missing.png" alt="Imagem inválida" fallback="ER" />
+      </Flex>
+      <Text variant="caption" color="text.tertiary">
+        Da esquerda: foto carregada · só iniciais · ícone como fallback · erro de carregamento.
+      </Text>
+    </Flex>
   ),
 };
 

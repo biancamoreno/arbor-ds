@@ -149,3 +149,41 @@ describe('Tooltip', () => {
     expect(screen.getByRole('tooltip')).toBeTruthy();
   });
 });
+
+describe('Tooltip flat API (label prop + children=trigger)', () => {
+  it('mounts content on hover via flat API', () => {
+    renderTooltip(
+      <Tooltip label="Dica útil">
+        <button type="button">Trigger</button>
+      </Tooltip>,
+    );
+    expect(screen.queryByRole('tooltip')).toBeNull();
+    fireEvent.mouseEnter(screen.getByText('Trigger'));
+    expect(screen.getByRole('tooltip')).toBeTruthy();
+    expect(screen.getByText('Dica útil')).toBeTruthy();
+  });
+
+  it('respects placement prop in flat API', () => {
+    renderTooltip(
+      <Tooltip label="Right tip" placement="right">
+        <button type="button">Trigger</button>
+      </Tooltip>,
+    );
+    fireEvent.mouseEnter(screen.getByText('Trigger'));
+    expect(screen.getByRole('tooltip')).toBeTruthy();
+  });
+
+  it('compound API continua disponível quando label é undefined', () => {
+    renderTooltip(
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <button type="button">Compound</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>Custom content</Tooltip.Content>
+      </Tooltip>,
+    );
+    fireEvent.mouseEnter(screen.getByText('Compound'));
+    expect(screen.getByRole('tooltip')).toBeTruthy();
+    expect(screen.getByText('Custom content')).toBeTruthy();
+  });
+});

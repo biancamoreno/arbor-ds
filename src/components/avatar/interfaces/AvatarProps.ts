@@ -21,11 +21,34 @@ export type AvatarShape = 'circle' | 'square';
  * `createTheme`.
  */
 export interface AvatarRootProps {
-  children: ReactNode;
+  children?: ReactNode;
   size?: AvatarSize;
   shape?: AvatarShape;
   className?: string;
   style?: CSSProperties;
+}
+
+/**
+ * Props do `Avatar` (top-level) — atalho declarativo para o caso comum (95%):
+ * renderiza `Image` + `Fallback` automaticamente.
+ *
+ * Para anatomia custom (delay no fallback, layout não-trivial, ring custom)
+ * use o compound: `<Avatar.Root>` + `<Avatar.Image />` + `<Avatar.Fallback />`.
+ */
+export interface AvatarProps extends Omit<AvatarRootProps, 'children'> {
+  /** URL da imagem do avatar. */
+  src?: string;
+  /** Texto alternativo da imagem (a11y). */
+  alt?: string;
+  /** Conteúdo do fallback (iniciais, ícone). Exibido em loading/erro/sem src. */
+  fallback?: ReactNode;
+  /** Atraso em ms antes de exibir o fallback (evita flash). */
+  fallbackDelayMs?: number;
+  /**
+   * Filhos para o modo compound — só consumido quando todas as props planas
+   * (`src`, `alt`, `fallback`) são undefined.
+   */
+  children?: ReactNode;
 }
 
 /** @platform shared */

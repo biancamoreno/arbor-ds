@@ -5,6 +5,7 @@ import { AlertContext, useAlertContext } from '../context/alert-context';
 import { transition, getFeedbackToneColor, type FeedbackTone } from '../../../foundations';
 import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type {
+  AlertProps,
   AlertRootProps,
   AlertIconProps,
   AlertTitleProps,
@@ -140,23 +141,61 @@ AlertClose.displayName = 'Alert.Close';
 /**
  * @platform shared
  *
- * Compound de alerta — banner persistente para mensagens de status
- * (informação, sucesso, aviso, crítico). `Alert.Root` controla `tone` (afeta
- * borda colorida + ícone default + cor do título). Slots: `Icon` (substitui
- * o ícone tone-default), `Title`, `Description`, `Close` (botão `X`
- * dismissable). Para notificações efêmeras automáticas, prefira `Toast`.
+ * Alerta — banner persistente para mensagens de status (informação, sucesso,
+ * aviso, crítico). API plana (recomendada para 90% dos casos):
  *
  * @example
- * <Alert tone="warning">
- *   <Alert.Icon />
- *   <Alert.Title>Atenção</Alert.Title>
- *   <Alert.Description>Sua sessão expira em 5 minutos.</Alert.Description>
- *   <Alert.Close onClick={dismiss} />
- * </Alert>
+ * <Alert
+ *   tone="warning"
+ *   title="Atenção"
+ *   description="Sua sessão expira em 5 minutos."
+ *   onClose={dismiss}
+ * />
  *
- * @see {@link AlertRootProps}
+ * Para layouts não-triviais (ícone custom, ação inline, multi-coluna), use o
+ * compound:
+ *
+ * @example
+ * <Alert.Root tone="warning">
+ *   <Alert.Icon><Icon name="Megaphone" /></Alert.Icon>
+ *   <Alert.Title>Atenção</Alert.Title>
+ *   <Alert.Description>
+ *     Sua sessão expira em 5 minutos. <Link href="...">Renovar</Link>
+ *   </Alert.Description>
+ *   <Alert.Close onClick={dismiss} />
+ * </Alert.Root>
+ *
+ * Para notificações efêmeras automáticas, prefira `Toast`.
+ *
+ * @see {@link AlertProps} para API plana
+ * @see {@link AlertRootProps} para API compound
  */
-export const Alert = Object.assign(AlertRoot, {
+function AlertFlat({ title, description, icon, onClose, closeLabel, children, ...rootProps }: AlertProps) {
+  const usesFlatApi =
+    title !== undefined ||
+    description !== undefined ||
+    icon !== undefined ||
+    onClose !== undefined;
+  if (!usesFlatApi) {
+    return <AlertRoot {...rootProps}>{children}</AlertRoot>;
+  }
+  return (
+    <AlertRoot {...rootProps}>
+      <AlertIcon>{icon}</AlertIcon>
+      {(title !== undefined || description !== undefined) && (
+        <Flex flex={1} flexDirection="column" gap="micro">
+          {title !== undefined && <AlertTitle>{title}</AlertTitle>}
+          {description !== undefined && <AlertDescription>{description}</AlertDescription>}
+        </Flex>
+      )}
+      {onClose !== undefined && <AlertClose onClick={onClose} label={closeLabel} />}
+    </AlertRoot>
+  );
+}
+
+AlertFlat.displayName = 'Alert';
+
+export const Alert = Object.assign(AlertFlat, {
   Root: AlertRoot,
   Icon: AlertIcon,
   Title: AlertTitle,

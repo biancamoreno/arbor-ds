@@ -82,6 +82,29 @@ describe('Avatar', () => {
   });
 });
 
+describe('Avatar flat API (src/alt/fallback props)', () => {
+  it('renderiza Image + Fallback automaticamente via props', () => {
+    render(<Avatar src="img.jpg" alt="Usuário" fallback="US" />, { wrapper });
+    expect(screen.getByAltText('Usuário')).toBeTruthy();
+    expect(screen.getByText('US')).toBeTruthy();
+  });
+
+  it('renderiza só Fallback quando src é undefined', () => {
+    render(<Avatar fallback="JD" />, { wrapper });
+    expect(screen.getByText('JD')).toBeTruthy();
+  });
+
+  it('compound API continua disponível quando todas as props planas são undefined', () => {
+    render(
+      <Avatar>
+        <Avatar.Fallback>CP</Avatar.Fallback>
+      </Avatar>,
+      { wrapper },
+    );
+    expect(screen.getByText('CP')).toBeTruthy();
+  });
+});
+
 describe('AvatarGroup', () => {
   const makeAvatar = (label: string) => (
     <Avatar.Root key={label}>

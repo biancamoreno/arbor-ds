@@ -4,6 +4,45 @@
 
 ### Added
 
+- **`Alert`, `Tooltip` e `Avatar` ganham API plana** seguindo o mesmo pattern de `Checkbox`/`Radio`. Sem breaking — `.Root` preservado em todos para layouts não-triviais.
+  - **Alert:**
+    ```tsx
+    // Antes (compound)
+    <Alert tone="warning">
+      <Alert.Icon />
+      <Alert.Title>Atenção</Alert.Title>
+      <Alert.Description>Sessão expira em 5min.</Alert.Description>
+      <Alert.Close onClick={dismiss} />
+    </Alert>
+    // Agora (plano)
+    <Alert tone="warning" title="Atenção" description="Sessão expira em 5min." onClose={dismiss} />
+    ```
+    Props novas: `title?`, `description?`, `icon?` (override do ícone tone-default), `onClose?` (presença renderiza botão `X`), `closeLabel?`. Quando `onClose` é definido, o botão de fechamento é renderizado; quando undefined, é omitido. `AlertRootProps.children` virou opcional. Novo tipo `AlertProps`.
+  - **Tooltip:**
+    ```tsx
+    // Antes (compound)
+    <Tooltip.Root>
+      <Tooltip.Trigger><IconButton icon="Trash" /></Tooltip.Trigger>
+      <Tooltip.Content>Excluir item</Tooltip.Content>
+    </Tooltip.Root>
+    // Agora (plano)
+    <Tooltip label="Excluir item"><IconButton icon="Trash" /></Tooltip>
+    ```
+    Pattern alinhado Mantine/Chakra (children = trigger, `label` = content). Props novas: `label?`, `placement?`, `maxWidth?`. No modo plano `children` é o trigger direto (cloneElement com handlers). Novo tipo `TooltipProps`.
+  - **Avatar:**
+    ```tsx
+    // Antes (compound)
+    <Avatar size="medium">
+      <Avatar.Image src={user.photo} alt={user.name} />
+      <Avatar.Fallback>{initials(user.name)}</Avatar.Fallback>
+    </Avatar>
+    // Agora (plano)
+    <Avatar src={user.photo} alt={user.name} fallback={initials(user.name)} />
+    ```
+    Props novas: `src?`, `alt?`, `fallback?` (aceita `ReactNode` — string para iniciais ou `<Icon/>` para ícone genérico), `fallbackDelayMs?`. `AvatarRootProps.children` virou opcional. Novo tipo `AvatarProps`. Em ambas plataformas (`.tsx` e `.native.tsx`).
+  - **Pattern canônico estabelecido:** `usesFlatApi = qualquer-prop-plana !== undefined || (sem children quando apropriado)`. Sem detecção mágica — prop discrimina, não introspecção de tipos. Cada wrapper preserva `displayName` correto (`Component` vs `Component.Root`). Stories ganharam variações `FlatAPI` e `AdvancedCompound` para documentar os dois modos.
+  - **+10 testes smoke** cobrindo renders auto, omissão condicional, click forward e fallback compound. Suite 1122 → 1132.
+
 - **`Checkbox` e `Radio` ganham API plana** com props `label?: ReactNode` e `description?: ReactNode` — atalho declarativo para o caso comum (98%) sem precisar compor `Root` + `Indicator` + `Label`. Sem breaking: o compound `Checkbox.Root` / `Radio.Root` continua disponível para layouts não-triviais (Label antes do Indicator, descrição com ícone embutido, integração custom com Field).
   - **Antes (compound obrigatório):**
     ```tsx
@@ -32,6 +71,8 @@
   - **Storybook:** novo case `Variants` em ambos componentes mostrando outline vs filled lado a lado nos três estados (idle/checked/indeterminate para Checkbox; idle/checked para Radio).
 
 ### Fixed
+
+- **`Checkbox` e `Radio` variant `filled` agora é visualmente distinto de `outline`.** O alias `colors.indicator.background.filled` em `tokens/components/{checkbox,radio}.ts` apontava para `background.subtle` (`#FAFAF9`) — 1 byte por canal de diferença para `surface.default` (`#FFFFFF`), imperceptível em indicadores de 16–20px. Migrado para `background.muted` (`sandstone[10]` = `#F2F2F0`), alinhamento com o `filled` de Mantine/Chakra (cinza tactile sobre fundo branco). Recipe e componente intactos — só o ponteiro do alias mudou; override via `createTheme({ components: { checkbox: { colors: { indicator: { background: { filled: '...' } } } } } })` continua propagando.
 
 - **`Checkbox` e `Radio`: borda do indicador era invisível** — recipes declaravam `borderWidth` + `borderColor` mas não `borderStyle`, então o browser defaultava para `border-style: none` e ignorava silenciosamente width+color (CSS exige os 3). Outras 14 recipes do projeto (Input/Switch/Card/Button/etc) já declaravam `borderStyle: 'solid'` explicitamente; Checkbox e Radio eram exceção. Restaura a affordance visual no estado idle.
 
