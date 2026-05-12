@@ -1,11 +1,18 @@
 import type { ReactNode } from 'react';
 
 export type RadioSize = 'small' | 'medium' | 'large';
+export type RadioVariant = 'outline' | 'filled';
 
 /**
  * @platform shared
  * Web: `<input type=radio>` invisível + label clicável.
  * Native: `<Pressable accessibilityRole="radio">` em `radio.native.tsx`.
+ *
+ * `variant`:
+ * - `'outline'` (default) — círculo transparente com borda visível.
+ * - `'filled'` — círculo com `background.subtle` preenchendo o indicador no
+ *   estado idle. Checked retorna a `surface.default` para o dot brand-solid
+ *   contrastar.
  */
 export interface RadioRootProps {
   value: string;
@@ -16,6 +23,7 @@ export interface RadioRootProps {
   id?: string;
   name?: string;
   size?: RadioSize;
+  variant?: RadioVariant;
   children: ReactNode;
 }
 

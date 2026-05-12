@@ -32,6 +32,7 @@ function RadioRoot({
   id: idProp,
   name,
   size = 'medium',
+  variant = 'outline',
   children,
 }: RadioRootProps) {
   const autoId = useId();
@@ -47,7 +48,7 @@ function RadioRoot({
   });
 
   const state = resolveState(effectiveDisabled, effectiveInvalid, checkedState);
-  const slots = useSlotRecipe<RadioSlot>('radio', { size, state });
+  const slots = useSlotRecipe<RadioSlot>('radio', { size, variant, state });
 
   return (
     <RadioContext.Provider
@@ -56,6 +57,7 @@ function RadioRoot({
         disabled: effectiveDisabled,
         invalid: effectiveInvalid,
         size,
+        variant,
         state,
         inputId,
         value,
@@ -81,7 +83,7 @@ function RadioRoot({
 
 function RadioIndicator(_props: RadioIndicatorProps) {
   const ctx = useRadioContext();
-  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
+  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, variant: ctx.variant, state: ctx.state });
 
   return (
     <Flex {...slots.indicator}>
@@ -92,13 +94,13 @@ function RadioIndicator(_props: RadioIndicatorProps) {
 
 function RadioLabel({ children }: RadioLabelProps) {
   const ctx = useRadioContext();
-  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
+  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, variant: ctx.variant, state: ctx.state });
   return <Text {...slots.label}>{children}</Text>;
 }
 
 function RadioDescription({ children }: RadioDescriptionProps) {
   const ctx = useRadioContext();
-  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
+  const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, variant: ctx.variant, state: ctx.state });
   return <Text {...slots.description}>{children}</Text>;
 }
 

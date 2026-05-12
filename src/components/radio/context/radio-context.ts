@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { RadioSize } from '../interfaces/RadioProps';
+import type { RadioSize, RadioVariant } from '../interfaces/RadioProps';
 
 export type RadioState = 'idle' | 'checked' | 'invalid' | 'disabled';
 
@@ -8,6 +8,7 @@ export type RadioContextValue = {
   disabled: boolean;
   invalid: boolean;
   size: RadioSize;
+  variant: RadioVariant;
   state: RadioState;
   inputId: string;
   value: string;

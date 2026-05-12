@@ -35,6 +35,7 @@ function CheckboxRoot({
   disabled,
   indeterminate = false,
   size = 'medium',
+  variant = 'outline',
   id: idProp,
   name,
   value,
@@ -54,7 +55,7 @@ function CheckboxRoot({
   });
 
   const state = resolveState(effectiveDisabled, effectiveInvalid, checkedState || indeterminate);
-  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size, state });
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size, variant, state });
 
   useEffect(() => {
     if (inputRef.current) {
@@ -70,6 +71,7 @@ function CheckboxRoot({
         disabled: effectiveDisabled,
         invalid: effectiveInvalid,
         size,
+        variant,
         state,
         inputId,
         name,
@@ -114,7 +116,7 @@ function CheckboxRoot({
 
 function CheckboxIndicator(_props: CheckboxIndicatorProps) {
   const ctx = useCheckboxContext();
-  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, variant: ctx.variant, state: ctx.state });
   const showCheck = ctx.checked && !ctx.indeterminate;
   const showDash = ctx.indeterminate;
 
@@ -130,7 +132,7 @@ CheckboxIndicator.displayName = 'Checkbox.Indicator';
 
 function CheckboxLabel({ children }: CheckboxLabelProps) {
   const ctx = useCheckboxContext();
-  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, variant: ctx.variant, state: ctx.state });
   return <Text as="span" {...slots.label}>{children}</Text>;
 }
 
@@ -138,7 +140,7 @@ CheckboxLabel.displayName = 'Checkbox.Label';
 
 function CheckboxDescription({ children }: CheckboxDescriptionProps) {
   const ctx = useCheckboxContext();
-  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, state: ctx.state });
+  const slots = useSlotRecipe<CheckboxSlot>('checkbox', { size: ctx.size, variant: ctx.variant, state: ctx.state });
   return <Text as="span" {...slots.description}>{children}</Text>;
 }
 

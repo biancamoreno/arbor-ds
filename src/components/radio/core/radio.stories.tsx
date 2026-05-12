@@ -13,6 +13,7 @@ const meta = {
   parameters: { layout: 'centered' },
   argTypes: {
     size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
+    variant: { control: { type: 'select' }, options: ['outline', 'filled'] },
     disabled: { control: 'boolean' },
   },
 } satisfies Meta<typeof Radio>;
@@ -47,6 +48,33 @@ export const WithDescription: Story = {
         <Radio.Description>R$ 49/mês — Recursos ilimitados</Radio.Description>
       </Flex>
     </Radio.Root>
+  ),
+};
+
+export const Variants: Story = {
+  render: () => (
+    <Flex flexDirection="column" gap="medium" alignItems="flex-start">
+      <Flex flexDirection="column" gap="small" alignItems="flex-start">
+        <Radio.Root value="o-idle" id="variant-outline-idle" variant="outline">
+          <Radio.Indicator />
+          <Radio.Label>Outline · idle (default)</Radio.Label>
+        </Radio.Root>
+        <Radio.Root value="o-checked" id="variant-outline-checked" variant="outline" defaultChecked>
+          <Radio.Indicator />
+          <Radio.Label>Outline · checked</Radio.Label>
+        </Radio.Root>
+      </Flex>
+      <Flex flexDirection="column" gap="small" alignItems="flex-start">
+        <Radio.Root value="f-idle" id="variant-filled-idle" variant="filled">
+          <Radio.Indicator />
+          <Radio.Label>Filled · idle (bg subtle)</Radio.Label>
+        </Radio.Root>
+        <Radio.Root value="f-checked" id="variant-filled-checked" variant="filled" defaultChecked>
+          <Radio.Indicator />
+          <Radio.Label>Filled · checked</Radio.Label>
+        </Radio.Root>
+      </Flex>
+    </Flex>
   ),
 };
 

@@ -328,7 +328,7 @@ const recipes: ThemeRecipes = {
         borderWidth: '$checkbox.borderWidth',
         borderStyle: 'solid',
         borderColor: '$checkbox.colors.indicator.border.default',
-        backgroundColor: '$checkbox.colors.indicator.background.default',
+        backgroundColor: '$checkbox.colors.indicator.background.outline',
         color: '$checkbox.colors.indicator.mark',
         transition: transition(['background-color', 'border-color'], 'fast'),
       },
@@ -354,6 +354,12 @@ const recipes: ThemeRecipes = {
           label: { fontSize: '$checkbox.fontSize.label.large' },
         },
       },
+      variant: {
+        outline: {},
+        filled: {
+          indicator: { backgroundColor: '$checkbox.colors.indicator.background.filled' },
+        },
+      },
       state: {
         idle: {},
         checked: {
@@ -366,7 +372,7 @@ const recipes: ThemeRecipes = {
         disabled: { root: { opacity: '$checkbox.opacity.disabled' } },
       },
     },
-    defaultVariants: { size: 'medium', state: 'idle' },
+    defaultVariants: { size: 'medium', variant: 'outline', state: 'idle' },
   }),
 
   radio: defineSlotRecipe({
@@ -402,9 +408,9 @@ const recipes: ThemeRecipes = {
         borderWidth: '$radio.indicator.borderWidth',
         borderStyle: 'solid',
         borderColor: '$radio.colors.indicator.border.default',
-        backgroundColor: '$radio.colors.indicator.background',
+        backgroundColor: '$radio.colors.indicator.background.outline',
         flexShrink: 0,
-        transition: transition(['border-color'], 'fast'),
+        transition: transition(['background-color', 'border-color'], 'fast'),
       },
       dot: {
         width: '$radio.indicator.dotSize',
@@ -426,17 +432,26 @@ const recipes: ThemeRecipes = {
         medium: { label: { fontSize: '$radio.fontSize.label.medium' } },
         large: { label: { fontSize: '$radio.fontSize.label.large' } },
       },
+      variant: {
+        outline: {},
+        filled: {
+          indicator: { backgroundColor: '$radio.colors.indicator.background.filled' },
+        },
+      },
       state: {
         idle: {},
         checked: {
-          indicator: { borderColor: '$radio.colors.indicator.border.checked' },
+          indicator: {
+            borderColor: '$radio.colors.indicator.border.checked',
+            backgroundColor: '$radio.colors.indicator.background.checked',
+          },
           dot: { backgroundColor: '$radio.colors.indicator.dot' },
         },
         invalid: { indicator: { borderColor: '$radio.colors.indicator.border.invalid' } },
         disabled: { root: { opacity: '$radio.opacity.disabled' } },
       },
     },
-    defaultVariants: { size: 'medium', state: 'idle' },
+    defaultVariants: { size: 'medium', variant: 'outline', state: 'idle' },
   }),
 
   switch: defineSlotRecipe({

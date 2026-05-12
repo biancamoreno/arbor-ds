@@ -13,6 +13,7 @@ const meta = {
   parameters: { layout: 'centered' },
   argTypes: {
     size: { control: { type: 'select' }, options: ['small', 'medium', 'large'] },
+    variant: { control: { type: 'select' }, options: ['outline', 'filled'] },
     disabled: { control: 'boolean' },
     indeterminate: { control: 'boolean' },
   },
@@ -45,6 +46,41 @@ export const Indeterminate: Story = {
       <Checkbox.Indicator />
       <Checkbox.Label>Glifo Minus via Icon (tri-state)</Checkbox.Label>
     </Checkbox.Root>
+  ),
+};
+
+export const Variants: Story = {
+  render: () => (
+    <Flex flexDirection="column" gap="medium" alignItems="flex-start">
+      <Flex flexDirection="column" gap="small" alignItems="flex-start">
+        <Checkbox.Root id="variant-outline-idle" variant="outline">
+          <Checkbox.Indicator />
+          <Checkbox.Label>Outline · idle (default)</Checkbox.Label>
+        </Checkbox.Root>
+        <Checkbox.Root id="variant-outline-checked" variant="outline" defaultChecked>
+          <Checkbox.Indicator />
+          <Checkbox.Label>Outline · checked</Checkbox.Label>
+        </Checkbox.Root>
+        <Checkbox.Root id="variant-outline-indeterminate" variant="outline" indeterminate>
+          <Checkbox.Indicator />
+          <Checkbox.Label>Outline · indeterminate</Checkbox.Label>
+        </Checkbox.Root>
+      </Flex>
+      <Flex flexDirection="column" gap="small" alignItems="flex-start">
+        <Checkbox.Root id="variant-filled-idle" variant="filled">
+          <Checkbox.Indicator />
+          <Checkbox.Label>Filled · idle (bg subtle)</Checkbox.Label>
+        </Checkbox.Root>
+        <Checkbox.Root id="variant-filled-checked" variant="filled" defaultChecked>
+          <Checkbox.Indicator />
+          <Checkbox.Label>Filled · checked</Checkbox.Label>
+        </Checkbox.Root>
+        <Checkbox.Root id="variant-filled-indeterminate" variant="filled" indeterminate>
+          <Checkbox.Indicator />
+          <Checkbox.Label>Filled · indeterminate</Checkbox.Label>
+        </Checkbox.Root>
+      </Flex>
+    </Flex>
   ),
 };
 

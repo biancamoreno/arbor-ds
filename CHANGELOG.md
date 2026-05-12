@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Added
+
+- **`Checkbox` e `Radio` ganham prop `variant: 'outline' | 'filled'`** (default `'outline'`, sem breaking). Permite escolher o tratamento visual do indicador no estado idle sem editar tema:
+  - `'outline'` (default): caixa/círculo transparente sobre `surface.default` — comportamento atual.
+  - `'filled'`: caixa/círculo com `background.subtle` (off-white quente) preenchendo o indicador no idle — mais "tactile" sobre fundos brancos. No Checkbox o estado `checked` continua preenchendo com `interactive.default`; no Radio o `checked` volta para `surface.default` para o dot brand-solid contrastar.
+  - **Tokens novos** em `tokens/components/{checkbox,radio}.ts`: `colors.indicator.background.{outline,filled,checked}` (radio também ganha `checked` agora, antes era string única). Override completo via `createTheme({ components: { checkbox: { colors: { indicator: { background: { filled: 'background.muted' } } } } } })`.
+  - **Recipes** (`base-theme.ts`): novo axis `variant: 'outline' | 'filled'` em `checkbox` e `radio` (`defaultVariants.variant: 'outline'`). State `checked` permanece com maior precedência — bg do variant é sobrescrito quando checked.
+  - **Naming:** `filled` alinhado com Mantine/Chakra/Vuetify/Naive UI/Element Plus/PrimeReact (maior denominador comum na comunidade); preserva `solid`/`subtle` para semântica de tone (Tag/Badge/Chip) sem colisão.
+  - **Storybook:** novo case `Variants` em ambos componentes mostrando outline vs filled lado a lado nos três estados (idle/checked/indeterminate para Checkbox; idle/checked para Radio).
+
+### Fixed
+
+- **`Checkbox` e `Radio`: borda do indicador era invisível** — recipes declaravam `borderWidth` + `borderColor` mas não `borderStyle`, então o browser defaultava para `border-style: none` e ignorava silenciosamente width+color (CSS exige os 3). Outras 14 recipes do projeto (Input/Switch/Card/Button/etc) já declaravam `borderStyle: 'solid'` explicitamente; Checkbox e Radio eram exceção. Restaura a affordance visual no estado idle.
+
 ### Breaking
 
 - **RFC-0042 PCV-18 — `Radio` stripped-down (drop do resíduo de RadioCard) + novo slot `dot` themable + touch target via recipe (Camada 5 RFC-0042 3/4).** Pré-v1.

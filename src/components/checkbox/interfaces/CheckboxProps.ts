@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { CheckboxSize } from '../context/checkbox-context';
+import type { CheckboxSize, CheckboxVariant } from '../context/checkbox-context';
 
 /**
  * @platform shared
@@ -9,6 +9,12 @@ import type { CheckboxSize } from '../context/checkbox-context';
  * `Root` renderiza um `<input type="checkbox">` visualmente escondido (web) ou
  * `<Pressable>` (native). `Indicator` é puramente visual — não aceita props
  * HTML do input (essas migraram para `Root`).
+ *
+ * `variant`:
+ * - `'outline'` (default) — caixa transparente com borda visível.
+ * - `'filled'` — caixa com `background.subtle` preenchendo o indicador no
+ *   estado idle (mais "tactile" sobre fundo branco). Estado checked preenche
+ *   com `interactive.default` em ambos.
  */
 export interface CheckboxRootProps {
   checked?: boolean;
@@ -17,6 +23,7 @@ export interface CheckboxRootProps {
   disabled?: boolean;
   indeterminate?: boolean;
   size?: CheckboxSize;
+  variant?: CheckboxVariant;
   id?: string;
   name?: string;
   value?: string;

@@ -25,7 +25,11 @@ export const radio = {
         checked: 'brand.solid',
         invalid: 'feedback.critical.solid',
       },
-      background: 'surface.default',
+      background: {
+        outline: 'surface.default',
+        filled: 'background.subtle',
+        checked: 'surface.default',
+      },
       dot: 'brand.solid',
     },
     label: 'text.primary',

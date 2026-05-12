@@ -34,7 +34,8 @@ export const checkbox = {
         invalid: 'feedback.critical.solid',
       },
       background: {
-        default: 'surface.default',
+        outline: 'surface.default',
+        filled: 'background.subtle',
         checked: 'interactive.default',
       },
       mark: 'text.inverse',
