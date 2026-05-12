@@ -2,9 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { ArborProvider } from '../../../ecosystem/styled-system';
 import { createTheme, themeLight } from '../../../foundations';
-import { Box, Flex, Text } from '../../core';
+import { Box, Flex, Icon, Text } from '../../core';
 import { Field } from '../../field';
 import { Select } from './select';
+import type { SelectOption } from '../interfaces/SelectProps';
 
 const meta = {
   title: 'Form/Select',
@@ -20,20 +21,27 @@ const meta = {
 export default meta;
 type Story = StoryObj;
 
+const FRAMEWORKS: SelectOption[] = [
+  { value: 'react', label: 'React' },
+  { value: 'vue', label: 'Vue' },
+  { value: 'angular', label: 'Angular' },
+  { value: 'svelte', label: 'Svelte' },
+];
+
 export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'API plana (RFC-0043 / PCV-22) — caminho recomendado. `options[]` ' +
+          'expressa toda a anatomia padrão; o compound segue exportado para ' +
+          'layouts não-triviais (ver `AdvancedCompound`).',
+      },
+    },
+  },
   render: () => (
     <Box width="280px">
-      <Select.Root>
-        <Select.Trigger>
-          <Select.Value placeholder="Selecione..." />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="react">React</Select.Item>
-          <Select.Item value="vue">Vue</Select.Item>
-          <Select.Item value="angular">Angular</Select.Item>
-          <Select.Item value="svelte">Svelte</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      <Select placeholder="Selecione..." options={FRAMEWORKS} />
     </Box>
   ),
 };
@@ -41,16 +49,7 @@ export const Default: Story = {
 export const WithDefaultValue: Story = {
   render: () => (
     <Box width="280px">
-      <Select.Root defaultValue="react">
-        <Select.Trigger>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="react">React</Select.Item>
-          <Select.Item value="vue">Vue</Select.Item>
-          <Select.Item value="angular">Angular</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      <Select defaultValue="react" options={FRAMEWORKS} />
     </Box>
   ),
 };
@@ -58,16 +57,14 @@ export const WithDefaultValue: Story = {
 export const WithDisabledItem: Story = {
   render: () => (
     <Box width="280px">
-      <Select.Root>
-        <Select.Trigger>
-          <Select.Value placeholder="Plano..." />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="free">Gratuito</Select.Item>
-          <Select.Item value="pro">Pro — R$ 49/mês</Select.Item>
-          <Select.Item value="enterprise" disabled>Enterprise (em breve)</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      <Select
+        placeholder="Plano..."
+        options={[
+          { value: 'free', label: 'Gratuito' },
+          { value: 'pro', label: 'Pro — R$ 49/mês' },
+          { value: 'enterprise', label: 'Enterprise (em breve)', disabled: true },
+        ]}
+      />
     </Box>
   ),
 };
@@ -75,17 +72,16 @@ export const WithDisabledItem: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex flexDirection="column" gap="12px">
-      {(['small', 'medium', 'large'] as const).map((size) => (
+      {(['small', 'medium', 'large'] as const).map(size => (
         <Box key={size} width="280px">
-          <Select.Root size={size}>
-            <Select.Trigger>
-              <Select.Value placeholder={`Tamanho ${size}`} />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="opt1">Opção 1</Select.Item>
-              <Select.Item value="opt2">Opção 2</Select.Item>
-            </Select.Content>
-          </Select.Root>
+          <Select
+            size={size}
+            placeholder={`Tamanho ${size}`}
+            options={[
+              { value: 'opt1', label: 'Opção 1' },
+              { value: 'opt2', label: 'Opção 2' },
+            ]}
+          />
         </Box>
       ))}
     </Flex>
@@ -95,14 +91,11 @@ export const Sizes: Story = {
 export const Disabled: Story = {
   render: () => (
     <Box width="280px">
-      <Select.Root disabled>
-        <Select.Trigger>
-          <Select.Value placeholder="Desabilitado" />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="opt1">Opção 1</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      <Select
+        disabled
+        placeholder="Desabilitado"
+        options={[{ value: 'opt1', label: 'Opção 1' }]}
+      />
     </Box>
   ),
 };
@@ -114,19 +107,19 @@ function KeyboardOnlyDemo() {
       <Text fontSize="small" color="text.secondary">
         Selecionado: <strong>{value || '—'}</strong>
       </Text>
-      <Select.Root value={value} onValueChange={setValue}>
-        <Select.Trigger>
-          <Select.Value placeholder="Use só o teclado" />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="sao-paulo">São Paulo</Select.Item>
-          <Select.Item value="rio">Rio de Janeiro</Select.Item>
-          <Select.Item value="bh">Belo Horizonte</Select.Item>
-          <Select.Item value="curitiba">Curitiba</Select.Item>
-          <Select.Item value="recife">Recife</Select.Item>
-          <Select.Item value="fortaleza">Fortaleza</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      <Select
+        value={value}
+        onValueChange={setValue}
+        placeholder="Use só o teclado"
+        options={[
+          { value: 'sao-paulo', label: 'São Paulo' },
+          { value: 'rio', label: 'Rio de Janeiro' },
+          { value: 'bh', label: 'Belo Horizonte' },
+          { value: 'curitiba', label: 'Curitiba' },
+          { value: 'recife', label: 'Recife' },
+          { value: 'fortaleza', label: 'Fortaleza' },
+        ]}
+      />
     </Flex>
   );
 }
@@ -165,16 +158,14 @@ export const InsideOverflowClip: Story = {
         padding: 8,
       }}
     >
-      <Select.Root>
-        <Select.Trigger>
-          <Select.Value placeholder="Container com overflow:hidden" />
-        </Select.Trigger>
-        <Select.Content>
-          <Select.Item value="a">Opção A — não cortada</Select.Item>
-          <Select.Item value="b">Opção B — não cortada</Select.Item>
-          <Select.Item value="c">Opção C — não cortada</Select.Item>
-        </Select.Content>
-      </Select.Root>
+      <Select
+        placeholder="Container com overflow:hidden"
+        options={[
+          { value: 'a', label: 'Opção A — não cortada' },
+          { value: 'b', label: 'Opção B — não cortada' },
+          { value: 'c', label: 'Opção C — não cortada' },
+        ]}
+      />
     </Box>
   ),
 };
@@ -185,34 +176,91 @@ export const LongList: Story = {
       description: {
         story:
           '50+ itens. PageUp/PageDown saltam ±10, scroll-into-view garante que o item ativo ' +
-          'está visível, type-ahead acelera busca por prefixo.',
+          'está visível, type-ahead acelera busca por prefixo. `maxHeight` do listbox é ' +
+          'themable via `sizes.selectContent.maxHeight`.',
       },
     },
   },
   render: () => (
     <Box width="280px">
-      <Select.Root>
-        <Select.Trigger>
-          <Select.Value placeholder="Selecione um país" />
-        </Select.Trigger>
-        <Select.Content>
-          {[
-            'Argentina', 'Austrália', 'Áustria', 'Bélgica', 'Bolívia', 'Brasil',
-            'Canadá', 'Chile', 'China', 'Colômbia', 'Coreia do Sul', 'Costa Rica',
-            'Croácia', 'Dinamarca', 'Egito', 'Equador', 'Eslováquia', 'Eslovênia',
-            'Espanha', 'Estados Unidos', 'Estônia', 'Filipinas', 'Finlândia', 'França',
-            'Grécia', 'Holanda', 'Hungria', 'Índia', 'Indonésia', 'Irlanda',
-            'Israel', 'Itália', 'Japão', 'Letônia', 'Lituânia', 'Luxemburgo',
-            'Malásia', 'México', 'Noruega', 'Nova Zelândia', 'Panamá', 'Paraguai',
-            'Peru', 'Polônia', 'Portugal', 'Reino Unido', 'República Tcheca', 'Romênia',
-            'Singapura', 'Suécia', 'Suíça', 'Tailândia', 'Turquia', 'Uruguai', 'Venezuela',
-          ].map(country => (
-            <Select.Item key={country} value={country.toLowerCase().replace(/\s+/g, '-')}>
-              {country}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select.Root>
+      <Select
+        placeholder="Selecione um país"
+        options={[
+          'Argentina', 'Austrália', 'Áustria', 'Bélgica', 'Bolívia', 'Brasil',
+          'Canadá', 'Chile', 'China', 'Colômbia', 'Coreia do Sul', 'Costa Rica',
+          'Croácia', 'Dinamarca', 'Egito', 'Equador', 'Eslováquia', 'Eslovênia',
+          'Espanha', 'Estados Unidos', 'Estônia', 'Filipinas', 'Finlândia', 'França',
+          'Grécia', 'Holanda', 'Hungria', 'Índia', 'Indonésia', 'Irlanda',
+          'Israel', 'Itália', 'Japão', 'Letônia', 'Lituânia', 'Luxemburgo',
+          'Malásia', 'México', 'Noruega', 'Nova Zelândia', 'Panamá', 'Paraguai',
+          'Peru', 'Polônia', 'Portugal', 'Reino Unido', 'República Tcheca', 'Romênia',
+          'Singapura', 'Suécia', 'Suíça', 'Tailândia', 'Turquia', 'Uruguai', 'Venezuela',
+        ].map(country => ({
+          value: country.toLowerCase().replace(/\s+/g, '-'),
+          label: country,
+        }))}
+      />
+    </Box>
+  ),
+};
+
+export const WithRichOptions: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`SelectOption` aceita `startSlot` (ornamento à esquerda, geralmente `Icon`) ' +
+          'e `description` (texto secundário abaixo do label). Cobre o caso comum ' +
+          '"ícone + título + subtítulo" sem precisar do compound.',
+      },
+    },
+  },
+  render: () => (
+    <Box width="320px">
+      <Select
+        placeholder="Forma de pagamento"
+        options={[
+          {
+            value: 'card',
+            label: 'Cartão de crédito',
+            description: 'Aprovação imediata',
+            startSlot: <Icon name="CreditCard" size="small" decorative />,
+          },
+          {
+            value: 'pix',
+            label: 'Pix',
+            description: 'Compensação em segundos',
+            startSlot: <Icon name="Zap" size="small" decorative />,
+          },
+          {
+            value: 'boleto',
+            label: 'Boleto bancário',
+            description: 'Compensa em até 3 dias úteis',
+            startSlot: <Icon name="FileText" size="small" decorative />,
+          },
+        ]}
+      />
+    </Box>
+  ),
+};
+
+export const EmptyState: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`emptyMessage` é exibido quando `options=[]`. Útil para listas dinâmicas ' +
+          'após filtragem.',
+      },
+    },
+  },
+  render: () => (
+    <Box width="280px">
+      <Select
+        placeholder="Selecione..."
+        options={[]}
+        emptyMessage="Nenhum resultado encontrado"
+      />
     </Box>
   ),
 };
@@ -233,16 +281,14 @@ export const WithFieldContext: Story = {
       <Field id="payment-method">
         <Field.Label>Forma de pagamento</Field.Label>
         <Field.Control>
-          <Select.Root>
-            <Select.Trigger>
-              <Select.Value placeholder="Selecione..." />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="card">Cartão de crédito</Select.Item>
-              <Select.Item value="pix">Pix</Select.Item>
-              <Select.Item value="boleto">Boleto</Select.Item>
-            </Select.Content>
-          </Select.Root>
+          <Select
+            placeholder="Selecione..."
+            options={[
+              { value: 'card', label: 'Cartão de crédito' },
+              { value: 'pix', label: 'Pix' },
+              { value: 'boleto', label: 'Boleto' },
+            ]}
+          />
         </Field.Control>
         <Field.Description>Aparece em `aria-describedby` do trigger.</Field.Description>
       </Field>
@@ -250,15 +296,13 @@ export const WithFieldContext: Story = {
       <Field id="country" invalid>
         <Field.Label>País *</Field.Label>
         <Field.Control>
-          <Select.Root>
-            <Select.Trigger>
-              <Select.Value placeholder="Selecione um país" />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="br">Brasil</Select.Item>
-              <Select.Item value="pt">Portugal</Select.Item>
-            </Select.Content>
-          </Select.Root>
+          <Select
+            placeholder="Selecione um país"
+            options={[
+              { value: 'br', label: 'Brasil' },
+              { value: 'pt', label: 'Portugal' },
+            ]}
+          />
         </Field.Control>
         <Field.Error>Campo obrigatório.</Field.Error>
       </Field>
@@ -266,35 +310,86 @@ export const WithFieldContext: Story = {
   ),
 };
 
+export const AdvancedCompound: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'API compound preservada (`Select.Root`/`Select.Trigger`/`Select.Content`/' +
+          '`Select.Item`). Caminho para layouts não-triviais — grupos com sub-headers, ' +
+          'separadores, ou anatomia customizada. Não há breaking change na migração ' +
+          'compound→flat (RFC-0043).',
+      },
+    },
+  },
+  render: () => (
+    <Box width="280px">
+      <Select.Root>
+        <Select.Trigger>
+          <Select.Value placeholder="Cidade por região" />
+        </Select.Trigger>
+        <Select.Content>
+          <Box
+            as="li"
+            role="presentation"
+            paddingLeft="small"
+            paddingRight="small"
+            paddingTop="micro"
+            paddingBottom="micro"
+          >
+            <Text fontSize="xsmall" fontWeight="semibold" color="text.tertiary">
+              Sudeste
+            </Text>
+          </Box>
+          <Select.Item value="sao-paulo">São Paulo</Select.Item>
+          <Select.Item value="rio">Rio de Janeiro</Select.Item>
+          <Select.Item value="bh">Belo Horizonte</Select.Item>
+          <Box
+            as="li"
+            role="presentation"
+            paddingLeft="small"
+            paddingRight="small"
+            paddingTop="micro"
+            paddingBottom="micro"
+          >
+            <Text fontSize="xsmall" fontWeight="semibold" color="text.tertiary">
+              Sul
+            </Text>
+          </Box>
+          <Select.Item value="curitiba">Curitiba</Select.Item>
+          <Select.Item value="poa">Porto Alegre</Select.Item>
+        </Select.Content>
+      </Select.Root>
+    </Box>
+  ),
+};
+
 export const Theming: Story = {
   render: () => {
     const customTheme = createTheme(themeLight, {
-      recipes: {
-        select: {
-          slots: ['root', 'trigger', 'value', 'icon', 'content', 'item', 'itemText'],
-          base: { trigger: { borderRadius: 'huge' } },
-          variants: {},
-          defaultVariants: {},
+      sizes: {
+        selectContent: {
+          maxHeight: { medium: '180px' },
         },
       },
     });
     return (
       <Flex flexDirection="column" gap="16px" width="280px">
-        <Select.Root defaultValue="react">
-          <Select.Trigger><Select.Value placeholder="Default" /></Select.Trigger>
-          <Select.Content>
-            <Select.Item value="react">React</Select.Item>
-            <Select.Item value="vue">Vue</Select.Item>
-          </Select.Content>
-        </Select.Root>
+        <Select defaultValue="react" options={FRAMEWORKS} />
         <ArborProvider theme={customTheme}>
-          <Select.Root defaultValue="vue">
-            <Select.Trigger><Select.Value placeholder="Override" /></Select.Trigger>
-            <Select.Content>
-              <Select.Item value="react">React</Select.Item>
-              <Select.Item value="vue">Vue</Select.Item>
-            </Select.Content>
-          </Select.Root>
+          <Select
+            defaultValue="vue"
+            placeholder="maxHeight reduzido via createTheme"
+            options={[
+              ...FRAMEWORKS,
+              { value: 'solid', label: 'Solid' },
+              { value: 'qwik', label: 'Qwik' },
+              { value: 'lit', label: 'Lit' },
+              { value: 'preact', label: 'Preact' },
+              { value: 'ember', label: 'Ember' },
+              { value: 'alpine', label: 'Alpine' },
+            ]}
+          />
         </ArborProvider>
       </Flex>
     );

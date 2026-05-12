@@ -1,4 +1,4 @@
-import { useId, useRef, useEffect, useState, useCallback, useMemo, Children, isValidElement } from 'react';
+import { useId, useRef, useEffect, useState, useCallback, useMemo, Children, isValidElement, type ReactNode } from 'react';
 import { Modal, Pressable, ScrollView } from 'react-native';
 import { useControllableState, useDisclosure } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
@@ -15,9 +15,23 @@ import type {
   SelectValueProps,
   SelectContentProps,
   SelectItemProps,
+  SelectProps,
+  SelectOption,
 } from '../interfaces/SelectProps';
 
-type SelectSlot = 'root' | 'trigger' | 'value' | 'icon' | 'content' | 'item' | 'itemText';
+type SelectSlot =
+  | 'root'
+  | 'trigger'
+  | 'value'
+  | 'icon'
+  | 'content'
+  | 'item'
+  | 'itemLabel'
+  | 'itemDescription'
+  | 'itemAdornment'
+  | 'itemCheck'
+  | 'itemText'
+  | 'emptyMessage';
 
 function resolveState(disabled: boolean, invalid: boolean, open: boolean): SelectState {
   if (disabled) return 'disabled';
@@ -179,6 +193,12 @@ function SelectValue({ placeholder = 'Select...' }: SelectValueProps) {
   );
 }
 
+function parseMaxHeight(value: string | undefined, fallback: number): number {
+  if (!value) return fallback;
+  const parsed = parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function SelectContent({ children }: SelectContentProps) {
   const ctx = useSelectContext();
   const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
@@ -206,6 +226,11 @@ function SelectContent({ children }: SelectContentProps) {
 
   if (!ctx.open) return null;
 
+  const maxHeight = parseMaxHeight(
+    theme.sizes?.selectContent?.maxHeight?.[ctx.size],
+    240,
+  );
+
   return (
     <Modal
       visible
@@ -219,8 +244,8 @@ function SelectContent({ children }: SelectContentProps) {
         style={{ flex: 1, backgroundColor: theme.colors.background.overlay, justifyContent: 'flex-end' }}
       >
         <Pressable onPress={() => {}}>
-          <Box {...slots.content} paddingY="small">
-            <ScrollView style={{ maxHeight: 320 }}>{children}</ScrollView>
+          <Box {...slots.content}>
+            <ScrollView style={{ maxHeight }}>{children}</ScrollView>
           </Box>
         </Pressable>
       </Pressable>
@@ -245,15 +270,81 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
         backgroundColor={isSelected ? 'brand.bgElement' : 'transparent'}
         opacity={disabled ? 0.5 : 1}
       >
-        <Text {...slots.itemText}>{children}</Text>
+        {typeof children === 'string' || typeof children === 'number' ? (
+          <Text {...slots.itemText}>{children}</Text>
+        ) : (
+          children
+        )}
         {isSelected ? (
-          <Box marginLeft="micro">
+          <Box {...slots.itemCheck} marginLeft="auto">
             <Icon name="Check" size="small" decorative />
           </Box>
         ) : null}
       </Flex>
     </Pressable>
   );
+}
+
+function RichOptionLayout({ option }: { option: SelectOption }) {
+  const ctx = useSelectContext();
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
+  const hasDescription = option.description !== undefined;
+
+  return (
+    <>
+      {option.startSlot !== undefined && (
+        <Box {...slots.itemAdornment}>{option.startSlot}</Box>
+      )}
+      {hasDescription ? (
+        <Box flex={1}>
+          {typeof option.label === 'string' || typeof option.label === 'number' ? (
+            <Text {...slots.itemLabel}>{option.label}</Text>
+          ) : (
+            <Box {...slots.itemLabel}>{option.label}</Box>
+          )}
+          {typeof option.description === 'string' || typeof option.description === 'number' ? (
+            <Text {...slots.itemDescription}>{option.description}</Text>
+          ) : (
+            <Box {...slots.itemDescription}>{option.description}</Box>
+          )}
+        </Box>
+      ) : typeof option.label === 'string' || typeof option.label === 'number' ? (
+        <Text {...slots.itemLabel}>{option.label}</Text>
+      ) : (
+        <Box {...slots.itemLabel}>{option.label}</Box>
+      )}
+    </>
+  );
+}
+
+function EmptyMessageSlot({ children }: { children: ReactNode }) {
+  const ctx = useSelectContext();
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
+  return (
+    <Box {...slots.emptyMessage}>
+      {typeof children === 'string' || typeof children === 'number' ? (
+        <Text>{children}</Text>
+      ) : (
+        children
+      )}
+    </Box>
+  );
+}
+
+function warnRichOptions(options: SelectOption[]): void {
+  if (process.env.NODE_ENV === 'production') return;
+  for (const opt of options) {
+    if (typeof opt.label === 'string' || opt.displayText !== undefined) continue;
+    const extracted = extractDisplayText(opt.label);
+    if (!extracted) {
+      console.warn(
+        `[Arbor-DS:Select] option value="${opt.value}" has a ReactNode \`label\` ` +
+          'but no `displayText`, and automatic extraction produced an empty string. ' +
+          'Type-ahead and the trigger value display will fall back to the option `value`. ' +
+          'Provide `displayText` explicitly when `label` is not plain text.',
+      );
+    }
+  }
 }
 
 SelectRoot.displayName = 'Select.Root';
@@ -268,19 +359,66 @@ markFieldAware(SelectTrigger);
 /**
  * @platform native
  *
- * `Select` em React Native: trigger é `<Pressable accessibilityRole="combobox">`
- * e o conteúdo é apresentado num `<Modal>` bottom-sheet RN. A semântica de
- * listbox é adaptada — itens usam `accessibilityRole="radio"` com
- * `accessibilityState.selected` (RN não aceita `menuitemradio`; `radio` é o
- * equivalente para "escolha única dentro de um grupo"). Item registry,
- * display-text e chevron `Icon` são compartilhados com web (W1 da RFC-0020).
- * O registry é populado pela enumeração JSX dentro de `Select.Content` —
- * `Select.Item` só renderiza UI; não registra (evita dupla montagem ao
- * abrir/fechar o Modal).
+ * Select em React Native: trigger é `<Pressable accessibilityRole="combobox">`
+ * e o conteúdo é apresentado num `<Modal>` bottom-sheet. Itens usam
+ * `accessibilityRole="radio"` com `accessibilityState.selected` (RN não aceita
+ * `menuitemradio`; `radio` é o equivalente para "escolha única dentro de um
+ * grupo"). API plana paritária com web (RFC-0043, PCV-22): `<Select options=...
+ * placeholder=... emptyMessage=... />` é o caminho recomendado; compound
+ * (`Select.Root`/.../`.Item`) cobre layouts não-triviais.
  *
- * @see {@link SelectRootProps}
+ * @see {@link SelectProps}
  */
-export const Select = Object.assign(SelectRoot, {
+function SelectFlat({
+  options,
+  placeholder,
+  emptyMessage,
+  children,
+  ...rootProps
+}: SelectProps) {
+  const usesFlatApi = options !== undefined || children === undefined;
+  if (!usesFlatApi) {
+    return <SelectRoot {...rootProps}>{children}</SelectRoot>;
+  }
+
+  if (options) warnRichOptions(options);
+
+  const resolvedPlaceholder = placeholder ?? 'Select...';
+  const showEmpty =
+    options !== undefined && options.length === 0 && emptyMessage !== undefined;
+
+  return (
+    <SelectRoot {...rootProps}>
+      <SelectTrigger>
+        <SelectValue placeholder={resolvedPlaceholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {showEmpty ? (
+          <EmptyMessageSlot>{emptyMessage}</EmptyMessageSlot>
+        ) : (
+          options?.map(opt => (
+            <SelectItem
+              key={opt.value}
+              value={opt.value}
+              disabled={opt.disabled}
+              displayText={
+                opt.displayText ??
+                (typeof opt.label === 'string' ? opt.label : undefined)
+              }
+            >
+              <RichOptionLayout option={opt} />
+            </SelectItem>
+          ))
+        )}
+      </SelectContent>
+    </SelectRoot>
+  );
+}
+
+SelectFlat.displayName = 'Select';
+markFieldAware(SelectFlat);
+
+export const Select = Object.assign(SelectFlat, {
   Root: SelectRoot,
   Trigger: SelectTrigger,
   Value: SelectValue,

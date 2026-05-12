@@ -4,6 +4,7 @@ import { createTheme, themeLight } from '../../../foundations';
 import { ArborProvider } from '../../../ecosystem/styled-system';
 import { Field } from '../../field';
 import { Select } from './select';
+import type { SelectOption } from '../interfaces/SelectProps';
 import { extractDisplayText, normalizeForTypeahead } from '../utils/extract-display-text';
 
 const theme = createTheme(themeLight, {});
@@ -506,5 +507,236 @@ describe('Select accessibility — visible focus (HR6-11, WCAG 2.4.7)', () => {
     const sheet = document.getElementById('arbor-style-engine')?.textContent ?? '';
     const focusRule = new RegExp(`\\.${triggerClass}:focus-visible\\{[^}]*outline`);
     expect(sheet).toMatch(focusRule);
+  });
+});
+
+// PCV-22 — API plana (RFC-0043)
+const FLAT_OPTIONS: SelectOption[] = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'cherry', label: 'Cherry (disabled)', disabled: true },
+];
+
+function BasicSelectFlat({
+  value,
+  onValueChange,
+  disabled,
+  defaultValue = '',
+}: {
+  value?: string;
+  onValueChange?: (v: string) => void;
+  disabled?: boolean;
+  defaultValue?: string;
+}) {
+  return (
+    <Select
+      value={value}
+      defaultValue={defaultValue}
+      onValueChange={onValueChange}
+      disabled={disabled}
+      placeholder="Pick one"
+      options={FLAT_OPTIONS}
+    />
+  );
+}
+
+describe('Select flat API (PCV-22, RFC-0043)', () => {
+  it('renders trigger from options[] without compound JSX', () => {
+    renderSelect(<BasicSelectFlat />);
+    expect(screen.getByRole('combobox')).toBeTruthy();
+    expect(screen.getByText('Pick one')).toBeTruthy();
+  });
+
+  it('opens listbox and renders items from options[]', () => {
+    renderSelect(<BasicSelectFlat />);
+    fireEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByRole('listbox')).toBeTruthy();
+    expect(screen.getAllByRole('option').length).toBe(3);
+    expect(screen.getByText('Apple')).toBeTruthy();
+  });
+
+  it('selects from options[] via click', () => {
+    const onValueChange = jest.fn();
+    renderSelect(<BasicSelectFlat onValueChange={onValueChange} />);
+    fireEvent.click(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByText('Banana'));
+    expect(onValueChange).toHaveBeenCalledWith('banana');
+  });
+
+  it('honors disabled option in flat options[]', () => {
+    const onValueChange = jest.fn();
+    renderSelect(<BasicSelectFlat onValueChange={onValueChange} />);
+    fireEvent.click(screen.getByRole('combobox'));
+    const disabledItem = screen.getByText('Cherry (disabled)').closest('[role="option"]');
+    expect(disabledItem?.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(screen.getByText('Cherry (disabled)'));
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it('uses option.label as displayText fallback', () => {
+    renderSelect(<BasicSelectFlat defaultValue="apple" />);
+    const trigger = screen.getByRole('combobox');
+    expect(trigger.textContent).toContain('Apple');
+  });
+
+  it('keyboard type-ahead works with flat options', () => {
+    renderSelect(<BasicSelectFlat />);
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' });
+    const trigger = screen.getByRole('combobox');
+    const options = screen.getAllByRole('option');
+    expect(trigger.getAttribute('aria-activedescendant')).toBe(options[1].id);
+  });
+
+  it('renders Check icon trailing the selected item (D4 paridade)', () => {
+    renderSelect(<BasicSelectFlat defaultValue="apple" />);
+    fireEvent.click(screen.getByRole('combobox'));
+    const listbox = screen.getByRole('listbox');
+    const appleOption = Array.from(listbox.querySelectorAll('[role="option"]')).find(
+      o => o.textContent?.includes('Apple'),
+    );
+    expect(appleOption).toBeTruthy();
+    const check = appleOption?.querySelector('svg.lucide-check');
+    expect(check).toBeTruthy();
+  });
+
+  it('renders startSlot and description from SelectOption (D1 médio)', () => {
+    renderSelect(
+      <Select
+        defaultValue="card"
+        options={[
+          {
+            value: 'card',
+            label: 'Cartão',
+            description: 'Aprovação imediata',
+            startSlot: <span data-testid="card-icon">$</span>,
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByTestId('card-icon')).toBeTruthy();
+    expect(screen.getByText('Aprovação imediata')).toBeTruthy();
+  });
+
+  it('renders emptyMessage when options=[]', () => {
+    renderSelect(
+      <Select placeholder="vazio" options={[]} emptyMessage="Nenhum resultado" />,
+    );
+    fireEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByText('Nenhum resultado')).toBeTruthy();
+    expect(screen.queryAllByRole('option').length).toBe(0);
+  });
+
+  it('omits emptyMessage when not provided (anatomia atual mantida)', () => {
+    renderSelect(<Select placeholder="vazio" options={[]} />);
+    fireEvent.click(screen.getByRole('combobox'));
+    expect(screen.queryByRole('listbox')).toBeTruthy();
+    expect(screen.queryAllByRole('option').length).toBe(0);
+  });
+
+  it('falls back to compound when children provided and options undefined', () => {
+    renderSelect(
+      <Select>
+        <Select.Trigger>
+          <Select.Value placeholder="compound only" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="x">From compound</Select.Item>
+        </Select.Content>
+      </Select>,
+    );
+    fireEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByText('From compound')).toBeTruthy();
+  });
+
+  it('options ganha sobre children no modo mixed (children ignorado)', () => {
+    renderSelect(
+      <Select
+        placeholder="mixed"
+        options={[{ value: 'flat', label: 'From flat' }]}
+      >
+        <Select.Trigger>
+          <Select.Value placeholder="compound" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="compound-only">From compound</Select.Item>
+        </Select.Content>
+      </Select>,
+    );
+    fireEvent.click(screen.getByRole('combobox'));
+    expect(screen.getByText('From flat')).toBeTruthy();
+    expect(screen.queryByText('From compound')).toBeNull();
+  });
+
+  it('Field-aware: SelectFlat herda disabled de FieldContext', () => {
+    renderSelect(
+      <Field id="flat-field" disabled>
+        <Select placeholder="x" options={[{ value: 'a', label: 'A' }]} />
+      </Field>,
+    );
+    expect((screen.getByRole('combobox') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('Field.Control não injeta props porque SelectFlat é field-aware', () => {
+    renderSelect(
+      <Field id="flat-ctrl">
+        <Field.Control>
+          <Select placeholder="x" options={[{ value: 'a', label: 'A' }]} />
+        </Field.Control>
+        <Field.Description>desc</Field.Description>
+      </Field>,
+    );
+    expect(screen.getByRole('combobox').getAttribute('aria-describedby')).toBe(
+      'flat-ctrl-description',
+    );
+  });
+
+  it('warn em dev quando label é ReactNode sem displayText e extração vazia', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    renderSelect(
+      <Select
+        placeholder="x"
+        options={[{ value: 'icon-only', label: <svg aria-hidden="true" /> }]}
+      />,
+    );
+    expect(warn).toHaveBeenCalled();
+    expect(warn.mock.calls[0][0]).toMatch(/displayText/);
+    warn.mockRestore();
+  });
+
+  it('extrai displayText automaticamente quando label é string', () => {
+    renderSelect(
+      <Select
+        defaultValue="a"
+        placeholder="x"
+        options={[{ value: 'a', label: 'Alpha' }]}
+      />,
+    );
+    expect(screen.getByRole('combobox').textContent).toContain('Alpha');
+  });
+});
+
+describe('Select theming — sizes.selectContent.maxHeight (sub-PR PCV-22)', () => {
+  it('createTheme override em sizes.selectContent.maxHeight propaga no CSS', () => {
+    const overriddenTheme = createTheme(themeLight, {
+      sizes: {
+        selectContent: {
+          maxHeight: { medium: '180px' },
+        },
+      },
+    });
+
+    render(
+      <ArborProvider theme={overriddenTheme}>
+        <Select placeholder="x" options={[{ value: 'a', label: 'A' }]} />
+      </ArborProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('combobox'));
+    const allStyles = Array.from(document.head.querySelectorAll('style'))
+      .map(node => node.textContent ?? '')
+      .join(' ');
+    expect(allStyles).toMatch(/max-height:\s*180px/);
   });
 });

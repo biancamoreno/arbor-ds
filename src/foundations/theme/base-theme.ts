@@ -19,6 +19,7 @@ import {
   avatarOverlap,
   spinnerSize,
   touchTarget,
+  selectContentSize,
   componentTokens,
 } from '../tokens';
 import { transition } from './transition';
@@ -549,7 +550,7 @@ const recipes: ThemeRecipes = {
   }),
 
   select: defineSlotRecipe({
-    slots: ['root', 'trigger', 'value', 'icon', 'content', 'item', 'itemText'] as const,
+    slots: ['root', 'trigger', 'value', 'icon', 'content', 'item', 'itemLabel', 'itemDescription', 'itemAdornment', 'itemCheck', 'itemText', 'emptyMessage'] as const,
     base: {
       root: { display: 'flex', flexDirection: 'column', gap: '$select.gap', width: '100%' },
       trigger: {
@@ -562,6 +563,7 @@ const recipes: ThemeRecipes = {
         borderColor: '$select.colors.trigger.border.default',
         backgroundColor: '$select.colors.trigger.background',
         color: '$select.colors.trigger.text',
+        transition: transition(['border-color', 'box-shadow'], 'fast'),
         _focusVisible: focusRing,
       },
       value: { flex: 1 },
@@ -571,16 +573,35 @@ const recipes: ThemeRecipes = {
         borderWidth: '$select.borderWidth',
         borderColor: '$select.colors.content.border',
         backgroundColor: '$select.colors.content.background',
+        paddingTop: '$select.content.padding.block',
+        paddingBottom: '$select.content.padding.block',
         overflow: 'hidden',
       },
       item: {
         display: 'flex',
         alignItems: 'center',
+        gap: '$select.item.gap',
         color: '$select.colors.item.text',
         paddingLeft: '$select.item.padding.inline',
         paddingRight: '$select.item.padding.inline',
+        paddingTop: '$select.item.padding.block',
+        paddingBottom: '$select.item.padding.block',
+        transition: transition(['background-color'], 'fast'),
       },
+      itemLabel: { fontSize: '$select.item.fontSize', flex: 1 },
+      itemDescription: { fontSize: 'xsmall', color: 'text.secondary' },
+      itemAdornment: { display: 'inline-flex', alignItems: 'center', flexShrink: 0 },
+      itemCheck: { display: 'inline-flex', alignItems: 'center', flexShrink: 0, color: '$select.colors.trigger.border.open' },
       itemText: { fontSize: '$select.item.fontSize' },
+      emptyMessage: {
+        color: '$select.emptyMessage.color',
+        fontSize: '$select.emptyMessage.fontSize',
+        paddingLeft: '$select.emptyMessage.padding.inline',
+        paddingRight: '$select.emptyMessage.padding.inline',
+        paddingTop: '$select.emptyMessage.padding.block',
+        paddingBottom: '$select.emptyMessage.padding.block',
+        textAlign: 'center',
+      },
     },
     variants: {
       size: {
@@ -593,6 +614,7 @@ const recipes: ThemeRecipes = {
           },
           item: { minHeight: '$select.item.minHeight' },
           value: { fontSize: '$select.value.fontSize.small' },
+          content: { maxHeight: '$select.content.maxHeight.small' },
         },
         medium: {
           trigger: {
@@ -603,6 +625,7 @@ const recipes: ThemeRecipes = {
           },
           item: { minHeight: '$select.item.minHeight' },
           value: { fontSize: '$select.value.fontSize.medium' },
+          content: { maxHeight: '$select.content.maxHeight.medium' },
         },
         large: {
           trigger: {
@@ -613,6 +636,7 @@ const recipes: ThemeRecipes = {
           },
           item: { minHeight: '$select.item.minHeight' },
           value: { fontSize: '$select.value.fontSize.large' },
+          content: { maxHeight: '$select.content.maxHeight.large' },
         },
       },
       state: {
@@ -1465,6 +1489,7 @@ export const baseTheme = {
     avatarOverlap,
     spinner: spinnerSize,
     touchTarget,
+    selectContent: selectContentSize,
   },
   space: spacing,
   opacity,

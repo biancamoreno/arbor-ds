@@ -4,6 +4,7 @@ import { createTheme, themeLight } from '../../../foundations';
 import { ArborProvider } from '../../../ecosystem/styled-system';
 import { Field } from '../../field';
 import { Select } from './select';
+import type { SelectOption } from '../interfaces/SelectProps';
 
 const theme = createTheme(themeLight, {});
 
@@ -169,5 +170,117 @@ describe('Select FieldContext integration (native)', () => {
       { wrapper: Wrapper },
     );
     expect(screen.getByRole('combobox').props.nativeID).toBe('sf');
+  });
+});
+
+// PCV-22 — API plana (RFC-0043) paridade native
+const FLAT_OPTIONS: SelectOption[] = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'cherry', label: 'Cherry', disabled: true },
+];
+
+describe('Select flat API (native, PCV-22)', () => {
+  it('renders trigger from options[] without compound JSX', () => {
+    render(
+      <Select placeholder="Pick one" options={FLAT_OPTIONS} />,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByRole('combobox')).toBeTruthy();
+    expect(screen.getByText('Pick one')).toBeTruthy();
+  });
+
+  it('opens and renders items from options[]', () => {
+    render(
+      <Select placeholder="Pick one" options={FLAT_OPTIONS} />,
+      { wrapper: Wrapper },
+    );
+    fireEvent.press(screen.getByRole('combobox'));
+    expect(screen.getByText('Apple')).toBeTruthy();
+    expect(screen.getByText('Banana')).toBeTruthy();
+  });
+
+  it('selects from options[] via press', () => {
+    const onValueChange = jest.fn();
+    render(
+      <Select
+        placeholder="Pick one"
+        options={FLAT_OPTIONS}
+        onValueChange={onValueChange}
+      />,
+      { wrapper: Wrapper },
+    );
+    fireEvent.press(screen.getByRole('combobox'));
+    fireEvent.press(screen.getByText('Banana'));
+    expect(onValueChange).toHaveBeenCalledWith('banana');
+  });
+
+  it('honors disabled option in flat options[]', () => {
+    const onValueChange = jest.fn();
+    render(
+      <Select
+        placeholder="Pick one"
+        options={FLAT_OPTIONS}
+        onValueChange={onValueChange}
+      />,
+      { wrapper: Wrapper },
+    );
+    fireEvent.press(screen.getByRole('combobox'));
+    fireEvent.press(screen.getByText('Cherry'));
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it('renders startSlot and description from rich SelectOption', () => {
+    render(
+      <Select
+        placeholder="x"
+        options={[
+          {
+            value: 'card',
+            label: 'Cartão',
+            description: 'Aprovação imediata',
+            startSlot: <></>,
+          },
+        ]}
+      />,
+      { wrapper: Wrapper },
+    );
+    fireEvent.press(screen.getByRole('combobox'));
+    expect(screen.getByText('Aprovação imediata')).toBeTruthy();
+  });
+
+  it('renders emptyMessage when options=[]', () => {
+    render(
+      <Select placeholder="vazio" options={[]} emptyMessage="Nenhum resultado" />,
+      { wrapper: Wrapper },
+    );
+    fireEvent.press(screen.getByRole('combobox'));
+    expect(screen.getByText('Nenhum resultado')).toBeTruthy();
+  });
+
+  it('falls back to compound when children provided and options undefined', () => {
+    render(
+      <Select>
+        <Select.Trigger>
+          <Select.Value placeholder="compound" />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Item value="x">From compound</Select.Item>
+        </Select.Content>
+      </Select>,
+      { wrapper: Wrapper },
+    );
+    fireEvent.press(screen.getByRole('combobox'));
+    expect(screen.getByText('From compound')).toBeTruthy();
+  });
+
+  it('Field-aware: SelectFlat herda disabled de FieldContext', () => {
+    render(
+      <Field id="flat-field" disabled>
+        <Select placeholder="x" options={[{ value: 'a', label: 'A' }]} />
+      </Field>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByRole('combobox').props.accessibilityState.disabled).toBe(true);
   });
 });

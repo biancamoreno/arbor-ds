@@ -5,7 +5,7 @@
  * via `aria-activedescendant` e segue setas/Home/End/PageUp/PageDown/type-ahead.
  * Native vive em `select.native.tsx` via `<Modal>` bottom-sheet.
  */
-import React, { useId, useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo, Children, isValidElement } from 'react';
+import React, { useId, useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo, Children, isValidElement, type ReactNode } from 'react';
 import { useControllableState, useDisclosure, Portal, DismissableLayer } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useFieldContext } from '../../field/context/field-context';
@@ -21,9 +21,23 @@ import type {
   SelectValueProps,
   SelectContentProps,
   SelectItemProps,
+  SelectProps,
+  SelectOption,
 } from '../interfaces/SelectProps';
 
-type SelectSlot = 'root' | 'trigger' | 'value' | 'icon' | 'content' | 'item' | 'itemText';
+type SelectSlot =
+  | 'root'
+  | 'trigger'
+  | 'value'
+  | 'icon'
+  | 'content'
+  | 'item'
+  | 'itemLabel'
+  | 'itemDescription'
+  | 'itemAdornment'
+  | 'itemCheck'
+  | 'itemText'
+  | 'emptyMessage';
 
 const TYPEAHEAD_TIMEOUT_MS = 500;
 const PAGE_STEP = 10;
@@ -479,9 +493,7 @@ function SelectContent({ children }: SelectContentProps) {
             width: position.width,
             zIndex: 50,
             margin: 0,
-            padding: '4px 0',
             listStyle: 'none',
-            maxHeight: '200px',
             overflowY: 'auto',
           }}
         >
@@ -522,8 +534,63 @@ function SelectItem({ value, disabled = false, children }: SelectItemProps) {
       userSelect="none"
     >
       {children}
+      {isSelected && (
+        <Box {...slots.itemCheck} marginLeft="auto" aria-hidden="true">
+          <Icon name="Check" size="small" decorative />
+        </Box>
+      )}
     </Flex>
   );
+}
+
+function RichOptionLayout({ option }: { option: SelectOption }) {
+  const ctx = useSelectContext();
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
+  const hasDescription = option.description !== undefined;
+
+  return (
+    <>
+      {option.startSlot !== undefined && (
+        <Box {...slots.itemAdornment} aria-hidden="true">
+          {option.startSlot}
+        </Box>
+      )}
+      {hasDescription ? (
+        <Box flex={1}>
+          <Box {...slots.itemLabel}>{option.label}</Box>
+          <Box {...slots.itemDescription}>{option.description}</Box>
+        </Box>
+      ) : (
+        <Box {...slots.itemLabel}>{option.label}</Box>
+      )}
+    </>
+  );
+}
+
+function EmptyMessageSlot({ children }: { children: ReactNode }) {
+  const ctx = useSelectContext();
+  const slots = useSlotRecipe<SelectSlot>('select', { size: ctx.size, state: ctx.state });
+  return (
+    <Box as="li" role="presentation" {...slots.emptyMessage}>
+      {children}
+    </Box>
+  );
+}
+
+function warnRichOptions(options: SelectOption[]): void {
+  if (process.env.NODE_ENV === 'production') return;
+  for (const opt of options) {
+    if (typeof opt.label === 'string' || opt.displayText !== undefined) continue;
+    const extracted = extractDisplayText(opt.label);
+    if (!extracted) {
+      console.warn(
+        `[Arbor-DS:Select] option value="${opt.value}" has a ReactNode \`label\` ` +
+          'but no `displayText`, and automatic extraction produced an empty string. ' +
+          'Type-ahead and the trigger value display will fall back to the option `value`. ' +
+          'Provide `displayText` explicitly when `label` is not plain text.',
+      );
+    }
+  }
 }
 
 SelectRoot.displayName = 'Select.Root';
@@ -538,26 +605,94 @@ markFieldAware(SelectTrigger);
 /**
  * @platform shared
  *
- * Compound de select acessível (RFC-0020). Web implementa o padrão WAI-ARIA
- * "Select-Only Combobox" — o trigger é um `<button role="combobox">` que
- * controla um listbox `<ul>` montado em `Portal`; o foco real fica no trigger
- * e o item ativo é apontado por `aria-activedescendant`. Suporta navegação
- * por setas/Home/End/PageUp/PageDown e type-ahead (NFD-normalizado, timeout
- * 500ms). Native usa `<Modal>` bottom-sheet (`select.native.tsx`).
- * Field-aware: herda `disabled`/`invalid`/`required` do `<Field>`.
+ * Select com API plana como caminho recomendado (RFC-0043, PCV-22). Web
+ * implementa o padrão WAI-ARIA "Select-Only Combobox" da RFC-0020 — o
+ * trigger é um `<button role="combobox">` controlando um listbox `<ul>` em
+ * `Portal`, foco real no trigger, item ativo via `aria-activedescendant`,
+ * navegação setas/Home/End/PageUp/PageDown e type-ahead NFD (500ms). Native
+ * usa `<Modal>` bottom-sheet (`select.native.tsx`). Field-aware: herda
+ * `disabled`/`invalid`/`required` do `<Field>`.
  *
+ * API plana (caso comum):
  * @example
- * <Select value={state} onValueChange={setState}>
+ * <Select
+ *   value={state}
+ *   onValueChange={setState}
+ *   placeholder="Selecione um estado"
+ *   options={[
+ *     { value: 'sp', label: 'São Paulo' },
+ *     { value: 'rj', label: 'Rio de Janeiro' },
+ *   ]}
+ * />
+ *
+ * API compound (layouts não-triviais — grupos, sub-headers, separadores):
+ * @example
+ * <Select.Root>
  *   <Select.Trigger><Select.Value placeholder="Estado" /></Select.Trigger>
  *   <Select.Content>
  *     <Select.Item value="sp">São Paulo</Select.Item>
  *     <Select.Item value="rj">Rio de Janeiro</Select.Item>
  *   </Select.Content>
- * </Select>
+ * </Select.Root>
  *
+ * Discriminação por prop: `options !== undefined || children === undefined`
+ * ativa o modo plano. Modo mixed (passar `options` e filhos compound
+ * simultaneamente) é proibido — `options` ganha e filhos são ignorados.
+ *
+ * @see {@link SelectProps}
+ * @see {@link SelectOption}
  * @see {@link SelectRootProps}
  */
-export const Select = Object.assign(SelectRoot, {
+function SelectFlat({
+  options,
+  placeholder,
+  emptyMessage,
+  children,
+  ...rootProps
+}: SelectProps) {
+  const usesFlatApi = options !== undefined || children === undefined;
+  if (!usesFlatApi) {
+    return <SelectRoot {...rootProps}>{children}</SelectRoot>;
+  }
+
+  if (options) warnRichOptions(options);
+
+  const resolvedPlaceholder = placeholder ?? 'Select...';
+  const showEmpty =
+    options !== undefined && options.length === 0 && emptyMessage !== undefined;
+
+  return (
+    <SelectRoot {...rootProps}>
+      <SelectTrigger>
+        <SelectValue placeholder={resolvedPlaceholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {showEmpty ? (
+          <EmptyMessageSlot>{emptyMessage}</EmptyMessageSlot>
+        ) : (
+          options?.map(opt => (
+            <SelectItem
+              key={opt.value}
+              value={opt.value}
+              disabled={opt.disabled}
+              displayText={
+                opt.displayText ??
+                (typeof opt.label === 'string' ? opt.label : undefined)
+              }
+            >
+              <RichOptionLayout option={opt} />
+            </SelectItem>
+          ))
+        )}
+      </SelectContent>
+    </SelectRoot>
+  );
+}
+
+SelectFlat.displayName = 'Select';
+markFieldAware(SelectFlat);
+
+export const Select = Object.assign(SelectFlat, {
   Root: SelectRoot,
   Trigger: SelectTrigger,
   Value: SelectValue,

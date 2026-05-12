@@ -1,5 +1,7 @@
 export { Select } from './core/select';
 export type {
+  SelectProps,
+  SelectOption,
   SelectRootProps,
   SelectTriggerProps,
   SelectValueProps,

@@ -21,8 +21,9 @@ export const select = {
   },
   item: {
     minHeight: 'touchTarget.minimum',
-    padding: { inline: 'small' },
+    padding: { inline: 'small', block: 'tiny' },
     fontSize: 'small',
+    gap: 'small',
   },
   value: {
     fontSize: {
@@ -30,6 +31,20 @@ export const select = {
       medium: 'small',
       large: 'medium',
     },
+  },
+  content: {
+    maxHeight: {
+      small: 'selectContent.maxHeight.small',
+      medium: 'selectContent.maxHeight.medium',
+      large: 'selectContent.maxHeight.large',
+    },
+    padding: { block: 'tiny' },
+    offset: 'micro',
+  },
+  emptyMessage: {
+    color: 'text.tertiary',
+    fontSize: 'small',
+    padding: { inline: 'small', block: 'small' },
   },
   colors: {
     trigger: {

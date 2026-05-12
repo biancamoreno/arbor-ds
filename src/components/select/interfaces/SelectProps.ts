@@ -125,3 +125,68 @@ export interface SelectItemProps {
   /** Conteúdo visual do item. */
   children: ReactNode;
 }
+
+/**
+ * @platform shared
+ *
+ * Item tipado consumido pela API plana `<Select options={...} />` (RFC-0043).
+ * Estrutura denominador-comum (Mantine/Chakra-aligned). Para casos exóticos
+ * — grupos com sub-headers customizados, ordenação atípica, separadores —
+ * use a API compound (`Select.Root`/`Select.Item`).
+ */
+export interface SelectOption {
+  /** Identificador único — passado a `onValueChange` quando selecionado. */
+  value: string;
+  /** Rótulo principal do item. Pode ser `string` ou `ReactNode`. */
+  label: ReactNode;
+  /**
+   * Item renderizado mas não-selecionável (a11y `aria-disabled`,
+   * navegação pula, type-ahead ignora).
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Texto plano para `Select.Value` e type-ahead. Obrigatório quando
+   * `label` não é string. Em dev, se `label` é `ReactNode` e a extração
+   * automática resulta em string vazia, um warning é emitido.
+   */
+  displayText?: string;
+  /** Ornamento à esquerda do label (geralmente `Icon`). */
+  startSlot?: ReactNode;
+  /** Texto secundário abaixo do label (xs, text.secondary). */
+  description?: ReactNode;
+}
+
+/**
+ * @platform shared
+ *
+ * Props da API plana `Select` (RFC-0043). Migração compound→plano em
+ * PCV-22. O caminho recomendado para o caso comum é passar `options[]`;
+ * o compound (`Select.Root`/`Select.Trigger`/`Select.Content`/`Select.Item`)
+ * permanece exportado e cobre layouts não-triviais (grupos com sub-headers,
+ * separadores, anatomia customizada).
+ *
+ * Discriminação por prop: `options !== undefined || children === undefined`
+ * ativa o modo plano; caso contrário, delega aos filhos compound. Modo
+ * mixed (passar `options` e filhos compound simultaneamente) é proibido —
+ * `options` ganha e os filhos são ignorados.
+ */
+export interface SelectProps extends Omit<SelectRootProps, 'children'> {
+  /** Lista de opções tipadas. Quando definida, ativa o modo plano. */
+  options?: SelectOption[];
+  /**
+   * Texto exibido quando nenhum item está selecionado.
+   * @default 'Select...'
+   */
+  placeholder?: string;
+  /**
+   * Mensagem exibida quando `options` é uma lista vazia (`[]`). Quando
+   * omitido, o listbox abre vazio.
+   */
+  emptyMessage?: ReactNode;
+  /**
+   * Slots compound (`Select.Trigger`/`Select.Content`/`Select.Item`).
+   * Ignorado quando `options` é definido.
+   */
+  children?: ReactNode;
+}
