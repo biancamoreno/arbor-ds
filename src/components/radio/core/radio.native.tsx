@@ -14,7 +14,7 @@ import type {
   RadioDescriptionProps,
 } from '../interfaces/RadioProps';
 
-type RadioSlot = 'root' | 'control' | 'indicator' | 'label' | 'description';
+type RadioSlot = 'root' | 'control' | 'indicator' | 'dot' | 'label' | 'description';
 
 function resolveState(disabled: boolean, invalid: boolean, checked: boolean): RadioState {
   if (disabled) return 'disabled';
@@ -79,18 +79,13 @@ function RadioRoot({
   );
 }
 
-function RadioIndicator({ style: _style }: RadioIndicatorProps) {
+function RadioIndicator(_props: RadioIndicatorProps) {
   const ctx = useRadioContext();
   const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
 
   return (
     <Flex {...slots.indicator}>
-      <Box
-        width={10}
-        height={10}
-        borderRadius="full"
-        backgroundColor={ctx.checked ? 'brand.solid' : 'transparent'}
-      />
+      <Box {...slots.dot} />
     </Flex>
   );
 }
@@ -117,11 +112,11 @@ markFieldAware(RadioRoot);
 /**
  * @platform native
  *
- * `Radio` em React Native: `<Pressable>` exterior com `accessibilityRole="radio"`
- * + `accessibilityState.checked/disabled`. Slots `root` e `control` consomem
- * `useSlotRecipe('radio', { size, state })`, mantendo paridade visual com web.
- * Limitações: `_focusVisibleWithin` é no-op (RN não tem `:has`); o indicador
- * interno usa cor sólida (transition CSS não cruza para RN).
+ * `Radio` em React Native (stripped-down — sem moldura de RadioCard): `<Pressable>`
+ * exterior com `accessibilityRole="radio"` + `accessibilityState.checked/disabled`.
+ * Slots `root`, `control`, `indicator` e `dot` consomem `useSlotRecipe`, mantendo
+ * paridade visual com web. Limitações: `_focusVisibleWithin` é no-op (RN não tem
+ * `:has`); transição CSS no `dot` é no-op (RN ignora `transition`).
  *
  * @see {@link RadioRootProps}
  */

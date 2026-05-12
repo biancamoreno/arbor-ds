@@ -1,7 +1,6 @@
 import { useId } from 'react';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
-import { useTransition } from '../../../ecosystem/utils/functions/use-transition';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import { Box, Flex, Text } from '../../core';
@@ -14,7 +13,7 @@ import type {
   RadioDescriptionProps,
 } from '../interfaces/RadioProps';
 
-type RadioSlot = 'root' | 'control' | 'indicator' | 'label' | 'description';
+type RadioSlot = 'root' | 'control' | 'indicator' | 'dot' | 'label' | 'description';
 
 function resolveState(disabled: boolean, invalid: boolean, checked: boolean): RadioState {
   if (disabled) return 'disabled';
@@ -83,6 +82,11 @@ function RadioRoot({
           onChange={() => !effectiveDisabled && setCheckedState(true)}
           position="absolute"
           opacity={0}
+          width="1px"
+          height="1px"
+          margin="-1px"
+          padding={0}
+          overflow="hidden"
           pointerEvents="none"
         />
         <Flex aria-hidden="true" {...slots.control}>
@@ -93,21 +97,13 @@ function RadioRoot({
   );
 }
 
-function RadioIndicator({ style }: RadioIndicatorProps) {
+function RadioIndicator(_props: RadioIndicatorProps) {
   const ctx = useRadioContext();
   const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
-  const transitionFn = useTransition();
 
   return (
-    <Flex as="span" aria-hidden="true" {...slots.indicator} style={style}>
-      <Box
-        as="span"
-        width={10}
-        height={10}
-        borderRadius="full"
-        backgroundColor={ctx.checked ? 'brand.solid' : 'transparent'}
-        transition={transitionFn('background-color', 'fast')}
-      />
+    <Flex as="span" aria-hidden="true" {...slots.indicator}>
+      <Box as="span" {...slots.dot} />
     </Flex>
   );
 }
@@ -116,7 +112,7 @@ function RadioLabel({ children }: RadioLabelProps) {
   const ctx = useRadioContext();
   const slots = useSlotRecipe<RadioSlot>('radio', { size: ctx.size, state: ctx.state });
   return (
-    <Text as="span" {...slots.label} style={{ minWidth: 0 }}>
+    <Text as="span" {...slots.label}>
       {children}
     </Text>
   );
@@ -138,12 +134,15 @@ markFieldAware(RadioRoot);
 /**
  * @platform shared
  *
- * Compound de radio button controlado/uncontrolled. `Root` agrupa input
- * nativo + slots visuais e distribui o estado via `RadioContext`. A prop
- * `value` é obrigatória (identifica este radio dentro do grupo via `name`).
- * Use `onCheckedChange(checked)` para receber transições para `true` (radios
- * não desmarcam ao clicar de novo). Field-aware: herda `disabled`/`invalid`
- * do `<Field>` quando aninhado.
+ * Compound de radio button clássico (sem moldura/highlight de linha — pattern
+ * stripped-down). `Root` renderiza um `<input type="radio">` visualmente
+ * escondido (mantém form submission, navegação por teclado, role nativa) e
+ * distribui o estado via `RadioContext`. `Indicator` é o círculo bordado +
+ * dot interno (consome slot `dot` da recipe). Field-aware: herda
+ * `disabled`/`invalid` do `<Field>` quando aninhado.
+ *
+ * Para o pattern de "card selecionável" (radio embutido em uma área clicável
+ * com borda + highlight), componha `<Card interactive><Radio /></Card>`.
  *
  * @example
  * <Radio value="standard" name="shipping" checked={mode === 'standard'} onCheckedChange={() => setMode('standard')}>

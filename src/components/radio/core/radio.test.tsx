@@ -133,32 +133,34 @@ describe('Radio.Description', () => {
 });
 
 describe('Radio slot recipe (RFC-0017)', () => {
-  it('produces different control classNames for sm vs lg (recipe is consumed)', () => {
-    const { container, unmount } = renderRadio(
+  it('produces different label classNames for sm vs lg (recipe is consumed)', () => {
+    const { unmount } = renderRadio(
       <Radio value="a" size="small" defaultChecked={false}>
         <Radio.Indicator />
+        <Radio.Label>Label</Radio.Label>
       </Radio>,
     );
-    const smControl = (container.querySelector('[aria-hidden="true"]') as HTMLElement).className;
+    const smLabel = (screen.getByText('Label') as HTMLElement).className;
     unmount();
 
-    const { container: container2 } = renderRadio(
+    renderRadio(
       <Radio value="a" size="large" defaultChecked={false}>
         <Radio.Indicator />
+        <Radio.Label>Label</Radio.Label>
       </Radio>,
     );
-    const lgControl = (container2.querySelector('[aria-hidden="true"]') as HTMLElement).className;
+    const lgLabel = (screen.getByText('Label') as HTMLElement).className;
 
-    expect(smControl).not.toEqual(lgControl);
+    expect(smLabel).not.toEqual(lgLabel);
   });
 
   it('createTheme override on radio recipe injects custom styles', () => {
     const overriddenTheme = createTheme(themeLight, {
       recipes: {
         radio: {
-          slots: ['root', 'control', 'indicator', 'label', 'description'],
+          slots: ['root', 'control', 'indicator', 'dot', 'label', 'description'],
           base: {
-            control: { borderRadius: 'huge' },
+            indicator: { borderRadius: 'huge' },
           },
           variants: {},
           defaultVariants: {},

@@ -1,16 +1,11 @@
 export const radio = {
   gap: 'small',
-  borderRadius: 'medium',
-  borderWidth: 'hairline',
+  minTouch: 'touchTarget.minimum',
   indicator: {
     size: '20px',
     borderRadius: 'full',
     borderWidth: 'hairline',
-  },
-  padding: {
-    small: 'tiny',
-    medium: 'small',
-    large: 'medium',
+    dotSize: '10px',
   },
   fontSize: {
     label: {
@@ -24,25 +19,14 @@ export const radio = {
     label: 'medium',
   },
   colors: {
-    control: {
-      border: {
-        default: 'border.default',
-        checked: 'brand.solid',
-        invalid: 'feedback.critical.solid',
-      },
-      background: {
-        default: 'surface.default',
-        checked: 'brand.bgElement',
-      },
-    },
     indicator: {
       border: {
         default: 'border.strong',
         checked: 'brand.solid',
+        invalid: 'feedback.critical.solid',
       },
-      background: {
-        default: 'surface.default',
-      },
+      background: 'surface.default',
+      dot: 'brand.solid',
     },
     label: 'text.primary',
     description: 'text.secondary',

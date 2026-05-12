@@ -19,9 +19,13 @@ export interface RadioRootProps {
   children: ReactNode;
 }
 
-export interface RadioIndicatorProps {
-  style?: React.CSSProperties;
-}
+/**
+ * `Radio.Indicator` é decorativo: lê estado do contexto e renderiza o círculo
+ * com `dot` interno. Sem props consumidas — slot existe para permitir
+ * composição (`<Indicator />` entre `Label` e outros children).
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface RadioIndicatorProps {}
 
 export interface RadioLabelProps {
   children: ReactNode;
