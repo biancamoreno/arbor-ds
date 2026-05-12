@@ -249,7 +249,7 @@ const recipes: ThemeRecipes = {
   }),
 
   input: defineSlotRecipe({
-    slots: ['frame', 'control'] as const,
+    slots: ['frame', 'control', 'clearButton'] as const,
     base: {
       frame: {
         width: '100%',
@@ -257,9 +257,15 @@ const recipes: ThemeRecipes = {
         borderWidth: '$input.borderWidth',
         borderStyle: 'solid',
         transition: transition(['border-color', 'box-shadow'], 'fast'),
+        _focusVisible: focusRing,
+        _focusVisibleWithin: focusRing,
       },
       control: {
         color: '$input.colors.text',
+        _placeholder: { color: '$input.colors.placeholder' },
+      },
+      clearButton: {
+        color: '$input.colors.clearButton',
       },
     },
     variants: {

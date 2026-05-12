@@ -19,9 +19,19 @@ const keyboardTypeMap: Record<string, KeyboardTypeOptions> = {
   url: 'url',
 };
 
-const fontSizeBySize = { small: 'xsmall', medium: 'small', large: 'medium' } as const;
-
 type RNStyle = NonNullable<RNTextInputProps['style']>;
+
+function readToken(record: Record<string, unknown> | undefined, key: string): unknown {
+  return record ? record[key] : undefined;
+}
+
+function resolveAliasColor(colors: Record<string, unknown>, alias: string | undefined): string | undefined {
+  if (!alias) return undefined;
+  return alias.split('.').reduce<unknown>(
+    (acc, key) => (acc as Record<string, unknown> | undefined)?.[key],
+    colors,
+  ) as string | undefined;
+}
 
 const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(function TextInput(props, ref) {
   const {
@@ -52,18 +62,30 @@ const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(function Text
   const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const state = effectiveError ? 'error' : effectiveDisabled ? 'disabled' : 'idle';
 
-  const slots = useSlotRecipe<'frame' | 'control'>('input', { size, variant, state });
+  const slots = useSlotRecipe<'frame' | 'control' | 'clearButton'>('input', { size, variant, state });
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
 
-  const fontSizeToken = fontSizeBySize[size];
+  const controlFontSize = readToken(slots.control as Record<string, unknown>, 'fontSize') as
+    | number
+    | string
+    | undefined;
+  const controlColor = readToken(slots.control as Record<string, unknown>, 'color') as
+    | string
+    | undefined;
+
   const controlStyle: RNStyle = {
     flex: 1,
     minWidth: 0,
-    color: theme.colors.text.primary,
-    fontSize: theme.fontSizes[fontSizeToken],
+    color: controlColor ?? theme.colors.text.primary,
+    fontSize: controlFontSize as number | undefined,
     paddingHorizontal: 0,
     paddingVertical: 0,
   };
+
+  const placeholderColor = resolveAliasColor(
+    theme.colors as Record<string, unknown>,
+    theme.components.input.colors.placeholder,
+  ) ?? theme.colors.text.tertiary;
 
   const keyboardType: KeyboardTypeOptions = (type ? keyboardTypeMap[type] : undefined) ?? 'default';
   const secureTextEntry = type === 'password';
@@ -100,7 +122,7 @@ const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(function Text
         value={value as string | undefined}
         editable={!effectiveDisabled}
         placeholder={placeholder}
-        placeholderTextColor={theme.colors.text.tertiary}
+        placeholderTextColor={placeholderColor}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         accessibilityLabelledBy={fieldCtx?.labelId}
@@ -111,7 +133,7 @@ const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(function Text
         {...(rest as Record<string, unknown>)}
       />
       {clearable && value ? (
-        <Clickable accessibilityLabel="Limpar" onClick={() => emitChange('')}>
+        <Clickable accessibilityLabel="Limpar" onClick={() => emitChange('')} {...slots.clearButton}>
           <Icon name="X" size="small" />
         </Clickable>
       ) : null}
@@ -138,7 +160,7 @@ TextInputComponent.displayName = 'TextInput';
  * `onValueChange` (string) são ambos suportados; `type` HTML mapeia para
  * `keyboardType`/`secureTextEntry` RN. Frame externo é um `Box` consumindo
  * `slots.frame`; o controle interno é o `<TextInput>` nativo com style
- * resolvido.
+ * resolvido a partir dos slots da recipe `input`.
  *
  * @see {@link TextInputProps}
  */

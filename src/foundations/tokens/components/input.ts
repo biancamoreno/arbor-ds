@@ -26,6 +26,8 @@ export const input = {
       error: 'feedback.critical.solid',
     },
     text: 'text.primary',
+    placeholder: 'text.tertiary',
+    clearButton: 'text.tertiary',
   },
   opacity: {
     disabled: 'disabled',

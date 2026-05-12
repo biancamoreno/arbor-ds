@@ -48,7 +48,7 @@ export const TextInput = markFieldAware(
       const effectiveDisabled = disabled ?? fieldCtx?.disabled ?? false;
       const state = effectiveError ? 'error' : effectiveDisabled ? 'disabled' : 'idle';
 
-      const slots = useSlotRecipe<'frame' | 'control'>('input', { size, variant, state });
+      const slots = useSlotRecipe<'frame' | 'control' | 'clearButton'>('input', { size, variant, state });
       const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
 
       const handleClear = () => {
@@ -76,6 +76,8 @@ export const TextInput = markFieldAware(
             {...slots.control}
             flex={1}
             minWidth={0}
+            borderWidth={0}
+            backgroundColor="transparent"
             cursor={effectiveDisabled ? 'not-allowed' : 'auto'}
             id={inputId}
             value={value}
@@ -89,13 +91,7 @@ export const TextInput = markFieldAware(
             aria-invalid={fieldCtx?.invalid || undefined}
             aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
             {...rest}
-            style={{
-              border: 'none',
-              backgroundColor: 'transparent',
-              outline: 'none',
-              fontFamily: 'inherit',
-              ...style,
-            }}
+            style={{ outline: 'none', fontFamily: 'inherit', ...style }}
           />
           {clearable && value && (
             <Clickable
@@ -106,7 +102,7 @@ export const TextInput = markFieldAware(
               display="inline-flex"
               alignItems="center"
               flexShrink={0}
-              color="text.tertiary"
+              {...slots.clearButton}
             >
               <Icon name="X" size="small" />
             </Clickable>

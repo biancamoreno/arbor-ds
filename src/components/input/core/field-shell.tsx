@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useSlotRecipe } from '../../../ecosystem';
 import { Flex, Box, Text } from '../../core';
 
 interface FieldShellProps {
@@ -9,25 +10,29 @@ interface FieldShellProps {
 }
 
 export function FieldShell({ label, helperText, error, children }: FieldShellProps) {
-  const helperColor = error ? 'feedback.critical.solid' : 'text.secondary';
-  const labelColor = error ? 'feedback.critical.solid' : 'text.primary';
+  const invalid = Boolean(error);
+  const slots = useSlotRecipe('field', { invalid });
+  const rootStyles = (slots as Record<string, unknown>).root as Record<string, unknown> | undefined;
+  const labelStyles = (slots as Record<string, unknown>).label as Record<string, unknown> | undefined;
+  const descriptionStyles = (slots as Record<string, unknown>).description as
+    | Record<string, unknown>
+    | undefined;
+  const errorStyles = (slots as Record<string, unknown>).error as Record<string, unknown> | undefined;
+
+  const helperOrError = error ?? helperText;
+  const helperSlotStyles = error ? errorStyles : descriptionStyles;
 
   return (
-    <Flex flexDirection="column" gap="micro">
+    <Flex {...(rootStyles ?? {})}>
       {label && (
-        <Box
-          as="label"
-          fontSize="xsmall"
-          fontWeight="medium"
-          color={labelColor}
-        >
+        <Box as="label" {...(labelStyles ?? {})}>
           {label}
         </Box>
       )}
       {children}
-      {(error || helperText) && (
-        <Text as="span" fontSize="xsmall" color={helperColor}>
-          {error ?? helperText}
+      {helperOrError && (
+        <Text as="span" {...(helperSlotStyles ?? {})}>
+          {helperOrError}
         </Text>
       )}
     </Flex>

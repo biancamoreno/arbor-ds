@@ -56,6 +56,8 @@ export const TextArea = markFieldAware(
           ref={ref}
           {...slots.frame}
           {...slots.control}
+          borderWidth={0}
+          backgroundColor="transparent"
           cursor={effectiveDisabled ? 'not-allowed' : 'auto'}
           id={inputId}
           rows={rows}
@@ -71,12 +73,7 @@ export const TextArea = markFieldAware(
           aria-invalid={fieldCtx?.invalid || undefined}
           aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
           {...rest}
-          style={{
-            outline: 'none',
-            resize: 'vertical',
-            fontFamily: 'inherit',
-            ...style,
-          }}
+          style={{ outline: 'none', resize: 'vertical', fontFamily: 'inherit', ...style }}
         />
       );
 

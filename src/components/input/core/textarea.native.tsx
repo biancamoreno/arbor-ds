@@ -11,9 +11,19 @@ import { Box, Flex, Text } from '../../core';
 import type { TextAreaProps } from '../interfaces';
 import { FieldShell } from './field-shell';
 
-const fontSizeBySize = { small: 'xsmall', medium: 'small', large: 'medium' } as const;
-
 type RNStyle = NonNullable<RNTextInputProps['style']>;
+
+function readToken(record: Record<string, unknown> | undefined, key: string): unknown {
+  return record ? record[key] : undefined;
+}
+
+function resolveAliasColor(colors: Record<string, unknown>, alias: string | undefined): string | undefined {
+  if (!alias) return undefined;
+  return alias.split('.').reduce<unknown>(
+    (acc, key) => (acc as Record<string, unknown> | undefined)?.[key],
+    colors,
+  ) as string | undefined;
+}
 
 const TextAreaComponent = forwardRef<RNTextInput, TextAreaProps>(function TextArea(props, ref) {
   const {
@@ -47,16 +57,27 @@ const TextAreaComponent = forwardRef<RNTextInput, TextAreaProps>(function TextAr
   const inputId = fieldCtx?.fieldId ?? idProp ?? autoId;
   const charCount = (value as string)?.length || 0;
 
-  const fontSizeToken = fontSizeBySize[size];
-  const lineHeight = theme.fontSizes[fontSizeToken] * 1.4;
+  const controlFontSize = readToken(slots.control as Record<string, unknown>, 'fontSize') as
+    | number
+    | undefined;
+  const controlColor = readToken(slots.control as Record<string, unknown>, 'color') as
+    | string
+    | undefined;
+
+  const lineHeight = (controlFontSize ?? 14) * 1.4;
   const controlStyle: RNStyle = {
-    color: theme.colors.text.primary,
-    fontSize: theme.fontSizes[fontSizeToken],
+    color: controlColor ?? theme.colors.text.primary,
+    fontSize: controlFontSize,
     minHeight: lineHeight * rows,
     paddingHorizontal: 0,
     paddingVertical: 0,
     textAlignVertical: 'top',
   };
+
+  const placeholderColor = resolveAliasColor(
+    theme.colors as Record<string, unknown>,
+    theme.components.input.colors.placeholder,
+  ) ?? theme.colors.text.tertiary;
 
   const emitChange = (text: string) => {
     onValueChange?.(text);
@@ -85,7 +106,7 @@ const TextAreaComponent = forwardRef<RNTextInput, TextAreaProps>(function TextAr
         value={value as string | undefined}
         editable={!effectiveDisabled}
         placeholder={placeholder}
-        placeholderTextColor={theme.colors.text.tertiary}
+        placeholderTextColor={placeholderColor}
         maxLength={maxLength}
         accessibilityLabelledBy={fieldCtx?.labelId}
         accessibilityState={accessibilityState}
@@ -132,8 +153,8 @@ TextAreaComponent.displayName = 'TextArea';
  *
  * `TextArea` em React Native: `<TextInput multiline>` RN com a mesma API
  * pública do equivalente web. `rows` mapeia para `numberOfLines` (Android) +
- * altura mínima derivada. `showCharCount` + `maxLength` mantêm a mesma
- * semântica do web.
+ * altura mínima derivada do `fontSize` da recipe `input`. `showCharCount` +
+ * `maxLength` mantêm a mesma semântica do web.
  *
  * @see {@link TextAreaProps}
  */
