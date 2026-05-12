@@ -23,62 +23,29 @@ export default meta;
 type Story = StoryObj;
 
 export const Default: Story = {
-  render: () => (
-    <Checkbox.Root id="accept">
-      <Checkbox.Indicator />
-      <Checkbox.Label>Aceitar os termos e condições</Checkbox.Label>
-    </Checkbox.Root>
-  ),
+  render: () => <Checkbox label="Aceitar os termos e condições" />,
 };
 
 export const Checked: Story = {
-  render: () => (
-    <Checkbox.Root id="checked" defaultChecked>
-      <Checkbox.Indicator />
-      <Checkbox.Label>Glifo Check via Icon (cross-platform)</Checkbox.Label>
-    </Checkbox.Root>
-  ),
+  render: () => <Checkbox label="Glifo Check via Icon (cross-platform)" defaultChecked />,
 };
 
 export const Indeterminate: Story = {
-  render: () => (
-    <Checkbox.Root id="indeterminate" indeterminate>
-      <Checkbox.Indicator />
-      <Checkbox.Label>Glifo Minus via Icon (tri-state)</Checkbox.Label>
-    </Checkbox.Root>
-  ),
+  render: () => <Checkbox label="Glifo Minus via Icon (tri-state)" indeterminate />,
 };
 
 export const Variants: Story = {
   render: () => (
     <Flex flexDirection="column" gap="medium" alignItems="flex-start">
       <Flex flexDirection="column" gap="small" alignItems="flex-start">
-        <Checkbox.Root id="variant-outline-idle" variant="outline">
-          <Checkbox.Indicator />
-          <Checkbox.Label>Outline · idle (default)</Checkbox.Label>
-        </Checkbox.Root>
-        <Checkbox.Root id="variant-outline-checked" variant="outline" defaultChecked>
-          <Checkbox.Indicator />
-          <Checkbox.Label>Outline · checked</Checkbox.Label>
-        </Checkbox.Root>
-        <Checkbox.Root id="variant-outline-indeterminate" variant="outline" indeterminate>
-          <Checkbox.Indicator />
-          <Checkbox.Label>Outline · indeterminate</Checkbox.Label>
-        </Checkbox.Root>
+        <Checkbox label="Outline · idle (default)" variant="outline" />
+        <Checkbox label="Outline · checked" variant="outline" defaultChecked />
+        <Checkbox label="Outline · indeterminate" variant="outline" indeterminate />
       </Flex>
       <Flex flexDirection="column" gap="small" alignItems="flex-start">
-        <Checkbox.Root id="variant-filled-idle" variant="filled">
-          <Checkbox.Indicator />
-          <Checkbox.Label>Filled · idle (bg subtle)</Checkbox.Label>
-        </Checkbox.Root>
-        <Checkbox.Root id="variant-filled-checked" variant="filled" defaultChecked>
-          <Checkbox.Indicator />
-          <Checkbox.Label>Filled · checked</Checkbox.Label>
-        </Checkbox.Root>
-        <Checkbox.Root id="variant-filled-indeterminate" variant="filled" indeterminate>
-          <Checkbox.Indicator />
-          <Checkbox.Label>Filled · indeterminate</Checkbox.Label>
-        </Checkbox.Root>
+        <Checkbox label="Filled · idle (bg subtle)" variant="filled" />
+        <Checkbox label="Filled · checked" variant="filled" defaultChecked />
+        <Checkbox label="Filled · indeterminate" variant="filled" indeterminate />
       </Flex>
     </Flex>
   ),
@@ -87,43 +54,28 @@ export const Variants: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex flexDirection="column" gap="12px" alignItems="flex-start">
-      {(['small', 'medium', 'large'] as const).map((size) => (
-        <Checkbox.Root key={size} id={`size-${size}`} size={size} defaultChecked>
-          <Checkbox.Indicator />
-          <Checkbox.Label>Tamanho {size}</Checkbox.Label>
-        </Checkbox.Root>
-      ))}
+      <Checkbox size="small" label="Tamanho small" defaultChecked />
+      <Checkbox size="medium" label="Tamanho medium" defaultChecked />
+      <Checkbox size="large" label="Tamanho large" defaultChecked />
     </Flex>
   ),
 };
 
 export const WithDescription: Story = {
   render: () => (
-    <Checkbox.Root id="newsletter">
-      <Checkbox.Indicator />
-      <Flex flexDirection="column">
-        <Checkbox.Label>Receber novidades</Checkbox.Label>
-        <Checkbox.Description>Enviaremos no máximo 1 e-mail por semana.</Checkbox.Description>
-      </Flex>
-    </Checkbox.Root>
+    <Checkbox
+      label="Receber novidades"
+      description="Enviaremos no máximo 1 e-mail por semana."
+    />
   ),
 };
 
 export const Disabled: Story = {
   render: () => (
     <Flex flexDirection="column" gap="8px" alignItems="flex-start">
-      <Checkbox.Root id="disabled-unchecked" disabled>
-        <Checkbox.Indicator />
-        <Checkbox.Label>Desabilitado (desmarcado)</Checkbox.Label>
-      </Checkbox.Root>
-      <Checkbox.Root id="disabled-checked" disabled defaultChecked>
-        <Checkbox.Indicator />
-        <Checkbox.Label>Desabilitado (marcado)</Checkbox.Label>
-      </Checkbox.Root>
-      <Checkbox.Root id="disabled-indeterminate" disabled indeterminate>
-        <Checkbox.Indicator />
-        <Checkbox.Label>Desabilitado (indeterminate)</Checkbox.Label>
-      </Checkbox.Root>
+      <Checkbox label="Desabilitado (desmarcado)" disabled />
+      <Checkbox label="Desabilitado (marcado)" disabled defaultChecked />
+      <Checkbox label="Desabilitado (indeterminate)" disabled indeterminate />
     </Flex>
   ),
 };
@@ -132,10 +84,7 @@ export const Invalid: Story = {
   render: () => (
     <Field id="terms" invalid>
       <Field.Control>
-        <Checkbox.Root>
-          <Checkbox.Indicator />
-          <Checkbox.Label>É obrigatório aceitar os termos</Checkbox.Label>
-        </Checkbox.Root>
+        <Checkbox label="É obrigatório aceitar os termos" />
       </Field.Control>
       <Field.Error>Você precisa aceitar para continuar.</Field.Error>
     </Field>
@@ -149,25 +98,19 @@ function TriStateExample() {
   const setAll = (checked: boolean) => setItems(items.map(() => checked));
   return (
     <Flex flexDirection="column" gap="8px" alignItems="flex-start">
-      <Checkbox.Root
-        id="all"
+      <Checkbox
+        label="Selecionar todos"
         checked={allChecked}
         indeterminate={someChecked}
         onCheckedChange={setAll}
-      >
-        <Checkbox.Indicator />
-        <Checkbox.Label>Selecionar todos</Checkbox.Label>
-      </Checkbox.Root>
+      />
       {items.map((checked, i) => (
-        <Checkbox.Root
+        <Checkbox
           key={i}
-          id={`item-${i}`}
+          label={`Item ${i + 1}`}
           checked={checked}
-          onCheckedChange={(next) => setItems(items.map((v, idx) => (idx === i ? next : v)))}
-        >
-          <Checkbox.Indicator />
-          <Checkbox.Label>Item {i + 1}</Checkbox.Label>
-        </Checkbox.Root>
+          onCheckedChange={(next: boolean) => setItems(items.map((v, idx) => (idx === i ? next : v)))}
+        />
       ))}
     </Flex>
   );
@@ -175,6 +118,24 @@ function TriStateExample() {
 
 export const TriState: Story = {
   render: () => <TriStateExample />,
+};
+
+export const AdvancedCompound: Story = {
+  render: () => (
+    <Flex flexDirection="column" gap="small" alignItems="flex-start">
+      <Checkbox.Root defaultChecked>
+        <Checkbox.Label>Label antes do indicador</Checkbox.Label>
+        <Checkbox.Indicator />
+      </Checkbox.Root>
+      <Checkbox.Root indeterminate>
+        <Checkbox.Indicator />
+        <Flex flexDirection="column">
+          <Checkbox.Label>Descrição com layout custom</Checkbox.Label>
+          <Checkbox.Description>Use Checkbox.Root quando precisar de ordem ou estrutura não-trivial.</Checkbox.Description>
+        </Flex>
+      </Checkbox.Root>
+    </Flex>
+  ),
 };
 
 export const Theming: Story = {
@@ -201,15 +162,9 @@ export const Theming: Story = {
     });
     return (
       <Flex flexDirection="column" gap="16px" alignItems="flex-start">
-        <Checkbox.Root id="theming-default" defaultChecked>
-          <Checkbox.Indicator />
-          <Checkbox.Label>Default theme</Checkbox.Label>
-        </Checkbox.Root>
+        <Checkbox label="Default theme" defaultChecked />
         <ArborProvider theme={customTheme}>
-          <Checkbox.Root id="theming-custom" defaultChecked>
-            <Checkbox.Indicator />
-            <Checkbox.Label>Override (success tone + radius huge)</Checkbox.Label>
-          </Checkbox.Root>
+          <Checkbox label="Override (success tone + radius huge)" defaultChecked />
         </ArborProvider>
       </Flex>
     );

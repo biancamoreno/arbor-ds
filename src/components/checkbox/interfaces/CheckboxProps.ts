@@ -27,7 +27,28 @@ export interface CheckboxRootProps {
   id?: string;
   name?: string;
   value?: string;
-  children: ReactNode;
+  children?: ReactNode;
+}
+
+/**
+ * Props do `Checkbox` (top-level) — atalho declarativo para o caso comum
+ * (98%): renderiza Root + Indicator + Label/Description automaticamente.
+ *
+ * Quando precisar de ordem de slots não-trivial (Label antes do Indicator,
+ * Description com ícone embutido, integração custom com Field), use o
+ * compound: `<Checkbox.Root>` + `<Checkbox.Indicator />` + `<Checkbox.Label />`.
+ */
+export interface CheckboxProps extends Omit<CheckboxRootProps, 'children'> {
+  /** Texto do label ao lado do indicador. Quando presente, renderiza automaticamente. */
+  label?: ReactNode;
+  /** Texto descritivo abaixo do label. Renderiza automaticamente quando presente. */
+  description?: ReactNode;
+  /**
+   * Filhos para o modo compound — só consumido quando `label` e `description`
+   * são undefined. Quando qualquer um deles está definido, `children` é
+   * ignorado e a anatomia interna é gerada automaticamente.
+   */
+  children?: ReactNode;
 }
 
 /**

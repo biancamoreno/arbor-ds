@@ -7,6 +7,7 @@ import { Box, Flex, Icon, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
 import type { CheckboxSize, CheckboxState } from '../context/checkbox-context';
 import type {
+  CheckboxProps,
   CheckboxRootProps,
   CheckboxIndicatorProps,
   CheckboxLabelProps,
@@ -146,29 +147,62 @@ function CheckboxDescription({ children }: CheckboxDescriptionProps) {
 
 CheckboxDescription.displayName = 'Checkbox.Description';
 
-CheckboxRoot.displayName = 'Checkbox';
+CheckboxRoot.displayName = 'Checkbox.Root';
 
 markFieldAware(CheckboxRoot);
 
 /**
  * @platform shared
  *
- * Compound de checkbox controlado/uncontrolled. `Root` renderiza um
- * `<input type="checkbox">` visualmente escondido (mantém form submission,
- * navegação por teclado e role nativa) e distribui o estado via
- * `CheckboxContext` para `Indicator` (caixa visual + glifo Lucide
- * `Check`/`Minus`), `Label` e `Description`. Field-aware: herda
- * `disabled`/`invalid` do `<Field>` quando aninhado.
+ * Checkbox controlado/uncontrolled. API plana (recomendada para 98% dos casos):
  *
  * @example
- * <Checkbox checked={agree} onCheckedChange={setAgree}>
- *   <Checkbox.Indicator />
- *   <Checkbox.Label>Aceito os termos</Checkbox.Label>
- * </Checkbox>
+ * <Checkbox label="Aceito os termos" checked={agree} onCheckedChange={setAgree} />
  *
- * @see {@link CheckboxRootProps}
+ * Para layouts não-triviais (Label antes do Indicator, descrição com ícone
+ * embutido, integração custom com Field), use o compound:
+ *
+ * @example
+ * <Checkbox.Root checked={agree} onCheckedChange={setAgree}>
+ *   <Checkbox.Label>Termos</Checkbox.Label>
+ *   <Checkbox.Indicator />
+ * </Checkbox.Root>
+ *
+ * Renderiza um `<input type="checkbox">` visualmente escondido (mantém form
+ * submission, teclado e role nativa) e distribui o estado via
+ * `CheckboxContext` para `Indicator` (caixa visual + glifo Lucide
+ * `Check`/`Minus`), `Label` e `Description`. Field-aware.
+ *
+ * @see {@link CheckboxProps} para API plana
+ * @see {@link CheckboxRootProps} para API compound
  */
-export const Checkbox = Object.assign(CheckboxRoot, {
+function CheckboxFlat({ label, description, children, ...rootProps }: CheckboxProps) {
+  const usesFlatApi = label !== undefined || description !== undefined || children === undefined;
+  if (!usesFlatApi) {
+    return <CheckboxRoot {...rootProps}>{children}</CheckboxRoot>;
+  }
+  return (
+    <CheckboxRoot {...rootProps}>
+      <CheckboxIndicator />
+      {(label !== undefined || description !== undefined) && (
+        description !== undefined
+          ? (
+            <Flex flexDirection="column">
+              {label !== undefined && <CheckboxLabel>{label}</CheckboxLabel>}
+              <CheckboxDescription>{description}</CheckboxDescription>
+            </Flex>
+          )
+          : <CheckboxLabel>{label}</CheckboxLabel>
+      )}
+    </CheckboxRoot>
+  );
+}
+
+CheckboxFlat.displayName = 'Checkbox';
+
+markFieldAware(CheckboxFlat);
+
+export const Checkbox = Object.assign(CheckboxFlat, {
   Root: CheckboxRoot,
   Indicator: CheckboxIndicator,
   Label: CheckboxLabel,

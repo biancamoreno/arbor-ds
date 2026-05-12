@@ -7,6 +7,7 @@ import { Box, Flex, Text } from '../../core';
 import { RadioContext, useRadioContext } from '../context/radio-context';
 import type { RadioState } from '../context/radio-context';
 import type {
+  RadioProps,
   RadioRootProps,
   RadioIndicatorProps,
   RadioLabelProps,
@@ -136,25 +137,54 @@ markFieldAware(RadioRoot);
 /**
  * @platform shared
  *
- * Compound de radio button clássico (sem moldura/highlight de linha — pattern
- * stripped-down). `Root` renderiza um `<input type="radio">` visualmente
- * escondido (mantém form submission, navegação por teclado, role nativa) e
- * distribui o estado via `RadioContext`. `Indicator` é o círculo bordado +
- * dot interno (consome slot `dot` da recipe). Field-aware: herda
- * `disabled`/`invalid` do `<Field>` quando aninhado.
- *
- * Para o pattern de "card selecionável" (radio embutido em uma área clicável
- * com borda + highlight), componha `<Card interactive><Radio /></Card>`.
+ * Radio button controlado/uncontrolled. API plana (recomendada para 98% dos casos):
  *
  * @example
- * <Radio value="standard" name="shipping" checked={mode === 'standard'} onCheckedChange={() => setMode('standard')}>
- *   <Radio.Indicator />
- *   <Radio.Label>Entrega padrão</Radio.Label>
- * </Radio>
+ * <Radio value="standard" name="shipping" label="Entrega padrão"
+ *        checked={mode === 'standard'} onCheckedChange={() => setMode('standard')} />
  *
- * @see {@link RadioRootProps}
+ * Para layouts não-triviais (Label antes do Indicator, descrição com ícone
+ * embutido, integração custom com Field), use o compound:
+ *
+ * @example
+ * <Radio.Root value="standard">
+ *   <Radio.Label>Entrega padrão</Radio.Label>
+ *   <Radio.Indicator />
+ * </Radio.Root>
+ *
+ * Para o pattern de "card selecionável" (radio embutido em uma área clicável
+ * com borda + highlight), componha `<Card interactive><Radio ... /></Card>`.
+ *
+ * @see {@link RadioProps} para API plana
+ * @see {@link RadioRootProps} para API compound
  */
-export const Radio = Object.assign(RadioRoot, {
+function RadioFlat({ label, description, children, ...rootProps }: RadioProps) {
+  const usesFlatApi = label !== undefined || description !== undefined || children === undefined;
+  if (!usesFlatApi) {
+    return <RadioRoot {...rootProps}>{children}</RadioRoot>;
+  }
+  return (
+    <RadioRoot {...rootProps}>
+      <RadioIndicator />
+      {(label !== undefined || description !== undefined) && (
+        description !== undefined
+          ? (
+            <Flex flexDirection="column">
+              {label !== undefined && <RadioLabel>{label}</RadioLabel>}
+              <RadioDescription>{description}</RadioDescription>
+            </Flex>
+          )
+          : <RadioLabel>{label}</RadioLabel>
+      )}
+    </RadioRoot>
+  );
+}
+
+RadioFlat.displayName = 'Radio';
+
+markFieldAware(RadioFlat);
+
+export const Radio = Object.assign(RadioFlat, {
   Root: RadioRoot,
   Indicator: RadioIndicator,
   Label: RadioLabel,

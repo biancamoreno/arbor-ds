@@ -8,6 +8,7 @@ import { Box, Flex, Text } from '../../core';
 import { RadioContext, useRadioContext } from '../context/radio-context';
 import type { RadioState } from '../context/radio-context';
 import type {
+  RadioProps,
   RadioRootProps,
   RadioIndicatorProps,
   RadioLabelProps,
@@ -114,15 +115,45 @@ markFieldAware(RadioRoot);
 /**
  * @platform native
  *
- * `Radio` em React Native (stripped-down — sem moldura de RadioCard): `<Pressable>`
- * exterior com `accessibilityRole="radio"` + `accessibilityState.checked/disabled`.
- * Slots `root`, `control`, `indicator` e `dot` consomem `useSlotRecipe`, mantendo
- * paridade visual com web. Limitações: `_focusVisibleWithin` é no-op (RN não tem
- * `:has`); transição CSS no `dot` é no-op (RN ignora `transition`).
+ * `Radio` em React Native — API plana (98%) com escape compound via
+ * `Radio.Root`. `Pressable` exterior com `accessibilityRole="radio"` +
+ * `accessibilityState.checked/disabled`. Slots `root`, `control`, `indicator`
+ * e `dot` consomem `useSlotRecipe`. Limitações: `_focusVisibleWithin` é no-op
+ * (RN não tem `:has`); transição CSS no `dot` é no-op.
  *
- * @see {@link RadioRootProps}
+ * @example
+ * <Radio value="standard" label="Entrega padrão" name="shipping" />
+ *
+ * @see {@link RadioProps} para API plana
+ * @see {@link RadioRootProps} para API compound
  */
-export const Radio = Object.assign(RadioRoot, {
+function RadioFlat({ label, description, children, ...rootProps }: RadioProps) {
+  const usesFlatApi = label !== undefined || description !== undefined || children === undefined;
+  if (!usesFlatApi) {
+    return <RadioRoot {...rootProps}>{children}</RadioRoot>;
+  }
+  return (
+    <RadioRoot {...rootProps}>
+      <RadioIndicator />
+      {(label !== undefined || description !== undefined) && (
+        description !== undefined
+          ? (
+            <Flex flexDirection="column">
+              {label !== undefined && <RadioLabel>{label}</RadioLabel>}
+              <RadioDescription>{description}</RadioDescription>
+            </Flex>
+          )
+          : <RadioLabel>{label}</RadioLabel>
+      )}
+    </RadioRoot>
+  );
+}
+
+RadioFlat.displayName = 'Radio';
+
+markFieldAware(RadioFlat);
+
+export const Radio = Object.assign(RadioFlat, {
   Root: RadioRoot,
   Indicator: RadioIndicator,
   Label: RadioLabel,

@@ -24,7 +24,26 @@ export interface RadioRootProps {
   name?: string;
   size?: RadioSize;
   variant?: RadioVariant;
-  children: ReactNode;
+  children?: ReactNode;
+}
+
+/**
+ * Props do `Radio` (top-level) — atalho declarativo para o caso comum (98%):
+ * renderiza Root + Indicator + Label/Description automaticamente.
+ *
+ * Para layouts não-triviais use o compound: `<Radio.Root>` + `<Radio.Indicator />`
+ * + `<Radio.Label />`.
+ */
+export interface RadioProps extends Omit<RadioRootProps, 'children'> {
+  /** Texto do label ao lado do indicador. Quando presente, renderiza automaticamente. */
+  label?: ReactNode;
+  /** Texto descritivo abaixo do label. Renderiza automaticamente quando presente. */
+  description?: ReactNode;
+  /**
+   * Filhos para o modo compound — só consumido quando `label` e `description`
+   * são undefined.
+   */
+  children?: ReactNode;
 }
 
 /**

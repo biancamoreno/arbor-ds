@@ -4,6 +4,25 @@
 
 ### Added
 
+- **`Checkbox` e `Radio` ganham API plana** com props `label?: ReactNode` e `description?: ReactNode` — atalho declarativo para o caso comum (98%) sem precisar compor `Root` + `Indicator` + `Label`. Sem breaking: o compound `Checkbox.Root` / `Radio.Root` continua disponível para layouts não-triviais (Label antes do Indicator, descrição com ícone embutido, integração custom com Field).
+  - **Antes (compound obrigatório):**
+    ```tsx
+    <Checkbox.Root checked={c} onCheckedChange={setC}>
+      <Checkbox.Indicator />
+      <Checkbox.Label>Aceito os termos</Checkbox.Label>
+    </Checkbox.Root>
+    ```
+  - **Agora (atalho plano):**
+    ```tsx
+    <Checkbox label="Aceito os termos" checked={c} onCheckedChange={setC} />
+    <Radio value="pro" label="Plano Pro" description="R$ 49/mês" />
+    ```
+  - **Roteamento:** `Checkbox`/`Radio` top-level são wrappers que decidem em runtime — se `label` ou `description` é definido, renderizam `Root + Indicator + Label/Description` automaticamente; se ambos são `undefined`, modo compound puro (passa children direto). Sem ambiguidade nem detecção mágica (a prop discrimina, não os children).
+  - **Tipo novo exportado:** `CheckboxProps` e `RadioProps` (extends `Root` sem `children` obrigatório + label/description opcionais). `CheckboxRootProps.children` virou opcional (`children?: ReactNode`) para suportar o caminho sem children (`<Checkbox aria-label="x" />` renderiza só o indicador).
+  - **Stories reescritas:** Default/Checked/Indeterminate/Sizes/Disabled/Invalid/WithDescription/Variants/TriState/Group migrados para API plana; nova story `AdvancedCompound` demonstra `.Root` para casos não-triviais.
+  - **Naming alinhado Mantine** (`label`/`description` props) — denominador-comum com Chakra, Vuetify, Naive UI.
+  - **Sem alteração em a11y:** input nativo continua escondido no Root; foco/teclado/role/`aria-*` field-aware idênticos.
+
 - **`Checkbox` e `Radio` ganham prop `variant: 'outline' | 'filled'`** (default `'outline'`, sem breaking). Permite escolher o tratamento visual do indicador no estado idle sem editar tema:
   - `'outline'` (default): caixa/círculo transparente sobre `surface.default` — comportamento atual.
   - `'filled'`: caixa/círculo com `background.subtle` (off-white quente) preenchendo o indicador no idle — mais "tactile" sobre fundos brancos. No Checkbox o estado `checked` continua preenchendo com `interactive.default`; no Radio o `checked` volta para `surface.default` para o dot brand-solid contrastar.

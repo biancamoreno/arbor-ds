@@ -183,6 +183,36 @@ describe('Radio slot recipe (RFC-0017)', () => {
   });
 });
 
+describe('Radio flat API (label/description props)', () => {
+  it('renders Indicator + Label automatically when label prop is set', () => {
+    renderRadio(<Radio value="a" label="Opção 1" />);
+    expect(screen.getByText('Opção 1')).toBeTruthy();
+  });
+
+  it('renders Description when description prop is set', () => {
+    renderRadio(<Radio value="a" label="Pro" description="R$ 49" />);
+    expect(screen.getByText('R$ 49')).toBeTruthy();
+  });
+
+  it('forwards onCheckedChange in flat API', () => {
+    const onCheckedChange = jest.fn();
+    const { container } = renderRadio(<Radio value="a" label="x" onCheckedChange={onCheckedChange} />);
+    const input = container.querySelector('input[type="radio"]') as HTMLInputElement;
+    fireEvent.click(input);
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
+  });
+
+  it('compound API still works when only children is passed (no label)', () => {
+    renderRadio(
+      <Radio value="a">
+        <Radio.Indicator />
+        <Radio.Label>Compound mode</Radio.Label>
+      </Radio>,
+    );
+    expect(screen.getByText('Compound mode')).toBeTruthy();
+  });
+});
+
 describe('Radio FieldContext integration', () => {
   it('picks up aria-describedby from Field', () => {
     renderRadio(

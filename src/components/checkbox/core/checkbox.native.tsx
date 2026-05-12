@@ -8,6 +8,7 @@ import { Flex, Icon, Text } from '../../core';
 import { CheckboxContext, useCheckboxContext } from '../context/checkbox-context';
 import type { CheckboxSize, CheckboxState } from '../context/checkbox-context';
 import type {
+  CheckboxProps,
   CheckboxRootProps,
   CheckboxIndicatorProps,
   CheckboxLabelProps,
@@ -121,22 +122,53 @@ function CheckboxDescription({ children }: CheckboxDescriptionProps) {
 
 CheckboxDescription.displayName = 'Checkbox.Description';
 
-CheckboxRoot.displayName = 'Checkbox';
+CheckboxRoot.displayName = 'Checkbox.Root';
 
 markFieldAware(CheckboxRoot);
 
 /**
  * @platform native
  *
- * `Checkbox` em React Native: `Pressable` no Root reflete o estado para
- * leitor de tela (`accessibilityRole="checkbox"` + `accessibilityState.checked`
- * com `'mixed'` para indeterminate). `Indicator` consome o slot recipe
+ * `Checkbox` em React Native — API plana (98% dos casos) com escape compound
+ * via `Checkbox.Root`. `Pressable` no Root reflete o estado para leitor de
+ * tela (`accessibilityRole="checkbox"` + `accessibilityState.checked` com
+ * `'mixed'` para indeterminate). `Indicator` consome o slot recipe
  * `checkbox.indicator` e exibe glifo Lucide (`Check` ou `Minus`) com paridade
  * total ao web.
  *
- * @see {@link CheckboxRootProps}
+ * @example
+ * <Checkbox label="Aceito termos" checked={agree} onCheckedChange={setAgree} />
+ *
+ * @see {@link CheckboxProps} para API plana
+ * @see {@link CheckboxRootProps} para API compound
  */
-export const Checkbox = Object.assign(CheckboxRoot, {
+function CheckboxFlat({ label, description, children, ...rootProps }: CheckboxProps) {
+  const usesFlatApi = label !== undefined || description !== undefined || children === undefined;
+  if (!usesFlatApi) {
+    return <CheckboxRoot {...rootProps}>{children}</CheckboxRoot>;
+  }
+  return (
+    <CheckboxRoot {...rootProps}>
+      <CheckboxIndicator />
+      {(label !== undefined || description !== undefined) && (
+        description !== undefined
+          ? (
+            <Flex flexDirection="column">
+              {label !== undefined && <CheckboxLabel>{label}</CheckboxLabel>}
+              <CheckboxDescription>{description}</CheckboxDescription>
+            </Flex>
+          )
+          : <CheckboxLabel>{label}</CheckboxLabel>
+      )}
+    </CheckboxRoot>
+  );
+}
+
+CheckboxFlat.displayName = 'Checkbox';
+
+markFieldAware(CheckboxFlat);
+
+export const Checkbox = Object.assign(CheckboxFlat, {
   Root: CheckboxRoot,
   Indicator: CheckboxIndicator,
   Label: CheckboxLabel,

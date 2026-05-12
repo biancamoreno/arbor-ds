@@ -276,6 +276,42 @@ describe('Checkbox FieldContext integration', () => {
   });
 });
 
+describe('Checkbox flat API (label/description props)', () => {
+  it('renders Indicator + Label automatically when label prop is set', () => {
+    renderCb(<Checkbox label="Aceito termos" />);
+    expect(getInput().getAttribute('type')).toBe('checkbox');
+    expect(screen.getByText('Aceito termos')).toBeTruthy();
+  });
+
+  it('renders Description when description prop is set', () => {
+    renderCb(<Checkbox label="Newsletter" description="Helper text" />);
+    expect(screen.getByText('Helper text')).toBeTruthy();
+  });
+
+  it('renders only the Indicator when no label/description and no children', () => {
+    const { container } = renderCb(<Checkbox aria-label="solo" />);
+    expect(getInput()).toBeTruthy();
+    expect(container.querySelectorAll('span[aria-hidden="true"]').length).toBeGreaterThan(0);
+  });
+
+  it('forwards onCheckedChange in flat API', () => {
+    const onCheckedChange = jest.fn();
+    renderCb(<Checkbox label="x" onCheckedChange={onCheckedChange} />);
+    fireEvent.click(getInput());
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
+  });
+
+  it('compound API still works when only children is passed (no label)', () => {
+    renderCb(
+      <Checkbox>
+        <Checkbox.Indicator />
+        <Checkbox.Label>Compound mode</Checkbox.Label>
+      </Checkbox>,
+    );
+    expect(screen.getByText('Compound mode')).toBeTruthy();
+  });
+});
+
 describe('Checkbox accessibility — visible focus (TD-014, WCAG 2.4.7)', () => {
   it('emits :has(:focus-visible) outline rule for the root', () => {
     const { container } = renderCb(

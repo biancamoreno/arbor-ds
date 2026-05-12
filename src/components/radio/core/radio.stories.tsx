@@ -22,71 +22,45 @@ export default meta;
 type Story = StoryObj;
 
 export const Default: Story = {
-  render: () => (
-    <Radio.Root value="opt1" id="r1">
-      <Radio.Indicator />
-      <Radio.Label>Opção 1</Radio.Label>
-    </Radio.Root>
-  ),
+  render: () => <Radio value="opt1" label="Opção 1" />,
 };
 
 export const Checked: Story = {
-  render: () => (
-    <Radio.Root value="opt1" id="r1-checked" defaultChecked>
-      <Radio.Indicator />
-      <Radio.Label>Selecionado</Radio.Label>
-    </Radio.Root>
-  ),
-};
-
-export const WithDescription: Story = {
-  render: () => (
-    <Radio.Root value="plan-pro" id="r-pro" defaultChecked>
-      <Radio.Indicator />
-      <Flex flexDirection="column">
-        <Radio.Label>Plano Pro</Radio.Label>
-        <Radio.Description>R$ 49/mês — Recursos ilimitados</Radio.Description>
-      </Flex>
-    </Radio.Root>
-  ),
+  render: () => <Radio value="opt1" label="Selecionado" defaultChecked />,
 };
 
 export const Variants: Story = {
   render: () => (
     <Flex flexDirection="column" gap="medium" alignItems="flex-start">
       <Flex flexDirection="column" gap="small" alignItems="flex-start">
-        <Radio.Root value="o-idle" id="variant-outline-idle" variant="outline">
-          <Radio.Indicator />
-          <Radio.Label>Outline · idle (default)</Radio.Label>
-        </Radio.Root>
-        <Radio.Root value="o-checked" id="variant-outline-checked" variant="outline" defaultChecked>
-          <Radio.Indicator />
-          <Radio.Label>Outline · checked</Radio.Label>
-        </Radio.Root>
+        <Radio value="o-idle" label="Outline · idle (default)" variant="outline" />
+        <Radio value="o-checked" label="Outline · checked" variant="outline" defaultChecked />
       </Flex>
       <Flex flexDirection="column" gap="small" alignItems="flex-start">
-        <Radio.Root value="f-idle" id="variant-filled-idle" variant="filled">
-          <Radio.Indicator />
-          <Radio.Label>Filled · idle (bg subtle)</Radio.Label>
-        </Radio.Root>
-        <Radio.Root value="f-checked" id="variant-filled-checked" variant="filled" defaultChecked>
-          <Radio.Indicator />
-          <Radio.Label>Filled · checked</Radio.Label>
-        </Radio.Root>
+        <Radio value="f-idle" label="Filled · idle (bg subtle)" variant="filled" />
+        <Radio value="f-checked" label="Filled · checked" variant="filled" defaultChecked />
       </Flex>
     </Flex>
+  ),
+};
+
+export const WithDescription: Story = {
+  render: () => (
+    <Radio
+      value="plan-pro"
+      label="Plano Pro"
+      description="R$ 49/mês — Recursos ilimitados"
+      defaultChecked
+    />
   ),
 };
 
 export const Sizes: Story = {
   render: () => (
     <Flex flexDirection="column" gap="12px" alignItems="flex-start">
-      {(['small', 'medium', 'large'] as const).map((size) => (
-        <Radio.Root key={size} value={size} id={`size-${size}`} size={size} defaultChecked>
-          <Radio.Indicator />
-          <Radio.Label>Tamanho {size}</Radio.Label>
-        </Radio.Root>
-      ))}
+      <Radio value="size-small" label="Tamanho small" size="small" defaultChecked />
+      <Radio value="size-medium" label="Tamanho medium" size="medium" defaultChecked />
+      <Radio value="size-large" label="Tamanho large" size="large" defaultChecked />
     </Flex>
   ),
 };
@@ -102,20 +76,15 @@ function GroupExample() {
     <Box as="div" role="radiogroup" aria-label="Planos">
       <Flex flexDirection="column" gap="small" alignItems="flex-start">
         {options.map((plan) => (
-          <Radio.Root
+          <Radio
             key={plan.value}
             value={plan.value}
-            id={`plan-${plan.value}`}
             name="plan"
+            label={plan.label}
+            description={plan.description}
             checked={selected === plan.value}
             onCheckedChange={() => setSelected(plan.value)}
-          >
-            <Radio.Indicator />
-            <Flex flexDirection="column">
-              <Radio.Label>{plan.label}</Radio.Label>
-              <Radio.Description>{plan.description}</Radio.Description>
-            </Flex>
-          </Radio.Root>
+          />
         ))}
       </Flex>
     </Box>
@@ -129,14 +98,8 @@ export const Group: Story = {
 export const Disabled: Story = {
   render: () => (
     <Flex flexDirection="column" gap="small" alignItems="flex-start">
-      <Radio.Root value="disabled" id="r-disabled-idle" disabled>
-        <Radio.Indicator />
-        <Radio.Label>Desabilitado (não selecionado)</Radio.Label>
-      </Radio.Root>
-      <Radio.Root value="disabled-on" id="r-disabled-on" disabled defaultChecked>
-        <Radio.Indicator />
-        <Radio.Label>Desabilitado (selecionado)</Radio.Label>
-      </Radio.Root>
+      <Radio value="d-idle" label="Desabilitado (não selecionado)" disabled />
+      <Radio value="d-on" label="Desabilitado (selecionado)" disabled defaultChecked />
     </Flex>
   ),
 };
@@ -145,13 +108,28 @@ export const Invalid: Story = {
   render: () => (
     <Field id="shipping" invalid>
       <Field.Control>
-        <Radio.Root value="invalid">
-          <Radio.Indicator />
-          <Radio.Label>Selecione uma opção válida</Radio.Label>
-        </Radio.Root>
+        <Radio value="invalid" label="Selecione uma opção válida" />
       </Field.Control>
       <Field.Error>Opção indisponível para sua região.</Field.Error>
     </Field>
+  ),
+};
+
+export const AdvancedCompound: Story = {
+  render: () => (
+    <Flex flexDirection="column" gap="small" alignItems="flex-start">
+      <Radio.Root value="adv-1" defaultChecked>
+        <Radio.Label>Label antes do indicador</Radio.Label>
+        <Radio.Indicator />
+      </Radio.Root>
+      <Radio.Root value="adv-2">
+        <Radio.Indicator />
+        <Flex flexDirection="column">
+          <Radio.Label>Layout custom</Radio.Label>
+          <Radio.Description>Use Radio.Root quando precisar de ordem ou estrutura não-trivial.</Radio.Description>
+        </Flex>
+      </Radio.Root>
+    </Flex>
   ),
 };
 
@@ -179,15 +157,9 @@ export const Theming: Story = {
     });
     return (
       <Flex flexDirection="column" gap="medium" alignItems="flex-start">
-        <Radio.Root value="default" id="theming-default" defaultChecked>
-          <Radio.Indicator />
-          <Radio.Label>Default theme</Radio.Label>
-        </Radio.Root>
+        <Radio value="default" label="Default theme" defaultChecked />
         <ArborProvider theme={customTheme}>
-          <Radio.Root value="custom" id="theming-custom" defaultChecked>
-            <Radio.Indicator />
-            <Radio.Label>Override (success tone + indicator quadrado)</Radio.Label>
-          </Radio.Root>
+          <Radio value="custom" label="Override (success tone + indicator quadrado)" defaultChecked />
         </ArborProvider>
       </Flex>
     );
