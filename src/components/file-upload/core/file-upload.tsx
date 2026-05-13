@@ -1,8 +1,9 @@
 import React, { useId, useRef, useState } from 'react';
-import { transition } from '../../../ecosystem/utils/functions';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useFieldContext } from '../../field/context/field-context';
 import { markFieldAware } from '../../field/utils/is-field-aware';
-import { Box, Flex, Text, Clickable, Icon, Image } from '../../core';
+import { Box, Flex, Text, Icon, Image } from '../../core';
+import { Button } from '../../button';
 import type { FileUploadProps, FileUploadTexts } from '../interfaces';
 
 const DEFAULT_TEXTS: Required<FileUploadTexts> = {
@@ -13,6 +14,18 @@ const DEFAULT_TEXTS: Required<FileUploadTexts> = {
   removeLabel: 'Remover',
 };
 
+type FileUploadSlots =
+  | 'root'
+  | 'dropZone'
+  | 'idleIcon'
+  | 'idleTitle'
+  | 'idleHint'
+  | 'previewFrame'
+  | 'previewThumbnail'
+  | 'previewLabel';
+
+type FileUploadState = 'idle' | 'dragging' | 'invalid' | 'disabled';
+
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -20,6 +33,18 @@ function formatBytes(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }
+
+const visuallyHiddenInputStyle: React.CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: 'hidden',
+  clip: 'rect(0,0,0,0)',
+  whiteSpace: 'nowrap',
+  border: 0,
+};
 
 const FileUploadBase: React.FC<FileUploadProps> = ({
   accept = 'image/*',
@@ -45,6 +70,16 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
   const t: Required<FileUploadTexts> = { ...DEFAULT_TEXTS, ...textsProp };
   const isDisabled = disabled ?? fieldCtx?.disabled ?? false;
   const isInvalid = !!error || !!fieldCtx?.invalid;
+
+  const state: FileUploadState = isDisabled
+    ? 'disabled'
+    : isDragging
+      ? 'dragging'
+      : isInvalid
+        ? 'invalid'
+        : 'idle';
+
+  const slots = useSlotRecipe<FileUploadSlots>('fileUpload', { state });
 
   const validateFiles = (files: File[]): File[] => {
     const valid = files.filter((file) => file.size <= maxSize);
@@ -73,12 +108,12 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
     handleFiles(event.dataTransfer.files);
   };
 
-  const handleClick = () => {
-    if (!isDisabled) inputRef.current?.click();
-  };
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleFiles(event.target.files);
+  };
+
+  const handleClick = () => {
+    if (!isDisabled) inputRef.current?.click();
   };
 
   const hiddenInput = (
@@ -95,61 +130,39 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
       aria-required={fieldCtx?.required || undefined}
       aria-invalid={fieldCtx?.invalid || undefined}
       aria-errormessage={fieldCtx?.invalid && fieldCtx?.errorRegistered ? fieldCtx.errorId : undefined}
-      display="none"
+      style={visuallyHiddenInputStyle}
     />
   );
 
   if (previewUrl) {
     return (
-      <Flex flexDirection="column" gap="micro">
-        <Flex
-          alignItems="center"
-          gap="small"
-          padding="medium"
-          borderRadius="medium"
-          borderWidth="1px"
-          borderStyle="solid"
-          borderColor="border.default"
-        >
-          <Box borderRadius="small" overflow="hidden" width="80px" height="80px" flexShrink={0}>
+      <Flex {...slots.root}>
+        <Flex {...slots.previewFrame}>
+          <Box {...slots.previewThumbnail}>
             <Image
               mode="img"
               source={previewUrl}
               alt={t.previewLabel}
-              width="80px"
-              height="80px"
+              width="100%"
+              height="100%"
               resizeMode="cover"
             />
           </Box>
           <Box flex={1}>
-            <Text as="p" fontSize="small" fontWeight="medium" color="text.primary">
+            <Text variant="label" {...slots.previewLabel}>
               {t.previewLabel}
             </Text>
           </Box>
-          <Clickable
-            as="button"
-            type="button"
-            onClick={onRemove}
-            aria-label={t.removeLabel}
-            paddingX="medium"
-            paddingY="small"
-            borderRadius="small"
-            borderWidth="1px"
-            borderStyle="solid"
-            borderColor="feedback.critical.solid"
-            backgroundColor="transparent"
-            color="feedback.critical.solid"
-            fontSize="small"
-          >
+          <Button variant="danger" size="small" onClick={onRemove} aria-label={t.removeLabel}>
             <Flex as="span" alignItems="center" gap="micro">
               <Icon name="X" size="small" decorative />
               {t.removeLabel}
             </Flex>
-          </Clickable>
+          </Button>
         </Flex>
         {hiddenInput}
         {error && !fieldCtx && (
-          <Text as="span" fontSize="xsmall" color="feedback.critical.solid">
+          <Text as="span" variant="caption" color="feedback.critical.solid">
             {error}
           </Text>
         )}
@@ -157,61 +170,49 @@ const FileUploadBase: React.FC<FileUploadProps> = ({
     );
   }
 
-  const dropZoneBorderColor = isDragging
-    ? 'brand.solid'
-    : isInvalid
-      ? 'feedback.critical.solid'
-      : 'border.default';
-  const dropZoneBackgroundColor = isDragging
-    ? 'brand.bgElement'
-    : isInvalid
-      ? 'feedback.critical.bgElement'
-      : 'background.subtle';
+  const dragProps =
+    dragAndDrop && !isDisabled
+      ? { onDragOver: handleDragOver, onDragLeave: handleDragLeave, onDrop: handleDrop }
+      : {};
 
   return (
-    <Flex flexDirection="column" gap="micro">
-      <Flex
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        gap="micro"
-        padding="large"
-        borderRadius="medium"
-        borderWidth="2px"
-        borderStyle="dashed"
-        borderColor={dropZoneBorderColor}
-        backgroundColor={dropZoneBackgroundColor}
-        opacity={isDisabled ? 0.5 : 1}
-        cursor={isDisabled ? 'not-allowed' : 'pointer'}
-        onClick={isDisabled ? undefined : handleClick}
-        {...(dragAndDrop && !isDisabled
-          ? { onDragOver: handleDragOver, onDragLeave: handleDragLeave, onDrop: handleDrop }
-          : {})}
-        transition={transition(['border-color', 'background-color'], 'fast')}
+    <Flex {...slots.root}>
+      <Box
+        as="button"
+        type="button"
+        disabled={isDisabled}
+        aria-controls={inputId}
+        onClick={handleClick}
+        {...slots.dropZone}
+        {...dragProps}
       >
+        {hiddenInput}
         {children ??
           (loading ? (
             <>
-              <Icon name="LoaderCircle" size="xlarge" color="text.secondary" decorative />
-              <Text as="p" fontSize="small" color="text.secondary">
+              <Box as="span" {...slots.idleIcon}>
+                <Icon name="LoaderCircle" size="xlarge" decorative />
+              </Box>
+              <Text as="p" variant="bodySmall" {...slots.idleHint}>
                 {t.uploading}
               </Text>
             </>
           ) : (
             <>
-              <Icon name="Upload" size="xlarge" color="text.secondary" decorative />
-              <Text as="p" fontSize="small" fontWeight="semibold" color="text.primary">
+              <Box as="span" {...slots.idleIcon}>
+                <Icon name="Upload" size="xlarge" decorative />
+              </Box>
+              <Text as="p" variant="label" {...slots.idleTitle}>
                 {t.dropZone}
               </Text>
-              <Text as="p" fontSize="xsmall" color="text.secondary">
+              <Text as="p" variant="caption" {...slots.idleHint}>
                 {t.sizeHint(formatBytes(maxSize))}
               </Text>
             </>
           ))}
-      </Flex>
-      {hiddenInput}
+      </Box>
       {error && !fieldCtx && (
-        <Text as="span" fontSize="xsmall" color="feedback.critical.solid">
+        <Text as="span" variant="caption" color="feedback.critical.solid">
           {error}
         </Text>
       )}
@@ -225,11 +226,17 @@ FileUploadBase.displayName = 'FileUpload';
  * @platform shared
  *
  * Componente de upload de arquivo Field-aware (RFC-0026). Web combina
- * `<input type="file" hidden>` com dropzone (`dragAndDrop`, default `true`),
- * preview de imagem quando `previewUrl` existe e fallback de loading.
+ * `<input type="file">` visually-hidden com dropzone como `<label>`
+ * (Enter/Space e clique acionam o picker por construção, foco visível premium
+ * via `_focusVisibleWithin` na recipe). Drag-and-drop (`dragAndDrop`, default
+ * `true`), preview de imagem quando `previewUrl` existe e fallback de loading.
  * Validações de cliente: `accept` (MIME), `maxSize` (bytes, default 5 MB),
  * `maxFiles` (default `5`, requer `multiple`). Textos podem ser customizados
  * via `texts` (parcial — aplica defaults aos não fornecidos).
+ *
+ * Anatomia (cores, espaços, raios, foco) resolvida pela slot recipe
+ * `fileUpload`; override completo via `createTheme({ recipes: { fileUpload: ... },
+ * components: { fileUpload: ... } })`.
  *
  * @see {@link FileUploadProps}
  */

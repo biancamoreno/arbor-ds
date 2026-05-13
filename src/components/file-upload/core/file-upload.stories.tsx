@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { Box, Flex, Text, Icon } from '../../core';
 import { Field } from '../../field';
+import { createTheme, themeLight } from '../../../foundations';
+import { ArborProvider } from '../../../ecosystem/styled-system';
 import { FileUpload } from './file-upload';
 
 const meta = {
@@ -18,30 +20,63 @@ const meta = {
 } satisfies Meta<typeof FileUpload>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj;
+
+const Frame = ({ children }: { children: React.ReactNode }) => (
+  <Box width="100%" maxWidth="md">{children}</Box>
+);
 
 export const Default: Story = {
   render: () => (
-    <Box width="420px">
+    <Frame>
       <FileUpload onFilesChange={(files) => console.log('files', files)} />
-    </Box>
+    </Frame>
+  ),
+};
+
+export const States: Story = {
+  name: 'Anatomia — estados (idle / invalid / disabled / loading)',
+  render: () => (
+    <Flex flexDirection="column" gap="large" maxWidth="md">
+      <Text variant="overline" color="text.tertiary">
+        Cada estado vem da axis `state` da slot recipe `fileUpload`. Override
+        de cor/borda/bg propaga via `createTheme`.
+      </Text>
+      <Box>
+        <Text variant="label" marginBottom="micro">idle</Text>
+        <FileUpload />
+      </Box>
+      <Box>
+        <Text variant="label" marginBottom="micro">invalid (error)</Text>
+        <FileUpload error="Selecione um arquivo válido." />
+      </Box>
+      <Box>
+        <Text variant="label" marginBottom="micro">disabled</Text>
+        <FileUpload disabled />
+      </Box>
+      <Box>
+        <Text variant="label" marginBottom="micro">loading</Text>
+        <FileUpload loading />
+      </Box>
+    </Flex>
   ),
 };
 
 export const Multiple: Story = {
+  name: 'Múltiplos arquivos (limite via maxFiles)',
   render: () => (
-    <Box width="420px">
+    <Frame>
       <FileUpload multiple maxFiles={3} onFilesChange={(files) => console.log(files)} />
-    </Box>
+    </Frame>
   ),
 };
 
 function WithPreviewExample() {
   const [url, setUrl] = useState<string | undefined>(
-    'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=160',
+    'https://picsum.photos/seed/arbor/240/240',
   );
   return (
-    <Box width="420px">
+    <Frame>
       <FileUpload
         previewUrl={url}
         onRemove={() => setUrl(undefined)}
@@ -50,41 +85,19 @@ function WithPreviewExample() {
           if (file) setUrl(URL.createObjectURL(file));
         }}
       />
-    </Box>
+    </Frame>
   );
 }
 
 export const WithPreview: Story = {
+  name: 'Preview do arquivo enviado + Remover (Button danger)',
   render: () => <WithPreviewExample />,
 };
 
-export const Disabled: Story = {
-  render: () => (
-    <Box width="420px">
-      <FileUpload disabled />
-    </Box>
-  ),
-};
-
-export const Loading: Story = {
-  render: () => (
-    <Box width="420px">
-      <FileUpload loading />
-    </Box>
-  ),
-};
-
-export const WithError: Story = {
-  render: () => (
-    <Box width="420px">
-      <FileUpload error="Arquivo inválido. Tente outro formato." />
-    </Box>
-  ),
-};
-
 export const WithFieldContext: Story = {
+  name: 'Integração com Field (aria + invalid propaga)',
   render: () => (
-    <Box width="420px">
+    <Frame>
       <Field id="avatar" required invalid>
         <Field.Label>Avatar</Field.Label>
         <Field.Description>JPG ou PNG até 5 MB.</Field.Description>
@@ -93,13 +106,14 @@ export const WithFieldContext: Story = {
         </Field.Control>
         <Field.Error>Selecione um arquivo válido.</Field.Error>
       </Field>
-    </Box>
+    </Frame>
   ),
 };
 
 export const CustomTexts: Story = {
+  name: 'i18n leve via prop `texts`',
   render: () => (
-    <Box width="420px">
+    <Frame>
       <FileUpload
         texts={{
           dropZone: 'Drop a file or click to browse',
@@ -109,24 +123,56 @@ export const CustomTexts: Story = {
           removeLabel: 'Remove',
         }}
       />
-    </Box>
+    </Frame>
   ),
 };
 
 export const CustomDropZone: Story = {
+  name: 'Slot `children` — conteúdo customizado da drop zone',
   render: () => (
-    <Box width="420px">
+    <Frame>
       <FileUpload>
         <Flex flexDirection="column" alignItems="center" gap="micro">
-          <Icon name="FileImage" size="xlarge" color="brand.solid" decorative />
-          <Text as="p" fontSize="small" fontWeight="semibold" color="text.primary">
+          <Icon name="FileImage" size="xlarge" decorative />
+          <Text variant="label" color="text.primary">
             Solte sua foto de perfil aqui
           </Text>
-          <Text as="p" fontSize="xsmall" color="text.secondary">
-            Recomendado 400x400 px
+          <Text variant="caption" color="text.secondary">
+            Recomendado 400×400 px
           </Text>
         </Flex>
       </FileUpload>
-    </Box>
+    </Frame>
+  ),
+};
+
+const brandedTheme = createTheme(themeLight, {
+  components: {
+    fileUpload: {
+      borderRadius: 'large',
+      colors: {
+        dropZone: {
+          background: { idle: 'brand.bgSubtle', dragging: 'brand.bgElement' },
+          border: { idle: 'brand.solid' },
+          title: 'brand.text',
+          hint: 'text.secondary',
+          icon: 'brand.solid',
+        },
+      },
+    },
+  },
+});
+
+export const Theming: Story = {
+  name: 'Theming — override de tokens propagam para a recipe',
+  render: () => (
+    <ArborProvider theme={brandedTheme}>
+      <Frame>
+        <Text variant="overline" color="text.tertiary" marginBottom="micro">
+          override em `components.fileUpload.colors.dropZone.*` + `borderRadius`
+        </Text>
+        <FileUpload />
+      </Frame>
+    </ArborProvider>
   ),
 };

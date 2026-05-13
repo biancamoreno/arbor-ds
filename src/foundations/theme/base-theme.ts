@@ -249,6 +249,85 @@ const recipes: ThemeRecipes = {
     defaultVariants: { invalid: false },
   }),
 
+  fileUpload: defineSlotRecipe({
+    slots: [
+      'root',
+      'dropZone',
+      'idleIcon',
+      'idleTitle',
+      'idleHint',
+      'previewFrame',
+      'previewThumbnail',
+      'previewLabel',
+    ] as const,
+    base: {
+      root: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$fileUpload.gap.root',
+      },
+      dropZone: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '$fileUpload.gap.dropZone',
+        padding: '$fileUpload.padding.dropZone',
+        borderRadius: '$fileUpload.borderRadius',
+        borderWidth: '$fileUpload.borderWidth.dropZone',
+        borderStyle: 'dashed',
+        borderColor: '$fileUpload.colors.dropZone.border.idle',
+        backgroundColor: '$fileUpload.colors.dropZone.background.idle',
+        cursor: 'pointer',
+        transition: transition(['border-color', 'background-color'], 'fast'),
+        _focusVisible: focusRing,
+      },
+      idleIcon: { color: '$fileUpload.colors.dropZone.icon' },
+      idleTitle: { color: '$fileUpload.colors.dropZone.title' },
+      idleHint: { color: '$fileUpload.colors.dropZone.hint' },
+      previewFrame: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '$fileUpload.gap.preview',
+        padding: '$fileUpload.padding.preview',
+        borderRadius: '$fileUpload.borderRadius',
+        borderWidth: '$fileUpload.borderWidth.preview',
+        borderStyle: 'solid',
+        borderColor: '$fileUpload.colors.preview.border',
+      },
+      previewThumbnail: {
+        width: '$fileUpload.thumbnail.size',
+        height: '$fileUpload.thumbnail.size',
+        borderRadius: '$fileUpload.thumbnail.borderRadius',
+        overflow: 'hidden',
+        flexShrink: 0,
+      },
+      previewLabel: { color: '$fileUpload.colors.preview.title' },
+    },
+    variants: {
+      state: {
+        idle: {},
+        dragging: {
+          dropZone: {
+            borderColor: '$fileUpload.colors.dropZone.border.dragging',
+            backgroundColor: '$fileUpload.colors.dropZone.background.dragging',
+          },
+        },
+        invalid: {
+          dropZone: {
+            borderColor: '$fileUpload.colors.dropZone.border.invalid',
+            backgroundColor: '$fileUpload.colors.dropZone.background.invalid',
+          },
+        },
+        disabled: {
+          root: { opacity: '$fileUpload.opacity.disabled' },
+          dropZone: { cursor: 'not-allowed' },
+        },
+      },
+    },
+    defaultVariants: { state: 'idle' },
+  }),
+
   input: defineSlotRecipe({
     slots: ['frame', 'control', 'clearButton'] as const,
     base: {

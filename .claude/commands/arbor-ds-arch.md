@@ -295,6 +295,44 @@ Se nenhuma das opções couber, é sinal de que a API do componente está incomp
 
 API pública dos componentes é **única** entre plataformas. Diferenças ficam em adapters/internals. Quando um recurso só existe em uma plataforma (CSS var, `backdropFilter` direto), é escape hatch documentado, não default.
 
+### A11y cross-platform — vocabulário canônico é o do React Native
+
+Quando um componente do DS precisa expor a11y como prop pública, o **contrato canônico é a família `accessibility*` do React Native** (`accessibilityLabel`, `accessibilityRole`, `accessibilityState`, `accessibilityHint`, `accessibilityElementsHidden`), **não** `aria-*`. Razão prática: `aria-*` é vocabulário web (HTML/ARIA); RN não compreende `aria-label` sem mapping. Inversamente, `accessibilityLabel` é trivialmente mapeável para `aria-label` no DOM via `<button aria-label={accessibilityLabel}>` dentro do `.tsx` web. Uma direção do mapping é barata; a outra obriga consumer a escolher entre dois vocabulários ou cria retrocesso silencioso quando o mapping cross-platform interno (ex: `Clickable.native` mapeando `aria-label` → `accessibilityLabel`) falhar ou for refinado.
+
+**Pattern obrigatório quando expor a11y em componente cross-platform:**
+
+```ts
+// ContractProps.ts — contrato shared
+export interface MeuComponenteProps extends HTMLAttributesEquivalente {
+  // ...
+  accessibilityLabel?: string;     // ← API canônica
+  accessibilityRole?: string;
+  accessibilityHint?: string;
+}
+
+// component.tsx (web) — mapeia para aria-* internamente
+export function MeuComponente({
+  accessibilityLabel,
+  accessibilityRole: _r,   // descartar em web quando irrelevante (tag HTML já carrega role)
+  accessibilityHint: _h,
+  ...rest
+}: MeuComponenteProps) {
+  return <button aria-label={accessibilityLabel} {...rest}>...</button>;
+}
+
+// component.native.tsx — consome direto
+export function MeuComponente({ accessibilityLabel, ...rest }: MeuComponenteProps) {
+  return <Pressable accessibilityLabel={accessibilityLabel} {...rest}>...</Pressable>;
+}
+```
+
+**Consequências:**
+- Consumer escreve `<Button accessibilityLabel="...">` em qualquer arquivo (shared/web/native) — **uma API**.
+- JSDoc do contrato menciona apenas a função a11y, **não** menciona "para web use aria-label" — detalhe interno do componente, não confunde consumer.
+- Em arquivo `.native.tsx`, sempre `accessibilityLabel`; em `.tsx` web (componente do DS), `accessibilityLabel` na API + mapping interno para `aria-label`.
+- Quando contrato público de um componente do DS ainda não expõe a11y como prop e um consumer `.native.tsx` precisa: **abrir sub-PR de motor para estender o contrato** (precedente PCV-23). Nunca usar cast local (`as React.FC<Props & { accessibilityLabel?: string }>`) ou alias renomeado (`NativeButton`) — fragmenta padrão.
+- `aria-*` permanece aceito porque vem de `HTMLAttributes`, mas não é a API recomendada. Documentação e exemplos sempre usam `accessibilityLabel`.
+
 ---
 
 ## Mission
@@ -958,6 +996,9 @@ Critique e evite explicitamente:
 - **compound `Component.Root > Component.Trigger > Component.Content` cerimonial** (RFC-0043) — quando a anatomia padrão é fixa (nenhum dos 4 gatilhos de compound legítimo se aplica), top-level DEVE expor props planas (`label`/`title`/`description`/`footer`/`action`/`trigger`/`options`). Compound `.Root` permanece exportado mas é reservado a layouts não-triviais. Replicar compound obrigatório onde plano resolve é violação de DX (baixa fricção de adoção) e de Strategic Positioning ("importar e usar — defaults razoáveis cobrem 80% sem configuração").
 - **discriminar modo plano × compound por introspecção de children** (`React.Children.map`, type-checking de filhos) — frágil, opaco, mata tree-shaking, quebra autocompletion. Roteamento DEVE ser por prop (`usesFlatApi = label !== undefined || ... || children === undefined`).
 - **modo mixed plano + compound simultâneo** (passar `label` e `<Component.Label>` ao mesmo tempo) — ambíguo, sem dono claro. Plano e compound são mutuamente exclusivos por construção. Exceção controlada: Dialog/Drawer onde `title`/`description`/`footer` montam header/footer e `children` ocupa body — anatomia de 3 zonas com 2 padronizadas + 1 livre, documentada em RFC-0043.
+- **`aria-*` como API canônica de a11y em contrato cross-platform** — vocabulário canônico é `accessibility*` (família RN); web mapeia para `aria-*` internamente. `aria-label` continua aceito porque vem de `HTMLAttributes`, mas o DS recomenda `accessibilityLabel` em JSDoc/docs/exemplos. Razão: mapping é unidirecional barato (accessibilityLabel → aria-label no `.tsx` web); o inverso obriga consumer a escolher dois vocabulários ou cria retrocesso silencioso quando o mapping interno (ex: `Clickable.native`) muda.
+- **`aria-*` dentro de `.native.tsx`** — em arquivo nativo, usar sempre `accessibilityLabel`/`accessibilityRole`/`accessibilityState`/`accessibilityHint`. `aria-*` em `.native.tsx` é retrocesso silencioso mesmo quando o `Clickable.native` faz o mapping internamente — quebra a leitura semântica do arquivo nativo e cria dívida quando o mapping for refinado.
+- **cast local (`as React.FC<Props & { accessibilityLabel?: string }>`) ou alias renomeado (`NativeButton`) para passar a11y RN a componente do DS cujo contrato público não expõe** — fragmenta padrão (cada arquivo `.native.tsx` resolve diferente). Quando faltar prop, **abrir sub-PR de motor para estender o contrato cross-platform** (precedente PCV-23 estendendo `ButtonProps`).
 
 ### Gatilhos de compound LEGÍTIMO (RFC-0043)
 

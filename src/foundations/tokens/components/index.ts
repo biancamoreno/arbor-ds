@@ -11,6 +11,7 @@ export { counter } from './counter';
 export { dialog } from './dialog';
 export { drawer } from './drawer';
 export { field } from './field';
+export { fileUpload } from './file-upload';
 export { input } from './input';
 export { progressBar } from './progress-bar';
 export { progressCircle } from './progress-circle';

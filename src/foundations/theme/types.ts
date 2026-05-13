@@ -27,6 +27,7 @@ export type ThemeRecipes = {
   text?: RecipeConfig;
   button?: RecipeConfig;
   field?: SlotRecipeConfig;
+  fileUpload?: SlotRecipeConfig;
   input?: SlotRecipeConfig;
   checkbox?: SlotRecipeConfig;
   radio?: SlotRecipeConfig;

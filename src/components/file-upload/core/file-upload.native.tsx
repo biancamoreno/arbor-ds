@@ -1,6 +1,7 @@
 import React from 'react';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
-import { Box, Flex, Text, Clickable, Icon, Image } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { Box, Flex, Text, Icon, Image } from '../../core';
+import { Button } from '../../button';
 import { markFieldAware } from '../../field/utils/is-field-aware';
 import type { FileUploadProps, FileUploadTexts } from '../interfaces';
 
@@ -13,100 +14,93 @@ const DEFAULT_TEXTS: Required<FileUploadTexts> = {
   removeLabel: 'Remover',
 };
 
+type FileUploadSlots =
+  | 'root'
+  | 'dropZone'
+  | 'idleIcon'
+  | 'idleTitle'
+  | 'idleHint'
+  | 'previewFrame'
+  | 'previewThumbnail'
+  | 'previewLabel';
+
 const FileUploadNativeBase: React.FC<FileUploadProps> = ({
   loading,
+  disabled,
   previewUrl,
   onRemove,
   children,
   texts: textsProp,
 }) => {
-  const theme = useTheme();
-  const iconColor = theme.colors.text.secondary;
-  const criticalColor = theme.colors.feedback.critical.solid;
   const t: Required<FileUploadTexts> = { ...DEFAULT_TEXTS, ...textsProp };
+  const state = disabled ? 'disabled' : 'idle';
+  const slots = useSlotRecipe<FileUploadSlots>('fileUpload', { state });
 
   if (previewUrl) {
     return (
-      <Flex
-        alignItems="center"
-        gap="small"
-        padding="medium"
-        borderRadius="medium"
-        borderWidth="1px"
-        borderStyle="solid"
-        borderColor="border.default"
-      >
-        <Box borderRadius="small" overflow="hidden" width="80px" height="80px" flexShrink={0}>
-          <Image
-            mode="img"
-            source={previewUrl}
-            alt={t.previewLabel}
-            width="80px"
-            height="80px"
-            resizeMode="cover"
-          />
-        </Box>
-        <Box flex={1}>
-          <Text fontSize="small" fontWeight="medium" color="text.primary">
-            {t.previewLabel}
-          </Text>
-        </Box>
-        <Clickable
-          onClick={onRemove}
-          accessibilityRole="button"
-          accessibilityLabel={t.removeLabel}
-          paddingX="medium"
-          paddingY="small"
-          borderRadius="small"
-          borderWidth="1px"
-          borderStyle="solid"
-          borderColor="feedback.critical.solid"
-          backgroundColor="transparent"
-          color="feedback.critical.solid"
-          fontSize="small"
-        >
-          <Flex alignItems="center" gap="micro">
-            <Icon name="X" size="small" color={criticalColor} decorative />
-            <Text fontSize="small" color="feedback.critical.solid">
-              {t.removeLabel}
+      <Flex {...slots.root}>
+        <Flex {...slots.previewFrame}>
+          <Box {...slots.previewThumbnail}>
+            <Image
+              mode="img"
+              source={previewUrl}
+              alt={t.previewLabel}
+              width="100%"
+              height="100%"
+              resizeMode="cover"
+            />
+          </Box>
+          <Box flex={1}>
+            <Text variant="label" {...slots.previewLabel}>
+              {t.previewLabel}
             </Text>
-          </Flex>
-        </Clickable>
+          </Box>
+          <Button
+            variant="danger"
+            size="small"
+            onClick={onRemove}
+            accessibilityLabel={t.removeLabel}
+          >
+            <Flex alignItems="center" gap="micro">
+              <Icon name="X" size="small" decorative />
+              <Text variant="bodySmall" color="text.inverse">
+                {t.removeLabel}
+              </Text>
+            </Flex>
+          </Button>
+        </Flex>
       </Flex>
     );
   }
 
   return (
-    <Flex
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      gap="micro"
-      padding="large"
-      borderRadius="medium"
-      borderWidth="2px"
-      borderStyle="dashed"
-      borderColor="border.default"
-      backgroundColor="background.subtle"
-      accessibilityRole="text"
-      accessibilityLabel={t.dropZone}
-    >
-      {children ??
-        (loading ? (
-          <>
-            <Icon name="LoaderCircle" size="xlarge" color={iconColor} decorative />
-            <Text fontSize="small" color="text.secondary">
-              {t.uploading}
-            </Text>
-          </>
-        ) : (
-          <>
-            <Icon name="Upload" size="xlarge" color={iconColor} decorative />
-            <Text fontSize="small" color="text.secondary">
-              {t.dropZone}
-            </Text>
-          </>
-        ))}
+    <Flex {...slots.root}>
+      <Flex
+        {...slots.dropZone}
+        accessibilityRole="text"
+        accessibilityLabel={t.dropZone}
+      >
+        {children ??
+          (loading ? (
+            <>
+              <Box {...slots.idleIcon}>
+                <Icon name="LoaderCircle" size="xlarge" decorative />
+              </Box>
+              <Text variant="bodySmall" {...slots.idleHint}>
+                {t.uploading}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Box {...slots.idleIcon}>
+                <Icon name="Upload" size="xlarge" decorative />
+              </Box>
+              <Text variant="bodySmall" {...slots.idleHint}>
+                {t.dropZone}
+              </Text>
+            </>
+          ))}
+      </Flex>
     </Flex>
   );
 };
@@ -123,6 +117,9 @@ FileUploadNativeBase.displayName = 'FileUpload';
  * inteiro da drop zone para encaixar a integração de picker preferida sem
  * perder o frame visual paritário com o web. Quando `previewUrl` é fornecido,
  * renderiza preview + remove normalmente (independem de picker).
+ *
+ * Anatomia (cores, espaços, raios) resolvida pela slot recipe `fileUpload`;
+ * override via `createTheme`.
  *
  * TD-025: se 3+ produtos consumidores pedirem implementação real, promover
  * para caminho (a) com `expo-document-picker` peerDep.

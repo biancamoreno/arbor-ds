@@ -166,6 +166,25 @@ describe('FileUpload standalone', () => {
     expect(screen.getByText(/Up to/)).toBeTruthy();
   });
 
+  it('drop zone is a button accessible via keyboard (Enter)', () => {
+    const { container } = renderUpload(<FileUpload />);
+    const input = getHiddenInput(container);
+    const click = jest.spyOn(input, 'click');
+    const dropZone = screen.getByText('Arraste e solte ou clique para enviar')
+      .parentElement as HTMLButtonElement;
+    expect(dropZone.tagName).toBe('BUTTON');
+    expect(dropZone.getAttribute('type')).toBe('button');
+    fireEvent.click(dropZone);
+    expect(click).toHaveBeenCalled();
+  });
+
+  it('hidden input is focusable (visually-hidden, not display:none)', () => {
+    const { container } = renderUpload(<FileUpload />);
+    const input = getHiddenInput(container);
+    expect(input.style.display).not.toBe('none');
+    expect(input.style.position).toBe('absolute');
+  });
+
   it('renders custom children inside drop zone', () => {
     renderUpload(
       <FileUpload>

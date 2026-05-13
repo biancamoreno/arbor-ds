@@ -36,6 +36,9 @@ export function Button({
   onClick,
   type = 'button',
   style,
+  accessibilityLabel,
+  accessibilityRole: _accessibilityRole,
+  accessibilityHint: _accessibilityHint,
   ...rest
 }: ButtonProps) {
   const theme = useTheme();
@@ -105,6 +108,7 @@ export function Button({
       disabled={isDisabled}
       onClick={onClick}
       aria-busy={loading || undefined}
+      aria-label={accessibilityLabel}
       {...recipeProps}
       style={{ ...attachedStyle, ...style }}
       {...rest}

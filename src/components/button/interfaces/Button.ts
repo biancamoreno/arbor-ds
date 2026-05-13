@@ -17,6 +17,12 @@ export interface ButtonVariant {
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonVariant {
   children: ReactNode;
+  /** Label de a11y. Cross-platform (web mapeia para `aria-label`, native para `accessibilityLabel`). */
+  accessibilityLabel?: string;
+  /** Papel de a11y. Default `'button'` aplicado pelo `Button.native`; em web é descartado (a tag `<button>` já carrega o role). */
+  accessibilityRole?: string;
+  /** Dica de a11y para React Native (`accessibilityHint`). Em web é descartada. */
+  accessibilityHint?: string;
 }
 
 export interface IconButtonProps extends Omit<ButtonProps, 'children'> {

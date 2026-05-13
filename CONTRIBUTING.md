@@ -135,6 +135,37 @@ Primitives que delegam 100% ao `ArborTransform` **não precisam** de `.native.ts
 
 > **Em migração:** 12 componentes ainda estão em `web-only` ([TD-017](docs/TECH_DEBT.md#td-017)). Pull requests novos não podem introduzir mais. Componentes existentes serão migrados em ondas via [RFC-0018](docs/rfcs/RFC-0018-paridade-native-completa-do-ds.md).
 
+### 4.1. A11y cross-platform — vocabulário canônico é o do React Native
+
+Quando um componente do DS expõe a11y como prop pública, o **contrato canônico é a família `accessibility*`** — `accessibilityLabel`, `accessibilityRole`, `accessibilityState`, `accessibilityHint`. **Não** use `aria-*` como API recomendada, ainda que ele continue aceito porque `ButtonProps` (e congêneres) estendem `HTMLAttributes`.
+
+**Por quê:** RN não compreende `aria-*` sem mapping; `accessibilityLabel` mapeia trivialmente para `aria-label` no DOM. Uma direção do mapping (`accessibilityLabel` → `aria-label`) é barata e fica encapsulada no `.tsx` web do componente; a outra obriga o consumer a escolher entre dois vocabulários ou cria retrocesso silencioso quando o mapping interno (ex: `Clickable.native`) muda.
+
+**Pattern:**
+
+```ts
+// ContractProps.ts (shared)
+export interface MeuCompProps extends HTMLAttributesEquivalente {
+  accessibilityLabel?: string;
+  accessibilityRole?: string;
+  accessibilityHint?: string;
+}
+
+// component.tsx (web) — mapping interno
+export function MeuComp({ accessibilityLabel, accessibilityRole: _r, accessibilityHint: _h, ...rest }: MeuCompProps) {
+  return <button aria-label={accessibilityLabel} {...rest}>...</button>;
+}
+
+// component.native.tsx — consome direto
+export function MeuComp({ accessibilityLabel, ...rest }: MeuCompProps) {
+  return <Pressable accessibilityLabel={accessibilityLabel} {...rest}>...</Pressable>;
+}
+```
+
+**Em arquivo `.native.tsx`** (componente próprio ou consumer): **sempre** `accessibilityLabel`; nunca `aria-label`. Em `.native.test.tsx`: `getByLabelText` busca por `accessibilityLabel`.
+
+**Quando o contrato público de um componente do DS ainda não expõe a11y RN** e um consumer `.native.tsx` precisa: abrir sub-PR de motor para estender o contrato (precedente PCV-23 estendeu `ButtonProps` com `accessibilityLabel`/`Role`/`Hint`). **Não** usar cast local (`as React.FC<Props & { accessibilityLabel?: string }>`) nem alias renomeado (`NativeButton`) — fragmenta padrão.
+
 ### 5. Stories usam apenas componentes do DS
 
 Sem `<div>`, `<span>`, `<button>` crus em stories. Sem `style={{...}}` quando há prop declarativa equivalente.
