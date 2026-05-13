@@ -1152,6 +1152,8 @@ const recipes: ThemeRecipes = {
         height: '100%',
         fontWeight: '$avatar.fontWeight.fallback',
         color: '$avatar.fallback.color',
+        lineHeight: '1',
+        textTransform: 'uppercase',
       },
       overflow: {
         display: 'inline-flex',
@@ -1162,6 +1164,7 @@ const recipes: ThemeRecipes = {
         backgroundColor: '$avatar.overflow.background',
         color: '$avatar.overflow.color',
         fontWeight: '$avatar.fontWeight.fallback',
+        lineHeight: '1',
       },
     },
     variants: {

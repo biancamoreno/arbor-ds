@@ -148,6 +148,23 @@ describe('Tooltip', () => {
 
     expect(screen.getByRole('tooltip')).toBeTruthy();
   });
+
+  it('wraps long content into multiple lines (whiteSpace=normal, wordBreak=break-word)', () => {
+    renderTooltip(
+      <Tooltip.Root defaultOpen>
+        <Tooltip.Trigger asChild>
+          <button type="button">Trigger</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content maxWidth={120}>
+          Texto longo que deve quebrar em várias linhas dentro do limite maxWidth.
+        </Tooltip.Content>
+      </Tooltip.Root>,
+    );
+
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip.style.whiteSpace).toBe('normal');
+    expect(tooltip.style.wordBreak).toBe('break-word');
+  });
 });
 
 describe('Tooltip flat API (label prop + children=trigger)', () => {

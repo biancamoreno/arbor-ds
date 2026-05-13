@@ -207,19 +207,3 @@ export const DecorativeVsSemantic: Story = {
   ),
 };
 
-export const FallbackBehavior: Story = {
-  name: 'Estado extremo — nome inexistente',
-  render: () => (
-    <Flex flexDirection="column" gap="medium" maxWidth="700px">
-      <Text variant="overline" color="text.tertiary">
-        Nome fora do catálogo retorna `null` silenciosamente — não quebra render.
-      </Text>
-      <Flex alignItems="center" gap="small" backgroundColor="background.subtle" padding="medium" borderRadius="medium">
-        <Icon name="Check" decorative />
-        <Text variant="caption" color="text.secondary">Antes do ícone fantasma</Text>
-        <Icon name={'NaoExisteIcon' as never} decorative />
-        <Text variant="caption" color="text.secondary">— depois (sem quebrar layout)</Text>
-      </Flex>
-    </Flex>
-  ),
-};

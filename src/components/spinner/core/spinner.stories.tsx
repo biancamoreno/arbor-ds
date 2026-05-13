@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Flex } from '../../core';
 import { Box } from '../../core';
 import { Text } from '../../core';
+import { Skeleton } from '../../skeleton';
 import { Spinner } from './spinner';
 import type { SpinnerSize } from '../internal/sizes';
 
@@ -108,32 +109,40 @@ export const OverlayLoader: Story = {
   render: () => (
     <Flex flexDirection="column" gap="medium" maxWidth="700px">
       <Text variant="overline" color="text.tertiary">
-        `Spinner size="large"` centrado sobre área de conteúdo bloqueada.
+        `Spinner size="large"` centrado sobre área de conteúdo bloqueada — o
+        skeleton subjacente comunica o que será revelado quando a operação
+        terminar.
       </Text>
       <Box
         position="relative"
         width="100%"
-        height="200px"
-        backgroundColor="background.subtle"
+        backgroundColor="surface.raised"
         borderRadius="medium"
-        borderWidth="hairline"
-        borderStyle="solid"
-        borderColor="border.subtle"
+        padding="medium"
       >
-        <Box
+        <Flex flexDirection="column" gap="small">
+          <Skeleton width="60%" height={20} />
+          <Skeleton width="100%" height={14} />
+          <Skeleton width="92%" height={14} />
+          <Skeleton width="78%" height={14} />
+          <Flex gap="small" marginTop="small">
+            <Skeleton width={96} height={36} borderRadius={6} />
+            <Skeleton width={96} height={36} borderRadius={6} />
+          </Flex>
+        </Flex>
+        <Flex
           position="absolute"
           inset={0}
-          display="flex"
           alignItems="center"
           justifyContent="center"
+          flexDirection="column"
+          gap="small"
           backgroundColor="background.overlay"
           borderRadius="medium"
         >
-          <Flex flexDirection="column" alignItems="center" gap="small">
-            <Spinner size="large" color="text.inverse" />
-            <Text variant="caption" color="text.inverse">Sincronizando dados</Text>
-          </Flex>
-        </Box>
+          <Spinner size="large" color="text.inverse" />
+          <Text variant="caption" color="text.inverse">Sincronizando dados</Text>
+        </Flex>
       </Box>
     </Flex>
   ),

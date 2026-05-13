@@ -105,6 +105,8 @@ export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: 
         backgroundColor="text.primary"
         color="text.inverse"
         fontSize="xsmall"
+        paddingY="xsmall"
+        paddingX="small"
         pointerEvents="none"
         opacity={visible ? 1 : 0}
         boxShadow="xl"
@@ -112,9 +114,9 @@ export function TooltipContent({ children, placement = 'top', maxWidth = 240 }: 
           top: position.top,
           left: position.left,
           maxWidth,
-          padding: '8px 12px',
           lineHeight: 1.4,
-          whiteSpace: 'nowrap',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
           transformOrigin: getTransformOrigin(placement),
           transition: transition(['opacity', 'transform'], 'fast', 'decelerate'),
           transitionDelay: visible ? '300ms' : '0ms',
