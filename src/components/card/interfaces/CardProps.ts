@@ -16,16 +16,19 @@ type CardInteractive = {
   /** Quando `true`, Card vira `<button>` (web) ou `<Pressable>` (native). */
   interactive: true;
   onClick: MouseEventHandler<HTMLElement>;
-  /** Rótulo acessível. Obrigatório para Card interativo. */
-  'aria-label': string;
-  /** Alias native — preferido sobre `aria-label` em RN. */
-  accessibilityLabel?: string;
+  /**
+   * Rótulo acessível. Obrigatório para Card interativo.
+   *
+   * API canônica cross-platform: o `.tsx` web mapeia para `aria-label`
+   * internamente; o `.native.tsx` consome direto.
+   */
+  accessibilityLabel: string;
 };
 
 /**
  * @platform shared
  *
- * Discriminated union: `interactive: true` exige `onClick` + `aria-label`
+ * Discriminated union: `interactive: true` exige `onClick` + `accessibilityLabel`
  * no nível de tipo. Ausente ou `false` = Card decorativo (sem interação).
  */
 export type CardRootProps = CardBaseProps & (CardDecorative | CardInteractive);

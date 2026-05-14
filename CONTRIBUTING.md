@@ -323,8 +323,8 @@ O `::before` herda os event handlers do parent — clicar no overlay dispara `on
   <Card.Body>...</Card.Body>
 </Card>
 
-// Interativo — TS exige onClick + aria-label
-<Card interactive onClick={open} aria-label="Abrir produto X">
+// Interativo — TS exige onClick + accessibilityLabel
+<Card interactive onClick={open} accessibilityLabel="Abrir produto X">
   <Card.Body>...</Card.Body>
 </Card>
 ```

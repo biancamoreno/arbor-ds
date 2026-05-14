@@ -75,7 +75,7 @@ describe('Card (native)', () => {
   describe('Card interativo', () => {
     it('renderiza Pressable com accessibilityLabel', () => {
       render(
-        <Card interactive onClick={() => {}} aria-label="Abrir produto">
+        <Card interactive onClick={() => {}} accessibilityLabel="Abrir produto">
           <Card.Body><Text>X</Text></Card.Body>
         </Card>,
         { wrapper: Wrapper },
@@ -83,20 +83,10 @@ describe('Card (native)', () => {
       expect(screen.getByLabelText('Abrir produto')).toBeTruthy();
     });
 
-    it('prefere accessibilityLabel quando ambos passados', () => {
-      render(
-        <Card interactive onClick={() => {}} aria-label="aria" accessibilityLabel="native">
-          <Card.Body><Text>X</Text></Card.Body>
-        </Card>,
-        { wrapper: Wrapper },
-      );
-      expect(screen.getByLabelText('native')).toBeTruthy();
-    });
-
     it('dispara onClick (onPress)', () => {
       const handleClick = jest.fn();
       render(
-        <Card interactive onClick={handleClick} aria-label="Abrir">
+        <Card interactive onClick={handleClick} accessibilityLabel="Abrir">
           <Card.Body><Text>X</Text></Card.Body>
         </Card>,
         { wrapper: Wrapper },

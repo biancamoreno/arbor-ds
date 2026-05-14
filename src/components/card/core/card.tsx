@@ -34,15 +34,14 @@ function CardRoot(props: CardRootProps) {
   const contextValue = useMemo(() => slots, [slots]);
 
   if (interactive) {
-    const { onClick } = props as Extract<CardRootProps, { interactive: true }>;
-    const ariaLabel = (props as Extract<CardRootProps, { interactive: true }>)['aria-label'];
+    const { onClick, accessibilityLabel } = props as Extract<CardRootProps, { interactive: true }>;
     return (
       <CardContext.Provider value={contextValue}>
         <Clickable
           as="button"
           type="button"
           onClick={onClick}
-          aria-label={ariaLabel}
+          aria-label={accessibilityLabel}
           className={className}
           style={style}
           {...slots.root}
@@ -120,12 +119,12 @@ CardMedia.displayName = 'Card.Media';
  *   </Card>
  *   ```
  *
- * - **Interativo:** `<Card interactive onClick={...} aria-label="...">` vira
- *   `<button>` (web) / `<Pressable>` (native) com hover/active themable e
- *   foco visível WCAG.
+ * - **Interativo:** `<Card interactive onClick={...} accessibilityLabel="...">`
+ *   vira `<button>` (web) / `<Pressable>` (native) com hover/active themable
+ *   (via `card.opacity.{hover,active}`) e foco visível WCAG.
  *
  *   ```tsx
- *   <Card interactive onClick={openProduct} aria-label="Abrir produto X">
+ *   <Card interactive onClick={openProduct} accessibilityLabel="Abrir produto X">
  *     <Card.Body>...</Card.Body>
  *   </Card>
  *   ```

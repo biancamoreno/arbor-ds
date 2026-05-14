@@ -992,24 +992,18 @@ const recipes: ThemeRecipes = {
       root: {
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+        textAlign: 'left',
+        padding: 'none',
         borderRadius: '$card.borderRadius',
         backgroundColor: '$card.background',
         overflow: 'hidden',
       },
-      header: {
-        paddingBottom: 'small',
-        borderStyle: 'solid',
-        borderBottomWidth: '$card.borderWidth',
-        borderBottomColor: '$card.border',
-      },
-      body: { flex: 1 },
-      footer: {
-        paddingTop: 'small',
-        borderStyle: 'solid',
-        borderTopWidth: '$card.borderWidth',
-        borderTopColor: '$card.border',
-      },
-      media: { overflow: 'hidden' },
+      header: { display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 'nano' },
+      body: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 'nano' },
+      footer: { display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 'micro' },
+      media: { display: 'flex', flexDirection: 'column', width: '100%', overflow: 'hidden' },
     },
     variants: {
       variant: {
@@ -1024,9 +1018,9 @@ const recipes: ThemeRecipes = {
         true: {
           root: {
             cursor: 'pointer',
-            transition: transition(['opacity'], 'fast'),
-            _hover: { opacity: 0.92 },
-            _active: { opacity: 0.8 },
+            transition: transition(['background-color', 'box-shadow', 'opacity', 'border-color'], 'fast'),
+            _hover: { backgroundColor: '$card.hoverBackground' },
+            _active: { opacity: '$card.opacity.active' },
             _focusVisible: focusRing,
           },
         },
@@ -1040,6 +1034,16 @@ const recipes: ThemeRecipes = {
         xlarge: { header: { padding: '$card.padding.xlarge' }, body: { padding: '$card.padding.xlarge' }, footer: { padding: '$card.padding.xlarge' } },
       },
     },
+    compoundVariants: [
+      {
+        conditions: { variant: 'elevated', interactive: 'true' },
+        style: { root: { _hover: { boxShadow: '$card.shadow.elevatedHover' } } },
+      },
+      {
+        conditions: { variant: 'outlined', interactive: 'true' },
+        style: { root: { _hover: { borderColor: 'border.default' } } },
+      },
+    ],
     defaultVariants: { variant: 'outlined', padding: 'medium', interactive: 'false' },
   }),
 

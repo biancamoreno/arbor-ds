@@ -62,21 +62,22 @@ describe('Card (web)', () => {
   });
 
   describe('Card interativo', () => {
-    it('renderiza como <button> com aria-label', () => {
+    it('renderiza como <button> com accessibilityLabel mapeado para aria-label', () => {
       render(
-        <Card interactive onClick={() => {}} aria-label="Abrir produto">
+        <Card interactive onClick={() => {}} accessibilityLabel="Abrir produto">
           <Card.Body>X</Card.Body>
         </Card>,
         { wrapper },
       );
       const button = screen.getByRole('button', { name: 'Abrir produto' });
       expect(button.tagName).toBe('BUTTON');
+      expect(button.getAttribute('aria-label')).toBe('Abrir produto');
     });
 
     it('dispara onClick', () => {
       const handleClick = jest.fn();
       render(
-        <Card interactive onClick={handleClick} aria-label="Abrir">
+        <Card interactive onClick={handleClick} accessibilityLabel="Abrir">
           <Card.Body>X</Card.Body>
         </Card>,
         { wrapper },
@@ -107,7 +108,7 @@ describe('Card (web)', () => {
   describe('CSS global removido', () => {
     it('não adiciona classes arbor-card-hoverable/clickable', () => {
       const { container } = render(
-        <Card interactive onClick={() => {}} aria-label="x">
+        <Card interactive onClick={() => {}} accessibilityLabel="x">
           <Card.Body>X</Card.Body>
         </Card>,
         { wrapper },

@@ -35,12 +35,11 @@ function CardRoot(props: CardRootProps) {
 
   if (interactive) {
     const { onClick, accessibilityLabel } = props as Extract<CardRootProps, { interactive: true }>;
-    const ariaLabel = (props as Extract<CardRootProps, { interactive: true }>)['aria-label'];
     return (
       <CardContext.Provider value={contextValue}>
         <Clickable
           accessibilityRole="button"
-          accessibilityLabel={accessibilityLabel ?? ariaLabel}
+          accessibilityLabel={accessibilityLabel}
           onClick={onClick}
           className={className}
           style={style}
@@ -107,20 +106,19 @@ CardMedia.displayName = 'Card.Media';
 /**
  * @platform native
  *
- * Card em React Native — paridade com web pós-RFC-0036.
+ * Card em React Native — paridade com web pós-PCV-26.
  *
  * - **Decorativo (default):** `<Flex>` (View) puramente visual.
  * - **Interativo (`interactive`):** `Clickable.native` com
- *   `accessibilityRole='button'` + `accessibilityLabel`.
+ *   `accessibilityRole='button'` + `accessibilityLabel` obrigatório.
  *
- * Pseudo-states `_hover`/`_active` da slot recipe são ignorados pelo engine
- * native (não existem em RN); transição também não tem efeito sem `Animated`.
- * O custo é zero — a recipe convive bem em ambas as plataformas.
+ * Pseudo-states `_hover`/`_active`/`_focusVisible` da slot recipe são ignorados
+ * pelo engine native (não existem em RN); transição também não tem efeito sem
+ * `Animated`. Pressable já entrega feedback visual via opacity por construção.
  *
  * `Card.Media` fica edge-to-edge **por construção**: cada slot dona seu padding.
  *
  * @see {@link CardRootProps}
- * @see RFC-0036
  */
 export const Card = Object.assign(CardRoot, {
   Root: CardRoot,
