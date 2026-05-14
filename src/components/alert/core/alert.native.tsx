@@ -25,6 +25,13 @@ const TONE_ICON: Record<FeedbackTone, IconName> = {
 
 const ASSERTIVE_TONES = new Set<FeedbackTone>(['critical', 'warning']);
 
+/**
+ * @platform native
+ *
+ * Implementação React Native do `Alert`. Emite `accessibilityLiveRegion` +
+ * `accessibilityRole='alert'` (para tons assertivos) — paridade com o `role`
+ * web. Slots compartilham a slot recipe `alert` em runtime.
+ */
 function AlertRoot({ children, tone = 'info', className, style }: AlertRootProps) {
   const slots = useSlotRecipe<AlertSlots>('alert', { tone });
   const isAssertive = ASSERTIVE_TONES.has(tone);
@@ -32,9 +39,9 @@ function AlertRoot({ children, tone = 'info', className, style }: AlertRootProps
   return (
     <AlertContext.Provider value={{ tone }}>
       <Flex
-        role={isAssertive ? 'alert' : 'status'}
-        aria-live={isAssertive ? 'assertive' : 'polite'}
-        aria-atomic="true"
+        accessible
+        accessibilityRole={isAssertive ? 'alert' : undefined}
+        accessibilityLiveRegion={isAssertive ? 'assertive' : 'polite'}
         className={className}
         style={style}
         {...slots.root}
@@ -50,7 +57,13 @@ function AlertIcon({ children, className, style }: AlertIconProps) {
   const slots = useSlotRecipe<AlertSlots>('alert', { tone });
 
   return (
-    <Box as="span" aria-hidden="true" className={className} style={style} {...slots.icon}>
+    <Box
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      className={className}
+      style={style}
+      {...slots.icon}
+    >
       {children ?? <Icon name={TONE_ICON[tone]} size="medium" />}
     </Box>
   );
@@ -61,7 +74,7 @@ function AlertTitle({ children, className, style }: AlertTitleProps) {
   const slots = useSlotRecipe<AlertSlots>('alert', { tone });
 
   return (
-    <Text as="p" className={className} style={style} {...slots.title}>
+    <Text className={className} style={style} {...slots.title}>
       {children}
     </Text>
   );
@@ -72,7 +85,7 @@ function AlertDescription({ children, className, style }: AlertDescriptionProps)
   const slots = useSlotRecipe<AlertSlots>('alert', { tone });
 
   return (
-    <Text as="p" className={className} style={style} {...slots.description}>
+    <Text className={className} style={style} {...slots.description}>
       {children}
     </Text>
   );
@@ -84,9 +97,8 @@ function AlertClose({ accessibilityLabel = 'Fechar', onClick, className, style }
 
   return (
     <Clickable
-      as="button"
-      type="button"
-      aria-label={accessibilityLabel}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       onClick={onClick}
       className={className}
       style={style}
@@ -103,39 +115,6 @@ AlertTitle.displayName = 'Alert.Title';
 AlertDescription.displayName = 'Alert.Description';
 AlertClose.displayName = 'Alert.Close';
 
-/**
- * @platform shared
- *
- * Implementação web do `Alert` — banner persistente para mensagens de status
- * (informação, sucesso,
- * aviso, crítico). API plana (recomendada para 90% dos casos):
- *
- * @example
- * <Alert
- *   tone="warning"
- *   title="Atenção"
- *   description="Sua sessão expira em 5 minutos."
- *   onClose={dismiss}
- * />
- *
- * Para layouts não-triviais (ícone custom, ação inline, multi-coluna), use o
- * compound:
- *
- * @example
- * <Alert.Root tone="warning">
- *   <Alert.Icon><Icon name="Megaphone" /></Alert.Icon>
- *   <Alert.Title>Atenção</Alert.Title>
- *   <Alert.Description>
- *     Sua sessão expira em 5 minutos. <Link href="...">Renovar</Link>
- *   </Alert.Description>
- *   <Alert.Close onClick={dismiss} />
- * </Alert.Root>
- *
- * Para notificações efêmeras automáticas, prefira `Toast`.
- *
- * @see {@link AlertProps} para API plana
- * @see {@link AlertRootProps} para API compound
- */
 function AlertFlat({
   title,
   description,

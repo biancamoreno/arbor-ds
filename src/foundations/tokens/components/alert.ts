@@ -1,10 +1,73 @@
 export const alert = {
+  borderRadius: 'small',
   borderLeftWidth: 'thick',
+  gap: 'small',
+  padding: {
+    inline: 'medium',
+    block: 'small',
+  },
+  iconSize: 'medium',
   fontWeight: {
     title: 'semibold',
   },
   fontSize: {
     title: 'small',
     description: 'sm',
+  },
+  close: {
+    size: 'control.small',
+    iconSize: 'small',
+    minTouch: 'touchTarget.minimum',
+    borderRadius: 'small',
+  },
+  colors: {
+    neutral: {
+      background: 'background.subtle',
+      borderColor: 'text.secondary',
+      icon: 'text.secondary',
+      title: 'text.primary',
+      description: 'text.secondary',
+      closeHover: 'background.interactive',
+    },
+    brand: {
+      background: 'brand.bgSubtle',
+      borderColor: 'brand.solid',
+      icon: 'brand.solid',
+      title: 'brand.text',
+      description: 'brand.text',
+      closeHover: 'brand.bgElementHover',
+    },
+    info: {
+      background: 'feedback.info.bgSubtle',
+      borderColor: 'feedback.info.solid',
+      icon: 'feedback.info.solid',
+      title: 'feedback.info.text',
+      description: 'feedback.info.text',
+      closeHover: 'feedback.info.bgElementHover',
+    },
+    success: {
+      background: 'feedback.success.bgSubtle',
+      borderColor: 'feedback.success.solid',
+      icon: 'feedback.success.solid',
+      title: 'feedback.success.text',
+      description: 'feedback.success.text',
+      closeHover: 'feedback.success.bgElementHover',
+    },
+    warning: {
+      background: 'feedback.warning.bgSubtle',
+      borderColor: 'feedback.warning.solid',
+      icon: 'feedback.warning.solid',
+      title: 'feedback.warning.text',
+      description: 'feedback.warning.text',
+      closeHover: 'feedback.warning.bgElementHover',
+    },
+    critical: {
+      background: 'feedback.critical.bgSubtle',
+      borderColor: 'feedback.critical.solid',
+      icon: 'feedback.critical.solid',
+      title: 'feedback.critical.text',
+      description: 'feedback.critical.text',
+      closeHover: 'feedback.critical.bgElementHover',
+    },
   },
 };

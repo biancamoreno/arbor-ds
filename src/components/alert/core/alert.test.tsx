@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Alert } from './alert';
 import { ArborProvider } from '../../../ecosystem';
-import { themeLight } from '../../../foundations';
+import { themeLight, createTheme } from '../../../foundations';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <ArborProvider theme={themeLight}>{children}</ArborProvider>
@@ -17,6 +17,16 @@ describe('Alert', () => {
   it('renderiza com role="alert" para tone critical', () => {
     render(<Alert tone="critical"><Alert.Title>Erro</Alert.Title></Alert>, { wrapper });
     expect(screen.getByRole('alert')).toBeTruthy();
+  });
+
+  it('emite aria-live="assertive" para tone critical', () => {
+    render(<Alert tone="critical"><Alert.Title>Erro</Alert.Title></Alert>, { wrapper });
+    expect(screen.getByRole('alert').getAttribute('aria-live')).toBe('assertive');
+  });
+
+  it('emite aria-live="polite" para tones não-assertivos', () => {
+    render(<Alert tone="info"><Alert.Title>Info</Alert.Title></Alert>, { wrapper });
+    expect(screen.getByRole('status').getAttribute('aria-live')).toBe('polite');
   });
 
   it('renderiza Alert.Title', () => {
@@ -76,9 +86,9 @@ describe('Alert', () => {
     expect(container.querySelector('.custom-alert')).toBeTruthy();
   });
 
-  it('Alert.Close aceita label customizado', () => {
+  it('Alert.Close aceita accessibilityLabel customizado', () => {
     render(
-      <Alert><Alert.Title>T</Alert.Title><Alert.Close label="Dispensar aviso" /></Alert>,
+      <Alert><Alert.Title>T</Alert.Title><Alert.Close accessibilityLabel="Dispensar aviso" /></Alert>,
       { wrapper }
     );
     expect(screen.getByLabelText('Dispensar aviso')).toBeTruthy();
@@ -104,6 +114,33 @@ describe('Alert', () => {
   it('aceita tone critical com role="alert"', () => {
     render(<Alert tone="critical"><Alert.Title>Erro</Alert.Title></Alert>, { wrapper });
     expect(screen.getByRole('alert')).toBeTruthy();
+  });
+
+  it('override de components.alert.colors.{tone} via createTheme propaga', () => {
+    const customTheme = createTheme(themeLight, {
+      components: {
+        alert: {
+          colors: {
+            info: {
+              background: 'brand.bgSubtle',
+              borderColor: 'brand.solid',
+              icon: 'brand.solid',
+              title: 'brand.text',
+              description: 'brand.text',
+              closeHover: 'brand.bgElementHover',
+            },
+          },
+        },
+      },
+    });
+    const themedWrapper = ({ children }: { children: React.ReactNode }) => (
+      <ArborProvider theme={customTheme}>{children}</ArborProvider>
+    );
+    render(
+      <Alert tone="info" title="Custom" description="Tema override" />,
+      { wrapper: themedWrapper }
+    );
+    expect(screen.getByText('Custom')).toBeTruthy();
   });
 });
 
@@ -143,5 +180,13 @@ describe('Alert flat API (title/description/icon/onClose props)', () => {
       { wrapper },
     );
     expect(screen.getByText('Compound')).toBeTruthy();
+  });
+
+  it('closeAccessibilityLabel passa para o botão Close', () => {
+    render(
+      <Alert tone="info" title="X" onClose={() => undefined} closeAccessibilityLabel="Dispensar" />,
+      { wrapper },
+    );
+    expect(screen.getByLabelText('Dispensar')).toBeTruthy();
   });
 });

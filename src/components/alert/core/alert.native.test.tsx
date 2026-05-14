@@ -36,7 +36,7 @@ describe('Alert (native)', () => {
     expect(screen.getByText('Erro')).toBeTruthy();
   });
 
-  it('Alert.Close usa label padrão "Fechar"', () => {
+  it('Alert.Close usa accessibilityLabel padrão "Fechar"', () => {
     render(
       <Alert>
         <Alert.Title>T</Alert.Title>
@@ -47,11 +47,11 @@ describe('Alert (native)', () => {
     expect(screen.getByLabelText('Fechar')).toBeTruthy();
   });
 
-  it('Alert.Close aceita label customizado', () => {
+  it('Alert.Close aceita accessibilityLabel customizado', () => {
     render(
       <Alert>
         <Alert.Title>T</Alert.Title>
-        <Alert.Close label="Dispensar" />
+        <Alert.Close accessibilityLabel="Dispensar" />
       </Alert>,
       { wrapper: Wrapper },
     );

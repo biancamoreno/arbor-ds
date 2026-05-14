@@ -29,7 +29,7 @@ export interface AlertRootProps {
  * `<Alert.Title />` + `<Alert.Description />` + `<Alert.Close />`.
  */
 export interface AlertProps extends Omit<AlertRootProps, 'children'> {
-  /** Título do alerta. Renderizado em destaque com peso medium. */
+  /** Título do alerta. Renderizado em destaque com peso semibold. */
   title?: ReactNode;
   /** Descrição/corpo do alerta. */
   description?: ReactNode;
@@ -37,8 +37,12 @@ export interface AlertProps extends Omit<AlertRootProps, 'children'> {
   icon?: ReactNode;
   /** Handler de fechamento — quando definido, renderiza o botão `X` à direita. */
   onClose?: () => void;
-  /** Texto a11y do botão de fechamento. @default 'Fechar' */
-  closeLabel?: string;
+  /**
+   * Texto a11y do botão de fechamento. Mapeado para `aria-label` em web e
+   * `accessibilityLabel` em native.
+   * @default 'Fechar'
+   */
+  closeAccessibilityLabel?: string;
   /**
    * Filhos para o modo compound — só consumido quando todas as props planas
    * (`title`, `description`, `icon`, `onClose`) são undefined.
@@ -65,8 +69,12 @@ export interface AlertDescriptionProps {
 }
 
 export interface AlertCloseProps {
-  /** @default "Fechar" */
-  label?: string;
+  /**
+   * Texto a11y do botão. Mapeado para `aria-label` em web e
+   * `accessibilityLabel` em native.
+   * @default "Fechar"
+   */
+  accessibilityLabel?: string;
   onClick?: () => void;
   className?: string;
   style?: CSSProperties;
