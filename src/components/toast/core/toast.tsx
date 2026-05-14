@@ -8,12 +8,15 @@
  */
 import React, { useEffect, useSyncExternalStore } from 'react';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
+import type { IconName } from '../../core';
 import { Portal } from '../../../ecosystem/primitives';
-import { transition, getFeedbackToneColor } from '../../../foundations';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { ToastContext, useToastContext } from '../context/toast-context';
 import { toastStore } from '../store/toast-store';
+import type { FeedbackTone } from '../../../foundations';
 import type {
   ToastRootProps,
+  ToastIconProps,
   ToastTitleProps,
   ToastDescriptionProps,
   ToastCloseProps,
@@ -21,6 +24,19 @@ import type {
   ToastPlacement,
   ToastItem,
 } from '../interfaces';
+
+type ToastSlots = 'root' | 'icon' | 'title' | 'description' | 'close';
+
+const TONE_ICON: Record<FeedbackTone, IconName> = {
+  neutral: 'Bell',
+  brand: 'Megaphone',
+  info: 'Info',
+  success: 'CircleCheck',
+  warning: 'TriangleAlert',
+  critical: 'CircleAlert',
+};
+
+const ASSERTIVE_TONES = new Set<FeedbackTone>(['critical', 'warning']);
 
 type PlacementProps = {
   top?: string | number;
@@ -46,95 +62,81 @@ function getPlacementProps(placement: ToastPlacement): PlacementProps {
 }
 
 function ToastRoot({ children, tone = 'neutral', className, style, testID }: ToastRootProps) {
-  const theme = useTheme();
-  const borderColor = getFeedbackToneColor(theme, tone, 'base');
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+  const isAssertive = ASSERTIVE_TONES.has(tone);
 
   return (
-    <Flex
-      role="status"
-      aria-live={tone === 'critical' ? 'assertive' : 'polite'}
-      aria-atomic="true"
+    <ToastContext.Provider value={{ tone }}>
+      <Flex
+        role="status"
+        aria-live={isAssertive ? 'assertive' : 'polite'}
+        aria-atomic="true"
+        data-testid={testID}
+        className={className}
+        style={style}
+        animation="arbor-toast-in 0.2s ease forwards"
+        {...slots.root}
+      >
+        {children}
+      </Flex>
+    </ToastContext.Provider>
+  );
+}
+
+function ToastIcon({ children, className, style, testID }: ToastIconProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
+  return (
+    <Box
+      as="span"
+      aria-hidden="true"
       data-testid={testID}
       className={className}
       style={style}
-      alignItems="flex-start"
-      gap="small"
-      padding="small"
-      paddingX="medium"
-      borderRadius="small"
-      backgroundColor="surface.raised"
-      borderLeftWidth="thick"
-      borderLeftStyle="solid"
-      borderLeftColor={borderColor}
-      boxShadow="lg"
-      animation="arbor-toast-in 0.2s ease forwards"
+      {...slots.icon}
     >
-      {children}
-    </Flex>
+      {children ?? <Icon name={TONE_ICON[tone]} size="medium" />}
+    </Box>
   );
 }
 
 function ToastTitle({ children, className, style, testID }: ToastTitleProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
   return (
-    <Text
-      as="p"
-      data-testid={testID}
-      className={className}
-      style={style}
-      fontWeight="medium"
-      fontSize="small"
-      color="text.primary"
-      margin={0}
-    >
+    <Text as="p" data-testid={testID} className={className} style={style} {...slots.title}>
       {children}
     </Text>
   );
 }
 
 function ToastDescription({ children, className, style, testID }: ToastDescriptionProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
   return (
-    <Text
-      as="p"
-      data-testid={testID}
-      className={className}
-      style={style}
-      fontSize="small"
-      color="text.secondary"
-      margin={0}
-    >
+    <Text as="p" data-testid={testID} className={className} style={style} {...slots.description}>
       {children}
     </Text>
   );
 }
 
-function ToastClose({ label = 'Fechar', onClose, className, style, testID }: ToastCloseProps) {
+function ToastClose({ accessibilityLabel = 'Fechar', onClose, className, style, testID }: ToastCloseProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
   return (
     <Clickable
       as="button"
       type="button"
-      aria-label={label}
+      aria-label={accessibilityLabel}
       onClick={onClose}
       data-testid={testID}
       className={className}
       style={style}
-      display="inline-flex"
-      alignItems="center"
-      justifyContent="center"
-      minWidth={44}
-      minHeight={44}
-      width={20}
-      height={20}
-      flexShrink={0}
-      cursor="pointer"
-      color="text.secondary"
-      borderRadius="nano"
-      backgroundColor="transparent"
-      borderWidth={0}
-      padding={0}
-      marginLeft="auto"
-      transition={transition(['background-color', 'color'], 'fast')}
-      _hover={{ backgroundColor: 'background.interactive', color: 'text.primary' }}
-      _focusVisible={{ outlineColor: 'focus.ring', outlineWidth: '2px', outlineStyle: 'solid', outlineOffset: '2px' }}
+      {...slots.close}
     >
       <Icon name="X" size="small" />
     </Clickable>
@@ -150,6 +152,7 @@ function ToastItemRenderer({ item }: { item: ToastItem }) {
 
   return (
     <ToastRoot tone={item.tone}>
+      <ToastIcon>{item.icon}</ToastIcon>
       <Flex flex={1} flexDirection="column" gap="micro">
         {item.title && <ToastTitle>{item.title}</ToastTitle>}
         {item.description && <ToastDescription>{item.description}</ToastDescription>}
@@ -196,6 +199,7 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
 }
 
 ToastRoot.displayName = 'Toast.Root';
+ToastIcon.displayName = 'Toast.Icon';
 ToastTitle.displayName = 'Toast.Title';
 ToastDescription.displayName = 'Toast.Description';
 ToastClose.displayName = 'Toast.Close';
@@ -208,14 +212,15 @@ Toaster.displayName = 'Toaster';
  * raramente é montado direto; o uso canônico é disparar mensagens com
  * `useToast().toast(input)`, e a renderização real fica por conta de um
  * `<Toaster />` montado uma única vez na raiz da aplicação. Os slots
- * (`Toast.Root`/`Title`/`Description`/`Close`) existem para customização do
- * layout dentro da render-prop do `Toaster`.
+ * (`Toast.Root`/`Icon`/`Title`/`Description`/`Close`) existem para
+ * customização do layout dentro da render-prop do `Toaster`.
  *
  * @see {@link ToastRootProps}
  * @see {@link ToasterProps}
  */
 export const Toast = Object.assign(ToastRoot, {
   Root: ToastRoot,
+  Icon: ToastIcon,
   Title: ToastTitle,
   Description: ToastDescription,
   Close: ToastClose,

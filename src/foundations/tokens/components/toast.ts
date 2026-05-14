@@ -1,11 +1,73 @@
 export const toast = {
   borderRadius: 'small',
   borderLeftWidth: 'thick',
+  gap: 'small',
+  padding: {
+    inline: 'medium',
+    block: 'small',
+  },
+  iconSize: 'medium',
   fontWeight: {
     title: 'semibold',
   },
   fontSize: {
     title: 'small',
     description: 'sm',
+  },
+  close: {
+    size: 'control.small',
+    iconSize: 'small',
+    minTouch: 'touchTarget.minimum',
+    borderRadius: 'small',
+  },
+  colors: {
+    neutral: {
+      background: 'surface.raised',
+      borderColor: 'text.secondary',
+      icon: 'text.secondary',
+      title: 'text.primary',
+      description: 'text.secondary',
+      closeHover: 'background.interactive',
+    },
+    brand: {
+      background: 'surface.raised',
+      borderColor: 'brand.solid',
+      icon: 'brand.solid',
+      title: 'text.primary',
+      description: 'text.secondary',
+      closeHover: 'brand.bgElementHover',
+    },
+    info: {
+      background: 'surface.raised',
+      borderColor: 'feedback.info.solid',
+      icon: 'feedback.info.solid',
+      title: 'text.primary',
+      description: 'text.secondary',
+      closeHover: 'feedback.info.bgElementHover',
+    },
+    success: {
+      background: 'surface.raised',
+      borderColor: 'feedback.success.solid',
+      icon: 'feedback.success.solid',
+      title: 'text.primary',
+      description: 'text.secondary',
+      closeHover: 'feedback.success.bgElementHover',
+    },
+    warning: {
+      background: 'surface.raised',
+      borderColor: 'feedback.warning.solid',
+      icon: 'feedback.warning.solid',
+      title: 'text.primary',
+      description: 'text.secondary',
+      closeHover: 'feedback.warning.bgElementHover',
+    },
+    critical: {
+      background: 'surface.raised',
+      borderColor: 'feedback.critical.solid',
+      icon: 'feedback.critical.solid',
+      title: 'text.primary',
+      description: 'text.secondary',
+      closeHover: 'feedback.critical.bgElementHover',
+    },
   },
 };

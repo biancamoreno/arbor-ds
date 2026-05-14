@@ -1,12 +1,16 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { Animated, Easing, type ViewStyle } from 'react-native';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
+import type { IconName } from '../../core';
 import { Portal } from '../../../ecosystem/primitives';
-import { getFeedbackToneColor } from '../../../foundations';
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks';
+import { ToastContext, useToastContext } from '../context/toast-context';
 import { toastStore } from '../store/toast-store';
+import type { FeedbackTone } from '../../../foundations';
 import type {
   ToastRootProps,
+  ToastIconProps,
   ToastTitleProps,
   ToastDescriptionProps,
   ToastCloseProps,
@@ -14,6 +18,19 @@ import type {
   ToastPlacement,
   ToastItem,
 } from '../interfaces';
+
+type ToastSlots = 'root' | 'icon' | 'title' | 'description' | 'close';
+
+const TONE_ICON: Record<FeedbackTone, IconName> = {
+  neutral: 'Bell',
+  brand: 'Megaphone',
+  info: 'Info',
+  success: 'CircleCheck',
+  warning: 'TriangleAlert',
+  critical: 'CircleAlert',
+};
+
+const ASSERTIVE_TONES = new Set<FeedbackTone>(['critical', 'warning']);
 
 /**
  * @platform native
@@ -23,10 +40,11 @@ import type {
  *   passem para a UI subjacente (toasts não são modais).
  * - Posicionamento via `position: 'absolute'` no container interno do Portal.
  *   `*-center` usa `alignItems: 'center'` (RN não suporta `translateX('-50%')`).
- * - Entrada animada via `Animated.parallel` em opacity + translateY; em test env
- *   a animação é resolvida instantaneamente (mesmo padrão de Spinner/Skeleton/ProgressCircle).
- * - `accessibilityLiveRegion` (Android) + `accessibilityRole='alert'` apenas para
- *   tons críticos (semântica polite cobre o restante via liveRegion).
+ * - Entrada animada via `Animated.parallel` em opacity + translateY. Quando o
+ *   usuário tem `prefersReducedMotion` ativo, a animação é substituída por
+ *   final state imediato (mesmo pattern de Spinner/Skeleton/ProgressCircle).
+ * - `accessibilityLiveRegion` (Android) + `accessibilityRole='alert'` para
+ *   tons assertivos (warning + critical).
  */
 
 function getPlacementContainerStyle(placement: ToastPlacement): ViewStyle {
@@ -66,83 +84,79 @@ function getPlacementContainerStyle(placement: ToastPlacement): ViewStyle {
 }
 
 function ToastRoot({ children, tone = 'neutral', className, style, testID }: ToastRootProps) {
-  const theme = useTheme();
-  const borderColor = getFeedbackToneColor(theme, tone, 'base');
-  const isCritical = tone === 'critical';
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+  const isAssertive = ASSERTIVE_TONES.has(tone);
 
   return (
-    <Flex
-      accessible
-      accessibilityRole={isCritical ? 'alert' : undefined}
-      accessibilityLiveRegion={isCritical ? 'assertive' : 'polite'}
+    <ToastContext.Provider value={{ tone }}>
+      <Flex
+        accessible
+        accessibilityRole={isAssertive ? 'alert' : undefined}
+        accessibilityLiveRegion={isAssertive ? 'assertive' : 'polite'}
+        testID={testID}
+        className={className}
+        style={style as ViewStyle}
+        {...slots.root}
+      >
+        {children}
+      </Flex>
+    </ToastContext.Provider>
+  );
+}
+
+function ToastIcon({ children, className, style, testID }: ToastIconProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
+  return (
+    <Box
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
       testID={testID}
       className={className}
       style={style as ViewStyle}
-      alignItems="flex-start"
-      gap="small"
-      padding="small"
-      paddingX="medium"
-      borderRadius="small"
-      backgroundColor="surface.raised"
-      borderLeftWidth="thick"
-      borderLeftColor={borderColor}
+      {...slots.icon}
     >
-      {children}
-    </Flex>
+      {children ?? <Icon name={TONE_ICON[tone]} size="medium" />}
+    </Box>
   );
 }
 
 function ToastTitle({ children, className, style, testID }: ToastTitleProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
   return (
-    <Text
-      testID={testID}
-      className={className}
-      style={style as ViewStyle}
-      fontWeight="medium"
-      fontSize="small"
-      color="text.primary"
-      margin={0}
-    >
+    <Text testID={testID} className={className} style={style as ViewStyle} {...slots.title}>
       {children}
     </Text>
   );
 }
 
 function ToastDescription({ children, className, style, testID }: ToastDescriptionProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
   return (
-    <Text
-      testID={testID}
-      className={className}
-      style={style as ViewStyle}
-      fontSize="small"
-      color="text.secondary"
-      margin={0}
-    >
+    <Text testID={testID} className={className} style={style as ViewStyle} {...slots.description}>
       {children}
     </Text>
   );
 }
 
-function ToastClose({ label = 'Fechar', onClose, className, style, testID }: ToastCloseProps) {
+function ToastClose({ accessibilityLabel = 'Fechar', onClose, className, style, testID }: ToastCloseProps) {
+  const { tone } = useToastContext();
+  const slots = useSlotRecipe<ToastSlots>('toast', { tone });
+
   return (
     <Clickable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel}
       onClick={onClose}
       testID={testID}
       className={className}
       style={style as ViewStyle}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      minWidth={44}
-      minHeight={44}
-      width={20}
-      height={20}
-      flexShrink={0}
-      color="text.secondary"
-      borderRadius="nano"
-      marginLeft="auto"
+      {...slots.close}
     >
       <Icon name="X" size="small" />
     </Clickable>
@@ -150,11 +164,12 @@ function ToastClose({ label = 'Fechar', onClose, className, style, testID }: Toa
 }
 
 function ToastItemRenderer({ item }: { item: ToastItem }) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(8)).current;
+  const reducedMotion = usePrefersReducedMotion();
+  const opacity = useRef(new Animated.Value(reducedMotion ? 1 : 0)).current;
+  const translateY = useRef(new Animated.Value(reducedMotion ? 0 : 8)).current;
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'test') {
+    if (reducedMotion || process.env.NODE_ENV === 'test') {
       opacity.setValue(1);
       translateY.setValue(0);
       return;
@@ -173,7 +188,7 @@ function ToastItemRenderer({ item }: { item: ToastItem }) {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [opacity, translateY]);
+  }, [opacity, translateY, reducedMotion]);
 
   useEffect(() => {
     if (!item.duration) return;
@@ -192,6 +207,7 @@ function ToastItemRenderer({ item }: { item: ToastItem }) {
       }}
     >
       <ToastRoot tone={item.tone}>
+        <ToastIcon>{item.icon}</ToastIcon>
         <Flex flex={1} flexDirection="column" gap="micro">
           {item.title && <ToastTitle>{item.title}</ToastTitle>}
           {item.description && <ToastDescription>{item.description}</ToastDescription>}
@@ -226,6 +242,7 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
 }
 
 ToastRoot.displayName = 'Toast.Root';
+ToastIcon.displayName = 'Toast.Icon';
 ToastTitle.displayName = 'Toast.Title';
 ToastDescription.displayName = 'Toast.Description';
 ToastClose.displayName = 'Toast.Close';
@@ -237,13 +254,15 @@ Toaster.displayName = 'Toaster';
  * Compound de toast em React Native — equivalente nativo do `Toast` web.
  * Mesmo padrão de uso: dispare via `useToast().toast(input)` e monte um único
  * `<Toaster />` na raiz da aplicação. Animação de entrada via
- * `Animated.Value` (Portal mode `'overlay'`).
+ * `Animated.Value` (Portal mode `'overlay'`). Respeita
+ * `prefersReducedMotion` (pula animação quando ativo).
  *
  * @see {@link ToastRootProps}
  * @see {@link ToasterProps}
  */
 export const Toast = Object.assign(ToastRoot, {
   Root: ToastRoot,
+  Icon: ToastIcon,
   Title: ToastTitle,
   Description: ToastDescription,
   Close: ToastClose,

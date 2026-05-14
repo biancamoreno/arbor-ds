@@ -5,7 +5,7 @@ import type { FeedbackTone } from '../../../foundations';
  * @platform shared
  *
  * Notificação transitória — pode ser usada em duas formas:
- * - Composto (Toast.Root/Title/Description/Close) para layout customizado.
+ * - Composto (Toast.Root/Icon/Title/Description/Close) para layout customizado.
  * - Imperativo via `useToast().toast(input)` + `<Toaster />` montado uma vez.
  *
  * Não estende `HTMLAttributes` para preservar paridade cross-platform
@@ -28,6 +28,8 @@ export interface ToastItem {
   id: string;
   title?: ReactNode;
   description?: ReactNode;
+  /** Ícone custom (substitui o ícone tone-default). `ReactNode` (use `<Icon name="..." />`). */
+  icon?: ReactNode;
   tone?: ToastTone;
   /** Duração em ms. 0 = persistente. @default 5000 */
   duration?: number;
@@ -40,6 +42,13 @@ export interface ToastRootProps {
   /** Escape hatch para overrides finos. */
   style?: CSSProperties;
   /** Test id forwardado para a raiz do componente. */
+  testID?: string;
+  className?: string;
+}
+
+export interface ToastIconProps {
+  children?: ReactNode;
+  style?: CSSProperties;
   testID?: string;
   className?: string;
 }
@@ -59,8 +68,12 @@ export interface ToastDescriptionProps {
 }
 
 export interface ToastCloseProps {
-  /** @default 'Fechar' */
-  label?: string;
+  /**
+   * Texto a11y do botão. Mapeado para `aria-label` em web e
+   * `accessibilityLabel` em native.
+   * @default 'Fechar'
+   */
+  accessibilityLabel?: string;
   onClose?: () => void;
   style?: CSSProperties;
   testID?: string;

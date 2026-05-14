@@ -50,6 +50,18 @@ describe('Toast (native, isolado)', () => {
     expect(node.props.accessibilityLiveRegion).toBe('assertive');
   });
 
+  it('tone warning → accessibilityRole="alert" + liveRegion="assertive"', () => {
+    render(
+      <Toast tone="warning" testID="t">
+        <Toast.Title>Atenção</Toast.Title>
+      </Toast>,
+      { wrapper: Wrapper },
+    );
+    const node = screen.getByTestId('t');
+    expect(node.props.accessibilityRole).toBe('alert');
+    expect(node.props.accessibilityLiveRegion).toBe('assertive');
+  });
+
   it('tone success → liveRegion="polite"', () => {
     render(
       <Toast tone="success" testID="t">
@@ -73,15 +85,26 @@ describe('Toast (native, isolado)', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('Toast.Close aceita label customizado', () => {
+  it('Toast.Close aceita accessibilityLabel customizado', () => {
     render(
       <Toast>
         <Toast.Title>T</Toast.Title>
-        <Toast.Close label="Dispensar" />
+        <Toast.Close accessibilityLabel="Dispensar" />
       </Toast>,
       { wrapper: Wrapper },
     );
     expect(screen.getByLabelText('Dispensar')).toBeTruthy();
+  });
+
+  it('Toast.Icon renderiza ícone tone-default quando sem children', () => {
+    render(
+      <Toast tone="success">
+        <Toast.Icon />
+        <Toast.Title>Ok</Toast.Title>
+      </Toast>,
+      { wrapper: Wrapper },
+    );
+    expect(screen.getByText('Ok')).toBeTruthy();
   });
 });
 
@@ -92,7 +115,7 @@ describe('useToast + Toaster (native)', () => {
       <>
         <Toaster placement={placement} />
         <Toast.Close
-          label="Mostrar"
+          accessibilityLabel="Mostrar"
           onClose={() =>
             toast({ title: 'Arquivo salvo', tone: 'success', duration: 5000 })
           }
@@ -135,7 +158,7 @@ describe('useToast + Toaster (native)', () => {
         <>
           <Toaster />
           <Toast.Close
-            label="Persistir"
+            accessibilityLabel="Persistir"
             onClose={() => toast({ title: 'Fica', duration: 0 })}
           />
         </>

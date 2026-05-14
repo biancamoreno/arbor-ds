@@ -4,7 +4,7 @@ import { Toast, Toaster } from './toast';
 import { useToast } from './use-toast';
 import { toastStore } from '../store/toast-store';
 import { ArborProvider } from '../../../ecosystem';
-import { themeLight } from '../../../foundations';
+import { themeLight, createTheme } from '../../../foundations';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <ArborProvider theme={themeLight}>{children}</ArborProvider>
@@ -38,6 +38,11 @@ describe('Toast (componente isolado)', () => {
     expect(screen.getByRole('status').getAttribute('aria-live')).toBe('assertive');
   });
 
+  it('tone warning → aria-live="assertive"', () => {
+    render(<Toast tone="warning"><Toast.Title>Atenção</Toast.Title></Toast>, { wrapper });
+    expect(screen.getByRole('status').getAttribute('aria-live')).toBe('assertive');
+  });
+
   it('tone success → aria-live="polite"', () => {
     render(<Toast tone="success"><Toast.Title>OK</Toast.Title></Toast>, { wrapper });
     expect(screen.getByRole('status').getAttribute('aria-live')).toBe('polite');
@@ -52,6 +57,46 @@ describe('Toast (componente isolado)', () => {
     const btn = screen.getByLabelText('Fechar') as HTMLButtonElement;
     act(() => btn.click());
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('Toast.Close aceita accessibilityLabel customizado', () => {
+    render(
+      <Toast><Toast.Title>T</Toast.Title><Toast.Close accessibilityLabel="Dispensar" /></Toast>,
+      { wrapper },
+    );
+    expect(screen.getByLabelText('Dispensar')).toBeTruthy();
+  });
+
+  it('Toast.Icon renderiza ícone tone-default quando sem children', () => {
+    const { container } = render(
+      <Toast tone="success"><Toast.Icon /><Toast.Title>Ok</Toast.Title></Toast>,
+      { wrapper },
+    );
+    expect(container.querySelector('svg')).toBeTruthy();
+  });
+
+  it('override de components.toast.colors.{tone} via createTheme propaga', () => {
+    const customTheme = createTheme(themeLight, {
+      components: {
+        toast: {
+          colors: {
+            success: {
+              background: 'brand.bgSubtle',
+              borderColor: 'brand.solid',
+              icon: 'brand.solid',
+              title: 'brand.text',
+              description: 'brand.text',
+              closeHover: 'brand.bgElementHover',
+            },
+          },
+        },
+      },
+    });
+    const themedWrapper = ({ children }: { children: React.ReactNode }) => (
+      <ArborProvider theme={customTheme}>{children}</ArborProvider>
+    );
+    render(<Toast tone="success"><Toast.Title>Custom</Toast.Title></Toast>, { wrapper: themedWrapper });
+    expect(screen.getByText('Custom')).toBeTruthy();
   });
 });
 

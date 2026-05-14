@@ -3,6 +3,7 @@ export type {
   ToastPlacement,
   ToastItem,
   ToastRootProps,
+  ToastIconProps,
   ToastTitleProps,
   ToastDescriptionProps,
   ToastCloseProps,
