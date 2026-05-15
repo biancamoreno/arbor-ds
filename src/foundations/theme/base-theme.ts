@@ -20,6 +20,7 @@ import {
   spinnerSize,
   touchTarget,
   selectContentSize,
+  tooltipSize,
   componentTokens,
 } from '../tokens';
 import { transition } from './transition';
@@ -775,12 +776,15 @@ const recipes: ThemeRecipes = {
     slots: ['content'] as const,
     base: {
       content: {
-        position: 'absolute',
+        position: 'fixed',
         borderRadius: '$tooltip.borderRadius',
         paddingInline: '$tooltip.padding.inline',
         paddingBlock: '$tooltip.padding.block',
         fontSize: '$tooltip.fontSize',
         lineHeight: 'xsmall',
+        backgroundColor: '$tooltip.colors.background',
+        color: '$tooltip.colors.text',
+        boxShadow: '$tooltip.shadow',
         pointerEvents: 'none',
       },
     },
@@ -1723,6 +1727,7 @@ export const baseTheme = {
     spinner: spinnerSize,
     touchTarget,
     selectContent: selectContentSize,
+    tooltip: tooltipSize,
   },
   space: spacing,
   opacity,

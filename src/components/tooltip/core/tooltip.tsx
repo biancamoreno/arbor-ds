@@ -12,6 +12,12 @@ function TooltipRoot({
   onOpenChange,
   children,
   disabled = false,
+  delay,
+  // a11y RN (accessibilityLabel/Hint) é responsabilidade do `.native.tsx`
+  // No web, descrição do tooltip já chega ao leitor de tela via `aria-describedby`
+  // injetado pelo `TooltipTrigger`.
+  accessibilityLabel: _accessibilityLabel,
+  accessibilityHint: _accessibilityHint,
 }: TooltipRootProps) {
   const [openState, setOpenState] = useControllableState({
     value: openProp,
@@ -33,8 +39,8 @@ function TooltipRoot({
   const open = !disabled && openState;
 
   const value = useMemo<TooltipContextValue>(
-    () => ({ open, setOpen, tooltipId, triggerRef }),
-    [open, setOpen, tooltipId],
+    () => ({ open, setOpen, tooltipId, triggerRef, delay }),
+    [open, setOpen, tooltipId, delay],
   );
 
   return (
@@ -56,7 +62,7 @@ TooltipRoot.displayName = 'Tooltip.Root';
  *
  * @example
  * <Tooltip label="Excluir item">
- *   <IconButton aria-label="Excluir" icon="Trash" />
+ *   <IconButton accessibilityLabel="Excluir" icon="Trash" />
  * </Tooltip>
  *
  * Para placement custom ou content multi-linha rico, passe `placement` ou
@@ -64,9 +70,11 @@ TooltipRoot.displayName = 'Tooltip.Root';
  *
  * @example
  * <Tooltip.Root>
- *   <Tooltip.Trigger><IconButton aria-label="Excluir" icon="Trash" /></Tooltip.Trigger>
+ *   <Tooltip.Trigger>
+ *     <IconButton accessibilityLabel="Excluir" icon="Trash" />
+ *   </Tooltip.Trigger>
  *   <Tooltip.Content placement="right">
- *     <strong>Excluir</strong> item permanentemente
+ *     <Text variant="bodySmall" fontWeight="semibold">Excluir</Text> item permanentemente
  *   </Tooltip.Content>
  * </Tooltip.Root>
  *

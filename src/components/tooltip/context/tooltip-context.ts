@@ -7,6 +7,11 @@ export type TooltipContextValue = {
   setOpen: (next: boolean) => void;
   tooltipId: string;
   triggerRef: MutableRefObject<HTMLElement | null>;
+  /**
+   * Override numérico (ms) do delay de exibição — quando presente, sobrescreve
+   * o valor themable `tooltip.motion.delay.show`. `undefined` deixa o tema decidir.
+   */
+  delay: number | undefined;
 };
 
 export const TooltipContext = createContext<TooltipContextValue | null>(null);

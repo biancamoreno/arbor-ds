@@ -4,3 +4,4 @@ export * from './avatar';
 export * from './spinner';
 export * from './touch-target';
 export * from './select-content';
+export * from './tooltip';

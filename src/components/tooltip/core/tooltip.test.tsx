@@ -149,6 +149,109 @@ describe('Tooltip', () => {
     expect(screen.getByRole('tooltip')).toBeTruthy();
   });
 
+  it('consome a slot recipe tooltip (className gerado pelo motor)', () => {
+    renderTooltip(
+      <Tooltip.Root defaultOpen>
+        <Tooltip.Trigger asChild>
+          <button type="button">Trigger</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>Tooltip text</Tooltip.Content>
+      </Tooltip.Root>,
+    );
+    const tooltip = screen.getByRole('tooltip');
+    // O motor (createStyledComponent) injeta as regras de estilo da recipe
+    // em uma <style> em document.head e aplica `class="arbor-N"` no elemento.
+    expect(tooltip.className).toMatch(/arbor-/);
+    // Regras CSS injetadas devem mencionar paddingInline (consumido via $tooltip.padding.inline).
+    const sheet = document.getElementById('arbor-style-engine');
+    expect(sheet?.textContent).toMatch(/padding-left|padding-inline/);
+    expect(sheet?.textContent).toMatch(/background-color/);
+  });
+
+  it('delay prop sobrescreve o token themable de delay.show', () => {
+    renderTooltip(
+      <Tooltip.Root defaultOpen delay={50}>
+        <Tooltip.Trigger asChild>
+          <button type="button">Trigger</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>Tooltip text</Tooltip.Content>
+      </Tooltip.Root>,
+    );
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip.style.transitionDelay).toBe('50ms');
+  });
+
+  it('prefers-reduced-motion: transition=none (degradação)', () => {
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      matches: query.includes('reduce'),
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+
+    try {
+      renderTooltip(
+        <Tooltip.Root defaultOpen>
+          <Tooltip.Trigger asChild>
+            <button type="button">Trigger</button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>Tooltip text</Tooltip.Content>
+        </Tooltip.Root>,
+      );
+      const tooltip = screen.getByRole('tooltip');
+      expect(tooltip.style.transition).toBe('none');
+    } finally {
+      window.matchMedia = originalMatchMedia;
+    }
+  });
+
+  it('flipa placement quando o trigger está colado à borda do viewport', async () => {
+    // Mock: trigger com getBoundingClientRect que retorna posição colada ao TOP.
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+    const originalOffsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+    const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
+
+    // Trigger no topo (top=0) + tooltip com altura suposta > top → deve flipar.
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      // Trigger button no topo absoluto
+      if ((this as HTMLElement).tagName === 'BUTTON') {
+        return { top: 0, left: 100, right: 200, bottom: 30, width: 100, height: 30, x: 100, y: 0, toJSON: () => ({}) } as DOMRect;
+      }
+      return originalGetBoundingClientRect.call(this);
+    };
+    // Tooltip mede 40x80 (altura > top do trigger → não cabe acima).
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 80 });
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, get: () => 40 });
+
+    try {
+      renderTooltip(
+        <Tooltip.Root defaultOpen>
+          <Tooltip.Trigger asChild>
+            <button type="button">Trigger</button>
+          </Tooltip.Trigger>
+          <Tooltip.Content placement="top">Tooltip text</Tooltip.Content>
+        </Tooltip.Root>,
+      );
+
+      // Após o useLayoutEffect medir, o tooltip deve aparecer abaixo do trigger
+      // (top > 0, com offset). Antes do flip, seria top < 0.
+      await new Promise<void>((resolve) => setTimeout(resolve, 50));
+      const tooltip = screen.getByRole('tooltip');
+      const topPx = Number((tooltip.style.top as string).toString().replace('px', ''));
+      // Pediu placement='top' mas viewport não cabe → flipou para 'bottom' → top > 0.
+      expect(topPx).toBeGreaterThan(0);
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+      if (originalOffsetWidth) Object.defineProperty(HTMLElement.prototype, 'offsetWidth', originalOffsetWidth);
+      if (originalOffsetHeight) Object.defineProperty(HTMLElement.prototype, 'offsetHeight', originalOffsetHeight);
+    }
+  });
+
   it('wraps long content into multiple lines (whiteSpace=normal, wordBreak=break-word)', () => {
     renderTooltip(
       <Tooltip.Root defaultOpen>
