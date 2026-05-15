@@ -136,4 +136,72 @@ describe('useToast + Toaster', () => {
     act(() => { (screen.getByLabelText('Fechar') as HTMLButtonElement).click(); });
     await waitFor(() => expect(screen.queryByText('Arquivo salvo')).toBeNull());
   });
+
+  it('toast com placement vai para o stack daquele placement', async () => {
+    function Harness() {
+      const { toast } = useToast();
+      return (
+        <>
+          <Toaster placement="bottom-right" />
+          <button onClick={() => toast({ title: 'No topo', placement: 'top-center', duration: 0 })}>
+            top
+          </button>
+        </>
+      );
+    }
+    render(<Harness />, { wrapper });
+    act(() => { (screen.getByText('top') as HTMLButtonElement).click(); });
+    await waitFor(() => expect(screen.getByText('No topo')).toBeTruthy());
+
+    const stack = document.querySelector('[data-placement="top-center"]');
+    expect(stack).toBeTruthy();
+    expect(stack!.textContent).toContain('No topo');
+    expect(document.querySelector('[data-placement="bottom-right"]')).toBeNull();
+  });
+
+  it('toasts em placements distintos coexistem em stacks separados', async () => {
+    function Harness() {
+      const { toast } = useToast();
+      return (
+        <>
+          <Toaster placement="bottom-right" />
+          <button onClick={() => toast({ title: 'Topo', placement: 'top-center', duration: 0 })}>
+            top
+          </button>
+          <button onClick={() => toast({ title: 'Base', placement: 'bottom-right', duration: 0 })}>
+            bottom
+          </button>
+        </>
+      );
+    }
+    render(<Harness />, { wrapper });
+    act(() => { (screen.getByText('top') as HTMLButtonElement).click(); });
+    act(() => { (screen.getByText('bottom') as HTMLButtonElement).click(); });
+    await waitFor(() => expect(screen.getByText('Topo')).toBeTruthy());
+
+    const top = document.querySelector('[data-placement="top-center"]')!;
+    const bottom = document.querySelector('[data-placement="bottom-right"]')!;
+    expect(top.textContent).toContain('Topo');
+    expect(top.textContent).not.toContain('Base');
+    expect(bottom.textContent).toContain('Base');
+    expect(bottom.textContent).not.toContain('Topo');
+  });
+
+  it('toast sem placement cai no placement (fallback) do Toaster', async () => {
+    function Harness() {
+      const { toast } = useToast();
+      return (
+        <>
+          <Toaster placement="top-left" />
+          <button onClick={() => toast({ title: 'Sem placement', duration: 0 })}>fire</button>
+        </>
+      );
+    }
+    render(<Harness />, { wrapper });
+    act(() => { (screen.getByText('fire') as HTMLButtonElement).click(); });
+    await waitFor(() => expect(screen.getByText('Sem placement')).toBeTruthy());
+    const stack = document.querySelector('[data-placement="top-left"]');
+    expect(stack).toBeTruthy();
+    expect(stack!.textContent).toContain('Sem placement');
+  });
 });

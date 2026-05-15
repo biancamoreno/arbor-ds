@@ -150,25 +150,36 @@ function PlacementsDemo() {
     'bottom-left', 'bottom-center', 'bottom-right',
   ];
   return (
-    <Flex flexDirection="column" gap="medium" maxWidth={520}>
-      {placements.map((placement) => (
-        <Flex key={placement} alignItems="center" gap="small">
-          <Toaster placement={placement} />
-          <Text variant="caption" color="text.secondary" width={140}>
-            {placement}
-          </Text>
-          <Button
-            size="small"
-            variant="secondary"
-            onClick={() =>
-              toast({ title: placement, description: `placement=${placement}`, tone: 'info', duration: 3000 })
-            }
-          >
-            Disparar
-          </Button>
-        </Flex>
-      ))}
-    </Flex>
+    <>
+      <Toaster />
+      <Flex flexDirection="column" gap="medium" maxWidth={520}>
+        <Text variant="caption" color="text.secondary">
+          Um único `&lt;Toaster /&gt;` montado. Cada toast vai para a posição definida no input do `toast()`.
+        </Text>
+        {placements.map((placement) => (
+          <Flex key={placement} alignItems="center" gap="small">
+            <Text variant="caption" color="text.secondary" width={140}>
+              {placement}
+            </Text>
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={() =>
+                toast({
+                  title: placement,
+                  description: `placement=${placement}`,
+                  tone: 'info',
+                  duration: 3000,
+                  placement,
+                })
+              }
+            >
+              Disparar
+            </Button>
+          </Flex>
+        ))}
+      </Flex>
+    </>
   );
 }
 

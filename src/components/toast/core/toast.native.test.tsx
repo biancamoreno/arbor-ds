@@ -109,7 +109,13 @@ describe('Toast (native, isolado)', () => {
 });
 
 describe('useToast + Toaster (native)', () => {
-  function TestHarness({ placement }: { placement?: 'top-right' | 'bottom-right' | 'top-center' }) {
+  function TestHarness({
+    placement,
+    toastPlacement,
+  }: {
+    placement?: 'top-right' | 'bottom-right' | 'top-center';
+    toastPlacement?: 'top-right' | 'bottom-right' | 'top-center';
+  }) {
     const { toast } = useToast();
     return (
       <>
@@ -117,7 +123,12 @@ describe('useToast + Toaster (native)', () => {
         <Toast.Close
           accessibilityLabel="Mostrar"
           onClose={() =>
-            toast({ title: 'Arquivo salvo', tone: 'success', duration: 5000 })
+            toast({
+              title: 'Arquivo salvo',
+              tone: 'success',
+              duration: 5000,
+              placement: toastPlacement,
+            })
           }
         />
       </>
@@ -174,9 +185,45 @@ describe('useToast + Toaster (native)', () => {
     jest.useRealTimers();
   });
 
-  it('placement top-center centraliza horizontalmente (alignItems="center")', () => {
-    render(<TestHarness placement="top-center" />, { wrapper: Wrapper });
+  it('toast com placement vai para o stack daquele placement', async () => {
+    render(<TestHarness toastPlacement="top-center" placement="bottom-right" />, {
+      wrapper: Wrapper,
+    });
     fireEvent.press(screen.getByLabelText('Mostrar'));
-    expect(screen.getByText('Arquivo salvo')).toBeTruthy();
+    await waitFor(() => expect(screen.getByText('Arquivo salvo')).toBeTruthy());
+    expect(screen.getByTestId('toast-stack-top-center')).toBeTruthy();
+    expect(screen.queryByTestId('toast-stack-bottom-right')).toBeNull();
+  });
+
+  it('toasts em placements distintos coexistem em stacks separados', async () => {
+    function Harness() {
+      const { toast } = useToast();
+      return (
+        <>
+          <Toaster placement="bottom-right" />
+          <Toast.Close
+            accessibilityLabel="top"
+            onClose={() => toast({ title: 'Topo', placement: 'top-center', duration: 0 })}
+          />
+          <Toast.Close
+            accessibilityLabel="bottom"
+            onClose={() => toast({ title: 'Base', placement: 'bottom-right', duration: 0 })}
+          />
+        </>
+      );
+    }
+    render(<Harness />, { wrapper: Wrapper });
+    fireEvent.press(screen.getByLabelText('top'));
+    fireEvent.press(screen.getByLabelText('bottom'));
+    await waitFor(() => expect(screen.getByText('Topo')).toBeTruthy());
+    expect(screen.getByTestId('toast-stack-top-center')).toBeTruthy();
+    expect(screen.getByTestId('toast-stack-bottom-right')).toBeTruthy();
+  });
+
+  it('toast sem placement cai no placement (fallback) do Toaster', async () => {
+    render(<TestHarness placement="top-right" />, { wrapper: Wrapper });
+    fireEvent.press(screen.getByLabelText('Mostrar'));
+    await waitFor(() => expect(screen.getByText('Arquivo salvo')).toBeTruthy());
+    expect(screen.getByTestId('toast-stack-top-right')).toBeTruthy();
   });
 });

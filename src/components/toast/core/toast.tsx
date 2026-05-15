@@ -162,6 +162,44 @@ function ToastItemRenderer({ item }: { item: ToastItem }) {
   );
 }
 
+function ToastStack({ placement, items }: { placement: ToastPlacement; items: ToastItem[] }) {
+  const placementProps = getPlacementProps(placement);
+
+  return (
+    <Box
+      aria-label="Notificações"
+      position="fixed"
+      zIndex="toast"
+      display="flex"
+      flexDirection={placementProps.flexDirection}
+      gap="small"
+      maxWidth={420}
+      width="100%"
+      top={placementProps.top as React.CSSProperties['top']}
+      bottom={placementProps.bottom as React.CSSProperties['bottom']}
+      left={placementProps.left as React.CSSProperties['left']}
+      right={placementProps.right as React.CSSProperties['right']}
+      style={placementProps.transform ? { transform: placementProps.transform } : undefined}
+      data-placement={placement}
+    >
+      {items.map((item) => (
+        <ToastItemRenderer key={item.id} item={item} />
+      ))}
+    </Box>
+  );
+}
+
+function groupByPlacement(items: ToastItem[], defaultPlacement: ToastPlacement) {
+  const groups = new Map<ToastPlacement, ToastItem[]>();
+  for (const item of items) {
+    const placement = item.placement ?? defaultPlacement;
+    const bucket = groups.get(placement);
+    if (bucket) bucket.push(item);
+    else groups.set(placement, [item]);
+  }
+  return groups;
+}
+
 function Toaster({ placement = 'bottom-right' }: ToasterProps) {
   const items = useSyncExternalStore(
     toastStore.subscribe,
@@ -171,29 +209,13 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
 
   if (items.length === 0) return null;
 
-  const placementProps = getPlacementProps(placement);
+  const groups = groupByPlacement(items, placement);
 
   return (
     <Portal mode="overlay">
-      <Box
-        aria-label="Notificações"
-        position="fixed"
-        zIndex="toast"
-        display="flex"
-        flexDirection={placementProps.flexDirection}
-        gap="small"
-        maxWidth={420}
-        width="100%"
-        top={placementProps.top as React.CSSProperties['top']}
-        bottom={placementProps.bottom as React.CSSProperties['bottom']}
-        left={placementProps.left as React.CSSProperties['left']}
-        right={placementProps.right as React.CSSProperties['right']}
-        style={placementProps.transform ? { transform: placementProps.transform } : undefined}
-      >
-        {items.map((item) => (
-          <ToastItemRenderer key={item.id} item={item} />
-        ))}
-      </Box>
+      {Array.from(groups.entries()).map(([placement, group]) => (
+        <ToastStack key={placement} placement={placement} items={group} />
+      ))}
     </Portal>
   );
 }

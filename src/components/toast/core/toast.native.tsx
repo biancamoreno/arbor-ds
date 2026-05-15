@@ -218,6 +218,31 @@ function ToastItemRenderer({ item }: { item: ToastItem }) {
   );
 }
 
+function ToastStack({ placement, items }: { placement: ToastPlacement; items: ToastItem[] }) {
+  return (
+    <Box
+      accessibilityLabel="Notificações"
+      testID={`toast-stack-${placement}`}
+      style={getPlacementContainerStyle(placement) as ViewStyle}
+    >
+      {items.map((item) => (
+        <ToastItemRenderer key={item.id} item={item} />
+      ))}
+    </Box>
+  );
+}
+
+function groupByPlacement(items: ToastItem[], defaultPlacement: ToastPlacement) {
+  const groups = new Map<ToastPlacement, ToastItem[]>();
+  for (const item of items) {
+    const placement = item.placement ?? defaultPlacement;
+    const bucket = groups.get(placement);
+    if (bucket) bucket.push(item);
+    else groups.set(placement, [item]);
+  }
+  return groups;
+}
+
 function Toaster({ placement = 'bottom-right' }: ToasterProps) {
   const items = useSyncExternalStore(
     toastStore.subscribe,
@@ -227,16 +252,13 @@ function Toaster({ placement = 'bottom-right' }: ToasterProps) {
 
   if (items.length === 0) return null;
 
+  const groups = groupByPlacement(items, placement);
+
   return (
     <Portal mode="overlay">
-      <Box
-        accessibilityLabel="Notificações"
-        style={getPlacementContainerStyle(placement) as ViewStyle}
-      >
-        {items.map((item) => (
-          <ToastItemRenderer key={item.id} item={item} />
-        ))}
-      </Box>
+      {Array.from(groups.entries()).map(([placement, group]) => (
+        <ToastStack key={placement} placement={placement} items={group} />
+      ))}
     </Portal>
   );
 }

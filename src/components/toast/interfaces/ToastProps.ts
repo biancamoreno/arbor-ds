@@ -33,6 +33,12 @@ export interface ToastItem {
   tone?: ToastTone;
   /** Duração em ms. 0 = persistente. @default 5000 */
   duration?: number;
+  /**
+   * Posição na tela onde este toast deve aparecer. Quando omitido, o `Toaster`
+   * usa seu `defaultPlacement`. Permite chamadas individuais escolherem stack
+   * (ex.: alerta crítico em `top-center`, confirmação em `bottom-right`).
+   */
+  placement?: ToastPlacement;
 }
 
 export interface ToastRootProps {
@@ -81,7 +87,14 @@ export interface ToastCloseProps {
 }
 
 export interface ToasterProps {
-  /** @default 'bottom-right' */
+  /**
+   * Placement default usado quando o input do `toast()` não especifica
+   * `placement`. O Toaster monta um stack por placement ativo no store, então
+   * toasts disparados com placements distintos coexistem em containers
+   * separados — esta prop só governa o fallback para toasts sem placement
+   * próprio.
+   * @default 'bottom-right'
+   */
   placement?: ToastPlacement;
 }
 
