@@ -1,11 +1,11 @@
 export const accordion = {
-  borderRadius: 'small',
-  borderWidth: 'hairline',
-  border: 'border.subtle',
+  divider: 'border.subtle',
+  dividerWidth: 'hairline',
   trigger: {
     padding: { inline: 'medium', block: 'small' },
-    fontWeight: 'semibold',
-    fontSize: 'small',
+    minHeight: 'touchTarget.minimum',
+    gap: 'micro',
+    iconSize: 'medium',
     colors: {
       text: 'text.primary',
       hover: 'background.subtle',
@@ -14,5 +14,8 @@ export const accordion = {
   },
   content: {
     padding: { inline: 'medium', bottom: 'medium' },
+  },
+  opacity: {
+    disabled: 0.5,
   },
 };

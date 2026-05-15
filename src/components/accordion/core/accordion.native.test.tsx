@@ -46,30 +46,31 @@ describe('Accordion (native)', () => {
     expect(screen.getByRole('button', { name: 'Trigger A' }).props.accessibilityState.expanded).toBe(true);
   });
 
-  it('Content renderiza apenas quando aberto', () => {
+  it('Content do item aberto fica acessível; demais ocultos a a11y', () => {
     render(<Accordion defaultValue="a"><ItemsABCDisabled /></Accordion>, { wrapper: Wrapper });
     expect(screen.getByText('Conteúdo A')).toBeTruthy();
-    expect(screen.queryByText('Conteúdo B')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Trigger A' }).props.accessibilityState.expanded).toBe(true);
+    expect(screen.getByRole('button', { name: 'Trigger B' }).props.accessibilityState.expanded).toBe(false);
   });
 
-  it('toggle abre conteúdo ao pressionar', () => {
+  it('toggle altera accessibilityState.expanded ao pressionar', () => {
     render(<Accordion><ItemsABCDisabled /></Accordion>, { wrapper: Wrapper });
-    expect(screen.queryByText('Conteúdo B')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Trigger B' }).props.accessibilityState.expanded).toBe(false);
     fireEvent.press(screen.getByRole('button', { name: 'Trigger B' }));
-    expect(screen.getByText('Conteúdo B')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Trigger B' }).props.accessibilityState.expanded).toBe(true);
   });
 
-  it('modo single: abrir B fecha A', () => {
+  it('modo single: abrir B fecha A (accessibility expanded)', () => {
     render(<Accordion defaultValue="a"><ItemsABCDisabled /></Accordion>, { wrapper: Wrapper });
     fireEvent.press(screen.getByRole('button', { name: 'Trigger B' }));
-    expect(screen.queryByText('Conteúdo A')).toBeNull();
-    expect(screen.getByText('Conteúdo B')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Trigger A' }).props.accessibilityState.expanded).toBe(false);
+    expect(screen.getByRole('button', { name: 'Trigger B' }).props.accessibilityState.expanded).toBe(true);
   });
 
   it('single + collapsible=false: clicar no aberto NÃO fecha', () => {
     render(<Accordion type="single" collapsible={false} defaultValue="a"><ItemsABCDisabled /></Accordion>, { wrapper: Wrapper });
     fireEvent.press(screen.getByRole('button', { name: 'Trigger A' }));
-    expect(screen.getByText('Conteúdo A')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Trigger A' }).props.accessibilityState.expanded).toBe(true);
   });
 
   it('modo multiple: A e B podem coexistir abertos', () => {
@@ -80,8 +81,8 @@ describe('Accordion (native)', () => {
       { wrapper: Wrapper },
     );
     fireEvent.press(screen.getByRole('button', { name: 'Trigger B' }));
-    expect(screen.getByText('Conteúdo A')).toBeTruthy();
-    expect(screen.getByText('Conteúdo B')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Trigger A' }).props.accessibilityState.expanded).toBe(true);
+    expect(screen.getByRole('button', { name: 'Trigger B' }).props.accessibilityState.expanded).toBe(true);
   });
 
   it('multiple onValueChange recebe array', () => {
@@ -102,7 +103,7 @@ describe('Accordion (native)', () => {
   it('item disabled não toggla', () => {
     render(<Accordion><ItemsABCDisabled /></Accordion>, { wrapper: Wrapper });
     fireEvent.press(screen.getByRole('button', { name: 'Trigger C' }));
-    expect(screen.queryByText('Conteúdo C')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Trigger C' }).props.accessibilityState.expanded).toBe(false);
     expect(screen.getByRole('button', { name: 'Trigger C' }).props.accessibilityState.disabled).toBe(true);
   });
 

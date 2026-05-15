@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
@@ -23,32 +23,27 @@ type AccordionSlotMap = Partial<Record<AccordionSlots, StyleProps>>;
 
 const ItemSlotsContext = createContext<AccordionSlotMap>({});
 
-const CONTENT_TRANSITION = transition(['grid-template-rows'], 'normal');
-const ICON_TRANSITION = transition(['transform'], 'fast');
+const ICON_TRANSITION = transition(['transform'], 'normal');
+const CONTENT_TRANSITION = transition(['height'], 'normal');
 
 function AccordionRoot(props: AccordionRootProps) {
   const { children, className, style } = props;
-  const type = props.type ?? 'single';
-
-  const isMultiple = type === 'multiple';
-  const collapsible = isMultiple ? true : (props as { collapsible?: boolean }).collapsible ?? true;
+  const isMultiple = props.type === 'multiple';
+  const collapsible = props.type !== 'multiple' ? (props.collapsible ?? true) : true;
 
   const mode: AccordionMode = useMemo(
     () => (isMultiple ? { type: 'multiple' } : { type: 'single', collapsible }),
     [isMultiple, collapsible],
   );
 
-  const valueProp = (props as { value?: string | string[] }).value;
-  const defaultValueProp = (props as { defaultValue?: string | string[] }).defaultValue;
-
   const normalize = (v: string | string[] | undefined): string[] => {
     if (v === undefined) return [];
     return Array.isArray(v) ? v : v === '' ? [] : [v];
   };
 
-  const onValueChangeRaw = (
-    props as { onValueChange?: (value: string | string[]) => void }
-  ).onValueChange;
+  const valueProp: string | string[] | undefined = props.value;
+  const defaultValueProp: string | string[] | undefined = props.defaultValue;
+  const onValueChangeRaw = props.onValueChange as ((value: string | string[]) => void) | undefined;
 
   const [openValues, setOpenValues] = useControllableState<string[]>({
     value: valueProp !== undefined ? normalize(valueProp) : undefined,
@@ -165,7 +160,9 @@ function AccordionItem({ children, value, disabled = false, className, style }: 
   const triggerId = useLayoutId(`accordion-trigger-${value}`);
   const open = openValues.includes(value);
 
-  const slots = useSlotRecipe<AccordionSlots>('accordion', { state: open ? 'open' : 'closed' });
+  const slots = useSlotRecipe<AccordionSlots>('accordion', {
+    disabled: disabled ? 'true' : 'false',
+  });
   const itemContextValue = useMemo(
     () => ({ value, open, disabled, contentId, triggerId }),
     [value, open, disabled, contentId, triggerId],
@@ -182,7 +179,7 @@ function AccordionItem({ children, value, disabled = false, className, style }: 
   );
 }
 
-function AccordionTrigger({ children, className, style }: AccordionTriggerProps) {
+function AccordionTrigger({ children, startIcon, className, style }: AccordionTriggerProps) {
   const { toggle, registerTrigger, unregisterTrigger, focusNext, focusPrev, focusFirst, focusLast } =
     useAccordionContext();
   const { value, open, disabled, contentId, triggerId } = useAccordionItemContext();
@@ -203,7 +200,6 @@ function AccordionTrigger({ children, className, style }: AccordionTriggerProps)
 
   return (
     <Clickable
-      as="button"
       innerRef={ref}
       id={triggerId}
       type="button"
@@ -218,9 +214,19 @@ function AccordionTrigger({ children, className, style }: AccordionTriggerProps)
       className={className}
       style={style}
     >
-      <Text as="span">{children}</Text>
-      <Box as="span" {...slots.triggerIcon} style={{ transition: ICON_TRANSITION }}>
-        <Icon name="ChevronDown" size="small" decorative />
+      <Flex as="span" alignItems="center" gap="micro" flex="1" minWidth="0">
+        {startIcon ? <Box as="span" display="inline-flex" flexShrink="0">{startIcon}</Box> : null}
+        <Text as="span" variant="bodyMedium">{children}</Text>
+      </Flex>
+      <Box
+        as="span"
+        {...slots.triggerIcon}
+        style={{
+          transition: ICON_TRANSITION,
+          transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+        }}
+      >
+        <Icon name="ChevronDown" size="medium" decorative />
       </Box>
     </Clickable>
   );
@@ -229,6 +235,18 @@ function AccordionTrigger({ children, className, style }: AccordionTriggerProps)
 function AccordionContent({ children, className, style }: AccordionContentProps) {
   const { open, contentId, triggerId } = useAccordionItemContext();
   const slots = useContext(ItemSlotsContext);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [innerHeight, setInnerHeight] = useState(0);
+
+  useEffect(() => {
+    const node = innerRef.current;
+    if (!node || typeof ResizeObserver === 'undefined') return;
+    const measure = () => setInnerHeight(node.scrollHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <Box
@@ -239,12 +257,12 @@ function AccordionContent({ children, className, style }: AccordionContentProps)
       {...slots.content}
       className={className}
       style={{
-        gridTemplateRows: open ? '1fr' : '0fr',
+        height: open ? innerHeight : 0,
         transition: CONTENT_TRANSITION,
         ...style,
       }}
     >
-      <Box {...slots.contentInner}>{children}</Box>
+      <Box innerRef={innerRef} {...slots.contentInner}>{children}</Box>
     </Box>
   );
 }
@@ -265,8 +283,10 @@ AccordionContent.displayName = 'Accordion.Content';
  * - `'multiple'`: vários itens podem coexistir. `value: string[]`.
  *
  * Anatomia (root, item, trigger, triggerIcon, content, contentInner) +
- * estado (`open`/`closed` para o ícone) resolvidos pela slot recipe `accordion`
- * — override completo via `createTheme`.
+ * axes `state` (`open`/`closed`) e `disabled` resolvidos pela slot recipe
+ * `accordion` — override completo via `createTheme`. Tipografia do trigger
+ * vem do `<Text variant="label">` do DS; customização passa por
+ * `recipes.text.variants.variant.label` ou substituição via children.
  *
  * Web: keyboard nav `ArrowUp`/`ArrowDown`/`Home`/`End` (DOM-order via
  * `compareDocumentPosition`, robusto a items condicionais), foco visível WCAG

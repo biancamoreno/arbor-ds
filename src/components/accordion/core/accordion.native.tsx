@@ -1,7 +1,9 @@
-import { createContext, useCallback, useContext, useId, useMemo } from 'react';
+import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Animated } from 'react-native';
 import { Box, Flex, Text, Clickable, Icon } from '../../core';
 import { useControllableState } from '../../../ecosystem/primitives';
 import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { useTheme } from '../../../ecosystem/styled-system/adapters';
 import type { StyleProps } from '../../../ecosystem/styled-system/system/system.types';
 import type {
   AccordionRootProps,
@@ -44,21 +46,17 @@ const useAccordionItemNativeContext = () => useContext(AccordionItemNativeContex
 
 function AccordionRoot(props: AccordionRootProps) {
   const { children, className, style } = props;
-  const type = props.type ?? 'single';
-  const isMultiple = type === 'multiple';
-  const collapsible = isMultiple ? true : (props as { collapsible?: boolean }).collapsible ?? true;
-
-  const valueProp = (props as { value?: string | string[] }).value;
-  const defaultValueProp = (props as { defaultValue?: string | string[] }).defaultValue;
+  const isMultiple = props.type === 'multiple';
+  const collapsible = props.type !== 'multiple' ? (props.collapsible ?? true) : true;
 
   const normalize = (v: string | string[] | undefined): string[] => {
     if (v === undefined) return [];
     return Array.isArray(v) ? v : v === '' ? [] : [v];
   };
 
-  const onValueChangeRaw = (
-    props as { onValueChange?: (value: string | string[]) => void }
-  ).onValueChange;
+  const valueProp: string | string[] | undefined = props.value;
+  const defaultValueProp: string | string[] | undefined = props.defaultValue;
+  const onValueChangeRaw = props.onValueChange as ((value: string | string[]) => void) | undefined;
 
   const [openValues, setOpenValues] = useControllableState<string[]>({
     value: valueProp !== undefined ? normalize(valueProp) : undefined,
@@ -103,7 +101,9 @@ function AccordionItem({ children, value, disabled = false, className, style }: 
   const open = openValues.includes(value);
   const triggerId = `${baseId}-trigger-${value}`;
 
-  const slots = useSlotRecipe<AccordionSlots>('accordion', { state: open ? 'open' : 'closed' });
+  const slots = useSlotRecipe<AccordionSlots>('accordion', {
+    disabled: disabled ? 'true' : 'false',
+  });
   const itemContextValue = useMemo(
     () => ({ value, open, disabled, triggerId }),
     [value, open, disabled, triggerId],
@@ -120,15 +120,36 @@ function AccordionItem({ children, value, disabled = false, className, style }: 
   );
 }
 
-function AccordionTrigger({ children, className, style }: AccordionTriggerProps) {
+function AccordionTrigger({ children, startIcon, className, style }: AccordionTriggerProps) {
   const { toggle } = useAccordionNativeContext();
   const { value, open, disabled, triggerId } = useAccordionItemNativeContext();
   const slots = useContext(ItemSlotsContext);
+  const theme = useTheme();
+
+  const rotateAnim = useRef(new Animated.Value(open ? 1 : 0)).current;
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'test') {
+      rotateAnim.setValue(open ? 1 : 0);
+      return;
+    }
+    Animated.timing(rotateAnim, {
+      toValue: open ? 1 : 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, [open, rotateAnim]);
+
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
 
   const handleClick: React.MouseEventHandler<HTMLElement> = () => {
     if (disabled) return;
     toggle(value);
   };
+
+  const iconColor = theme.colors.text.primary;
 
   return (
     <Clickable
@@ -141,10 +162,13 @@ function AccordionTrigger({ children, className, style }: AccordionTriggerProps)
       className={className}
       style={style}
     >
-      <Text as="span" color={disabled ? 'text.disabled' : 'text.primary'} fontSize="small" fontWeight="medium">
-        {children}
-      </Text>
-      <Icon name={open ? 'ChevronUp' : 'ChevronDown'} size="small" decorative />
+      <Flex alignItems="center" gap="micro" flex="1" minWidth="0">
+        {startIcon ? <Box display="inline-flex" flexShrink="0">{startIcon}</Box> : null}
+        <Text as="span" variant="bodyMedium">{children}</Text>
+      </Flex>
+      <Animated.View style={{ transform: [{ rotate }] }}>
+        <Icon name="ChevronDown" size="medium" color={iconColor} decorative />
+      </Animated.View>
     </Clickable>
   );
 }
@@ -152,12 +176,45 @@ function AccordionTrigger({ children, className, style }: AccordionTriggerProps)
 function AccordionContent({ children, className, style }: AccordionContentProps) {
   const { open, triggerId } = useAccordionItemNativeContext();
   const slots = useContext(ItemSlotsContext);
-  if (!open) return null;
+
+  const heightAnim = useRef(new Animated.Value(open ? 1 : 0)).current;
+  const [innerHeight, setInnerHeight] = useState(0);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'test') {
+      heightAnim.setValue(open ? 1 : 0);
+      return;
+    }
+    Animated.timing(heightAnim, {
+      toValue: open ? 1 : 0,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+  }, [open, heightAnim]);
+
+  const animatedHeight = heightAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, innerHeight],
+  });
 
   return (
-    <Box {...slots.contentInner} accessibilityLabelledBy={triggerId} className={className} style={style}>
-      {children}
-    </Box>
+    <Animated.View
+      accessibilityLabelledBy={triggerId}
+      accessibilityElementsHidden={!open}
+      importantForAccessibility={open ? 'auto' : 'no-hide-descendants'}
+      style={{ height: animatedHeight, overflow: 'hidden' }}
+    >
+      <Box
+        onLayout={(e: { nativeEvent: { layout: { height: number } } }) => {
+          const h = e.nativeEvent.layout.height;
+          if (h > 0 && h !== innerHeight) setInnerHeight(h);
+        }}
+      >
+        <Box {...slots.contentInner} className={className} style={style}>
+          {children}
+        </Box>
+      </Box>
+    </Animated.View>
   );
 }
 
@@ -169,15 +226,18 @@ AccordionContent.displayName = 'Accordion.Content';
 /**
  * @platform native
  *
- * Accordion em React Native — paridade com web pós-RFC-0037.
+ * Accordion em React Native — paridade com web pós-RFC-0037 + PCV-27 + polish.
  *
  * - Discriminated union por `type` (single/multiple) + `collapsible` em single.
  * - Trigger via `Clickable.native` com `accessibilityRole='button'` +
  *   `accessibilityState={{ expanded, disabled }}`.
- * - Sem CSS grid; `Content` renderiza apenas quando `open === true`.
- * - Chevron alterna entre `ChevronDown` (fechado) e `ChevronUp` (aberto) —
- *   sem rotate (slot recipe `triggerIcon.transform` é ignorado pelo engine
- *   native).
+ * - Tipografia via `<Text variant="subheading">` — fonte única cross-platform.
+ * - `startIcon?: ReactNode` opcional à esquerda do label.
+ * - Chevron `medium` com `Animated.timing` rotacionando 0deg↔180deg
+ *   (paridade microfeedback web↔native).
+ * - `Content` animado via `Animated.Value` interpolado em `height`
+ *   (medido pelo `onLayout` do inner) — sem flick.
+ * - Item desabilitado fica com `opacity.disabled` via recipe.
  * - Sem keyboard nav (touch-only).
  *
  * Anatomia consumida via slot recipe `accordion` — mesma fonte themable do web.

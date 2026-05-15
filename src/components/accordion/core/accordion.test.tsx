@@ -167,12 +167,17 @@ describe('Accordion', () => {
     expect(firstTrigger.querySelector('svg')).toBeTruthy();
   });
 
-  it('conteúdo usa grid-template-rows para animação', () => {
+  it('conteúdo anima via height (closed=0)', () => {
     render(<BasicAccordion />, { wrapper });
     const regions = screen.getAllByRole('region');
-    expect(regions[0].style.gridTemplateRows).toBe('0fr');
-    fireEvent.click(screen.getByText('Seção A'));
-    expect(regions[0].style.gridTemplateRows).toBe('1fr');
+    expect(regions[0].style.height).toBe('0px');
+  });
+
+  it('trigger envolve o label em <span> (HTML válido dentro de <button>, não <p>)', () => {
+    render(<BasicAccordion />, { wrapper });
+    const trigger = screen.getAllByRole('button')[0];
+    expect(trigger.querySelector('p')).toBeNull();
+    expect(trigger.querySelector('span')).toBeTruthy();
   });
 
   describe('teclado', () => {

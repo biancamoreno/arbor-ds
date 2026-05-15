@@ -1369,16 +1369,12 @@ const recipes: ThemeRecipes = {
       root: {
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: '$accordion.borderRadius',
-        borderWidth: '$accordion.borderWidth',
-        borderStyle: 'solid',
-        borderColor: '$accordion.border',
-        overflow: 'hidden',
       },
       item: {
         borderStyle: 'solid',
-        borderBottomWidth: '$accordion.borderWidth',
-        borderBottomColor: '$accordion.border',
+        borderWidth: 0,
+        borderBottomWidth: '$accordion.dividerWidth',
+        borderBottomColor: '$accordion.divider',
         _last: { borderBottomWidth: 0 },
       },
       trigger: {
@@ -1386,6 +1382,8 @@ const recipes: ThemeRecipes = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: '$accordion.trigger.gap',
+        minHeight: '$accordion.trigger.minHeight',
         paddingLeft: '$accordion.trigger.padding.inline',
         paddingRight: '$accordion.trigger.padding.inline',
         paddingTop: '$accordion.trigger.padding.block',
@@ -1393,36 +1391,33 @@ const recipes: ThemeRecipes = {
         backgroundColor: 'transparent',
         borderWidth: 0,
         textAlign: 'left',
-        fontWeight: '$accordion.trigger.fontWeight',
-        fontSize: '$accordion.trigger.fontSize',
         color: '$accordion.trigger.colors.text',
         cursor: 'pointer',
+        transition: transition(['background-color', 'color'], 'fast'),
         _hover: { backgroundColor: '$accordion.trigger.colors.hover' },
         _focusVisible: focusRing,
         _disabled: { color: '$accordion.trigger.colors.disabled', cursor: 'not-allowed' },
       },
       triggerIcon: {
+        display: 'inline-flex',
         flexShrink: 0,
       },
       content: {
-        display: 'grid',
         overflow: 'hidden',
       },
       contentInner: {
-        minHeight: 0,
-        overflow: 'hidden',
         paddingLeft: '$accordion.content.padding.inline',
         paddingRight: '$accordion.content.padding.inline',
         paddingBottom: '$accordion.content.padding.bottom',
       },
     },
     variants: {
-      state: {
-        closed: { triggerIcon: { transform: 'rotate(0deg)' } },
-        open:   { triggerIcon: { transform: 'rotate(180deg)' } },
+      disabled: {
+        true:  { item: { opacity: '$accordion.opacity.disabled' } },
+        false: {},
       },
     },
-    defaultVariants: { state: 'closed' },
+    defaultVariants: { disabled: false },
   }),
 
   tabs: defineSlotRecipe({

@@ -50,6 +50,12 @@ export interface AccordionItemProps {
 /** @platform shared */
 export interface AccordionTriggerProps {
   children: ReactNode;
+  /**
+   * Ícone (ou qualquer ReactNode) renderizado à esquerda do label. Anatomia fixa
+   * `[startIcon | label | chevron]`. Cross-platform — passe `<Icon name="..." />`
+   * do DS para resolver tamanho e cor por tema.
+   */
+  startIcon?: ReactNode;
   className?: string;
   style?: CSSProperties;
 }
