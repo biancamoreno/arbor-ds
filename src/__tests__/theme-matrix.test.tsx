@@ -169,11 +169,11 @@ describe('multi-product theming matrix', () => {
       expect(t.components.field.colors.label.invalid).toBe('brand.solid');
     });
 
-    it('tabs.trigger.fontWeight.active override propagates to recipe', () => {
+    it('tabs.indicator.color override propagates to recipe', () => {
       const t = createTheme(themeLight as unknown as ArborTheme, {
-        components: { tabs: { trigger: { fontWeight: { active: 'bold' } } } },
+        components: { tabs: { indicator: { color: 'feedback.success.solid' } } },
       });
-      expect(t.components.tabs.trigger.fontWeight.active).toBe('bold');
+      expect(t.components.tabs.indicator.color).toBe('feedback.success.solid');
     });
 
     it('dialog.borderRadius override propagates to recipe', () => {

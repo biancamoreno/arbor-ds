@@ -1421,28 +1421,41 @@ const recipes: ThemeRecipes = {
   }),
 
   tabs: defineSlotRecipe({
-    slots: ['root', 'list', 'trigger', 'content'] as const,
+    slots: ['root', 'list', 'trigger', 'triggerContent', 'content', 'indicator'] as const,
     base: {
       root: { display: 'flex' },
       list: {
         display: 'flex',
         flexShrink: 0,
+        position: 'relative',
         gap: '$tabs.list.gap',
-        borderStyle: 'solid',
-        borderColor: '$tabs.list.borderColor',
+      },
+      indicator: {
+        position: 'absolute',
+        backgroundColor: '$tabs.indicator.color',
+        pointerEvents: 'none',
       },
       trigger: {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 'micro',
+        position: 'relative',
+        zIndex: 1,
         backgroundColor: 'transparent',
         borderWidth: 0,
         cursor: 'pointer',
         color: '$tabs.trigger.color.inactive',
-        fontWeight: '$tabs.trigger.fontWeight.inactive',
-        _disabled: { opacity: 0.5, cursor: 'not-allowed' },
+        transition: transition(['color'], 'normal', 'standard'),
+        _disabled: { opacity: '$tabs.opacity.disabled', cursor: 'not-allowed' },
         _focusVisible: focusRing,
+      },
+      triggerContent: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '$tabs.trigger.gap',
+        color: 'inherit',
+        transition: transition(['color'], 'normal', 'standard'),
       },
       content: {
         color: '$tabs.content.color',
@@ -1454,46 +1467,67 @@ const recipes: ThemeRecipes = {
     variants: {
       variant: {
         underline: {
-          trigger: {
-            borderRadius: 0,
-            borderStyle: 'solid',
-            borderBottomWidth: '$tabs.trigger.borderWidth',
-            borderBottomColor: 'transparent',
-          },
+          trigger: { borderRadius: 0 },
+          indicator: { borderRadius: '$tabs.indicator.borderRadius.underline' },
         },
         pill: {
           trigger: { borderRadius: 'full' },
+          indicator: { borderRadius: '$tabs.indicator.borderRadius.pill' },
         },
       },
       size: {
-        xsmall: { trigger: { paddingLeft: '$tabs.trigger.padding.xsmall.inline', paddingRight: '$tabs.trigger.padding.xsmall.inline', paddingTop: '$tabs.trigger.padding.xsmall.block', paddingBottom: '$tabs.trigger.padding.xsmall.block', fontSize: '$tabs.trigger.fontSize.xsmall' } },
-        small:  { trigger: { paddingLeft: '$tabs.trigger.padding.small.inline',  paddingRight: '$tabs.trigger.padding.small.inline',  paddingTop: '$tabs.trigger.padding.small.block',  paddingBottom: '$tabs.trigger.padding.small.block',  fontSize: '$tabs.trigger.fontSize.small'  } },
-        medium: { trigger: { paddingLeft: '$tabs.trigger.padding.medium.inline', paddingRight: '$tabs.trigger.padding.medium.inline', paddingTop: '$tabs.trigger.padding.medium.block', paddingBottom: '$tabs.trigger.padding.medium.block', fontSize: '$tabs.trigger.fontSize.medium' } },
-        large:  { trigger: { paddingLeft: '$tabs.trigger.padding.large.inline',  paddingRight: '$tabs.trigger.padding.large.inline',  paddingTop: '$tabs.trigger.padding.large.block',  paddingBottom: '$tabs.trigger.padding.large.block',  fontSize: '$tabs.trigger.fontSize.large'  } },
-        xlarge: { trigger: { paddingLeft: '$tabs.trigger.padding.xlarge.inline', paddingRight: '$tabs.trigger.padding.xlarge.inline', paddingTop: '$tabs.trigger.padding.xlarge.block', paddingBottom: '$tabs.trigger.padding.xlarge.block', fontSize: '$tabs.trigger.fontSize.xlarge' } },
+        xsmall: { trigger: { paddingLeft: '$tabs.trigger.padding.xsmall.inline', paddingRight: '$tabs.trigger.padding.xsmall.inline', paddingTop: '$tabs.trigger.padding.xsmall.block', paddingBottom: '$tabs.trigger.padding.xsmall.block' } },
+        small:  { trigger: { paddingLeft: '$tabs.trigger.padding.small.inline',  paddingRight: '$tabs.trigger.padding.small.inline',  paddingTop: '$tabs.trigger.padding.small.block',  paddingBottom: '$tabs.trigger.padding.small.block'  } },
+        medium: { trigger: { paddingLeft: '$tabs.trigger.padding.medium.inline', paddingRight: '$tabs.trigger.padding.medium.inline', paddingTop: '$tabs.trigger.padding.medium.block', paddingBottom: '$tabs.trigger.padding.medium.block' } },
+        large:  { trigger: { paddingLeft: '$tabs.trigger.padding.large.inline',  paddingRight: '$tabs.trigger.padding.large.inline',  paddingTop: '$tabs.trigger.padding.large.block',  paddingBottom: '$tabs.trigger.padding.large.block'  } },
+        xlarge: { trigger: { paddingLeft: '$tabs.trigger.padding.xlarge.inline', paddingRight: '$tabs.trigger.padding.xlarge.inline', paddingTop: '$tabs.trigger.padding.xlarge.block', paddingBottom: '$tabs.trigger.padding.xlarge.block' } },
       },
       orientation: {
         horizontal: {
           root: { flexDirection: 'column' },
-          list: { flexDirection: 'row', flexWrap: 'wrap', borderBottomWidth: '$tabs.list.borderWidth' },
+          list: { flexDirection: 'row', flexWrap: 'wrap' },
         },
         vertical: {
           root: { flexDirection: 'row' },
-          list: { flexDirection: 'column', borderRightWidth: '$tabs.list.borderWidth' },
+          list: { flexDirection: 'column' },
         },
       },
       state: {
         inactive: {},
         active:   {},
       },
+      indicatorPosition: {
+        top: {},
+        bottom: {},
+        left: {},
+        right: {},
+      },
     },
     compoundVariants: [
+      { conditions: { state: 'inactive' },
+        style: { trigger: { _hover: { color: '$tabs.trigger.color.active' } } } },
       { conditions: { variant: 'underline', state: 'active' },
-        style: { trigger: { borderBottomColor: '$tabs.underline.color', color: '$tabs.trigger.color.active', fontWeight: '$tabs.trigger.fontWeight.active' } } },
+        style: { trigger: { color: '$tabs.trigger.color.active' } } },
       { conditions: { variant: 'pill', state: 'active' },
-        style: { trigger: { backgroundColor: '$tabs.pill.background', color: '$tabs.pill.color', fontWeight: '$tabs.trigger.fontWeight.active' } } },
+        style: { trigger: { color: '$tabs.pill.color' } } },
+      // Borda da list segue indicatorPosition (só no variant=underline).
+      { conditions: { variant: 'underline', indicatorPosition: 'bottom' },
+        style: { list: { borderBottomStyle: 'solid', borderBottomColor: '$tabs.list.borderColor', borderBottomWidth: '$tabs.list.borderWidth' } } },
+      { conditions: { variant: 'underline', indicatorPosition: 'top' },
+        style: { list: { borderTopStyle: 'solid', borderTopColor: '$tabs.list.borderColor', borderTopWidth: '$tabs.list.borderWidth' } } },
+      { conditions: { variant: 'underline', indicatorPosition: 'left' },
+        style: { list: { borderLeftStyle: 'solid', borderLeftColor: '$tabs.list.borderColor', borderLeftWidth: '$tabs.list.borderWidth' } } },
+      { conditions: { variant: 'underline', indicatorPosition: 'right' },
+        style: { list: { borderRightStyle: 'solid', borderRightColor: '$tabs.list.borderColor', borderRightWidth: '$tabs.list.borderWidth' } } },
+      // Padding INTERNO do container (slot `triggerContent`) só em pill —
+      // cria respiro entre texto e borda do pill (que cobre o container).
+      { conditions: { variant: 'pill', size: 'xsmall' }, style: { triggerContent: { paddingTop: '$tabs.trigger.pillContent.padding.xsmall.block', paddingBottom: '$tabs.trigger.pillContent.padding.xsmall.block', paddingLeft: '$tabs.trigger.pillContent.padding.xsmall.inline', paddingRight: '$tabs.trigger.pillContent.padding.xsmall.inline' } } },
+      { conditions: { variant: 'pill', size: 'small'  }, style: { triggerContent: { paddingTop: '$tabs.trigger.pillContent.padding.small.block',  paddingBottom: '$tabs.trigger.pillContent.padding.small.block',  paddingLeft: '$tabs.trigger.pillContent.padding.small.inline',  paddingRight: '$tabs.trigger.pillContent.padding.small.inline'  } } },
+      { conditions: { variant: 'pill', size: 'medium' }, style: { triggerContent: { paddingTop: '$tabs.trigger.pillContent.padding.medium.block', paddingBottom: '$tabs.trigger.pillContent.padding.medium.block', paddingLeft: '$tabs.trigger.pillContent.padding.medium.inline', paddingRight: '$tabs.trigger.pillContent.padding.medium.inline' } } },
+      { conditions: { variant: 'pill', size: 'large'  }, style: { triggerContent: { paddingTop: '$tabs.trigger.pillContent.padding.large.block',  paddingBottom: '$tabs.trigger.pillContent.padding.large.block',  paddingLeft: '$tabs.trigger.pillContent.padding.large.inline',  paddingRight: '$tabs.trigger.pillContent.padding.large.inline'  } } },
+      { conditions: { variant: 'pill', size: 'xlarge' }, style: { triggerContent: { paddingTop: '$tabs.trigger.pillContent.padding.xlarge.block', paddingBottom: '$tabs.trigger.pillContent.padding.xlarge.block', paddingLeft: '$tabs.trigger.pillContent.padding.xlarge.inline', paddingRight: '$tabs.trigger.pillContent.padding.xlarge.inline' } } },
     ],
-    defaultVariants: { variant: 'underline', size: 'medium', orientation: 'horizontal', state: 'inactive' },
+    defaultVariants: { variant: 'underline', size: 'medium', orientation: 'horizontal', state: 'inactive', indicatorPosition: 'bottom' },
   }),
 
   carousel: defineSlotRecipe({

@@ -130,6 +130,10 @@ Toda decisão arquitetural deve ser consistente com este posicionamento. Quando 
 
 ## Theming Architecture
 
+> **Princípio operacional permanente.** Tematização não é detalhe de implementação no Arbor-DS — é **proposta de valor**. Cada componente, recipe, slot, microinteração e default deve responder à pergunta: *"um produto consumidor consegue mudar isso via `createTheme()` sem editar o DS?"* Quando a resposta for "não", o gap é arquitetural — abrir RFC ou sub-PR de motor, **nunca** inline style ou hardcode.
+>
+> O valor de mercado do Arbor-DS é **um motor com vários produtos por cima**, cada um com sua identidade, sobre a mesma base de código. Para isso valer, **todo eixo de identidade visual** (cor, tipografia, forma, densidade, motion, sombra, borda, foco, microinteração) tem que estar disponível via tema, em camadas. Componente que captura primitive, hardcoda px ou pinta literal sabota essa proposta.
+
 A tematização segue um modelo de cascade com cinco camadas, do mais amplo ao mais específico. **Override mais específico sempre vence** o mais amplo.
 
 ```
@@ -290,6 +294,28 @@ Em qualquer ajuste de tema, percorra a cascata em ordem. Use a primeira camada q
 6. **Escolha estrutural discreta entre estilos?** → recipe variant (normalmente evolução do DS, não config do produto).
 
 Se nenhuma das opções couber, é sinal de que a API do componente está incompleta — abrir RFC, **não** inline style.
+
+### Auditoria de tematização — checklist obrigatório por PR de componente
+
+Toda PR que toque componente, recipe ou slot precisa passar nesta auditoria. Se algum item falhar, o gap é estrutural e merece ser corrigido antes do merge — não vira "TD" silenciosa.
+
+- [ ] **Componente NÃO importa primitive diretamente** (`import { colorScale }` em componente = captura no module-load; tema não consegue overridar). Recipe consome **alias por string** (`'$component.alvo'` ou `'brand.solid'`).
+- [ ] **Nenhum literal hardcoded** em componente ou recipe: cor (`#hex`, `rgba(...)`), pixel para tamanho themable (alturas, larguras de control, raios), `boxShadow` cru, string de transition (`'200ms ease'`).
+- [ ] **Cada eixo visual significativo tem token themable** — se o produto consumidor quiser mudar a cor do indicator de tabs, o background do card hover, a duração da animação do toast, o raio de borda do input, ele consegue via `createTheme()` sem editar o DS.
+- [ ] **Aliases canônicos sem órfãos** — token declarado em `tokens/components/*.ts` deve ser consumido pela recipe ou pelo componente. Token órfão é dívida silenciosa (limpar ou conectar).
+- [ ] **Native lê tokens themables** — em `.native.tsx`, se precisar do valor do component token (ex.: cor de indicator que vai pra `Animated.View`), resolve via `theme.components.<X>.…` + `resolveAliasColor(theme.colors, alias)`, **não** via `theme.colors.brand.solid` hardcoded. Paridade web↔native exige que override em `createTheme({ tokens: { tabs: { indicator: { color: '...' } } } })` propague para **as duas plataformas**.
+- [ ] **Recipe consome só strings ($alias ou alias semantic)** — `$component.x.y.z` (component token) ou `'spacing.medium'`, `'brand.solid'` (semantic). Nada de import ou literal.
+- [ ] **Matriz produto B (violet) verde** — `pnpm test` cobre `theme-matrix.test` que ativa um produto consumidor de exemplo com paleta diferente. Componente sem leak do tema padrão passa naturalmente.
+- [ ] **Override por subtree (web, CSS var) funciona** — para componentes web, mudar `--arbor-<componente>-<key>` num escopo CSS produz resultado coerente. Não funciona via JS hardcode.
+
+### Gravidade dos vazamentos de tematização
+
+| Severidade | O que é | Exemplo | Como tratar |
+|---|---|---|---|
+| **Bloqueador** | Identidade do produto não passa por aquele eixo | Indicator hardcoded `'#7B61FF'` direto no componente | Bloqueia merge — reescrever via token |
+| **Alto** | Tema chega no web mas não no native (ou vice-versa) | Native lê `theme.colors.brand.solid` em vez do component token resolvido | Bloqueia merge — resolver via alias |
+| **Médio** | Tema cobre 90% mas falta um eixo (hover, focus, disabled) | `_hover` na recipe usa literal `'rgba(0,0,0,0.05)'` | Aceito merge se documentado como TD com plano de fechamento |
+| **Baixo** | Token themable existe mas só web cabe; native em paridade conceitual | Anel de foco (largura/offset) — defaults WCAG por construção | Aceito como decisão arquitetural se justificada por RFC |
 
 ### Cross-platform — regra de ouro
 
@@ -848,6 +874,48 @@ Sempre considerar:
 - custo de execução por plataforma
 - APIs simples de usar
 - não transformar animação em dependência desnecessária
+
+### Direcional canônico de design + animação: "sutil/sóbrio"
+
+A identidade default do Arbor-DS é **sutil e sóbria**, não chamativa. Toda decisão de animação, microinteração e detalhe visual deve passar por essa régua antes de qualquer outra. O motor tem capacidade para mais, mas o default fica do lado contido — produtos que precisam de "expressivo" pedem via `presets.motion: 'expressive'` ou override de tema, e o DS aceita; mas **nunca é o default**.
+
+**Régua prática (default Arbor-DS):**
+
+| Dimensão | Valor canônico | Anti-padrão |
+|---|---|---|
+| **Duração de microinteração** | `motion.duration.normal` (160ms) — slide, fade, scale, color shift | `slow` (240ms+) só para overlays grandes; nunca `slower` para microinterações |
+| **Easing** | `motion.easing.standard` (`cubic-bezier(0.16, 1, 0.3, 1)`) | `ease`/`linear`/curva sintética; bounces, springs com overshoot grande |
+| **Scale de seleção** | 1.03 — perceptível, não chamativo | 1.05+, 1.1 (vira "boto cresceu") |
+| **Translate de hover/lift** | 1–2px máximo | 4px+ (efeito flutuação exagerado) |
+| **Opacity transitions** | 0 → 1 contínuo, sem flicker; `fast`/`normal` | piscar, fade em cascata aleatório |
+| **Sliding/morph indicator** | trajetória linear curta + easing `standard` | bounce no final, overshoot, decoração extra |
+| **Box-shadow** | tokens (`shadows.{level}`), camadas multi-layer sutis | drop-shadows isoladas com blur grande, "glows" coloridos |
+| **Border** | `hairline` (1px) — divisores, separadores, list edges; `thin` (2px) — destaque (foco, indicator ativo) | `thick`+ para detalhes; bordas pintadas em todos os lados quando só um lado importa |
+| **Cor** | papéis semânticos (`text.primary`/`secondary`, `surface.*`) — contraste de hierarquia, não de intensidade | cores literais; gradient como decoração; cores saturadas em decoração |
+| **Forma** | `radii.small`/`medium` default; `radii.full` apenas em pill, avatar, badge | radii grandes como decoração; bordas decoradas |
+
+**Princípios narrativos:**
+
+1. **Movimento serve à percepção, não ao espetáculo.** Animação confirma o que o usuário fez; não anuncia o produto. Se a animação chama atenção para si própria, está fora do tom.
+2. **Quietude é default; ruído é exceção.** A maioria dos estados (idle, inactive) é quieto. Só o estado significativo (active, focused, hovered) ganha sinalização — e mesmo essa é discreta.
+3. **Hierarquia por contraste de papel, não por intensidade de cor ou animação.** Texto primary ≠ secondary não pela saturação, mas pela escolha de papel semântico. Indicador ativo ≠ inativo não pela explosão, mas pelo papel `brand.solid` deslizando 160ms.
+4. **Sobriedade não é austeridade.** O DS não é minimalista frio; é sóbrio: usa motion, cor de marca, sombras — mas em doses pequenas, calibradas, repetíveis.
+5. **Composição limpa antes de decoração.** Se a anatomia, spacing e tipografia estão bem, raramente é preciso adicionar enfeite. Quando estiver tentando "salvar" um componente com decoração, revisitar primeiro a anatomia.
+
+**Quando "sutil/sóbrio" NÃO se aplica:**
+
+- **Overlays grandes** (Dialog, Drawer, Toast): podem usar `slow` (240ms) para entrar/sair — anatomia maior pede mais tempo de leitura espacial.
+- **Empty states / onboarding ilustrativo** (Hero, EmptyState): consumidor pode usar ilustrações expressivas via slot/escape hatch — o DS expõe o slot, não fornece o asset.
+- **Produtos que pedem expressão maior** (entertainment, gaming, social): `createTheme({ presets: { motion: 'expressive', shape: 'rounded', surface: 'glass' } })` é caminho legítimo — o **default** continua sóbrio, o produto override.
+
+**Verificação obrigatória ao revisar microinteração de PCV:**
+
+- [ ] Duração ≤ 160ms (`normal`) para sliding/fade/scale; nunca `slow`+ em microinteração
+- [ ] Easing `standard` consumido via `transition()` helper (sem string raw `'200ms ease'`)
+- [ ] Escala/translate dentro do range sutil (scale ≤ 1.03, translate ≤ 2px)
+- [ ] reduced-motion respeitado (transition: 'none' ou `setValue` direto)
+- [ ] Nenhuma decoração extra — só o eixo de mudança real
+- [ ] Override por tema (`createTheme({ presets: { motion: ... } })`) ainda funciona
 
 ---
 

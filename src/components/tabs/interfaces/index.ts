@@ -6,4 +6,5 @@ export type {
   TabsVariant,
   TabsSize,
   TabsOrientation,
+  TabsIndicatorPosition,
 } from './TabsProps';

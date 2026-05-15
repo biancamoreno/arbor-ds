@@ -9,6 +9,9 @@ export type TabsSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 /** @platform shared */
 export type TabsOrientation = 'horizontal' | 'vertical';
 
+/** @platform shared */
+export type TabsIndicatorPosition = 'top' | 'bottom' | 'left' | 'right';
+
 /**
  * @platform shared
  *
@@ -40,12 +43,32 @@ export interface TabsListProps {
   size?: TabsSize;
   /** Distribui os triggers para preencher a largura disponível (`flex: 1` em cada). */
   fullWidth?: boolean;
+  /**
+   * Posição do indicador (slot `indicator`) quando `variant='underline'`.
+   * Default: `'bottom'` em horizontal; `'right'` em vertical. Em
+   * `variant='pill'` é ignorado (indicator cobre todo o trigger ativo).
+   */
+  indicatorPosition?: TabsIndicatorPosition;
   className?: string;
   style?: CSSProperties;
 }
 
 /** @platform shared */
 export interface TabsTriggerProps {
+  /**
+   * Conteúdo livre do trigger. O Trigger envolve `children` num container
+   * interno (`triggerContent`) com `inline-flex + gap` — composição livre
+   * de texto, ícones, badges, contadores, etc. O **indicador de estado
+   * ativo** (slot `indicator`) acompanha este container, não o button
+   * inteiro (que tem padding).
+   *
+   * @example
+   * <Tabs.Trigger value="inbox">
+   *   <Icon name="Mail" size="small" decorative />
+   *   Caixa de entrada
+   *   <Badge tone="info">12</Badge>
+   * </Tabs.Trigger>
+   */
   children: ReactNode;
   /** Identificador único — deve casar com o `value` de um `Tabs.Content`. */
   value: string;

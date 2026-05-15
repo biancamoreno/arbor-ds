@@ -5,39 +5,48 @@ export const tabs = {
     borderWidth: 'hairline',
   },
   trigger: {
-    fontWeight: {
-      inactive: 'regular',
-      active: 'semibold',
-    },
+    gap: 'micro',
     color: {
       inactive: 'text.secondary',
       active: 'text.primary',
     },
+    // 5 sizes, 5 paddings únicos — escala progressiva visível.
     padding: {
-      xsmall: { inline: 'small', block: 'micro' },
-      small: { inline: 'small', block: 'micro' },
-      medium: { inline: 'medium', block: 'small' },
-      large: { inline: 'medium', block: 'small' },
-      xlarge: { inline: 'large', block: 'medium' },
+      xsmall: { inline: 'micro',  block: 'nano'  },
+      small:  { inline: 'tiny',   block: 'micro' },
+      medium: { inline: 'small',  block: 'tiny'  },
+      large:  { inline: 'medium', block: 'small' },
+      xlarge: { inline: 'large',  block: 'medium' },
     },
-    fontSize: {
-      xsmall: 'xsmall',
-      small: 'xsmall',
-      medium: 'small',
-      large: 'medium',
-      xlarge: 'medium',
+    // Padding INTERNO do container (slot `triggerContent`) — aplicado apenas
+    // em `variant='pill'` para dar respiro entre texto e borda do pill.
+    // Themable via `createTheme({ tokens: { tabs: { trigger: { pillContent: { padding: {...} } } } } })`.
+    pillContent: {
+      padding: {
+        xsmall: { inline: 'micro',  block: 'nano'  },
+        small:  { inline: 'tiny',   block: 'micro' },
+        medium: { inline: 'small',  block: 'tiny'  },
+        large:  { inline: 'medium', block: 'small' },
+        xlarge: { inline: 'large',  block: 'medium' },
+      },
     },
-    borderWidth: 'thin',
   },
   content: {
     padding: { block: 'medium' },
     color: 'text.primary',
   },
-  underline: {
+  indicator: {
     color: 'brand.solid',
+    thickness: 'thin',
+    borderRadius: {
+      underline: 'none',
+      pill: 'full',
+    },
   },
   pill: {
-    background: 'brand.solid',
     color: 'text.inverse',
+  },
+  opacity: {
+    disabled: 0.5,
   },
 };
