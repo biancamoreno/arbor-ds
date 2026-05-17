@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { useControllableState } from '../../../ecosystem/primitives';
+import { useCallback, useMemo, useRef } from 'react';
+import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
 import { MenuContext, type MenuContextValue } from '../context/menu-context';
 import { MenuTrigger } from '../slots/menu-trigger';
 import { MenuContent } from '../slots/menu-content';
@@ -8,42 +8,41 @@ import { MenuSeparator } from '../slots/menu-separator';
 import { MenuLabel } from '../slots/menu-label';
 import type { MenuRootProps } from '../interfaces/MenuProps';
 
-function MenuRoot({ open: openProp, defaultOpen = false, onOpenChange, children }: MenuRootProps) {
-  const [open, setOpenState] = useControllableState({
+function MenuRoot({
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+  placement = 'bottom',
+  offset,
+  accessibilityLabel,
+  // `accessibilityHint` faz parte do contrato cross-platform; no web a descrição
+  // adicional fica no próprio conteúdo, então a prop é consumida apenas em
+  // `menu.native.tsx`.
+  accessibilityHint: _accessibilityHint,
+  children,
+}: MenuRootProps) {
+  const [open, setOpen] = useControllableState({
     value: openProp,
     defaultValue: defaultOpen,
     onChange: onOpenChange,
   });
 
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const itemCountRef = useRef(0);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const contentId = useLayoutId('menu');
 
-  const setOpen = useCallback(
-    (next: boolean) => {
-      setOpenState(next);
-      setActiveIndex(next ? 0 : -1);
-    },
-    [setOpenState],
-  );
-
-  const registerItem = useCallback(() => {
-    const index = itemCountRef.current;
-    itemCountRef.current += 1;
-    return index;
-  }, []);
+  const setOpenStable = useCallback((next: boolean) => setOpen(next), [setOpen]);
 
   const value = useMemo<MenuContextValue>(
     () => ({
       open,
-      setOpen,
-      activeIndex,
-      setActiveIndex,
-      itemCount: itemCountRef.current,
-      registerItem,
+      setOpen: setOpenStable,
+      contentId,
       triggerRef,
+      placement,
+      offset,
+      accessibilityLabel,
     }),
-    [open, setOpen, activeIndex, registerItem],
+    [open, setOpenStable, contentId, placement, offset, accessibilityLabel],
   );
 
   return <MenuContext.Provider value={value}>{children}</MenuContext.Provider>;
@@ -52,17 +51,24 @@ function MenuRoot({ open: openProp, defaultOpen = false, onOpenChange, children 
 /**
  * @platform shared
  *
- * Compound de menu de ações. `Menu.Root` mantém `open`/`activeIndex` para
- * navegação por teclado; itens auto-registram-se no contexto via
- * `registerItem` (definindo `activeIndex` ao abrir). `Trigger` é o botão que
- * abre o menu; `Content` é a lista montada em `Portal`; `Item` representa
- * uma ação clicável; `Separator` divide grupos visualmente; `Label` é
- * cabeçalho não-interativo de seção. Usa nomenclatura canônica `open`
+ * Menu — painel não-modal ancorado ao trigger com lista de ações navegável por
+ * teclado. Diferente de `Dialog`, não bloqueia interação com a UI subjacente:
+ * clicar fora apenas fecha (via `DismissableLayer`). Usa `open`/`onOpenChange`
  * (RFC-0013/RFC-0030).
+ *
+ * Posiciona-se relativo ao trigger via `placement` (`top`/`bottom`/`left`/
+ * `right`, default `bottom`) com flip automático quando não cabe no viewport e
+ * clamp para manter o painel dentro da tela. Ao abrir, o foco vai para o
+ * primeiro item habilitado; `ArrowDown`/`ArrowUp` navegam (pulam disabled);
+ * `Home`/`End` saltam para o primeiro/último habilitado; `Enter`/`Space`
+ * selecionam; `Escape` ou clique fora fecham. Foco é restaurado para o
+ * trigger ao fechar.
  *
  * @example
  * <Menu>
- *   <Menu.Trigger>Mais</Menu.Trigger>
+ *   <Menu.Trigger asChild>
+ *     <Button variant="ghost">Mais</Button>
+ *   </Menu.Trigger>
  *   <Menu.Content>
  *     <Menu.Label>Ações</Menu.Label>
  *     <Menu.Item onSelect={duplicate}>Duplicar</Menu.Item>

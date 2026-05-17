@@ -1,13 +1,16 @@
 import { Box } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+
+type MenuSlots = 'content' | 'item' | 'label' | 'separator';
 
 export function MenuSeparator() {
+  const slots = useSlotRecipe<MenuSlots>('menu', {});
+
   return (
     <Box
-      as="li"
+      as="div"
       role="separator"
-      height={1}
-      marginY="tiny"
-      backgroundColor="border.default"
+      {...(slots.separator as Record<string, unknown>)}
     />
   );
 }

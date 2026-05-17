@@ -13,6 +13,8 @@ export { drawer } from './drawer';
 export { field } from './field';
 export { fileUpload } from './file-upload';
 export { input } from './input';
+export { menu } from './menu';
+export { popover } from './popover';
 export { progressBar } from './progress-bar';
 export { progressCircle } from './progress-circle';
 export { radio } from './radio';

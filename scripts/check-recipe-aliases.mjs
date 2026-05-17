@@ -18,15 +18,18 @@ const aliasesUsed = new Set(
 const componentsDir = resolve(ROOT, 'src/foundations/tokens/components');
 const tokenFiles = [
   'accordion','alert','avatar','badge','button','card','carousel','checkbox',
-  'chip','dialog','drawer','field','input','radio','select','switch','tabs','tag','toast','tooltip',
+  'chip','counter','dialog','drawer','field','file-upload','input','menu','popover',
+  'progress-bar','progress-circle','radio','select','switch','tabs','tag','toast','tooltip',
 ];
+
+const kebabToCamel = (s) => s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 
 const tokens = {};
 for (const name of tokenFiles) {
   const src = readFileSync(resolve(componentsDir, `${name}.ts`), 'utf-8');
   const match = src.match(/export const \w+ = (\{[\s\S]*?\n\});/);
   if (!match) { console.error(`✗ falha ao parsear ${name}.ts`); process.exit(1); }
-  tokens[name] = eval(`(${match[1]})`);
+  tokens[kebabToCamel(name)] = eval(`(${match[1]})`);
 }
 
 // 1. Aliases usados resolvem?

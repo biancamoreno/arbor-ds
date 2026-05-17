@@ -5,5 +5,6 @@ export { useComposedRefs } from './use-composed-refs';
 export { Portal } from './portal/portal';
 export { Presence } from './presence/presence';
 export { FocusScope } from './focus-scope/focus-scope';
+export { useRestoreFocus } from './focus-scope/use-restore-focus';
 export { DismissableLayer } from './dismissable-layer/dismissable-layer';
 export { OverlayStack, useOverlayStack } from './overlay-stack/overlay-stack';

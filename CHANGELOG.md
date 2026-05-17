@@ -2,7 +2,80 @@
 
 ## Unreleased
 
+### Breaking
+
+- **`Menu.Content` perdeu a prop `label`.** O rótulo de acessibilidade do menu agora é canônico no root (`<Menu accessibilityLabel="..." />`) — alinhado a Popover/Tooltip e ao vocabulário cross-platform (`accessibilityLabel` RN-first). Migração mecânica:
+  ```tsx
+  // Antes
+  <Menu>
+    <Menu.Trigger>…</Menu.Trigger>
+    <Menu.Content label="Menu de ações">…</Menu.Content>
+  </Menu>
+  // Agora
+  <Menu accessibilityLabel="Menu de ações">
+    <Menu.Trigger>…</Menu.Trigger>
+    <Menu.Content>…</Menu.Content>
+  </Menu>
+  ```
+
+### Added
+
+- **Menu — `Menu.Item` ganha `startIcon` / `endIcon` / `tone` + `onSelect` recebe event com `preventDefault`.** Trio de melhorias mata anti-pattern frequente e completa o gap APG:
+  - **`startIcon` / `endIcon: IconName | ReactElement`** — string vira `<Icon>` themado por `menu.item.iconSize` / `menu.item.colors.icon` (consumer não precisa montar `<Flex><Icon/>...</Flex>` à mão); ReactElement passa direto para casos custom. Quando o item não tem ícone, o layout interno fica enxuto (sem wrapper extra) — preserva a árvore ARIA limpa.
+  - **`tone: 'default' | 'critical'`** — `'critical'` aplica `menu.item.colors.criticalText` + `criticalBackgroundHover/Active/Pressed`. Cobre o caso universal "Excluir / Remover / Permanentemente" sem hardcoded color no consumer. Tom é themable (cada produto override `feedback.critical.*` cascateia automaticamente). `compoundVariant` garante que `disabled` vence `tone` — item destrutivo desabilitado fica cinza, não vermelho.
+  - **`onSelect` recebe `MenuItemSelectEvent`** com `preventDefault()` e `defaultPrevented`. Chamando `preventDefault()`, o menu **não** fecha após a seleção — viabiliza items de toggle ("Mostrar grade", "Modo escuro", "Snap à grade") onde múltiplas alternâncias seguidas são naturais. Pattern equivalente ao Radix.
+  - **`Menu.Trigger` ganha keyboard activation APG** — `ArrowDown` / `ArrowUp` / `Enter` / `Space` no trigger fechado abrem o menu (com foco indo pro 1º item habilitado via `MenuContent`). Antes só click abria. Cobre o usuário keyboard-first.
+  - **`Menu.Trigger` (`asChild`) respeita `disabled` do child** — `<Menu.Trigger asChild><button disabled>...</button></Menu.Trigger>` não dispara `setOpen`. Pequeno typeguard que evita comportamento incoerente quando um botão desabilitado vira trigger via `asChild`.
+  - **`menu.item.colors.icon`** novo (default `icon.secondary`) — ícone themado independente do texto.
+
+  Sete testes novos cobrem: `onSelect.preventDefault keeps menu open`, `onSelect without preventDefault closes menu`, `ArrowDown/ArrowUp on closed trigger opens menu`, `disabled trigger child does not open menu`, `tone=critical renders without crash`, `startIcon as IconName renders Icon component`.
+
+- **Menu — `menu.label.typography` themable, `menu.item.iconSize` themable, tokens para `colors.icon` / `colors.critical*`.** Tokens novos no `menu.ts`:
+  - `menu.label.typography.{fontSize,fontWeight,letterSpacing,textTransform}` — recipe `label` consome aliases; `Text` wrapper do `MenuLabel` removido (web) ou aplica props themadas explícitas (native). Override via `createTheme({ components: { menu: { label: { typography: {...} } } } })`.
+  - `menu.item.iconSize` (default `'small'`) — controla tamanho dos `startIcon`/`endIcon` em escala única themable.
+  - `menu.item.colors.{icon,criticalText,criticalIcon,criticalBackgroundHover,criticalBackgroundActive,criticalBackgroundPressed}` — paleta completa para o tom destrutivo.
+
+- **Menu — story `Theming — Densidade (compact / comfortable / spacious)`** lado a lado, demonstrando que **todo o espaçamento interno** (`padding`, `gap`, `item.padding`, `item.minHeight`, `separator.marginBlock`) é themable via `createTheme`. Aninhe um `<ArborProvider theme={...}>` para aplicar densidade em escopo limitado — pattern já nativo do `ArborProvider`.
+
+- **Menu — stories `WithIcons`, `DestructiveItem`, `KeepOpenToggle`, `KeyboardNavigation`** documentando os patterns novos. `KeyboardNavigation` inclui cheat sheet de todos os atalhos APG (Tab / Arrow / Home / End / Enter / Space / Esc).
+
+- **Menu (native) — `scroll-to-active` automático.** Quando o `activeIndex` muda (ex: screen reader navegando via TalkBack/VoiceOver), `MenuItem.native` mede sua posição via `measureLayout` dentro do `ScrollView` interno e aciona `scrollTo({ y: itemY - 16, animated: true })`. Mantém o item navegado sempre visível em menus longos.
+
+### Changed
+
+- **Menu separator spacing** — `menu.gap` default vai de `'micro'` (8px) para `'none'` (0). Antes, items consecutivos tinham gap 8px mas items separados por `Menu.Separator` somavam gap + marginBlock = ~40px (inconsistência visual berrante entre item↔item e item↔separator↔item). Agora items ficam colados (hover/active background diferencia visualmente) e o **separador** é o único elemento que cria respiro deliberado — pattern Radix. Override via `createTheme({ components: { menu: { gap: 'micro' } } })` se você prefere o comportamento anterior.
+
+- **Menu — itens usam `<Text>` do DS; trigger usa `<Icon name="ChevronDown">`; feedback hover/active/pressed sutil e sóbrio.** Três ajustes que alinham o Menu ao direcional canônico:
+  - **`<Text>` wrapper automático no `Menu.Item`** (web + native): children string passa a ser envolvido em `<Text variant="bodyMedium">` — paridade com o pattern Tabs/Accordion (memória PCV-28: trigger ganha wrapper Text em web E native). ReactNode children continua passando direto (consumer compõe `<Flex><Icon/><Text/></Flex>` etc.). Tipografia themada via `text.variants.bodyMedium` (canal global de identidade tipográfica). **Drop** dos tokens `menu.item.fontSize` e `menu.item.lineHeight` (recipe não emite mais — Text variant governa).
+  - **Stories de trigger ganham `<Icon name="ChevronDown">`** no lugar do caractere literal "▾". Padrão correto do DS: componentes do Arbor são usados sempre que possível, ASCII art não. Exemplo:
+    ```tsx
+    <TriggerButton>
+      <Flex gap="micro" alignItems="center">
+        <Text as="span" variant="bodyMedium">Ações</Text>
+        <Icon name="ChevronDown" size="small" />
+      </Flex>
+    </TriggerButton>
+    ```
+  - **Recipe `menu.item` ganha `_active`** (mouse pressed) com `backgroundColor: '$menu.item.colors.backgroundPressed'`. Hover/focus continuam em `background.subtle` (sutil — não é o eixo de feedback do clique); pressed escurece para `background.muted`. Três estados visuais distintos, todos via tokens themables. **Bug colateral fixado**: `menu.item.colors.backgroundHover` e `backgroundActive` apontavam para `surface.subtle` (alias inexistente — engine resolvia silenciosamente para `undefined`, ou seja, sem feedback visual algum). Agora apontam para `background.subtle` (canônico do DS, padrão usado por Accordion/Alert/Avatar). **Novo token**: `menu.item.colors.backgroundPressed: 'background.muted'`. Régua sóbria mantida — `transition` `fast` (120ms) no `background-color`, sem translate/scale.
+
+  Sem breaking de API. Suite 1207→**1209** verde (+2: `wraps string children in Text`, `preserves ReactNode children without extra wrapper`).
+
 ### Fixed
+
+- **Menu — keyboard navigation e foco inicial quebrados (regressão crítica de a11y).** Quatro bugs do `Menu` cobertos por testes de regressão dedicados:
+  - **B1**: `itemCount` no context era lido do `useRef.current` no momento do `useMemo` — sempre `0` no primeiro abrir, o que fazia `handleKeyDown` retornar cedo e bloquear `ArrowDown`/`ArrowUp`/`Home`/`End` na primeira interação. Refatorado para gerência DOM-first: `MenuContent` resolve a lista de items habilitados via `querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])')` no momento da tecla. Eliminados `registerItem`, `itemCount`, `activeIndex`, `setActiveIndex` do context web (mantidos no native onde DOM não existe).
+  - **B2**: foco inicial nunca ia para o primeiro item — `MenuItem.indexRef.current === -1` no primeiro render, `isActive` calculava `false`, e o `useEffect [isActive]` não re-disparava porque o `registerItem` em `useEffect` não causava re-render. Substituído por `useEffect [mounted]` no `MenuContent` que chama `getEnabledItems(contentRef).0?.focus()` num `requestAnimationFrame` após o posicionamento — garante que o primeiro item habilitado recebe foco em todo abrir.
+  - **B3**: `<FocusScope restoreFocus>` envolvia children num `<div tabIndex={-1}>` entre `role="menu"` e os `role="menuitem"`, quebrando a árvore WAI-ARIA do menu (NVDA/JAWS podiam reportar 0 menuitems). Extraído novo primitivo `useRestoreFocus()` em `ecosystem/primitives/focus-scope/use-restore-focus.{ts,native.ts}` — salva `document.activeElement` no mount, restaura no unmount, sem injetar elemento. `MenuContent` consome diretamente; teste de regressão garante que filhos diretos de `role="menu"` são apenas `menuitem`/`separator`/`presentation`/`group`.
+  - **B4**: `itemCountRef` crescia sem reset em remounts condicionais (`{cond && <Menu.Item/>}`), produzindo índices furados e `activeIndex` apontando pra item morto. Web: bug eliminado por construção (sem registry). Native: `setOpen(false)` zera `itemsRef.current` e o registry passa por `useLayoutEffect` (não `useEffect`) para `indexRef` estar correto antes do primeiro paint.
+  - **B5**: `Trigger` não enviava `aria-controls` apontando para o id do content. Agora `aria-controls={contentId}` quando `open=true`; equivalente no native via `accessibilityLabelledBy={contentId}`.
+
+  **Saneamentos colaterais aplicados no mesmo PR:**
+  - `aria-orientation="vertical"` agora explícito no `role="menu"` web (APG).
+  - `MenuContent.handleKeyDown` em `Tab` agora chama `e.preventDefault()` + `setOpen(false)` (APG: fecha + foco volta ao trigger via `useRestoreFocus`; sem o `preventDefault`, browser saltava foco a partir do item antes do restore).
+  - Recipe `menu`: axis `state: 'active'` removido (virou dead code com a refator — `_focusVisible` da base agora cobre o feedback). `state: 'disabled'` ganhou override `_focusVisible: { backgroundColor: 'transparent' }` para item disabled focado não ficar visualmente igual a active.
+  - Scrim nativo: removido `accessibilityLabel="close"` hardcoded em inglês (não é botão, é gesto). Screen reader anuncia apenas o conteúdo do menu.
+
+  Sete testes de regressão novos cobrem cada bug. Suite 1200→**1207** verde.
 
 - **Toast placement bug — singleton Toaster com stack por placement.** Antes, qualquer `<Toaster placement="..." />` consumia o store inteiro e renderizava todos os toasts ativos, então um único `toast()` aparecia simultaneamente em todos os `<Toaster />` montados. Corrigido reposicionando placement como propriedade do item de toast, não da montagem do container. `ToastItem` e `ToastInput` ganham `placement?: ToastPlacement`; `Toaster` agrupa os items do store por placement e renderiza um stack por placement ativo. A prop `<Toaster placement>` é preservada com o mesmo nome, agora com semântica de **fallback** — toasts disparados sem `placement` próprio caem nessa posição. Uso canônico:
   ```tsx

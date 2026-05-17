@@ -792,6 +792,181 @@ const recipes: ThemeRecipes = {
     defaultVariants: {},
   }),
 
+  popover: defineSlotRecipe({
+    slots: ['content', 'close'] as const,
+    base: {
+      content: {
+        position: 'fixed',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$popover.gap',
+        minWidth: '$popover.minWidth',
+        maxWidth: '$popover.maxWidth',
+        borderRadius: '$popover.borderRadius',
+        borderWidth: '$popover.borderWidth',
+        borderStyle: 'solid',
+        borderColor: '$popover.colors.border',
+        paddingInline: '$popover.padding.inline',
+        paddingBlock: '$popover.padding.block',
+        backgroundColor: '$popover.colors.background',
+        color: '$popover.colors.text',
+        boxShadow: '$popover.shadow',
+        outline: 'none',
+        _focusVisible: focusRing,
+      },
+      close: {
+        position: 'absolute',
+        top: 'xsmall',
+        right: 'xsmall',
+        flexShrink: 0,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '$popover.close.size',
+        height: '$popover.close.size',
+        padding: 0,
+        borderWidth: 0,
+        borderRadius: '$popover.close.borderRadius',
+        backgroundColor: 'transparent',
+        color: '$popover.close.colors.icon',
+        cursor: 'pointer',
+        transition: transition(['background-color', 'color'], 'fast'),
+        _hover: {
+          backgroundColor: '$popover.close.colors.backgroundHover',
+          color: '$popover.close.colors.iconHover',
+        },
+        _focusVisible: focusRing,
+        _before: {
+          content: '""',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '$popover.close.minTouch',
+          minHeight: '$popover.close.minTouch',
+        },
+      },
+    },
+    variants: {},
+    defaultVariants: {},
+  }),
+
+  menu: defineSlotRecipe({
+    slots: ['content', 'item', 'label', 'separator'] as const,
+    base: {
+      content: {
+        position: 'fixed',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$menu.gap',
+        minWidth: '$menu.minWidth',
+        maxWidth: '$menu.maxWidth',
+        borderRadius: '$menu.borderRadius',
+        borderWidth: '$menu.borderWidth',
+        borderStyle: 'solid',
+        borderColor: '$menu.colors.border',
+        paddingInline: '$menu.padding.inline',
+        paddingBlock: '$menu.padding.block',
+        backgroundColor: '$menu.colors.background',
+        color: '$menu.colors.text',
+        boxShadow: '$menu.shadow',
+        outline: 'none',
+      },
+      item: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '$menu.item.gap',
+        minHeight: '$menu.item.minHeight',
+        paddingInline: '$menu.item.padding.inline',
+        paddingBlock: '$menu.item.padding.block',
+        borderRadius: '$menu.item.borderRadius',
+        color: '$menu.item.colors.text',
+        cursor: 'pointer',
+        outline: 'none',
+        transition: transition(['background-color', 'color'], 'fast'),
+        _hover: {
+          backgroundColor: '$menu.item.colors.backgroundHover',
+        },
+        _focusVisible: {
+          backgroundColor: '$menu.item.colors.backgroundActive',
+        },
+        _active: {
+          backgroundColor: '$menu.item.colors.backgroundPressed',
+        },
+      },
+      label: {
+        display: 'flex',
+        alignItems: 'center',
+        paddingInline: '$menu.label.padding.inline',
+        paddingBlock: '$menu.label.padding.block',
+        color: '$menu.label.colors.text',
+        fontFamily: 'sans',
+        fontSize: '$menu.label.typography.fontSize',
+        fontWeight: '$menu.label.typography.fontWeight',
+        letterSpacing: '$menu.label.typography.letterSpacing',
+        textTransform: '$menu.label.typography.textTransform',
+      },
+      separator: {
+        marginBlock: '$menu.separator.marginBlock',
+        borderStyle: 'solid',
+        borderTopWidth: '$menu.separator.width',
+        borderTopColor: '$menu.separator.color',
+        borderBottomWidth: 0,
+        borderLeftWidth: 0,
+        borderRightWidth: 0,
+      },
+    },
+    variants: {
+      state: {
+        idle: {},
+        disabled: {
+          item: {
+            color: '$menu.item.colors.textDisabled',
+            cursor: 'not-allowed',
+            _hover: {
+              backgroundColor: 'transparent',
+            },
+            _focusVisible: {
+              backgroundColor: 'transparent',
+            },
+            _active: {
+              backgroundColor: 'transparent',
+            },
+          },
+        },
+      },
+      tone: {
+        default: {},
+        critical: {
+          item: {
+            color: '$menu.item.colors.criticalText',
+            _hover: {
+              backgroundColor: '$menu.item.colors.criticalBackgroundHover',
+            },
+            _focusVisible: {
+              backgroundColor: '$menu.item.colors.criticalBackgroundActive',
+            },
+            _active: {
+              backgroundColor: '$menu.item.colors.criticalBackgroundPressed',
+            },
+          },
+        },
+      },
+    },
+    compoundVariants: [
+      // Disabled vence tone — item desativado ignora critical.
+      {
+        conditions: { state: 'disabled', tone: 'critical' },
+        style: {
+          item: {
+            color: '$menu.item.colors.textDisabled',
+          },
+        },
+      },
+    ],
+    defaultVariants: { state: 'idle', tone: 'default' },
+  }),
+
   badge: defineSlotRecipe({
     slots: ['root', 'label', 'icon'] as const,
     base: {

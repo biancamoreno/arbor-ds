@@ -2465,6 +2465,103 @@ Stories candidatas em `src/components/carousel/core/carousel.stories.tsx`:
 
 ---
 
+## TD-046 — Menu sem `CheckboxItem` / `RadioItem` / `Sub`
+
+**Origem:** Auditoria crítica do Menu (2026-05-17), sessão de fechamento componente.
+**Status:** Open
+**Severidade:** Média
+
+### Contexto
+O WAI-ARIA APG Menu pattern prevê três tipos de item além do `menuitem` plano:
+- `menuitemcheckbox` (`role="menuitemcheckbox"` + `aria-checked`) — toggle persistente
+- `menuitemradio` (`role="menuitemradio"` + `aria-checked` + `RadioGroup`) — escolha exclusiva
+- Submenus (`Menu.Sub` + `Menu.SubTrigger` + `Menu.SubContent`) — menus aninhados
+
+Hoje o Menu cobre só `menuitem` plano + `Menu.Item.tone='critical'` + `onSelect` com `preventDefault` (workaround pra toggles). Para "Modo escuro / Layout / Idioma" o pattern Radix com `CheckboxItem`/`RadioItem` é mais ergonômico (`checked` controlado, indicator visual canônico).
+
+### Impacto
+- DX: consumer força workaround com `preventDefault` + `startIcon={checked ? 'Check' : 'Minus'}` para simular checkbox/radio.
+- A11y: sem `role="menuitemcheckbox"` / `aria-checked`, screen reader reporta como menuitem comum — usuário não percebe a semântica de toggle.
+- Surface area: sem submenus, padrões de "Inserir → (sub) Tabela / Imagem / Link" requerem o consumer compor manualmente (Popover dentro de Popover) ou usar componente diferente.
+
+### Resolução proposta
+Abrir **RFC dedicada** (estimativa: RFC-0045 Menu Variants) cobrindo:
+1. `Menu.CheckboxItem` (`checked` controlado/uncontrolled + `onCheckedChange`) — indicator via `Icon name="Check"` themado.
+2. `Menu.RadioGroup` + `Menu.RadioItem` (compartilham `value` + `onValueChange`).
+3. `Menu.Sub` + `Menu.SubTrigger` + `Menu.SubContent` — sub-menu lateral com seu próprio placement (`right-start`), gestão de foco anexa ao parent, fecha cascateadamente.
+4. Pseudo-componente `MenuItemIndicator` para `CheckboxItem`/`RadioItem` (slot reservado pra ícone de marcação) — themable via `menu.item.indicator.*`.
+
+### Critério para fechar
+- [ ] RFC merged
+- [ ] `Menu.CheckboxItem` + `Menu.RadioItem` web + native com testes
+- [ ] `Menu.Sub` web + native (native pode usar bottom-sheet aninhado em vez de side menu)
+- [ ] Stories cobrindo cada padrão + APG checklist passando
+- [ ] Sem regressão de bundle size (componente opcional / tree-shake-friendly)
+
+---
+
+## TD-047 — Menu sem typeahead
+
+**Origem:** Auditoria crítica do Menu (2026-05-17).
+**Status:** Open
+**Severidade:** Baixa
+
+### Contexto
+WAI-ARIA APG Menu pattern especifica que digitar uma letra deve focar o primeiro item cujo texto começa com aquela letra (typeahead, igual ao `<select>` nativo). Digitar várias letras em sequência rápida acumula no buffer (digitar `du` foca "Duplicar" pulando "Excluir").
+
+Hoje o Menu não tem typeahead — usuário precisa Arrow para chegar até o item desejado, mesmo em menus de 10+ items.
+
+### Impacto
+- DX (end-user): em menus longos (>10 items), navegação por seta vira tediosa. Power user perde produtividade.
+- Paridade APG: gap conhecido em relação ao pattern oficial.
+- Acessibilidade: usuários com mobilidade reduzida que dependem de teclado se beneficiam diretamente.
+
+### Resolução proposta
+Hook reutilizável `useTypeahead({ items, onMatch })` em `ecosystem/primitives/`:
+- Buffer com timeout de 500ms (RFC original APG).
+- Match case-insensitive + ignora acentos (NFD).
+- Aplicação no `MenuContent.handleKeyDown` quando `e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey`.
+- Lista de items extraída do mesmo `getEnabledItems(contentRef)` que já usamos para Arrow.
+
+Compartilhável com `Select` e qualquer outro componente listbox-like.
+
+### Critério para fechar
+- [ ] Hook `useTypeahead` em `primitives/` com testes.
+- [ ] Integrado no Menu web (native é low-priority — keyboard menos relevante em mobile).
+- [ ] Story `KeyboardNavigation` documenta o typeahead.
+- [ ] Buffer não interfere com Tab/Esc/Arrow/Home/End.
+
+---
+
+## TD-048 — Menu motion (duração/easing) não-themable na recipe
+
+**Origem:** Auditoria crítica do Menu (2026-05-17).
+**Status:** Open
+**Severidade:** Baixa
+
+### Contexto
+A microinteração de fade+scale do `MenuContent` é hardcoded como `TRANSITION_MS = 160` + `cubic-bezier(0.16, 1, 0.3, 1)` (régua sóbria canônica). Isso está coerente com o direcional default do DS, mas um produto que ativa `createTheme({ presets: { motion: 'expressive' } })` ou que quer override pontual (`motion.duration.menu`) não consegue atingir o Menu — a constante é módulo-level.
+
+Mesmo gap existe em Popover e Tooltip (não exclusivo do Menu).
+
+### Impacto
+- Tematização: vaza o eixo "motion" da proposta de valor multi-produto. Produto expressivo não pode acelerar/desacelerar microinterações do Menu via tema.
+- Consistência: produto com `presets.motion='minimal'` ainda terá 160ms no Menu (deveria cair para `fast`).
+
+### Resolução proposta
+- Adicionar `motion: { duration, easing, scaleFrom }` no token `menu.ts`.
+- `MenuContent` lê de `theme.components.menu.motion.*` via `useTheme`.
+- `usePrefersReducedMotion` continua tendo prioridade absoluta.
+- Resolução paralela em `popover.ts` e `tooltip.ts` para consistência cross-overlay (escopo desta TD ou RFC dedicada cobrindo os 3).
+
+### Critério para fechar
+- [ ] Token + recipe + leitura em runtime em Menu/Popover/Tooltip.
+- [ ] `createTheme({ presets: { motion: 'minimal' } })` muda microinteração nos 3 componentes.
+- [ ] Story de Theming demonstra override.
+- [ ] Sem regressão visual com defaults atuais.
+
+---
+
 ## Backlog de RFCs candidatas R6 (não bloqueantes para R7)
 
 Mapeamento das demais 2 candidatas R6 que **não** viraram TD nem RFC nesta rodada. Abrir RFC formal **quando o gatilho descrito ocorrer** — não especular agora.

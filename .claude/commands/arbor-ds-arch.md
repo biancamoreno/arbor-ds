@@ -950,6 +950,102 @@ Ela deve ajudar:
 - quem testa
 - quem faz onboarding
 
+### Padrão canônico de stories (referência: Menu)
+
+> **Referência viva**: `src/components/menu/core/menu.stories.tsx`. Toda story nova deve mirar esse molde antes de copiar de outros componentes mais antigos.
+
+Toda story de componente cross-platform deve cobrir, no mínimo, **as 7 dimensões** abaixo. Falta de uma é gap — não desculpa.
+
+| # | Story | Propósito | Exemplo (Menu) |
+|---|---|---|---|
+| 1 | **Default** | Uso minimal idiomático — copy/paste funciona | `<Menu><Menu.Trigger asChild><TriggerButton>...</TriggerButton></Menu.Trigger><Menu.Content>...</Menu.Content></Menu>` |
+| 2 | **Anatomia** | `defaultOpen` mostrando todos os slots juntos (Label/Separator/Item disabled) — radiografia visual | `Menu defaultOpen` com Label + 2 Items + Separator + Item disabled |
+| 3 | **Variações por axis** | Uma story por axis significativo: `Placements`, `Sections`, `WithIcons`, `Tone`, `Sizes` etc. — uma axis por story, não combinar | `Placements`, `Sections`, `WithIcons`, `DestructiveItem` |
+| 4 | **Comportamento de borda** | Flip/clamp/overflow/portal/edge — onde o consumer percebe que "o componente cuida" | `FlipNearViewportEdge`, `InsideOverflowClip` |
+| 5 | **APIs avançadas** | `Controlled` (open/onOpenChange) + `AdvancedCompound` (`.Root`) — para layouts não-triviais | `Controlled`, `AdvancedCompound` |
+| 6 | **Patterns reais** | Cases que demonstram propriedades sutis (preventDefault, toggle, multi-action) | `KeepOpenToggle` (preventDefault em toggles) |
+| 7 | **Theming** | Pelo menos 2 stories: **densidade** (compact/comfortable/spacious lado a lado) + **completo** (cores/sombra/border via createTheme) — demonstra a proposta de valor multi-produto na cara | `ThemingDensity`, `Theming` |
+
+**Extra recomendado** (sempre que aplicável):
+- **KeyboardNavigation** — story com cheat sheet APG dos atalhos (especial para componentes keyboard-first: Menu, Select, Combobox, Listbox, Tabs).
+
+### Patterns de implementação de story
+
+**1. `TriggerButton` helper** — Componente cross-story para triggers em `asChild`. Usa `forwardRef` + spread `...rest` para que `cloneElement` injete props (`onClick`, `ref`, `aria-*`) sem engolir:
+
+```tsx
+const TriggerButton = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
+  function TriggerButton({ children, ...rest }, ref) {
+    return (
+      <Clickable
+        as="button" type="button"
+        paddingX="medium" paddingY="small" borderRadius="small"
+        backgroundColor="surface.default"
+        borderWidth="hairline" borderStyle="solid" borderColor="border.default"
+        innerRef={ref as React.Ref<HTMLButtonElement>}
+        {...rest}
+      >{children}</Clickable>
+    );
+  },
+);
+```
+
+Helper que apenas declara `children` (sem `...rest`) engole as props injetadas e quebra o trigger silenciosamente.
+
+**2. Composição de trigger usa componentes do DS, não ASCII art:**
+
+```tsx
+// ❌ Errado — caractere literal
+<TriggerButton>Ações ▾</TriggerButton>
+
+// ✅ Correto — Text + Icon do DS
+<TriggerButton>
+  <Flex gap="micro" alignItems="center">
+    <Text as="span" variant="bodyMedium">Ações</Text>
+    <Icon name="ChevronDown" size="small" />
+  </Flex>
+</TriggerButton>
+```
+
+**3. Story `Controlled` usa controle direcional, não toggle:**
+
+```tsx
+// ❌ Errado — toggle externo entra em conflito com DismissableLayer
+<Button onClick={() => setOpen(!open)}>Toggle</Button>
+
+// ✅ Correto — botões direcionais separados
+{open
+  ? <Button onClick={() => setOpen(false)}>Fechar</Button>
+  : <Button onClick={() => setOpen(true)}>Abrir</Button>
+}
+```
+
+**4. Story `ThemingDensity` usa `<ArborProvider theme={...}>` aninhado por sample:**
+
+```tsx
+function DensitySample({ label, theme }: { label: string; theme: typeof themeLight }) {
+  return (
+    <ArborProvider theme={theme}>
+      <Menu defaultOpen>...</Menu>
+    </ArborProvider>
+  );
+}
+// Render lado a lado: compact / comfortable (default) / spacious
+```
+
+Isso demonstra ao consumer que `ArborProvider` aninhado é o pattern oficial para escopo limitado — sem necessidade de prop `density` por instância.
+
+**5. Story `KeyboardNavigation` inclui cheat sheet inline** — não delega ao MDX externo. Atalhos APG ficam visíveis lado a lado com o componente funcional para teste imediato.
+
+### Anti-patterns em stories
+
+- **Caractere literal Unicode** (`▾`, `✓`, `›`, `▸`) onde deveria ser `<Icon name="..." />`.
+- **`<button style={{...}}>` cru** — viola "Nunca usar tags HTML diretamente" + "Nunca usar `style={}` quando há prop declarativa".
+- **Stories de "vitrine de escala"** — `<>Sizes: small + medium + large</>` lado a lado sem propósito didático além de mostrar o axis (a recipe já documenta isso; a story precisa contar o **porquê** de cada tamanho). Padrão #6 dos PCV patterns.
+- **`Theming` story que muda só uma cor** — não cumpre a missão. Theming story canônica overrida múltiplos eixos (cores + sombra + offset + borderRadius + padding) para demonstrar a profundidade do contrato themable.
+- **Mockar com `<Flex><Icon/><Text/></Flex>` ad-hoc dentro de items** quando o componente expõe `startIcon`/`endIcon` — mata DX da API canônica. Se o componente **não** tem essas props ainda, isso é gap de API, não escolha de story.
+- **Mistura de axes na mesma story** (ex: `Placements + Tone + Disabled` numa só) — confunde o leitor. Uma axis por story.
+
 ---
 
 ## Governance Requirements

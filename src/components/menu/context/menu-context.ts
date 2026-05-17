@@ -1,13 +1,14 @@
 import { createContext, useContext, type MutableRefObject } from 'react';
+import type { MenuPlacement } from '../utils/position';
 
 export type MenuContextValue = {
   open: boolean;
   setOpen: (next: boolean) => void;
-  activeIndex: number;
-  setActiveIndex: (index: number) => void;
-  itemCount: number;
-  registerItem: () => number;
+  contentId: string;
   triggerRef: MutableRefObject<HTMLElement | null>;
+  placement: MenuPlacement;
+  offset?: number;
+  accessibilityLabel?: string;
 };
 
 export const MenuContext = createContext<MenuContextValue | null>(null);
