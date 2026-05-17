@@ -17,14 +17,14 @@ function renderPopover(ui: React.ReactElement) {
 describe('Popover', () => {
   it('renders trigger and no content when closed', () => {
     renderPopover(
-      <Popover.Root>
+      <Popover>
         <Popover.Trigger asChild>
           <button type="button">Open</button>
         </Popover.Trigger>
         <Popover.Content>
           <p>Popover content</p>
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     expect(screen.getByText('Open')).toBeTruthy();
@@ -33,14 +33,14 @@ describe('Popover', () => {
 
   it('opens when trigger is clicked', () => {
     renderPopover(
-      <Popover.Root>
+      <Popover>
         <Popover.Trigger asChild>
           <button type="button">Open</button>
         </Popover.Trigger>
         <Popover.Content>
           <p>Popover content</p>
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     fireEvent.click(screen.getByText('Open'));
@@ -50,14 +50,14 @@ describe('Popover', () => {
 
   it('closes when Escape is pressed', () => {
     renderPopover(
-      <Popover.Root>
+      <Popover>
         <Popover.Trigger asChild>
           <button type="button">Open</button>
         </Popover.Trigger>
         <Popover.Content>
           <p>Popover content</p>
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     fireEvent.click(screen.getByText('Open'));
@@ -71,15 +71,15 @@ describe('Popover', () => {
 
   it('closes via Close button', () => {
     renderPopover(
-      <Popover.Root>
+      <Popover>
         <Popover.Trigger asChild>
           <button type="button">Open</button>
         </Popover.Trigger>
         <Popover.Content>
           <p>Content</p>
-          <Popover.Close label="Fechar popover" />
+          <Popover.Close accessibilityLabel="Fechar popover" />
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     fireEvent.click(screen.getByText('Open'));
@@ -91,27 +91,54 @@ describe('Popover', () => {
     const onOpenChange = jest.fn();
 
     renderPopover(
-      <Popover.Root open onOpenChange={onOpenChange}>
+      <Popover open onOpenChange={onOpenChange}>
         <Popover.Content>
-          <Popover.Close label="Fechar" />
+          <Popover.Close accessibilityLabel="Fechar" />
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     fireEvent.click(screen.getByLabelText('Fechar'));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it('respects placement prop', () => {
+    renderPopover(
+      <Popover defaultOpen placement="top">
+        <Popover.Trigger asChild>
+          <button type="button">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <p>Content</p>
+        </Popover.Content>
+      </Popover>,
+    );
+
+    expect(screen.getByRole('dialog')).toBeTruthy();
+  });
+
+  it('uses accessibilityLabel as aria-label', () => {
+    renderPopover(
+      <Popover defaultOpen accessibilityLabel="Filtros aplicados">
+        <Popover.Content>
+          <p>Filtros</p>
+        </Popover.Content>
+      </Popover>,
+    );
+
+    expect(screen.getByLabelText('Filtros aplicados')).toBeTruthy();
+  });
+
   it('toggles open/close on subsequent trigger clicks', () => {
     renderPopover(
-      <Popover.Root>
+      <Popover>
         <Popover.Trigger asChild>
           <button type="button">Open</button>
         </Popover.Trigger>
         <Popover.Content>
           <p>Popover content</p>
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     const trigger = screen.getByText('Open');
@@ -125,14 +152,14 @@ describe('Popover', () => {
 
   it('pointerdown on trigger does not dismiss the open layer', () => {
     renderPopover(
-      <Popover.Root>
+      <Popover>
         <Popover.Trigger asChild>
           <button type="button">Open</button>
         </Popover.Trigger>
         <Popover.Content>
           <p>Popover content</p>
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     const trigger = screen.getByText('Open');
@@ -145,11 +172,11 @@ describe('Popover', () => {
 
   it('renders with defaultOpen=true', () => {
     renderPopover(
-      <Popover.Root defaultOpen>
+      <Popover defaultOpen>
         <Popover.Content>
           <p>Default open content</p>
         </Popover.Content>
-      </Popover.Root>,
+      </Popover>,
     );
 
     expect(screen.getByRole('dialog')).toBeTruthy();

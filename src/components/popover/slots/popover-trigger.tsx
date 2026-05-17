@@ -1,27 +1,25 @@
 import React from 'react';
-import { Clickable } from '../../core';
+import { Box } from '../../core';
 import { mergeRefs } from '../../../ecosystem/utils/functions';
 import { usePopoverContext } from '../context/popover-context';
 import type { PopoverTriggerProps } from '../interfaces/PopoverProps';
 
 type AnyProps = Record<string, unknown> & { ref?: React.Ref<HTMLElement> };
 
-export function PopoverTrigger({ children, asChild = false }: PopoverTriggerProps) {
-  const { open, setOpen, titleId, triggerRef } = usePopoverContext();
+export function PopoverTrigger({ children, asChild = true }: PopoverTriggerProps) {
+  const { open, setOpen, contentId, triggerRef } = usePopoverContext();
 
   const child = children as React.ReactElement<AnyProps>;
   const childOnClick = (child.props as AnyProps).onClick as ((e: React.MouseEvent) => void) | undefined;
 
-  const onClick = (e: React.MouseEvent) => {
-    childOnClick?.(e);
-    setOpen(!open);
-  };
-
   const triggerProps: AnyProps = {
     'aria-haspopup': 'dialog',
     'aria-expanded': open,
-    'aria-controls': titleId,
-    onClick,
+    'aria-controls': contentId,
+    onClick: (e: React.MouseEvent) => {
+      childOnClick?.(e);
+      setOpen(!open);
+    },
   };
 
   if (asChild) {
@@ -33,8 +31,8 @@ export function PopoverTrigger({ children, asChild = false }: PopoverTriggerProp
   }
 
   return (
-    <Clickable as="button" type="button" {...triggerProps} innerRef={triggerRef}>
+    <Box as="span" display="inline-flex" innerRef={triggerRef} {...(triggerProps as Record<string, unknown>)}>
       {children}
-    </Clickable>
+    </Box>
   );
 }

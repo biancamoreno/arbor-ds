@@ -1,12 +1,15 @@
 import React from 'react';
-import { Clickable } from '../../core';
+import { Clickable, Icon } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { usePopoverContext } from '../context/popover-context';
 import type { PopoverCloseProps } from '../interfaces/PopoverProps';
 
 type AnyProps = Record<string, unknown>;
+type PopoverSlots = 'content' | 'close';
 
-export function PopoverClose({ children, label = 'Fechar' }: PopoverCloseProps) {
+export function PopoverClose({ children, accessibilityLabel = 'Fechar' }: PopoverCloseProps) {
   const { setOpen } = usePopoverContext();
+  const slots = useSlotRecipe<PopoverSlots>('popover', {});
   const handleClose = () => setOpen(false);
 
   if (children) {
@@ -17,16 +20,11 @@ export function PopoverClose({ children, label = 'Fechar' }: PopoverCloseProps) 
     <Clickable
       as="button"
       type="button"
-      aria-label={label}
+      aria-label={accessibilityLabel}
       onClick={handleClose}
-      color="text.secondary"
-      fontSize="medium"
-      cursor="pointer"
-      padding={0}
-      backgroundColor="transparent"
-      style={{ lineHeight: 1 }}
+      {...(slots.close as Record<string, unknown>)}
     >
-      ✕
+      <Icon name="X" size="small" decorative />
     </Clickable>
   );
 }
