@@ -1,7 +1,7 @@
 # Review — `Spinner`
 
 **Fase:** R7 · **Camada:** `feedback` · **Status:** `concluído`
-**Revisor:** arbor-ds-architect · **Data:** 2026-05-02 · **Versão atual:** `1.0.0`
+**Revisor:** arbor-ds-arch · **Data:** 2026-05-02 · **Versão atual:** `1.0.0`
 
 ---
 

@@ -1,7 +1,7 @@
 # RFC-0031 — SP-1: alinhar `size` de componentes para `small | medium | large`
 
 **Status**: **Implementada (2026-05-03)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-05-02
 **Origem**: pattern sistêmico SP-1 catalogado nos reviews R7 (Spinner, Skeleton, Badge, ProgressBar, ProgressCircle) e R8 (Alert interno, Toast interno, Chip público) — 7 evidências sólidas.
 

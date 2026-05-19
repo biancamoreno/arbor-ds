@@ -1,7 +1,7 @@
 # RFC-0036 — Card: slot recipe + behavior split + paridade native
 
 **Status**: **Implemented (2026-05-03)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-05-03
 **Origem**: review R9 (achados CD-Bug-1/2/3, CD-Mod-1/2, CD-Hard-1/2, CD-Plat-1, CD-A11y-1).
 

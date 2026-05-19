@@ -1,7 +1,7 @@
 # RFC-0038 — Tabs: API canônica + slot recipe
 
 **Status**: **Draft (2026-05-03)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-05-03
 **Origem**: review R9 (achados TB-Style-1/2/3/4, TB-Mod-1/2/3/4, TB-A11y-1/2/3, TB-Plat-1/2/3).
 

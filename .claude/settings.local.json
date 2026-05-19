@@ -59,7 +59,22 @@
       "Bash(pnpm test:platform-contract --strict)",
       "Bash(curl *)",
       "Bash(echo \"EXIT=$?\")",
-      "Bash(pnpm test:feedback-tones)"
+      "Bash(pnpm test:feedback-tones)",
+      "Bash(tee /tmp/tsc-out.log)",
+      "Bash(grep -rn 'tag.minHeight\\\\|$tag\\\\.minHeight\\\\|tag.touchTarget' src/)",
+      "Bash(pnpm test:contrast)",
+      "Bash(pnpm test:platform-contract -- --strict)",
+      "Bash(pnpm check-platform-contract *)",
+      "Bash(cmd /c \"type \\\\\"C:\\\\Users\\\\henri\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-henri-OneDrive-Projetos-arbor-ds\\\\30442db8-0af9-492b-9230-07baa9057d5e\\\\tasks\\\\bfaemvb6o.output\\\\\"\")",
+      "Bash(git grep *)",
+      "Bash(cmd /c \"type C:\\\\\\\\Users\\\\\\\\henri\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--Users-henri-OneDrive-Projetos-arbor-ds\\\\\\\\30442db8-0af9-492b-9230-07baa9057d5e\\\\\\\\tasks\\\\\\\\bj9m3taba.output\")",
+      "Bash(grep -rn \"components:.*{.*$\\\\|createTheme\\(themeLight, {$\" src/components/switch --include=\"*.tsx\")",
+      "Bash(pnpm test:recipe-no-component-literal)",
+      "Bash(grep -nE '\\\\$accordion' 'C:\\\\Users\\\\henri\\\\OneDrive\\\\Projetos\\\\arbor-ds\\\\src\\\\foundations\\\\theme\\\\base-theme.ts')",
+      "Bash(pnpm dev *)",
+      "Bash(grep -nA1 \"bodyMedium:\" src/foundations/theme/base-theme.ts)",
+      "Bash(pnpm test:component-tokens-no-literal)",
+      "Bash(pnpm test:recipe-aliases)"
     ]
   }
 }

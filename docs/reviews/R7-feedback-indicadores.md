@@ -1,7 +1,7 @@
 # R7 — Feedback / Indicadores (consolidação)
 
 **Status:** ✅ concluído (2026-05-02)
-**Revisor:** arbor-ds-architect
+**Revisor:** arbor-ds-arch
 **Componentes:** [Spinner](./spinner.md) · [Skeleton](./skeleton.md) · [Badge](./badge.md) · [ProgressBar](./progress-bar.md) · [ProgressCircle](./progress-circle.md)
 
 ---

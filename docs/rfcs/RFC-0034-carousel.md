@@ -1,7 +1,7 @@
 # RFC-0034 — Carousel: componente canônico cross-platform
 
 **Status**: **Implemented (2026-05-05, rev. 3)** — v1 completa (PR1 + PR2 A/B/C/D)
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-05-03
 **Origem**: review R9 (achado E-Inex-1). Componente declarado nos cenários de produto (`CLAUDE.md` skill — e-commerce vitrine, landing pages, listas) e nunca implementado. `src/components/carousel/` está vazio desde Out/2025.
 

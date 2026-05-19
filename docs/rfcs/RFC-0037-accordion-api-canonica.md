@@ -1,7 +1,7 @@
 # RFC-0037 — Accordion: API canônica + slot recipe
 
 **Status**: **Draft (2026-05-03)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-05-03
 **Origem**: review R9 (achados AC-Mod-1/2/3, AC-A11y-1/2, AC-Style-1/2/3, AC-Bug-1).
 

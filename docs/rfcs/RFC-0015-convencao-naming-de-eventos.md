@@ -1,7 +1,7 @@
 # RFC-0015 — Convenção de naming de eventos `on{Verbo}Change` (value-only)
 
 **Status**: **Accepted · Implemented (2026-04-24)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-04-24
 **PR**: (pendente)
 

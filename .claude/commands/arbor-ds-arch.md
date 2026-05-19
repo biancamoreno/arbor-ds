@@ -1,5 +1,5 @@
 ---
-name: arbor-ds-architect
+name: arbor-ds-arch
 description: Architect and execute changes in the `arbor-ds` repository with full project context. Use when working on this codebase's design system, styled-system, cross-platform React/React Native contracts, public exports, theming, component anatomy with slots and recipes, accessibility, or the restructuring plan documented in `docs/ARCHITECTURE_RESTRUCTURING_BRIEF.md`.
 ---
 

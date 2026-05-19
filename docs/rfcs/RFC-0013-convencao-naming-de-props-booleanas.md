@@ -1,7 +1,7 @@
 # RFC-0013 — Convenção de naming de props booleanas (`is*` × `disabled`/`checked`/`open`)
 
 **Status**: **Accepted · Implemented (2026-04-24)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-04-24
 **PR**: (pendente)
 

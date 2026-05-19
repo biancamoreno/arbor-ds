@@ -1,7 +1,7 @@
 # RFC-0030 — Completar RFC-0013: naming canônico em overlays e contextos remanescentes
 
 **Status**: **Accepted (2026-05-02)** — em implementação
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-05-02
 **Origem**: revisão de naming sob `arbor-ds-arch` (2026-05-02); dívida residual da RFC-0013 + TD-012.
 

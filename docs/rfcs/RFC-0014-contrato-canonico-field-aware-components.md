@@ -1,7 +1,7 @@
 # RFC-0014 — Contrato canônico `Field.Control` × Field-aware components
 
 **Status**: **Accepted · Implemented (2026-04-24)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-04-24
 **PR**: (pendente)
 

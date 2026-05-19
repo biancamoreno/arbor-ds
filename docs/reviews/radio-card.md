@@ -1,7 +1,7 @@
 # Review — `RadioCard`
 
 **Fase:** R6 · **Camada:** `form` · **Status:** `concluído`
-**Revisor:** arbor-ds-architect · **Data:** 2026-04-24 · **Versão atual:** `1.0.0`
+**Revisor:** arbor-ds-arch · **Data:** 2026-04-24 · **Versão atual:** `1.0.0`
 
 ---
 

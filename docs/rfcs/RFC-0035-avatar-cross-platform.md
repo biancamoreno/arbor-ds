@@ -1,7 +1,7 @@
 # RFC-0035 — Avatar cross-platform e themable
 
 **Status**: **Draft (2026-05-03)**
-**Autores**: arbor-ds-architect
+**Autores**: arbor-ds-arch
 **Data**: 2026-05-03
 **Origem**: review R9 (achados AV-Bug-1, AV-Hard-1/2/3, AV-Plat-1, AV-Style-1/2/3). Avatar é tagueado `@platform shared` mas sem `.native.tsx`, e `AvatarImage` é DOM-only.
 
