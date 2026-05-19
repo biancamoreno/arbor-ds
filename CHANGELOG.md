@@ -4,6 +4,24 @@
 
 ### Breaking
 
+- **Dialog perdeu props `Dialog.Close.label` e `Dialog.Root.onClose`.**
+  - `Dialog.Close.label` → `Dialog.Close.accessibilityLabel` (alinhado a Menu/Popover/Tooltip; vocabulário canônico RN-first; web mapeia internamente para `aria-label`).
+  - `Dialog.Root.onClose` removido — redundante com `onOpenChange` (`(open) => !open && handler()`). Pattern Radix; precedente `project_deprecated_sweep` (memória) de eliminar API duplicada pré-v1 sem alias.
+  ```tsx
+  // Antes
+  <Dialog onClose={handleClose}>
+    <Dialog.Content>
+      <Dialog.Close label="Fechar diálogo" />
+    </Dialog.Content>
+  </Dialog>
+  // Agora
+  <Dialog onOpenChange={(open) => !open && handleClose()}>
+    <Dialog.Content>
+      <Dialog.Close accessibilityLabel="Fechar diálogo" />
+    </Dialog.Content>
+  </Dialog>
+  ```
+
 - **`Menu.Content` perdeu a prop `label`.** O rótulo de acessibilidade do menu agora é canônico no root (`<Menu accessibilityLabel="..." />`) — alinhado a Popover/Tooltip e ao vocabulário cross-platform (`accessibilityLabel` RN-first). Migração mecânica:
   ```tsx
   // Antes
@@ -19,6 +37,68 @@
   ```
 
 ### Added
+
+- **Dialog PR1 — saídas modeladas + composer fix + overlay fade fix + native cleanup**. Continuação imediata do PCV-32: o Dialog ganha o vocabulário de saída que faltava para resolver casos reais (form com unsaved changes, wizard não-dispensável) e tem os bugs latentes do cross-platform corrigidos.
+
+  **Saídas modeladas (contrato público, defaults preservam comportamento atual):**
+  - `closeOnOverlayClick?: boolean` (default `true`) — desabilita o tap no scrim/clique no overlay.
+  - `closeOnEscape?: boolean` (default `true`) — desabilita `Esc` (web) e back hardware (Android).
+  - `onInteractOutside?: (event) => void` — interceptável com `event.preventDefault()`.
+  - `onEscapeKeyDown?: (event) => void` — interceptável com `event.preventDefault()`.
+  - `lockBodyScroll?: boolean` (default `true`, web; no-op no native) — trava `overflow` do `<body>`. Hook com referência contada para múltiplos overlays simultâneos.
+
+  **Fixes funcionais:**
+  - **`Dialog.Close` com `children` agora COMPÕE o `onClick`/`onPress` do filho** em vez de sobrescrever (bug crítico de DX: `<Dialog.Close><Button onClick={save}>` engolia o `save`). Se o filho fizer `event.preventDefault()`, o dialog não fecha — desbloqueia "Salvar com validação".
+  - **Overlay invisível + click-fora não fechando** — causa raiz: a recipe `dialog.overlay` usava `inset: '0'` shorthand, mas o engine de transformação **não tem handler para `inset`** apesar de tipá-lo em `position.ts`. Caixa ficava `position: fixed` sem coordenadas → tamanho 0 → invisível e não-clicável. Corrigido trocando para `top: 0, right: 0, bottom: 0, left: 0` (propriedades individuais são whitelistadas). TD-049 aberta para implementar handler `inset` no motor.
+  - **Fade in/out do overlay e content não animavam** em React 18 concurrent — o batching mesclava mount (`opacity:0`) + `setVisible(true)` num único commit, fazendo o browser nunca ver o estado inicial. Corrigido com **double rAF** (pattern Radix UI) garantindo paint intermediário antes do flip.
+  - **`dialog.native.tsx` — `<Pressable>` direto trocado por `<Clickable>`** em Trigger/Close/scrim/wrapper interno (anti-pattern da skill resolvido). `Modal` e `Animated.View` mantidos como exceções legítimas documentadas.
+  - **`dialog.native.tsx` — `useTheme() as ThemeShape` cast unsafe eliminado** em Title/Description. Native passa a usar `<Text as="span">` consumindo direto o spread da slot recipe (paridade real com web — override de tema propaga para ambas as plataformas).
+
+  **Motor (sub-PR no `DismissableLayer`):**
+  - `DismissableLayer` (web + native) ganha `onEscapeKeyDown(event)` e `onInteractOutside(event)` ricos — interceptáveis com `preventDefault`. Backward-compat com `onDismiss` simples preservada. Native trata `BackHandler` Android com mesmo padrão de evento sintético.
+
+  **Stories novas (didáticas, com feedback visual):**
+  - `UnsavedGuard` — form com `dirty` flag + `<Checkbox>` do DS + contador `Tentativas de fechar bloqueadas: N` em `feedback.warning.bgSubtle` aparecendo dentro do dialog. X removido intencionalmente (incompatível com semântica da guarda).
+  - `NonDismissible` — wizard com `closeOnOverlayClick={false}` + `closeOnEscape={false}` + mesmo padrão de contador em `feedback.info.bgSubtle`.
+
+  **Cobertura:**
+  - +8 testes web cobrindo composer fix, `closeOnEscape={false}`, `onEscapeKeyDown.preventDefault`, `closeOnOverlayClick={false}`, `onInteractOutside.preventDefault`, lockBodyScroll default + opt-out.
+  - +3 testes no `DismissableLayer` cobrindo a interceptação rica.
+  - `dialog.native.test.tsx` ajustado para o novo wrapping (`<Clickable>` interpõe `<Box>` entre Pressable e children — `getAllByRole('button')[0]` substitui `getByText`).
+  - **Suite global: 1224 → 1238 verde (+14).** Lint zero.
+
+  **TD aberta:**
+  - **TD-049** — engine ignora `inset` shorthand apesar de tipar. Plano: implementar handler no transformer (preferido) ou rebaixar o tipo. Mesma natureza da TD-031 (`marginInline*`/`borderInline*`/`whiteSpace`). Resolvível em RFC de motor única.
+
+- **PCV-32 Dialog — reescrita canônica APG-compliant + tematização completa + native + stories pattern** (Camada 9 Overlays grandes — 2/3 fechada). Mesma régua aplicada a Menu/Popover; Dialog passa de "shell mínimo com inline literais" para slot recipe themable + cross-platform real.
+
+  **Estrutura:**
+  - `tokens/components/dialog.ts` enriquecido (colors `background`/`border`/`overlay`/`title`/`description`, gap, padding por size, title/description.typography, close.* completo).
+  - Recipe `dialog` promovida — slot `close` novo (anatomia idêntica ao `popover.close`: touch target `_before` 44×44, `_focusVisible: focusRing`, hover bg + color, transition). Title/Description deixam de receber `fontSize`/`fontWeight` literais no componente — recipe define tudo via `$dialog.title.typography.*` e `$dialog.description.typography.*` (themables).
+  - `dialog.native.tsx` novo + `dialog.native.test.tsx` — `Modal transparent` + `Pressable` scrim + `Animated` fade+scale paralelo + `accessibilityViewIsModal`. Sem `accessibilityLabel="close"` hardcoded no scrim (não é botão, é gesto — mesma decisão de Menu native).
+  - `DialogContent` agora consome `useSlotRecipe('dialog', { size })` — antes a recipe existia mas o componente ignorava (anti-pattern catalogado, fechado neste PR).
+  - `DialogOverlay` consome `slots.overlay` (bg themable via `dialog.colors.overlay`) + fade 160ms.
+
+  **API canônica:**
+  - `DialogClose` agora usa **`<Icon name="X">` do DS** (não caractere literal `✕`) + slot recipe `close`. Toque mínimo 44×44, `_focusVisible: focusRing`, hover state com `background.subtle`. Absorve **RFC-0044 (close canônico)** do polish backlog 1.5 — pattern alinhado a `Popover.Close`.
+  - `DialogTrigger` ganha `aria-haspopup="dialog"` + `aria-expanded` + `aria-controls={contentId}` quando aberto. Enter/Space ativam via `cloneElement` (button HTML já faz, mas garante para wrappers customizados). Respeita `disabled` do child quando `asChild` (precedente Menu G6).
+  - `DialogRootProps.accessibilityLabel` novo — propagado como `aria-label` no content (fallback quando não há `<Dialog.Title>` visível); `accessibilityHint` exposto no contrato cross-platform (consumido só em native).
+
+  **Régua sóbria aplicada:**
+  - Motion: 160ms (`motion.duration.normal`) + easing `cubic-bezier(0.16, 1, 0.3, 1)` + scale entrada 0.98→1 (alinhado a Menu/Popover, contra os 200ms decelerate inline anteriores).
+  - `usePrefersReducedMotion` respeitado em web + native.
+  - `useRestoreFocus` não consumido aqui — `FocusScope trapped+autoFocus+restoreFocus` continua sendo o caminho correto para o caso modal (Dialog precisa de trap real, diferente do Menu que tem `useRestoreFocus` sem wrapper porque a árvore ARIA é mais estrita).
+
+  **Title/Description sem literais:**
+  - `DialogTitle` virou `<Box as="h2">` consumindo `slots.title` (recipe define `fontSize`/`fontWeight`/`lineHeight`/`letterSpacing`/`color`/`margin`). Web cascata via CSS; native aplica props themadas explicitamente (pattern Menu).
+  - `DialogDescription` análogo (`<Box as="p">` + `slots.description`).
+
+  **Stories (10 — pattern canônico Menu, 7 dimensões + extras):**
+  - `Default` / `Anatomia` / `Sizes` (small/medium/large) / `WithDescription` / `DestructiveAction` (confirmação irreversível) / `Controlled` (direcional, não toggle) / `KeyboardNavigation` (cheat sheet APG) / `ThemingDensity` (compact/comfortable/spacious via ArborProvider aninhado) / `Theming` (cores + sombra + tipografia + radius) / `AdvancedCompound` (`Dialog.Root`).
+  - `TriggerButton` + `PrimaryButton` + `DangerButton` helpers via `forwardRef` + spread `...rest` (mesmo pattern Menu/Popover).
+  - Sem `<button style={...}>` cru, sem `<div style={...}>`, sem caractere literal `✕`.
+
+  **Testes:** +5 web (`aria-haspopup/expanded/controls`, `disabled trigger child`, `accessibilityLabel propaga`, `Close renderiza Icon`, validações existentes ajustadas para nova API) + 5 native (compound exports / abrir / fechar via Close / onOpenChange / defaultOpen). 1219→**1224** verde (+8 do Dialog no total).
 
 - **Menu — `Menu.Item` ganha `startIcon` / `endIcon` / `tone` + `onSelect` recebe event com `preventDefault`.** Trio de melhorias mata anti-pattern frequente e completa o gap APG:
   - **`startIcon` / `endIcon: IconName | ReactElement`** — string vira `<Icon>` themado por `menu.item.iconSize` / `menu.item.colors.icon` (consumer não precisa montar `<Flex><Icon/>...</Flex>` à mão); ReactElement passa direto para casos custom. Quando o item não tem ícone, o layout interno fica enxuto (sem wrapper extra) — preserva a árvore ARIA limpa.

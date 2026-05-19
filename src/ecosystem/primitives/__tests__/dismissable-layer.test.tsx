@@ -62,6 +62,47 @@ describe('DismissableLayer', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
+  it('chama onEscapeKeyDown com o evento e respeita preventDefault', () => {
+    const onDismiss = jest.fn();
+    const onEscapeKeyDown = jest.fn((e: KeyboardEvent) => e.preventDefault());
+    render(
+      <DismissableLayer onDismiss={onDismiss} onEscapeKeyDown={onEscapeKeyDown}>
+        <div>content</div>
+      </DismissableLayer>,
+    );
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onEscapeKeyDown).toHaveBeenCalledTimes(1);
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
+
+  it('chama onDismiss quando onEscapeKeyDown não chama preventDefault', () => {
+    const onDismiss = jest.fn();
+    const onEscapeKeyDown = jest.fn();
+    render(
+      <DismissableLayer onDismiss={onDismiss} onEscapeKeyDown={onEscapeKeyDown}>
+        <div>content</div>
+      </DismissableLayer>,
+    );
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onEscapeKeyDown).toHaveBeenCalledTimes(1);
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('chama onInteractOutside com o evento e respeita preventDefault', () => {
+    const onDismiss = jest.fn();
+    const onInteractOutside = jest.fn((e: PointerEvent) => e.preventDefault());
+    render(
+      <div data-testid="outside">
+        <DismissableLayer onDismiss={onDismiss} onInteractOutside={onInteractOutside}>
+          <div>content</div>
+        </DismissableLayer>
+      </div>,
+    );
+    fireEvent.pointerDown(screen.getByTestId('outside'));
+    expect(onInteractOutside).toHaveBeenCalledTimes(1);
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
+
   it('does not call onDismiss on pointer down inside excludeRef', () => {
     const onDismiss = jest.fn();
     function Subject() {

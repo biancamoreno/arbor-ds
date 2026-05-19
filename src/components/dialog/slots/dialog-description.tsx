@@ -1,19 +1,21 @@
-import { Text } from '../../core';
+import { Box } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogDescriptionProps } from '../interfaces/DialogProps';
 
+type DialogSlots = 'overlay' | 'content' | 'title' | 'description' | 'close';
+
+/**
+ * Descrição do Dialog (referenciada por `aria-describedby`). Tipografia e cor
+ * themables via `dialog.description.typography.*` / `dialog.colors.description`.
+ */
 export function DialogDescription({ children }: DialogDescriptionProps) {
   const { descriptionId } = useDialogContext();
+  const slots = useSlotRecipe<DialogSlots>('dialog', {});
 
   return (
-    <Text
-      as="p"
-      id={descriptionId}
-      color="text.secondary"
-      fontSize="small"
-      style={{ margin: 0 }}
-    >
+    <Box as="p" id={descriptionId} {...(slots.description as Record<string, unknown>)}>
       {children}
-    </Text>
+    </Box>
   );
 }

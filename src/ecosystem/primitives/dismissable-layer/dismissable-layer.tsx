@@ -6,8 +6,22 @@ type DismissableLayerProps = {
   /**
    * Disparado em `Escape` (se `disableEscapeKey` é `false`) ou em `pointerdown`
    * fora do layer e fora do `excludeRef` (se `disableOutsideClick` é `false`).
+   * Em ambos os casos, se `onEscapeKeyDown`/`onInteractOutside` forem
+   * passados e chamarem `event.preventDefault()`, `onDismiss` NÃO é chamado.
    */
   onDismiss?: () => void;
+  /**
+   * Handler rico para a tecla Escape, com acesso ao evento. Permite ao
+   * consumidor interceptar (`event.preventDefault()`) o dismiss — útil para
+   * guarda de form com alterações não salvas.
+   */
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  /**
+   * Handler rico para interação fora do layer (pointerdown fora), com acesso
+   * ao evento. Permite ao consumidor interceptar (`event.preventDefault()`)
+   * o dismiss.
+   */
+  onInteractOutside?: (event: PointerEvent) => void;
   /**
    * Desabilita o dismiss por click fora.
    * @default false
@@ -36,25 +50,36 @@ type DismissableLayerProps = {
  * por Dialog/Drawer/Popover/Menu/Tooltip/Select.Content para padronizar o
  * comportamento de fechamento. Em native há equivalente
  * `dismissable-layer.native.tsx` que escuta o botão de back do Android.
+ *
+ * `onEscapeKeyDown` e `onInteractOutside` permitem interceptação rica: o
+ * consumidor recebe o evento nativo e pode chamar `event.preventDefault()`
+ * para impedir o dismiss (ex.: guarda de alterações não salvas).
  */
 export function DismissableLayer({
   children,
   onDismiss,
+  onEscapeKeyDown,
+  onInteractOutside,
   disableOutsideClick = false,
   disableEscapeKey = false,
   excludeRef,
 }: DismissableLayerProps): React.ReactElement {
   const layerRef = useRef<HTMLDivElement>(null);
   const onDismissRef = useRef(onDismiss);
+  const onEscapeKeyDownRef = useRef(onEscapeKeyDown);
+  const onInteractOutsideRef = useRef(onInteractOutside);
   onDismissRef.current = onDismiss;
+  onEscapeKeyDownRef.current = onEscapeKeyDown;
+  onInteractOutsideRef.current = onInteractOutside;
 
   useEffect(() => {
     if (disableEscapeKey) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onDismissRef.current?.();
-      }
+      if (event.key !== 'Escape') return;
+      onEscapeKeyDownRef.current?.(event);
+      if (event.defaultPrevented) return;
+      onDismissRef.current?.();
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -69,6 +94,8 @@ export function DismissableLayer({
       if (!layer || layer.contains(event.target as Node)) return;
       const exclude = excludeRef?.current;
       if (exclude && exclude.contains(event.target as Node)) return;
+      onInteractOutsideRef.current?.(event);
+      if (event.defaultPrevented) return;
       onDismissRef.current?.();
     };
 

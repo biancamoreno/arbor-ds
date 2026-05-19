@@ -4,7 +4,7 @@
 >
 > **Atualizar quando:** criar dívida (com `Status: Open`), fechar dívida (`Resolved` + data), ou descobrir que dívida está obsoleta (`Obsolete` + razão).
 
-**Última atualização:** 2026-05-11 (PCV-16 entregue — Camada 5 da RFC-0042 em 1/4; TD-045 aberta para `Switch.native` ainda usar `<RNSwitch>` com API restrita, sem paridade visual completa com web; suite 1109/1109 verde).
+**Última atualização:** 2026-05-17 (PCV-32 PR1 entregue — Dialog ganhou saídas modeladas + composer fix; TD-049 aberta: engine ignora `inset` apesar de tipar, descoberto pelo overlay invisível do Dialog quando recipe usava `inset: '0'`; 1238/1238 verde).
 
 ---
 
@@ -45,8 +45,9 @@
 | [TD-038](#td-038) | Card hover/clickable CSS no provider global, com rgba + `!important` | R9 — CD-Bug-3 (2026-05-03) | **Resolved (2026-05-03)** | Baixa (resolvida) | RFC-0036 — `defineSlotRecipe('card')` com variant `interactive: { true: { _hover, _active, transition } }`; CSS global e `--arbor-shadow-card-hover` deletados do provider; `card.tsx`/`card.native.tsx` cross-platform paritários; bleed via anatomia reflow (cada slot dona seu padding, `media` edge-to-edge por construção). |
 | [TD-039](#td-039) | Dead surface: `Tabs.variant 'pill'` declarado e não implementado + `tabs/slots/` vazio | R9 — TB-Mod-1/3 (2026-05-03) | **Resolved parcialmente (2026-05-03)** | Baixa (cleanup) | Sub-onda 9.A — `src/components/tabs/slots/` deletado (diretório vazio). `Tabs.variant: 'pill'` permanece no tipo público até a **RFC-0038** implementar de fato (mantido como contrato a cumprir, não como ghost — RFC já está Draft com `pill` real previsto no slot recipe). |
 | [TD-045](#td-045) | `Switch.native` usa `<RNSwitch>` com API restrita — recipe `switch` não propaga em native | PCV-16 — Camada 5 da RFC-0042 (2026-05-11) | Open | Média (cross-platform — override de `theme.recipes.switch` não chega ao native) | RFC dedicada pós-v1: substituir `<RNSwitch>` por implementação custom (`Animated.View` + `Pressable`) que consome `theme.components.switch.*` igual ao web (geometria + cores) |
+| [TD-049](#td-049) | Engine ignora `inset` shorthand apesar de tipar em `position.ts` | PCV-32 PR1 (2026-05-17) | Open | Média (recipes silenciosamente quebradas) | Adicionar handler `inset` no transformer (expandir para top/right/bottom/left) — varrer recipes do projeto por `inset:` e migrar para as 4 propriedades, ou remover `inset` do tipo até o handler existir. |
 
-**Total:** 12 dívidas abertas (3 com resolução parcial — TD-036/TD-039; TD-038 fechada definitivamente), 19 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037, TD-038 e TD-039 em 2026-05-03).
+**Total:** 13 dívidas abertas (3 com resolução parcial — TD-036/TD-039; TD-038 fechada definitivamente), 19 resolvidas (TD-008, TD-010, TD-011, TD-012 em 2026-04-24; TD-004, TD-009, TD-013, TD-014, TD-015 e TD-016 em 2026-04-25; TD-017 e TD-019 em 2026-04-28; TD-022 em 2026-05-01; TD-027 em 2026-05-02; TD-030, TD-034, TD-037, TD-038 e TD-039 em 2026-05-03).
 
 ---
 
@@ -2559,6 +2560,49 @@ Mesmo gap existe em Popover e Tooltip (não exclusivo do Menu).
 - [ ] `createTheme({ presets: { motion: 'minimal' } })` muda microinteração nos 3 componentes.
 - [ ] Story de Theming demonstra override.
 - [ ] Sem regressão visual com defaults atuais.
+
+---
+
+## TD-049 — Engine ignora `inset` shorthand apesar de tipar em `position.ts`
+
+**Origem:** PCV-32 PR1 (2026-05-17) — overlay invisível e click-fora não fechando no Dialog.
+**Status:** Open
+**Severidade:** Média (recipes silenciosamente quebradas)
+
+### Contexto
+
+`src/ecosystem/styled-system/system/props/position.ts` declara a prop:
+
+```ts
+inset?: ResponsiveValue<Token<Theme['sizes']> | number | CSS.Property.Inset>;
+```
+
+Mas o engine de transformação (`src/ecosystem/styled-system/core/`) **não tem handler para `inset`** — `grep` por `inset` em `core/` retorna zero resultados. Resultado: qualquer recipe ou componente que use `inset: '0'` (ou similar) compila, passa no autocomplete, **mas o motor descarta a propriedade na conversão para CSS final**. A `<Box position="fixed">` resultante fica sem coordenadas → caixa de tamanho 0 → invisível e não-clicável.
+
+Descoberto via Dialog: a recipe `dialog` tinha `overlay: { position: 'fixed', inset: '0', ... }` e o overlay simplesmente não aparecia. Drawer escapou por sorte: `drawer-overlay.tsx` aplica `inset: 0` via `style={{}}` inline (não via recipe spread), e a entrada `inset: '0'` na recipe `drawer` é dead code não-consumido.
+
+### Impacto
+
+- **Recipes**: `dialog.overlay` (corrigido nesta PR para `top/right/bottom/left: 0`), `drawer.overlay` (dead code, mas latente — se alguém migrar `drawer-overlay.tsx` para consumir a recipe via slot spread, mesmo bug).
+- **Componentes futuros**: qualquer overlay/positioned-element novo cai na mesma armadilha. Tipo verde, runtime mudo.
+- **DX**: bug silencioso é o pior tipo — autocomplete oferece `inset`, TypeScript aceita, render parece normal até alguém clicar e nada acontecer.
+
+### Plano
+
+Duas opções, escolha depende da heurística de risco:
+
+1. **Implementar handler `inset`** no transformer. Aceitar valor único ou shorthand multi-valor (`'0'` | `'0 0'` | `'0 0 0 0'`) e expandir para `top/right/bottom/left`. Mantém o tipo público. Custo: 1 handler + 1 teste de paridade web/native.
+2. **Remover `inset` do tipo** em `position.ts` até o handler existir. Forçar consumidor a usar as 4 propriedades. Custo: nenhum em DS; consumidor que tipou com `inset` recebe erro TypeScript claro.
+
+Caminho preferido: (1) — `inset` é shorthand idiomático CSS moderno; perder o tipo é regredir DX.
+
+### Critério para fechar
+
+- [ ] Handler `inset` adicionado em `core/transform/` (ou equivalente) com suporte aos shorthands CSS.
+- [ ] Test cobrindo `inset: '0'`, `inset: 'small'` (token), `inset: '10px 20px'` (multi-valor).
+- [ ] Recipe `dialog.overlay` revertida para usar `inset: 0` (validação do handler).
+- [ ] Recipe `drawer.overlay` revisada: ou usar `inset` (consumida via spread no slot) ou remover (dead code).
+- [ ] Lint/test guard que detecte propriedades tipadas em `system/props/*` sem handler correspondente — previne novos casos do mesmo padrão (TD-031 cataloga `marginInline*`/`borderInline*`/`whiteSpace` com a mesma natureza; mesma RFC de motor pode resolver os dois).
 
 ---
 
