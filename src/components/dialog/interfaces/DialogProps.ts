@@ -1,6 +1,15 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
 
 export type DialogSize = 'small' | 'medium' | 'large';
+
+/**
+ * `role: 'dialog'` (default) — janela modal genérica.
+ * `role: 'alertdialog'` — confirmação destrutiva ou erro crítico. Screen readers
+ * tratam diferente (anunciam imediatamente; foco geralmente vai para o botão
+ * menos destrutivo). Em web vira `role="alertdialog"`; em native, mapeia para
+ * `accessibilityRole='alert'` no Modal interno.
+ */
+export type DialogRole = 'dialog' | 'alertdialog';
 
 /**
  * Interface mínima de evento aceito pelos handlers de dismiss interceptáveis
@@ -66,6 +75,96 @@ export type DialogRootProps = {
   accessibilityLabel?: string;
   /** Descrição adicional de acessibilidade (React Native). */
   accessibilityHint?: string;
+  children?: ReactNode;
+};
+
+/**
+ * @platform shared
+ *
+ * Contrato canônico do Dialog (RFC-0043 — API plana como default). O Dialog
+ * top-level aceita props planas (`title`/`description`/`footer`/`trigger`)
+ * que montam a anatomia padrão internamente. Quando as props planas não são
+ * usadas, o componente recai no modo compound (`<Dialog.Root>`/`<Dialog.Trigger>`/
+ * `<Dialog.Content>`/...).
+ *
+ * **Mixed plano + children** é a exceção controlada documentada na RFC-0043:
+ * `title`/`description` viram cabeçalho, `footer` vira rodapé, `children`
+ * (quando passado junto com qualquer prop plana) preenche o body entre eles.
+ *
+ * @example
+ * // API plana — caso default
+ * <Dialog
+ *   open={open}
+ *   onOpenChange={setOpen}
+ *   trigger={<Button>Excluir conta</Button>}
+ *   title="Confirmar exclusão"
+ *   description="Esta ação é irreversível."
+ *   role="alertdialog"
+ *   footer={
+ *     <>
+ *       <Button variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
+ *       <Button variant="danger" onClick={confirm}>Excluir</Button>
+ *     </>
+ *   }
+ * />
+ *
+ * @example
+ * // Plano + body custom (Exceção RFC-0043)
+ * <Dialog title="Editar usuário" footer={<SaveButton />}>
+ *   <Field label="Nome"><Input /></Field>
+ *   <Field label="Email"><Input /></Field>
+ * </Dialog>
+ *
+ * @example
+ * // Compound — layout não-trivial
+ * <Dialog.Root>
+ *   <Dialog.Trigger asChild><Button>Abrir</Button></Dialog.Trigger>
+ *   <Dialog.Overlay />
+ *   <Dialog.Content>
+ *     <Dialog.Header>
+ *       <Dialog.Title>Confirmar</Dialog.Title>
+ *     </Dialog.Header>
+ *     <Dialog.Body>...</Dialog.Body>
+ *     <Dialog.Close />
+ *   </Dialog.Content>
+ * </Dialog.Root>
+ */
+export type DialogProps = DialogRootProps & {
+  /** Tamanho do painel. Default `'medium'`. */
+  size?: DialogSize;
+  /**
+   * Semântica WAI-ARIA. `'dialog'` (default) ou `'alertdialog'`. Em native,
+   * `'alertdialog'` mapeia para `accessibilityRole='alert'` no Modal.
+   */
+  role?: DialogRole;
+  /** Cabeçalho — quando passado, ativa modo plano. */
+  title?: ReactNode;
+  /** Descrição secundária. Referenciada por `aria-describedby` quando presente. */
+  description?: ReactNode;
+  /** Rodapé com ações. Layout default: flex row, gap, justify flex-end. */
+  footer?: ReactNode;
+  /**
+   * Trigger renderizado antes do overlay. Aceita qualquer ReactNode; quando for
+   * um elemento React clonável, ele é injetado dentro de `<Dialog.Trigger asChild>`
+   * (mantém ref do consumer, propaga ARIA, respeita `disabled`).
+   */
+  trigger?: ReactNode;
+  /**
+   * Quando passado, recebe foco ao abrir em vez do primeiro elemento tabável.
+   * O elemento alvo precisa estar dentro do conteúdo do Dialog.
+   */
+  initialFocusRef?: RefObject<HTMLElement | null>;
+};
+
+export type DialogHeaderProps = {
+  children: ReactNode;
+};
+
+export type DialogBodyProps = {
+  children: ReactNode;
+};
+
+export type DialogFooterProps = {
   children: ReactNode;
 };
 

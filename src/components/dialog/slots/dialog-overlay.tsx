@@ -6,7 +6,15 @@ import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system
 import { transition } from '../../../foundations/theme/transition';
 import { useDialogContext } from '../context/dialog-context';
 
-type DialogSlots = 'overlay' | 'content' | 'title' | 'description' | 'close';
+type DialogSlots =
+  | 'overlay'
+  | 'content'
+  | 'header'
+  | 'body'
+  | 'footer'
+  | 'title'
+  | 'description'
+  | 'close';
 
 const TRANSITION_MS = 160;
 const IS_TEST = process.env.NODE_ENV === 'test';

@@ -3,7 +3,15 @@ import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogTitleProps } from '../interfaces/DialogProps';
 
-type DialogSlots = 'overlay' | 'content' | 'title' | 'description' | 'close';
+type DialogSlots =
+  | 'overlay'
+  | 'content'
+  | 'header'
+  | 'body'
+  | 'footer'
+  | 'title'
+  | 'description'
+  | 'close';
 
 /**
  * Cabeçalho do Dialog. Tipografia (fontSize/fontWeight/lineHeight/letterSpacing)

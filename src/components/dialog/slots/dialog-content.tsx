@@ -7,7 +7,15 @@ import { transition } from '../../../foundations/theme/transition';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogContentProps } from '../interfaces/DialogProps';
 
-type DialogSlots = 'overlay' | 'content' | 'title' | 'description' | 'close';
+type DialogSlots =
+  | 'overlay'
+  | 'content'
+  | 'header'
+  | 'body'
+  | 'footer'
+  | 'title'
+  | 'description'
+  | 'close';
 
 // Régua sóbria — 160ms (motion.duration.normal), scale entrada 0.98→1, fade.
 const TRANSITION_MS = 160;
@@ -22,6 +30,8 @@ export function DialogContent({ children, size = 'medium' }: DialogContentProps)
     titleId,
     descriptionId,
     accessibilityLabel,
+    role,
+    initialFocusRef,
     closeOnEscape,
     onEscapeKeyDown,
   } = useDialogContext();
@@ -77,11 +87,11 @@ export function DialogContent({ children, size = 'medium' }: DialogContentProps)
         // duas vezes.
         disableOutsideClick
       >
-        <FocusScope trapped autoFocus restoreFocus>
+        <FocusScope trapped autoFocus restoreFocus initialFocus={initialFocusRef}>
           <Box
             as="div"
             id={contentId}
-            role="dialog"
+            role={role}
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descriptionId}

@@ -389,4 +389,128 @@ describe('Dialog', () => {
     );
     expect(document.body.style.overflow).toBe('');
   });
+
+  // ── PR2 (RFC-0043): API plana ───────────────────────────────────────────
+
+  it('API plana monta Header (title+description) + Body (children) + Footer', () => {
+    renderDialog(
+      <Dialog
+        defaultOpen
+        title="Editar usuário"
+        description="Atualize os dados abaixo."
+        footer={<button type="button">Salvar</button>}
+      >
+        <p>Body livre via children.</p>
+      </Dialog>,
+    );
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeTruthy();
+    expect(screen.getByText('Editar usuário')).toBeTruthy();
+    expect(screen.getByText('Atualize os dados abaixo.')).toBeTruthy();
+    expect(screen.getByText('Body livre via children.')).toBeTruthy();
+    expect(screen.getByText('Salvar')).toBeTruthy();
+    // aria-labelledby aponta para o título e aria-describedby para a descrição.
+    const titleId = dialog.getAttribute('aria-labelledby');
+    const descId = dialog.getAttribute('aria-describedby');
+    expect(document.getElementById(titleId!)?.textContent).toBe('Editar usuário');
+    expect(document.getElementById(descId!)?.textContent).toBe('Atualize os dados abaixo.');
+  });
+
+  it("role='alertdialog' aplica role correto no content", () => {
+    renderDialog(
+      <Dialog
+        defaultOpen
+        role="alertdialog"
+        title="Excluir conta"
+        description="Esta ação é irreversível."
+      />,
+    );
+
+    // role plana — deve estar como `alertdialog`, não `dialog`.
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('alertdialog')).toBeTruthy();
+  });
+
+  it('initialFocusRef foca o elemento indicado ao abrir', () => {
+    function Harness() {
+      const inputRef = React.useRef<HTMLInputElement>(null);
+      return (
+        <Dialog defaultOpen title="Editar" initialFocusRef={inputRef}>
+          <input type="text" defaultValue="ignored" />
+          <input ref={inputRef} type="text" defaultValue="focused" data-testid="target" />
+        </Dialog>
+      );
+    }
+
+    renderDialog(<Harness />);
+    act(() => {
+      jest.advanceTimersByTime(50);
+    });
+    expect(document.activeElement).toBe(screen.getByTestId('target'));
+  });
+
+  it('API plana sem props planas e com children compound delega para Root', () => {
+    renderDialog(
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <button type="button">Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Compound</Dialog.Title>
+        </Dialog.Content>
+      </Dialog>,
+    );
+
+    fireEvent.click(screen.getByText('Open'));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(screen.getByText('Compound')).toBeTruthy();
+  });
+
+  it('API plana com trigger ReactElement embala em Dialog.Trigger asChild', () => {
+    renderDialog(
+      <Dialog
+        trigger={<button type="button">Excluir</button>}
+        title="Confirmar"
+        footer={<button type="button">OK</button>}
+      />,
+    );
+
+    const trigger = screen.getByText('Excluir');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog');
+    fireEvent.click(trigger);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+  });
+
+  it('compound expõe Header/Body/Footer slots', () => {
+    renderDialog(
+      <Dialog.Root defaultOpen>
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>Cabeçalho</Dialog.Title>
+          </Dialog.Header>
+          <Dialog.Body>
+            <p>Corpo</p>
+          </Dialog.Body>
+          <Dialog.Footer>
+            <button type="button">Ação</button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+
+    expect(screen.getByText('Cabeçalho')).toBeTruthy();
+    expect(screen.getByText('Corpo')).toBeTruthy();
+    expect(screen.getByText('Ação')).toBeTruthy();
+  });
+
+  it('API plana sem description omite aria-describedby do title (title-only)', () => {
+    renderDialog(<Dialog defaultOpen title="Apenas título" />);
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.getAttribute('aria-labelledby')).toBeTruthy();
+    // sem `<Dialog.Description>` renderizado → o id referenciado não existe.
+    const descId = dialog.getAttribute('aria-describedby');
+    expect(document.getElementById(descId!)).toBeNull();
+  });
 });

@@ -730,7 +730,7 @@ const recipes: ThemeRecipes = {
   }),
 
   dialog: defineSlotRecipe({
-    slots: ['overlay', 'content', 'title', 'description', 'close'] as const,
+    slots: ['overlay', 'content', 'header', 'body', 'footer', 'title', 'description', 'close'] as const,
     base: {
       overlay: {
         // `inset: 0` shorthand é tipado em position.ts mas não tem handler no
@@ -756,6 +756,24 @@ const recipes: ThemeRecipes = {
         backgroundColor: '$dialog.colors.background',
         boxShadow: '$dialog.shadow',
         outline: 'none',
+      },
+      header: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$dialog.header.gap',
+      },
+      body: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$dialog.body.gap',
+      },
+      footer: {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end',
+        gap: '$dialog.footer.gap',
+        paddingTop: '$dialog.footer.paddingTop',
       },
       title: {
         color: '$dialog.colors.title',

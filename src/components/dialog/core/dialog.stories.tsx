@@ -629,12 +629,12 @@ export const NonDismissible: Story = {
 };
 
 export const AdvancedCompound: Story = {
-  name: 'API compound — controle granular',
+  name: 'API compound — controle granular (Header/Body/Footer)',
   parameters: {
     docs: {
       description: {
         story:
-          'Use `<Dialog.Root>` (alias retrocompatível de `<Dialog>`) quando precisar de `open` controlado externamente ou anatomia rica (header customizado, sidebar interna etc.).',
+          'Use `<Dialog.Root>` quando precisar de anatomia rica. Os slots `<Dialog.Header>`/`<Dialog.Body>`/`<Dialog.Footer>` mapeiam para o mesmo recipe consumido pela API plana — visual paritário, controle total.',
       },
     },
   },
@@ -645,22 +645,158 @@ export const AdvancedCompound: Story = {
       </Dialog.Trigger>
       <Dialog.Overlay />
       <Dialog.Content size="large">
-        <Dialog.Title>Anatomia rica</Dialog.Title>
-        <Dialog.Description>
-          Slot livre permite header customizado, lista de items, formulário, etc.
-        </Dialog.Description>
-        <Box
-          marginTop="small"
-          padding="medium"
-          borderRadius="medium"
-          backgroundColor="background.subtle"
-        >
-          <Text as="p" variant="bodySmall" color="text.secondary">
-            Área para conteúdo customizado.
-          </Text>
-        </Box>
+        <Dialog.Header>
+          <Dialog.Title>Anatomia rica</Dialog.Title>
+          <Dialog.Description>
+            Header agrupa Title + Description; Body recebe markup livre; Footer alinha as ações à direita.
+          </Dialog.Description>
+        </Dialog.Header>
+        <Dialog.Body>
+          <Box
+            padding="medium"
+            borderRadius="medium"
+            backgroundColor="background.subtle"
+          >
+            <Text as="p" variant="bodySmall" color="text.secondary">
+              Área para conteúdo customizado (form, lista, ilustração).
+            </Text>
+          </Box>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Dialog.Close>
+            <TriggerButton>Cancelar</TriggerButton>
+          </Dialog.Close>
+          <PrimaryButton onClick={fn()}>Salvar</PrimaryButton>
+        </Dialog.Footer>
         <Dialog.Close />
       </Dialog.Content>
     </Dialog.Root>
   ),
+};
+
+// ── PR2 (RFC-0043): API plana ─────────────────────────────────────────────
+
+export const FlatApi: Story = {
+  name: 'API plana (RFC-0043 — recomendado)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Caso default sob RFC-0043: top-level aceita `title`/`description`/`footer`/`trigger`. O componente monta Header (Title+Description) + Body (children) + Footer automaticamente. Para layouts não-triviais, recorra ao compound (`Dialog.Root`).',
+      },
+    },
+  },
+  render: () => (
+    <Dialog
+      trigger={<TriggerButton>Abrir formulário</TriggerButton>}
+      title="Editar perfil"
+      description="As alterações ficam visíveis para qualquer pessoa que acesse seu perfil público."
+      footer={
+        <>
+          <Dialog.Close>
+            <TriggerButton>Cancelar</TriggerButton>
+          </Dialog.Close>
+          <PrimaryButton onClick={fn()}>Salvar</PrimaryButton>
+        </>
+      }
+    >
+      <Text as="p" variant="bodySmall" color="text.secondary">
+        Body livre via <Text as="span" variant="bodySmall" fontWeight="semibold">children</Text>. Use forms, listas
+        ou qualquer markup arbitrário aqui.
+      </Text>
+    </Dialog>
+  ),
+};
+
+export const AlertDialog: Story = {
+  name: "role='alertdialog' (confirmação destrutiva)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`role="alertdialog"` ajusta a semântica WAI-ARIA: screen readers anunciam de forma assertiva e o pattern indica fluxo destrutivo. Em native mapeia para `accessibilityRole="alert"`. Combine com `closeOnOverlayClick={false}` para forçar decisão explícita.',
+      },
+    },
+  },
+  render: () => (
+    <Dialog
+      role="alertdialog"
+      closeOnOverlayClick={false}
+      trigger={
+        <DangerButton>
+          <Flex gap="micro" alignItems="center">
+            <Icon name="Trash2" size="small" />
+            <Text as="span" variant="bodyMedium">Excluir conta</Text>
+          </Flex>
+        </DangerButton>
+      }
+      title="Excluir conta permanentemente?"
+      description="Todos os seus dados, projetos e histórico serão removidos imediatamente. Esta ação não pode ser desfeita."
+      size="small"
+      footer={
+        <>
+          <Dialog.Close>
+            <TriggerButton>Cancelar</TriggerButton>
+          </Dialog.Close>
+          <DangerButton onClick={fn()}>Sim, excluir</DangerButton>
+        </>
+      }
+    />
+  ),
+};
+
+export const InitialFocus: Story = {
+  name: 'initialFocusRef — foco inicial customizado',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Por default, o foco vai para o primeiro elemento tabável dentro do dialog (Close, geralmente). Use `initialFocusRef` para redirecionar — comum em forms (foco no primeiro campo) ou confirmações onde o botão menos destrutivo deve receber foco inicial.',
+      },
+    },
+  },
+  render: () => {
+    function FocusDemo() {
+      const inputRef = React.useRef<HTMLInputElement>(null);
+      const [open, setOpen] = useState(false);
+
+      return (
+        <Dialog
+          open={open}
+          onOpenChange={setOpen}
+          initialFocusRef={inputRef}
+          trigger={<TriggerButton>Editar nome</TriggerButton>}
+          title="Editar nome"
+          description="O campo abaixo recebe foco automaticamente ao abrir."
+          footer={
+            <>
+              <Dialog.Close>
+                <TriggerButton>Cancelar</TriggerButton>
+              </Dialog.Close>
+              <PrimaryButton onClick={() => setOpen(false)}>Salvar</PrimaryButton>
+            </>
+          }
+        >
+          <Flex flexDirection="column" gap="small">
+            <Text as="label" variant="bodySmall" color="text.secondary">
+              Nome
+            </Text>
+            <Box
+              as="input"
+              ref={inputRef as React.Ref<HTMLInputElement>}
+              type="text"
+              defaultValue="Maria"
+              paddingX="small"
+              paddingY="micro"
+              borderRadius="small"
+              borderWidth="hairline"
+              borderStyle="solid"
+              borderColor="border.default"
+            />
+          </Flex>
+        </Dialog>
+      );
+    }
+    return <FocusDemo />;
+  },
 };

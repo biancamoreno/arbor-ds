@@ -141,4 +141,43 @@ describe('Dialog (native)', () => {
       ),
     ).not.toThrow();
   });
+
+  // ── PR2 (RFC-0043): API plana ───────────────────────────────────────────
+
+  it('expõe novos slots compound (Header/Body/Footer)', () => {
+    expect(Dialog.Header).toBeDefined();
+    expect(Dialog.Body).toBeDefined();
+    expect(Dialog.Footer).toBeDefined();
+  });
+
+  it('API plana monta header/body/footer no native', () => {
+    render(
+      <Dialog defaultOpen title="Editar" description="Atualize">
+        <RNText>Body livre</RNText>
+      </Dialog>,
+      { wrapper: Wrapper },
+    );
+
+    expect(screen.queryByText('Editar')).toBeTruthy();
+    expect(screen.queryByText('Atualize')).toBeTruthy();
+    expect(screen.queryByText('Body livre')).toBeTruthy();
+  });
+
+  it("role='alertdialog' mapeia para accessibilityRole='alert' no native", () => {
+    render(
+      <Dialog defaultOpen role="alertdialog" title="Excluir conta">
+        <RNText>Esta ação é irreversível.</RNText>
+      </Dialog>,
+      { wrapper: Wrapper },
+    );
+
+    // O Animated.View do content carrega accessibilityRole='alert' quando
+    // role='alertdialog'. Verificamos via UNSAFE_root traversal procurando o
+    // node com accessibilityViewIsModal=true.
+    const modalNode = screen.UNSAFE_root.findAll(
+      (n: { props?: { accessibilityViewIsModal?: boolean } }) => n.props?.accessibilityViewIsModal === true,
+    )[0];
+    expect(modalNode).toBeTruthy();
+    expect(modalNode?.props?.accessibilityRole).toBe('alert');
+  });
 });

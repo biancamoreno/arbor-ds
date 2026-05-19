@@ -6,15 +6,33 @@ import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks/use-prefers-reduced-motion.native';
 import { DialogContext, useDialogContext, type DialogContextValue } from '../context/dialog-context';
 import type {
+  DialogProps,
+  DialogRole,
   DialogRootProps,
   DialogTriggerProps,
   DialogContentProps,
+  DialogHeaderProps,
+  DialogBodyProps,
+  DialogFooterProps,
   DialogTitleProps,
   DialogDescriptionProps,
   DialogCloseProps,
 } from '../interfaces/DialogProps';
 
-type DialogSlots = 'overlay' | 'content' | 'title' | 'description' | 'close';
+type DialogRootInternalProps = DialogRootProps & {
+  role?: DialogRole;
+  initialFocusRef?: React.RefObject<unknown>;
+};
+
+type DialogSlots =
+  | 'overlay'
+  | 'content'
+  | 'header'
+  | 'body'
+  | 'footer'
+  | 'title'
+  | 'description'
+  | 'close';
 type ChildPressProps = { onPress?: () => void };
 
 const TRANSITION_MS = 160;
@@ -30,8 +48,14 @@ function DialogRoot({
   onEscapeKeyDown,
   accessibilityLabel,
   accessibilityHint: _accessibilityHint,
+  role = 'dialog',
+  // `initialFocusRef` é parte do contrato cross-platform (RFC-0043). Em native,
+  // RN não suporta trap real de DOM e gerência programática de foco fica a cargo
+  // do consumer (ex.: `inputRef.current?.focus()` em useEffect). Aceitamos a
+  // prop por paridade de tipo e a propagamos só para mantê-la documentada.
+  initialFocusRef: _initialFocusRef,
   children,
-}: DialogRootProps) {
+}: DialogRootInternalProps) {
   const [open, setOpenState] = useControllableState({
     value: openProp,
     defaultValue: defaultOpen,
@@ -54,6 +78,10 @@ function DialogRoot({
       descriptionId,
       triggerRef: triggerRef as unknown as React.MutableRefObject<HTMLElement | null>,
       accessibilityLabel,
+      role,
+      // No native, foco programático fica com o consumer; o context não usa
+      // o ref. Mantém o campo no contexto apenas como sinal de paridade.
+      initialFocusRef: undefined,
       closeOnOverlayClick,
       closeOnEscape,
       lockBodyScroll: false, // no-op em native
@@ -67,6 +95,7 @@ function DialogRoot({
       titleId,
       descriptionId,
       accessibilityLabel,
+      role,
       closeOnOverlayClick,
       closeOnEscape,
       onInteractOutside,
@@ -112,6 +141,7 @@ function DialogContent({ children, size = 'medium' }: DialogContentProps) {
     setOpen,
     contentId,
     accessibilityLabel,
+    role,
     closeOnOverlayClick,
     closeOnEscape,
     onInteractOutside,
@@ -196,7 +226,10 @@ function DialogContent({ children, size = 'medium' }: DialogContentProps) {
         <Box {...(slots.overlay as Record<string, unknown>)} />
         <Animated.View
           accessibilityViewIsModal
-          accessibilityRole={'none' as never}
+          // `alertdialog` mapeia para `accessibilityRole='alert'` no native
+          // (anúncio assertivo do screen reader). Dialog comum mantém `'none'`
+          // — `accessibilityViewIsModal` já carrega a semântica modal.
+          accessibilityRole={(role === 'alertdialog' ? 'alert' : 'none') as never}
           accessibilityLabel={accessibilityLabel}
           nativeID={contentId}
           style={{
@@ -218,6 +251,27 @@ function DialogContent({ children, size = 'medium' }: DialogContentProps) {
 }
 
 DialogContent.displayName = 'Dialog.Content';
+
+function DialogHeader({ children }: DialogHeaderProps) {
+  const slots = useSlotRecipe<DialogSlots>('dialog', {});
+  return <Box {...(slots.header as Record<string, unknown>)}>{children}</Box>;
+}
+
+DialogHeader.displayName = 'Dialog.Header';
+
+function DialogBody({ children }: DialogBodyProps) {
+  const slots = useSlotRecipe<DialogSlots>('dialog', {});
+  return <Box {...(slots.body as Record<string, unknown>)}>{children}</Box>;
+}
+
+DialogBody.displayName = 'Dialog.Body';
+
+function DialogFooter({ children }: DialogFooterProps) {
+  const slots = useSlotRecipe<DialogSlots>('dialog', {});
+  return <Box {...(slots.footer as Record<string, unknown>)}>{children}</Box>;
+}
+
+DialogFooter.displayName = 'Dialog.Footer';
 
 function DialogTitle({ children }: DialogTitleProps) {
   const { titleId } = useDialogContext();
@@ -286,15 +340,65 @@ DialogClose.displayName = 'Dialog.Close';
  * pelo Clickable interno. Botão hardware Back/Escape dispara `onRequestClose`
  * (respeita `closeOnEscape` + `onEscapeKeyDown`). `accessibilityViewIsModal`
  * impede que screen reader navegue para a UI subjacente enquanto o dialog está
- * aberto.
+ * aberto. `role='alertdialog'` mapeia para `accessibilityRole='alert'`.
  *
- * @see {@link DialogRootProps}
+ * API plana sob RFC-0043 — top-level aceita `title`/`description`/`footer`/
+ * `trigger`/`role` e monta a anatomia automaticamente. Compound em `.Root`/
+ * `.Trigger`/`.Content`/`.Header`/`.Body`/`.Footer`/...
+ *
+ * @see {@link DialogProps}
  */
-export const Dialog = Object.assign(DialogRoot, {
+function DialogFlat({
+  title,
+  description,
+  footer,
+  trigger,
+  role,
+  initialFocusRef,
+  size = 'medium',
+  children,
+  ...rootProps
+}: DialogProps) {
+  const usesFlatApi =
+    title !== undefined ||
+    description !== undefined ||
+    footer !== undefined ||
+    trigger !== undefined ||
+    children === undefined;
+
+  if (!usesFlatApi) {
+    return <DialogRoot {...rootProps}>{children}</DialogRoot>;
+  }
+
+  return (
+    <DialogRoot {...rootProps} role={role} initialFocusRef={initialFocusRef}>
+      {trigger && React.isValidElement(trigger) ? <DialogTrigger>{trigger}</DialogTrigger> : null}
+      <DialogOverlay />
+      <DialogContent size={size}>
+        {(title !== undefined || description !== undefined) && (
+          <DialogHeader>
+            {title !== undefined ? <DialogTitle>{title}</DialogTitle> : null}
+            {description !== undefined ? <DialogDescription>{description}</DialogDescription> : null}
+          </DialogHeader>
+        )}
+        {children !== undefined ? <DialogBody>{children}</DialogBody> : null}
+        {footer !== undefined ? <DialogFooter>{footer}</DialogFooter> : null}
+        <DialogClose />
+      </DialogContent>
+    </DialogRoot>
+  );
+}
+
+DialogFlat.displayName = 'Dialog';
+
+export const Dialog = Object.assign(DialogFlat, {
   Root: DialogRoot,
   Trigger: DialogTrigger,
   Overlay: DialogOverlay,
   Content: DialogContent,
+  Header: DialogHeader,
+  Body: DialogBody,
+  Footer: DialogFooter,
   Title: DialogTitle,
   Description: DialogDescription,
   Close: DialogClose,

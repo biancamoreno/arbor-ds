@@ -1,5 +1,5 @@
-import { createContext, useContext, type MutableRefObject } from 'react';
-import type { DialogDismissEvent } from '../interfaces/DialogProps';
+import { createContext, useContext, type MutableRefObject, type RefObject } from 'react';
+import type { DialogDismissEvent, DialogRole } from '../interfaces/DialogProps';
 
 export type DialogContextValue = {
   open: boolean;
@@ -9,6 +9,10 @@ export type DialogContextValue = {
   descriptionId: string;
   triggerRef: MutableRefObject<HTMLElement | null>;
   accessibilityLabel?: string;
+  /** Semântica ARIA do dialog. Default `'dialog'`. */
+  role: DialogRole;
+  /** Override do foco inicial; consumido pelo `FocusScope` no Content. */
+  initialFocusRef?: RefObject<HTMLElement | null>;
   /** Default true. Se false, clique no overlay/fora não fecha. */
   closeOnOverlayClick: boolean;
   /** Default true. Se false, Escape (web) ou back hardware (Android) não fecham. */

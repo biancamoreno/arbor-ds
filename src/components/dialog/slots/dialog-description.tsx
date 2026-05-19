@@ -3,7 +3,15 @@ import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogDescriptionProps } from '../interfaces/DialogProps';
 
-type DialogSlots = 'overlay' | 'content' | 'title' | 'description' | 'close';
+type DialogSlots =
+  | 'overlay'
+  | 'content'
+  | 'header'
+  | 'body'
+  | 'footer'
+  | 'title'
+  | 'description'
+  | 'close';
 
 /**
  * Descrição do Dialog (referenciada por `aria-describedby`). Tipografia e cor

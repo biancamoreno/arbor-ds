@@ -22,6 +22,12 @@ type FocusScopeProps = {
   trapped?: boolean;
   autoFocus?: boolean;
   restoreFocus?: boolean;
+  /**
+   * Override do alvo focado quando `autoFocus` está ativo. Quando o ref aponta
+   * para um elemento dentro do escopo, ele recebe foco em vez do primeiro
+   * tabável. Útil em Dialog/Drawer para focar um campo específico.
+   */
+  initialFocus?: React.RefObject<HTMLElement | null>;
 };
 
 export function FocusScope({
@@ -29,10 +35,13 @@ export function FocusScope({
   trapped = false,
   autoFocus = false,
   restoreFocus = false,
+  initialFocus,
 }: FocusScopeProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const savedFocusRef = useRef<HTMLElement | null>(null);
   const optionsRef = useRef({ autoFocus, restoreFocus });
+  const initialFocusRef = useRef(initialFocus);
+  initialFocusRef.current = initialFocus;
 
   useEffect(() => {
     const { autoFocus: shouldAutoFocus, restoreFocus: shouldRestoreFocus } = optionsRef.current;
@@ -44,11 +53,16 @@ export function FocusScope({
     if (shouldAutoFocus) {
       const container = containerRef.current;
       if (container) {
-        const focusable = getFocusable(container);
-        if (focusable.length > 0) {
-          focusable[0].focus();
+        const explicit = initialFocusRef.current?.current ?? null;
+        if (explicit && container.contains(explicit)) {
+          explicit.focus();
         } else {
-          container.focus();
+          const focusable = getFocusable(container);
+          if (focusable.length > 0) {
+            focusable[0].focus();
+          } else {
+            container.focus();
+          }
         }
       }
     }

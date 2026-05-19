@@ -4,7 +4,15 @@ import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import { useDialogContext } from '../context/dialog-context';
 import type { DialogCloseProps } from '../interfaces/DialogProps';
 
-type DialogSlots = 'overlay' | 'content' | 'title' | 'description' | 'close';
+type DialogSlots =
+  | 'overlay'
+  | 'content'
+  | 'header'
+  | 'body'
+  | 'footer'
+  | 'title'
+  | 'description'
+  | 'close';
 type ChildClickProps = { onClick?: (event: React.MouseEvent) => void };
 
 export function DialogClose({ children, accessibilityLabel = 'Fechar' }: DialogCloseProps) {

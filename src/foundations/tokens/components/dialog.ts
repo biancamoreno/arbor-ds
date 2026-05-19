@@ -3,6 +3,16 @@ export const dialog = {
   borderWidth: 'hairline',
   shadow: 'xl',
   gap: 'small',
+  header: {
+    gap: 'nano',
+  },
+  body: {
+    gap: 'small',
+  },
+  footer: {
+    gap: 'small',
+    paddingTop: 'small',
+  },
   colors: {
     background: 'surface.raised',
     border: 'border.subtle',
