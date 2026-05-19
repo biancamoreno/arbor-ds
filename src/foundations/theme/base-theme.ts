@@ -15,6 +15,7 @@ import {
   motion,
   controlSize,
   dialogSize,
+  drawerSize,
   avatarSize,
   avatarOverlap,
   spinnerSize,
@@ -837,11 +838,111 @@ const recipes: ThemeRecipes = {
   }),
 
   drawer: defineSlotRecipe({
-    slots: ['overlay', 'content', 'title'] as const,
+    slots: ['overlay', 'content', 'header', 'body', 'footer', 'title', 'description', 'close'] as const,
     base: {
-      overlay: { position: 'fixed', inset: '0' },
-      content: { position: 'fixed', display: 'flex', flexDirection: 'column', boxShadow: '$drawer.shadow' },
-      title: { fontWeight: '$drawer.fontWeight.title' },
+      overlay: {
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        backgroundColor: '$drawer.colors.overlay',
+      },
+      content: {
+        position: 'fixed',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$drawer.gap',
+        borderRadius: '$drawer.borderRadius',
+        borderWidth: '$drawer.borderWidth',
+        borderStyle: 'solid',
+        borderColor: '$drawer.colors.border',
+        backgroundColor: '$drawer.colors.background',
+        boxShadow: '$drawer.shadow',
+        outline: 'none',
+        // `overflow: hidden` no content evita que o painel inteiro role —
+        // só o body scrolla (overflow: auto abaixo). Garante header/footer
+        // sticky por construção.
+        overflow: 'hidden',
+      },
+      header: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$drawer.header.gap',
+        // Sticky por flex: header não shrinka mesmo se o body tentar empurrar.
+        flexShrink: 0,
+      },
+      body: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '$drawer.body.gap',
+        // flex: 1 + minHeight: 0 permite que o body shrinke abaixo do tamanho
+        // intrínseco do conteúdo, ativando o scroll quando necessário (default
+        // de min-height é `auto` em flex items, o que impede o shrink).
+        flex: 1,
+        minHeight: 0,
+        overflow: 'auto',
+      },
+      footer: {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end',
+        gap: '$drawer.footer.gap',
+        paddingTop: '$drawer.footer.paddingTop',
+        // Sticky por flex: footer não shrinka, fica ancorado na base do painel.
+        flexShrink: 0,
+      },
+      title: {
+        color: '$drawer.colors.title',
+        fontFamily: 'sans',
+        fontSize: '$drawer.title.typography.fontSize',
+        fontWeight: '$drawer.title.typography.fontWeight',
+        lineHeight: '$drawer.title.typography.lineHeight',
+        letterSpacing: '$drawer.title.typography.letterSpacing',
+        margin: 0,
+      },
+      description: {
+        color: '$drawer.colors.description',
+        fontFamily: 'sans',
+        fontSize: '$drawer.description.typography.fontSize',
+        fontWeight: '$drawer.description.typography.fontWeight',
+        lineHeight: '$drawer.description.typography.lineHeight',
+        letterSpacing: '$drawer.description.typography.letterSpacing',
+        margin: 0,
+      },
+      close: {
+        position: 'absolute',
+        top: '$drawer.close.offset',
+        right: '$drawer.close.offset',
+        flexShrink: 0,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '$drawer.close.size',
+        height: '$drawer.close.size',
+        padding: 0,
+        borderWidth: 0,
+        borderRadius: '$drawer.close.borderRadius',
+        backgroundColor: 'transparent',
+        color: '$drawer.close.colors.icon',
+        cursor: 'pointer',
+        transition: transition(['background-color', 'color'], 'fast'),
+        _hover: {
+          backgroundColor: '$drawer.close.colors.backgroundHover',
+          color: '$drawer.close.colors.iconHover',
+        },
+        _focusVisible: focusRing,
+        _before: {
+          content: '""',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '$drawer.close.minTouch',
+          minHeight: '$drawer.close.minTouch',
+        },
+      },
     },
     variants: {
       size: {
@@ -849,8 +950,58 @@ const recipes: ThemeRecipes = {
         medium: { content: { padding: '$drawer.size.medium.padding' } },
         large: { content: { padding: '$drawer.size.large.padding' } },
       },
+      placement: {
+        right: {
+          content: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            height: '100%',
+          },
+        },
+        left: {
+          content: {
+            top: 0,
+            left: 0,
+            bottom: 0,
+            height: '100%',
+          },
+        },
+        top: {
+          content: {
+            top: 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+          },
+        },
+        bottom: {
+          content: {
+            bottom: 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+          },
+        },
+      },
     },
-    defaultVariants: { size: 'medium' },
+    compoundVariants: [
+      // Drawers laterais: `size` controla a largura (height = 100%).
+      { conditions: { placement: 'right', size: 'small' },  style: { content: { width: '$drawer.size.small.width' } } },
+      { conditions: { placement: 'right', size: 'medium' }, style: { content: { width: '$drawer.size.medium.width' } } },
+      { conditions: { placement: 'right', size: 'large' },  style: { content: { width: '$drawer.size.large.width' } } },
+      { conditions: { placement: 'left', size: 'small' },   style: { content: { width: '$drawer.size.small.width' } } },
+      { conditions: { placement: 'left', size: 'medium' },  style: { content: { width: '$drawer.size.medium.width' } } },
+      { conditions: { placement: 'left', size: 'large' },   style: { content: { width: '$drawer.size.large.width' } } },
+      // Drawers horizontais: `size` controla a altura (width = 100%).
+      { conditions: { placement: 'top', size: 'small' },    style: { content: { height: '$drawer.size.small.height' } } },
+      { conditions: { placement: 'top', size: 'medium' },   style: { content: { height: '$drawer.size.medium.height' } } },
+      { conditions: { placement: 'top', size: 'large' },    style: { content: { height: '$drawer.size.large.height' } } },
+      { conditions: { placement: 'bottom', size: 'small' }, style: { content: { height: '$drawer.size.small.height' } } },
+      { conditions: { placement: 'bottom', size: 'medium' },style: { content: { height: '$drawer.size.medium.height' } } },
+      { conditions: { placement: 'bottom', size: 'large' }, style: { content: { height: '$drawer.size.large.height' } } },
+    ],
+    defaultVariants: { size: 'medium', placement: 'right' },
   }),
 
   tooltip: defineSlotRecipe({
@@ -1978,6 +2129,7 @@ export const baseTheme = {
     ...spacing,
     control: controlSize,
     dialog: dialogSize,
+    drawer: drawerSize,
     avatar: avatarSize,
     avatarOverlap,
     spinner: spinnerSize,

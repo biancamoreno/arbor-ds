@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { useControllableState, useLayoutId } from '../../../ecosystem/primitives';
+import { useBodyScrollLock, useControllableState, useLayoutId } from '../../../ecosystem/primitives';
 import { DialogContext, type DialogContextValue } from '../context/dialog-context';
 import { DialogTrigger } from '../slots/dialog-trigger';
 import { DialogOverlay } from '../slots/dialog-overlay';
@@ -10,7 +10,6 @@ import { DialogFooter } from '../slots/dialog-footer';
 import { DialogTitle } from '../slots/dialog-title';
 import { DialogDescription } from '../slots/dialog-description';
 import { DialogClose } from '../slots/dialog-close';
-import { useBodyScrollLock } from '../utils/use-body-scroll-lock';
 import type {
   DialogProps,
   DialogRole,

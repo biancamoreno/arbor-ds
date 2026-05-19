@@ -8,3 +8,4 @@ export { FocusScope } from './focus-scope/focus-scope';
 export { useRestoreFocus } from './focus-scope/use-restore-focus';
 export { DismissableLayer } from './dismissable-layer/dismissable-layer';
 export { OverlayStack, useOverlayStack } from './overlay-stack/overlay-stack';
+export { useBodyScrollLock } from './use-body-scroll-lock/use-body-scroll-lock';

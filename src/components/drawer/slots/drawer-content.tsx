@@ -1,28 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Portal, FocusScope, DismissableLayer } from '../../../ecosystem/primitives';
-import { Flex } from '../../core';
-import { transition } from '../../../ecosystem/utils/functions';
+import { Box } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { usePrefersReducedMotion } from '../../../ecosystem/styled-system/system/hooks/use-prefers-reduced-motion';
+import { transition } from '../../../foundations/theme/transition';
 import { useDrawerContext } from '../context/drawer-context';
-import type { DrawerContentProps } from '../interfaces/DrawerProps';
 import type { DrawerPlacement } from '../context/drawer-context';
+import type { DrawerContentProps } from '../interfaces/DrawerProps';
 
-const widthMap = { small: '320px', medium: '420px', large: '560px' } as const;
-const heightMap = { small: '240px', medium: '320px', large: '420px' } as const;
+type DrawerSlots =
+  | 'overlay'
+  | 'content'
+  | 'header'
+  | 'body'
+  | 'footer'
+  | 'title'
+  | 'description'
+  | 'close';
 
-function getPanelStyle(placement: DrawerPlacement, size: NonNullable<DrawerContentProps['size']>): React.CSSProperties {
-  const shared: React.CSSProperties = { position: 'fixed', display: 'flex', flexDirection: 'column', outline: 'none' };
-
-  if (placement === 'bottom') {
-    return { ...shared, bottom: 0, left: 0, right: 0, width: '100%', height: heightMap[size], borderRadius: '24px 24px 0 0' };
-  }
-  if (placement === 'top') {
-    return { ...shared, top: 0, left: 0, right: 0, width: '100%', height: heightMap[size], borderRadius: '0 0 24px 24px' };
-  }
-  if (placement === 'left') {
-    return { ...shared, left: 0, top: 0, bottom: 0, width: widthMap[size], height: '100%', borderRadius: '0 24px 24px 0' };
-  }
-  return { ...shared, right: 0, top: 0, bottom: 0, width: widthMap[size], height: '100%', borderRadius: '24px 0 0 24px' };
-}
+const TRANSITION_MS = 160;
+const IS_TEST = process.env.NODE_ENV === 'test';
 
 const SLIDE_HIDDEN: Record<DrawerPlacement, string> = {
   right: 'translateX(100%)',
@@ -32,48 +29,89 @@ const SLIDE_HIDDEN: Record<DrawerPlacement, string> = {
 };
 
 export function DrawerContent({ children, size = 'medium' }: DrawerContentProps) {
-  const { open, setOpen, placement, titleId } = useDrawerContext();
+  const {
+    open,
+    setOpen,
+    placement,
+    contentId,
+    titleId,
+    descriptionId,
+    accessibilityLabel,
+    role,
+    initialFocusRef,
+    closeOnEscape,
+    onEscapeKeyDown,
+  } = useDrawerContext();
+  const slots = useSlotRecipe<DrawerSlots>('drawer', { size, placement });
+  const reducedMotion = usePrefersReducedMotion();
 
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
-  const frameRef = useRef<number>(0);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
       setMounted(true);
-      frameRef.current = requestAnimationFrame(() => setVisible(true));
-    } else {
-      setVisible(false);
-      const t = setTimeout(() => setMounted(false), 200);
-      return () => clearTimeout(t);
+      if (IS_TEST || reducedMotion) {
+        setVisible(true);
+        return;
+      }
+      let id2 = 0;
+      const id1 = requestAnimationFrame(() => {
+        id2 = requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(id1);
+        cancelAnimationFrame(id2);
+      };
     }
-    return () => cancelAnimationFrame(frameRef.current);
-  }, [open]);
+    setVisible(false);
+    if (IS_TEST) {
+      setMounted(false);
+      return;
+    }
+    const id = setTimeout(() => setMounted(false), TRANSITION_MS);
+    return () => clearTimeout(id);
+  }, [open, reducedMotion]);
 
   if (!mounted) return null;
 
+  const transformStr = reducedMotion || visible ? 'translate(0)' : SLIDE_HIDDEN[placement];
+
   return (
     <Portal>
-      <DismissableLayer onDismiss={() => setOpen(false)} disableOutsideClick>
-        <FocusScope trapped autoFocus restoreFocus>
-          <Flex
+      <DismissableLayer
+        onDismiss={() => setOpen(false)}
+        onEscapeKeyDown={onEscapeKeyDown}
+        disableEscapeKey={!closeOnEscape}
+        // Outside-click é responsabilidade do `<Drawer.Overlay />` (scrim
+        // pinta e captura o pointer). Aqui desabilitamos para não disparar
+        // o dismiss duas vezes.
+        disableOutsideClick
+      >
+        <FocusScope trapped autoFocus restoreFocus initialFocus={initialFocusRef}>
+          <Box
             as="aside"
-            role="dialog"
+            id={contentId}
+            role={role}
             aria-modal="true"
             aria-labelledby={titleId}
+            aria-describedby={descriptionId}
+            aria-label={accessibilityLabel}
+            innerRef={contentRef as React.RefObject<HTMLDivElement>}
             zIndex="modal"
-            gap="small"
-            padding="large"
-            backgroundColor="surface.raised"
-            boxShadow="xl"
+            {...(slots.content as Record<string, unknown>)}
             style={{
-              ...getPanelStyle(placement, size),
-              transform: visible ? 'translate(0)' : SLIDE_HIDDEN[placement],
-              transition: transition(['transform'], 'normal', 'decelerate'),
+              // `box-sizing: border-box` vital — sem isso, height alvo + padding
+              // ultrapassam a dimensão (footer sai do viewport). Não dependemos
+              // de reset CSS global do consumer (pattern nav-bar/tab-bar/select).
+              boxSizing: 'border-box',
+              transform: transformStr,
+              transition: reducedMotion ? 'none' : transition(['transform'], 'normal', 'standard'),
             }}
           >
             {children}
-          </Flex>
+          </Box>
         </FocusScope>
       </DismissableLayer>
     </Portal>
