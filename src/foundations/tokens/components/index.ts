@@ -15,6 +15,7 @@ export { field } from './field';
 export { fileUpload } from './file-upload';
 export { input } from './input';
 export { menu } from './menu';
+export { pagination } from './pagination';
 export { popover } from './popover';
 export { progressBar } from './progress-bar';
 export { progressCircle } from './progress-circle';

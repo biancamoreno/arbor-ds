@@ -2165,6 +2165,152 @@ const recipes: ThemeRecipes = {
     variants: {},
     defaultVariants: {},
   }),
+
+  pagination: defineSlotRecipe({
+    slots: ['root', 'list', 'item', 'button', 'ellipsis'] as const,
+    base: {
+      root: {
+        display: 'inline-flex',
+      },
+      list: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '$pagination.gap',
+        margin: 0,
+        padding: 0,
+      },
+      item: {
+        display: 'inline-flex',
+      },
+      button: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        borderStyle: 'solid',
+        borderWidth: '$pagination.button.borderWidth',
+        borderRadius: '$pagination.button.borderRadius',
+        fontFamily: 'sans',
+        fontWeight: '$pagination.button.fontWeight',
+        backgroundColor: '$pagination.button.colors.idle.bg',
+        borderColor: '$pagination.button.colors.idle.border',
+        color: '$pagination.button.colors.idle.text',
+        transition: transition(['background-color', 'color'], 'fast'),
+        _hover: {
+          backgroundColor: '$pagination.button.colors.idle.bgHover',
+        },
+        _focusVisible: focusRing,
+      },
+      ellipsis: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '$pagination.ellipsis.color',
+        fontSize: '$pagination.ellipsis.fontSize',
+      },
+    },
+    variants: {
+      size: {
+        xsmall: {
+          button: {
+            minWidth: '$pagination.button.size.xsmall.minSize',
+            minHeight: '$pagination.button.size.xsmall.minSize',
+            paddingLeft: '$pagination.button.size.xsmall.paddingInline',
+            paddingRight: '$pagination.button.size.xsmall.paddingInline',
+            fontSize: '$pagination.button.size.xsmall.fontSize',
+          },
+          ellipsis: {
+            minWidth: '$pagination.button.size.xsmall.minSize',
+            minHeight: '$pagination.button.size.xsmall.minSize',
+          },
+        },
+        small: {
+          button: {
+            minWidth: '$pagination.button.size.small.minSize',
+            minHeight: '$pagination.button.size.small.minSize',
+            paddingLeft: '$pagination.button.size.small.paddingInline',
+            paddingRight: '$pagination.button.size.small.paddingInline',
+            fontSize: '$pagination.button.size.small.fontSize',
+          },
+          ellipsis: {
+            minWidth: '$pagination.button.size.small.minSize',
+            minHeight: '$pagination.button.size.small.minSize',
+          },
+        },
+        medium: {
+          button: {
+            minWidth: '$pagination.button.size.medium.minSize',
+            minHeight: '$pagination.button.size.medium.minSize',
+            paddingLeft: '$pagination.button.size.medium.paddingInline',
+            paddingRight: '$pagination.button.size.medium.paddingInline',
+            fontSize: '$pagination.button.size.medium.fontSize',
+          },
+          ellipsis: {
+            minWidth: '$pagination.button.size.medium.minSize',
+            minHeight: '$pagination.button.size.medium.minSize',
+          },
+        },
+        large: {
+          button: {
+            minWidth: '$pagination.button.size.large.minSize',
+            minHeight: '$pagination.button.size.large.minSize',
+            paddingLeft: '$pagination.button.size.large.paddingInline',
+            paddingRight: '$pagination.button.size.large.paddingInline',
+            fontSize: '$pagination.button.size.large.fontSize',
+          },
+          ellipsis: {
+            minWidth: '$pagination.button.size.large.minSize',
+            minHeight: '$pagination.button.size.large.minSize',
+          },
+        },
+        xlarge: {
+          button: {
+            minWidth: '$pagination.button.size.xlarge.minSize',
+            minHeight: '$pagination.button.size.xlarge.minSize',
+            paddingLeft: '$pagination.button.size.xlarge.paddingInline',
+            paddingRight: '$pagination.button.size.xlarge.paddingInline',
+            fontSize: '$pagination.button.size.xlarge.fontSize',
+          },
+          ellipsis: {
+            minWidth: '$pagination.button.size.xlarge.minSize',
+            minHeight: '$pagination.button.size.xlarge.minSize',
+          },
+        },
+      },
+      // `state` é cascata mutuamente exclusiva: disabled > current > idle.
+      // Idle herda do `base`; current/disabled sobrescrevem.
+      state: {
+        idle: {},
+        current: {
+          button: {
+            backgroundColor: '$pagination.button.colors.current.bg',
+            borderColor: '$pagination.button.colors.current.border',
+            color: '$pagination.button.colors.current.text',
+            cursor: 'default',
+            // current não responde a hover — neutraliza o bg do estado idle.
+            _hover: {
+              backgroundColor: '$pagination.button.colors.current.bg',
+            },
+          },
+        },
+        disabled: {
+          button: {
+            backgroundColor: '$pagination.button.colors.disabled.bg',
+            borderColor: '$pagination.button.colors.disabled.border',
+            color: '$pagination.button.colors.disabled.text',
+            // disabled não responde a hover; Clickable já aplica `pointer-events: none`,
+            // mas mantemos o reset por defesa caso o consumer override o Clickable.
+            _hover: {
+              backgroundColor: '$pagination.button.colors.disabled.bg',
+            },
+          },
+        },
+      },
+    },
+    defaultVariants: { size: 'medium', state: 'idle' },
+  }),
 };
 
 export const baseTheme = {

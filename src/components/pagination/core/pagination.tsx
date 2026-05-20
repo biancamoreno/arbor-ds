@@ -1,29 +1,47 @@
-import { useTheme } from '../../../ecosystem/styled-system/adapters';
-import { Box, Flex, Clickable } from '../../core';
+import { Box, Flex, Clickable, Icon } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
+import { getRange, type PaginationRangeItem } from '../utils';
 import type {
+  PaginationProps,
   PaginationRootProps,
   PaginationListProps,
   PaginationItemProps,
   PaginationButtonProps,
+  PaginationDirectionalProps,
   PaginationEllipsisProps,
+  PaginationSize,
 } from '../interfaces';
 
-function PaginationRoot({ children, label = 'Paginação', style, ...props }: PaginationRootProps) {
+type PaginationSlots = 'root' | 'list' | 'item' | 'button' | 'ellipsis';
+
+function PaginationRoot({
+  children,
+  accessibilityLabel = 'Paginação',
+  style,
+  ...props
+}: PaginationRootProps) {
+  const slots = useSlotRecipe<PaginationSlots>('pagination', {});
   return (
-    <Box as="nav" aria-label={label} {...props} display="inline-flex" style={style}>
+    <Box
+      as="nav"
+      aria-label={accessibilityLabel}
+      {...props}
+      {...(slots.root as Record<string, unknown>)}
+      style={style}
+    >
       {children}
     </Box>
   );
 }
 
 function PaginationList({ children, style, ...props }: PaginationListProps) {
+  const slots = useSlotRecipe<PaginationSlots>('pagination', {});
   return (
     <Flex
       as="ul"
       {...props}
-      alignItems="center"
-      gap="4px"
-      style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}
+      {...(slots.list as Record<string, unknown>)}
+      style={{ listStyle: 'none', ...style }}
     >
       {children}
     </Flex>
@@ -31,8 +49,14 @@ function PaginationList({ children, style, ...props }: PaginationListProps) {
 }
 
 function PaginationItem({ children, style, ...props }: PaginationItemProps) {
+  const slots = useSlotRecipe<PaginationSlots>('pagination', {});
   return (
-    <Box as="li" {...props} display="inline-flex" style={style}>
+    <Box
+      as="li"
+      {...props}
+      {...(slots.item as Record<string, unknown>)}
+      style={style}
+    >
       {children}
     </Box>
   );
@@ -42,107 +66,267 @@ function PaginationButton({
   children,
   current = false,
   disabled,
+  size = 'medium',
+  accessibilityLabel,
   style,
   ...props
 }: PaginationButtonProps) {
-  const theme = useTheme();
+  const state = disabled ? 'disabled' : current ? 'current' : 'idle';
+  const slots = useSlotRecipe<PaginationSlots>('pagination', { size, state });
 
   return (
     <Clickable
       as="button"
       type="button"
       aria-current={current ? 'page' : undefined}
+      aria-label={accessibilityLabel}
       disabled={disabled}
       {...props}
-      display="inline-flex"
-      alignItems="center"
-      justifyContent="center"
-      height={36}
-      cursor={disabled ? 'not-allowed' : 'pointer'}
-      opacity={disabled ? 0.5 : 1}
-      borderRadius="nano"
-      borderWidth={1}
-      borderStyle="solid"
-      fontSize="sm"
-      style={{
-        minWidth: '36px',
-        padding: '0 8px',
-        borderColor: current ? theme.colors.brand.solid : theme.colors.border.default,
-        backgroundColor: current ? theme.colors.brand.solid : 'transparent',
-        color: current ? theme.colors.text.inverse : theme.colors.text.primary,
-        fontWeight: current ? theme.fontWeights.medium : theme.fontWeights.regular,
-        ...style,
-      }}
+      {...(slots.button as Record<string, unknown>)}
+      style={style}
     >
       {children}
     </Clickable>
   );
 }
 
-function PaginationPrev({ children = '‹', 'aria-label': ariaLabel = 'Página anterior', ...props }: PaginationButtonProps) {
-  return <PaginationButton aria-label={ariaLabel} {...props}>{children}</PaginationButton>;
+function PaginationPrevious({
+  size = 'medium',
+  accessibilityLabel = 'Página anterior',
+  children,
+  ...props
+}: PaginationDirectionalProps) {
+  return (
+    <PaginationButton size={size} accessibilityLabel={accessibilityLabel} {...props}>
+      {children ?? <Icon name="ChevronLeft" size={iconSizeFor(size)} decorative />}
+    </PaginationButton>
+  );
 }
 
-function PaginationNext({ children = '›', 'aria-label': ariaLabel = 'Próxima página', ...props }: PaginationButtonProps) {
-  return <PaginationButton aria-label={ariaLabel} {...props}>{children}</PaginationButton>;
+function PaginationNext({
+  size = 'medium',
+  accessibilityLabel = 'Próxima página',
+  children,
+  ...props
+}: PaginationDirectionalProps) {
+  return (
+    <PaginationButton size={size} accessibilityLabel={accessibilityLabel} {...props}>
+      {children ?? <Icon name="ChevronRight" size={iconSizeFor(size)} decorative />}
+    </PaginationButton>
+  );
 }
 
-function PaginationEllipsis({ style, ...props }: PaginationEllipsisProps) {
+function PaginationFirst({
+  size = 'medium',
+  accessibilityLabel = 'Primeira página',
+  children,
+  ...props
+}: PaginationDirectionalProps) {
+  return (
+    <PaginationButton size={size} accessibilityLabel={accessibilityLabel} {...props}>
+      {children ?? <Icon name="ChevronsLeft" size={iconSizeFor(size)} decorative />}
+    </PaginationButton>
+  );
+}
+
+function PaginationLast({
+  size = 'medium',
+  accessibilityLabel = 'Última página',
+  children,
+  ...props
+}: PaginationDirectionalProps) {
+  return (
+    <PaginationButton size={size} accessibilityLabel={accessibilityLabel} {...props}>
+      {children ?? <Icon name="ChevronsRight" size={iconSizeFor(size)} decorative />}
+    </PaginationButton>
+  );
+}
+
+function PaginationEllipsis({ size = 'medium', style, ...props }: PaginationEllipsisProps) {
+  const slots = useSlotRecipe<PaginationSlots>('pagination', { size });
   return (
     <Flex
       as="span"
       aria-hidden="true"
       {...props}
-      display="inline-flex"
-      alignItems="center"
-      justifyContent="center"
-      height={36}
-      color="text.tertiary"
-      fontSize="sm"
-      style={{ minWidth: '36px', ...style }}
+      {...(slots.ellipsis as Record<string, unknown>)}
+      style={{ userSelect: 'none', ...style }}
     >
-      …
+      <Icon name="MoreHorizontal" size={iconSizeFor(size)} decorative />
     </Flex>
   );
+}
+
+function iconSizeFor(size: PaginationSize) {
+  switch (size) {
+    case 'xsmall': return 'xsmall';
+    case 'small':  return 'small';
+    case 'medium': return 'small';
+    case 'large':  return 'medium';
+    case 'xlarge': return 'medium';
+  }
 }
 
 PaginationRoot.displayName = 'Pagination.Root';
 PaginationList.displayName = 'Pagination.List';
 PaginationItem.displayName = 'Pagination.Item';
 PaginationButton.displayName = 'Pagination.Button';
-PaginationPrev.displayName = 'Pagination.Prev';
+PaginationPrevious.displayName = 'Pagination.Previous';
 PaginationNext.displayName = 'Pagination.Next';
+PaginationFirst.displayName = 'Pagination.First';
+PaginationLast.displayName = 'Pagination.Last';
 PaginationEllipsis.displayName = 'Pagination.Ellipsis';
 
 /**
  * @platform shared
  *
- * Compound de paginação. `Pagination.Root` é um `<nav aria-label>` (default
- * `"Paginação"`). Estrutura: `Root > List > Item* > Button|Prev|Next|Ellipsis`.
- * Use `Button` para páginas numeradas (com `current` na atual), `Prev`/`Next`
- * para navegação direcional e `Ellipsis` para indicar ranges omitidos. O
- * compound não controla o estado da página — o consumidor decide qual
- * botão é `current` e responde aos `onClick`.
+ * Paginação. Sob RFC-0043, top-level entrega **API plana** quando `count` é
+ * passada — monta automaticamente Previous, range numérico com ellipsis,
+ * Next e (opcional) First/Last via algoritmo padrão (`getRange`). Quando
+ * `count` está ausente, recai no modo compound clássico.
+ *
+ * - Tematização: tokens `pagination.*` (themables via `createTheme`).
+ * - A11y: `<nav aria-label>`, `<button aria-current="page">` na current,
+ *   `aria-label` por item via `getItemLabel(page, isCurrent)`. Ellipsis é
+ *   `aria-hidden`.
+ * - SP-1: sizes `xsmall|small|medium|large|xlarge` mapeiam `control.{small|medium|large}`.
  *
  * @example
- * <Pagination>
- *   <Pagination.List>
- *     <Pagination.Item><Pagination.Prev onClick={prev} /></Pagination.Item>
- *     <Pagination.Item><Pagination.Button onClick={() => goTo(1)}>1</Pagination.Button></Pagination.Item>
- *     <Pagination.Item><Pagination.Button current>2</Pagination.Button></Pagination.Item>
- *     <Pagination.Item><Pagination.Ellipsis /></Pagination.Item>
- *     <Pagination.Item><Pagination.Next onClick={next} /></Pagination.Item>
- *   </Pagination.List>
- * </Pagination>
+ * <Pagination
+ *   page={page}
+ *   count={20}
+ *   onPageChange={setPage}
+ *   siblings={1}
+ *   boundaries={1}
+ *   showFirstLast
+ * />
  *
- * @see {@link PaginationRootProps}
+ * @see {@link PaginationProps}
  */
-export const Pagination = Object.assign(PaginationRoot, {
+function PaginationFlat({
+  page,
+  count,
+  onPageChange,
+  siblings = 1,
+  boundaries = 1,
+  showFirstLast = false,
+  size = 'medium',
+  previousLabel = 'Página anterior',
+  nextLabel = 'Próxima página',
+  firstLabel = 'Primeira página',
+  lastLabel = 'Última página',
+  getItemLabel = defaultItemLabel,
+  children,
+  ...rootProps
+}: PaginationProps) {
+  // RFC-0043: `count !== undefined` é o único discriminador. Sem count, modo
+  // compound puro — children montam a árvore.
+  if (count === undefined) {
+    return <PaginationRoot {...rootProps}>{children}</PaginationRoot>;
+  }
+
+  const current = clamp(page ?? 1, 1, Math.max(1, count));
+  const items = getRange({ page: current, count, siblings, boundaries });
+
+  const goTo = (p: number) => {
+    if (p === current || p < 1 || p > count) return;
+    onPageChange?.(p);
+  };
+
+  return (
+    <PaginationRoot {...rootProps}>
+      <PaginationList>
+        {showFirstLast && (
+          <PaginationItem>
+            <PaginationFirst
+              size={size}
+              accessibilityLabel={firstLabel}
+              disabled={current <= 1}
+              onClick={() => goTo(1)}
+            />
+          </PaginationItem>
+        )}
+        <PaginationItem>
+          <PaginationPrevious
+            size={size}
+            accessibilityLabel={previousLabel}
+            disabled={current <= 1}
+            onClick={() => goTo(current - 1)}
+          />
+        </PaginationItem>
+        {items.map((item, index) => (
+          <PaginationItem key={renderKey(item, index)}>
+            {renderItem(item, current, size, goTo, getItemLabel)}
+          </PaginationItem>
+        ))}
+        <PaginationItem>
+          <PaginationNext
+            size={size}
+            accessibilityLabel={nextLabel}
+            disabled={current >= count}
+            onClick={() => goTo(current + 1)}
+          />
+        </PaginationItem>
+        {showFirstLast && (
+          <PaginationItem>
+            <PaginationLast
+              size={size}
+              accessibilityLabel={lastLabel}
+              disabled={current >= count}
+              onClick={() => goTo(count)}
+            />
+          </PaginationItem>
+        )}
+      </PaginationList>
+    </PaginationRoot>
+  );
+}
+
+function renderItem(
+  item: PaginationRangeItem,
+  current: number,
+  size: PaginationSize,
+  goTo: (p: number) => void,
+  getItemLabel: (page: number, isCurrent: boolean) => string,
+) {
+  if (typeof item === 'number') {
+    const isCurrent = item === current;
+    return (
+      <PaginationButton
+        size={size}
+        current={isCurrent}
+        accessibilityLabel={getItemLabel(item, isCurrent)}
+        onClick={() => goTo(item)}
+      >
+        {item}
+      </PaginationButton>
+    );
+  }
+  return <PaginationEllipsis size={size} />;
+}
+
+function renderKey(item: PaginationRangeItem, index: number) {
+  return typeof item === 'number' ? `p-${item}` : `${item}-${index}`;
+}
+
+function defaultItemLabel(page: number, isCurrent: boolean) {
+  return isCurrent ? `Página ${page}, atual` : `Ir para a página ${page}`;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+PaginationFlat.displayName = 'Pagination';
+
+export const Pagination = Object.assign(PaginationFlat, {
   Root: PaginationRoot,
   List: PaginationList,
   Item: PaginationItem,
   Button: PaginationButton,
-  Prev: PaginationPrev,
+  Previous: PaginationPrevious,
   Next: PaginationNext,
+  First: PaginationFirst,
+  Last: PaginationLast,
   Ellipsis: PaginationEllipsis,
 });
