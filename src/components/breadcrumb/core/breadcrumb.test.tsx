@@ -62,9 +62,14 @@ describe('Breadcrumb', () => {
     expect(container.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0);
   });
 
-  it('Separator exibe "/" por padrão', () => {
-    render(<BasicBreadcrumb />, { wrapper });
-    expect(screen.getAllByText('/').length).toBeGreaterThan(0);
+  it('Separator default renderiza Icon ChevronRight', () => {
+    const { container } = render(<BasicBreadcrumb />, { wrapper });
+    // Separator default = <Icon name="ChevronRight"> (svg) em vez de texto "/"
+    const separators = container.querySelectorAll('span[role="presentation"]');
+    expect(separators.length).toBe(2);
+    separators.forEach((sep) => {
+      expect(sep.querySelector('svg')).toBeTruthy();
+    });
   });
 
   it('Separator aceita children customizados', () => {

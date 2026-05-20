@@ -65,11 +65,11 @@ describe('Breadcrumb (native)', () => {
     expect(screen.getByText('Detalhes')).toBeTruthy();
   });
 
-  it('Separator exibe "/" por padrão (oculto de a11y)', () => {
+  it('Separator default não renderiza texto "/" (agora é Icon ChevronRight)', () => {
     render(<BasicBreadcrumb />, { wrapper: Wrapper });
     expect(
-      screen.getAllByText('/', { includeHiddenElements: true }).length,
-    ).toBeGreaterThan(0);
+      screen.queryAllByText('/', { includeHiddenElements: true }).length,
+    ).toBe(0);
   });
 
   it('Separator aceita children customizados (oculto de a11y)', () => {

@@ -17,7 +17,7 @@ const aliasesUsed = new Set(
 
 const componentsDir = resolve(ROOT, 'src/foundations/tokens/components');
 const tokenFiles = [
-  'accordion','alert','avatar','badge','button','card','carousel','checkbox',
+  'accordion','alert','avatar','badge','breadcrumb','button','card','carousel','checkbox',
   'chip','counter','dialog','drawer','field','file-upload','input','menu','popover',
   'progress-bar','progress-circle','radio','select','switch','tabs','tag','toast','tooltip',
 ];

@@ -2120,6 +2120,51 @@ const recipes: ThemeRecipes = {
     ],
     defaultVariants: { tone: 'neutral' },
   }),
+
+  breadcrumb: defineSlotRecipe({
+    slots: ['root', 'list', 'item', 'link', 'current', 'separator'] as const,
+    base: {
+      root: {
+        display: 'inline-flex',
+      },
+      list: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '$breadcrumb.gap',
+        margin: 0,
+        padding: 0,
+      },
+      item: {
+        display: 'inline-flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: '$breadcrumb.itemGap',
+      },
+      link: {
+        color: '$breadcrumb.link.colors.default',
+        textDecorationLine: 'none',
+        transition: transition(['color', 'text-decoration-line'], 'fast'),
+        cursor: 'pointer',
+        _hover: {
+          color: '$breadcrumb.link.colors.hover',
+          textDecorationLine: 'underline',
+        },
+        _focusVisible: focusRing,
+      },
+      current: {
+        color: '$breadcrumb.current.color',
+      },
+      separator: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        color: '$breadcrumb.separator.color',
+      },
+    },
+    variants: {},
+    defaultVariants: {},
+  }),
 };
 
 export const baseTheme = {

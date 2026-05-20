@@ -2,6 +2,7 @@ export { accordion } from './accordion';
 export { alert } from './alert';
 export { avatar } from './avatar';
 export { badge } from './badge';
+export { breadcrumb } from './breadcrumb';
 export { button } from './button';
 export { card } from './card';
 export { carousel } from './carousel';

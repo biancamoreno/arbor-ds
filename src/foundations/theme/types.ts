@@ -37,6 +37,7 @@ export type ThemeRecipes = {
   drawer?: SlotRecipeConfig;
   tooltip?: SlotRecipeConfig;
   badge?: SlotRecipeConfig;
+  breadcrumb?: SlotRecipeConfig;
   alert?: SlotRecipeConfig;
   accordion?: SlotRecipeConfig;
   card?: SlotRecipeConfig;

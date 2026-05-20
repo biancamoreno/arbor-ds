@@ -2563,6 +2563,92 @@ Mesmo gap existe em Popover e Tooltip (não exclusivo do Menu).
 
 ---
 
+## TD-050 — `transition()` helper congela `motion.duration/easing` em build-time (recipes não respeitam override em runtime)
+
+**Origem:** PCV-34 Breadcrumb (2026-05-19) — auditoria do direcional canônico refinado "sutil + elegante, customizável via tema".
+**Status:** Open
+**Severidade:** Média (eixo themable importante vazando da proposta de valor)
+
+### Contexto
+
+`src/foundations/theme/transition.ts` exporta:
+
+```ts
+export function transition(props, duration = 'normal', easing = 'standard') {
+  const d = motionTokens.duration[duration];
+  const e = motionTokens.easing[easing];
+  return ...
+}
+```
+
+`motionTokens` vem dos primitives (`tokens/primitives/motion`). O helper roda em **build-time** quando o módulo `base-theme.ts` é avaliado — o valor da transition vai para a recipe como string literal compilada (`'color 120ms cubic-bezier(...)'`). `createTheme({ motion: { duration: { fast: '500ms' } } })` muda o token no `theme.motion.duration.fast` em runtime, mas **a string da recipe já foi compilada com o valor primitive** — produto consumidor não consegue acelerar/desacelerar microinterações via tema.
+
+Afeta: toda recipe que usa `transition()` helper. Inventário em base-theme.ts: Tag, Chip, Card (`_hover`), Tabs (indicator), Input (focus), Field, Button, Counter, ProgressBar, ProgressCircle, Carousel, Popover.close, Dialog.close, Drawer.close, Breadcrumb.link, Menu motion (parcialmente coberto por TD-048).
+
+Diferente de TD-048 (overlays com `TRANSITION_MS` constante hardcoded no componente) — esta TD é a versão **sistêmica do mesmo gap** atingindo todas as recipes. TD-048 pode ser absorvida quando esta resolver.
+
+### Impacto
+
+- **Tematização (Bloqueador para preset `motion`):** `createTheme({ presets: { motion: 'minimal' } })` ou `createTheme({ presets: { motion: 'expressive' } })` deveria acelerar/desacelerar as microinterações em todo o DS. Hoje **não acelera** — recipes carregam o valor primitive compilado.
+- **Direcional canônico refinado** (skill `arbor-ds-arch`): violação direta do princípio #6 ("toda dimensão calibrada é themable") e do gate operacional "cada eixo X sutil tem caminho para Y expressivo".
+- **DX:** produto que tenta acelerar motion via tema não vê efeito, sem feedback do porquê.
+
+### Resolução proposta
+
+Duas opções, escolha após RFC:
+
+1. **Emit CSS vars do motion** + `transition()` retorna string referenciando vars (`'color var(--arbor-motion-duration-fast) var(--arbor-motion-easing-standard)'`). Web: resolve em runtime via cascata CSS — override por subtree funciona. Native: continua sendo build-time (RN não tem CSS var); paridade só via `presets.motion` macro aplicado em `createTheme()` que reescreve os primitives antes de compilar a recipe.
+2. **Substituir `transition()` na recipe por placeholders resolvidos em runtime** pelo engine de slot recipe. Mais invasivo (toca o transform); mantém paridade web↔native via mesma lógica de alias `$`.
+
+Caminho preferido: (1) — atinge web em runtime sem custo de transform; native cobre via `presets.motion` macro aplicado antes de `createTheme()`.
+
+### Critério para fechar
+
+- [ ] `transition()` helper emite strings referenciando CSS vars (web) ou continua build-time (native, com macro `presets.motion` documentada como caminho canônico).
+- [ ] Test cobrindo: `createTheme({ motion: { duration: { fast: '500ms' } } })` muda observavelmente a microinteração de Tag/Chip/Card/Breadcrumb no web.
+- [ ] Story de Theming demonstra override de motion via createTheme.
+- [ ] TD-048 (motion themable em Menu/Popover/Tooltip) absorvida ou explicitamente complementar (constants do componente vs string de recipe são caminhos distintos).
+
+---
+
+## TD-051 — `textDecorationLine` sem handler em `styleMap` (alias `$` não resolve)
+
+**Origem:** PCV-34 Breadcrumb (2026-05-19) — recipe `breadcrumb.link` quis consumir `$breadcrumb.link.textDecoration.{default,hover}` mas a engine não tem handler para `textDecorationLine`, então o valor `'$breadcrumb...'` chegaria literal no DOM e quebraria.
+
+**Status:** Open
+**Severidade:** Baixa (eixo de baixa demanda de override)
+
+### Contexto
+
+`src/ecosystem/styled-system/system/props/typography.ts` declara `textDecorationLine?` mas `src/ecosystem/styled-system/core/transform/new-transform/style-map.ts` **não registra handler** para essa prop — cai no fallback raw em `create-style.ts:24` (`{ [key]: props[key] }`). Resultado: `$<alias>` chega como string literal no DOM, React DOM warna "Unknown prop".
+
+Workaround no PCV-34: literal `'none'`/`'underline'` direto na recipe; token `breadcrumb.link.textDecoration` **não foi declarado** (evitar órfão).
+
+### Impacto
+
+- **Tematização:** produto não consegue overridar comportamento de decoração do link via tema (ex.: queremos underline permanente em vez de só no hover; queremos `wavy` no hover; queremos `none` total).
+- **Padrão sistêmico:** mesmo gap pode atingir Tabs (anchor com underline), Menu (item link), Toast/Alert (link inline).
+
+### Resolução proposta
+
+Adicionar em `style-map.ts`:
+
+```ts
+styleMap.set('textDecorationLine', getCustomProp('textDecorationLine', 'textDecorations'));
+styleMap.set('textDecorationStyle', getCustomProp('textDecorationStyle', 'textDecorations'));
+```
+
+Onde `textDecorations` pode ser uma scale vazia (`{}` em `baseTheme`) que serve só para o handler tentar resolver alias `$` antes do fallback. Custo: 1 handler + 1 teste.
+
+### Critério para fechar
+
+- [ ] Handler adicionado para `textDecorationLine` (e idealmente `textDecorationStyle`).
+- [ ] Test cobrindo: alias `$` em recipe resolve via `theme.components.<x>.<path>`; literal CSS (`'none'`, `'underline'`, `'wavy'`) passa direto.
+- [ ] Breadcrumb recipe migra `textDecorationLine: 'none' / 'underline'` literais para `$breadcrumb.link.textDecoration.{default,hover}`.
+- [ ] Token `breadcrumb.link.textDecoration` declarado em `tokens/components/breadcrumb.ts`.
+
+---
+
 ## TD-049 — Engine ignora `inset` shorthand apesar de tipar em `position.ts`
 
 **Origem:** PCV-32 PR1 (2026-05-17) — overlay invisível e click-fora não fechando no Dialog.

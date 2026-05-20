@@ -1,4 +1,5 @@
-import { Box, Flex, Text } from '../../core';
+import { Box, Flex, Text, Icon } from '../../core';
+import { useSlotRecipe } from '../../../ecosystem/styled-system/recipes';
 import type {
   BreadcrumbRootProps,
   BreadcrumbListProps,
@@ -8,67 +9,59 @@ import type {
   BreadcrumbSeparatorProps,
 } from '../interfaces';
 
+type BreadcrumbSlots = 'root' | 'list' | 'item' | 'link' | 'current' | 'separator';
+
 function BreadcrumbRoot({ children, label = 'Navegação estrutural', style, ...props }: BreadcrumbRootProps) {
+  const slots = useSlotRecipe<BreadcrumbSlots>('breadcrumb', {});
   return (
-    <Box as="nav" aria-label={label} {...props} display="inline-flex" style={style}>
+    <Box
+      as="nav"
+      aria-label={label}
+      {...props}
+      {...(slots.root as Record<string, unknown>)}
+      style={style}
+    >
       {children}
     </Box>
   );
 }
 
 function BreadcrumbList({ children, style, ...props }: BreadcrumbListProps) {
-  return (
-    <Flex
-      as="ol"
-      {...props}
-      alignItems="center"
-      flexWrap="wrap"
-      gap="4px"
-      style={{ listStyle: 'none', margin: 0, padding: 0, ...style }}
-    >
-      {children}
-    </Flex>
-  );
-}
-
-function BreadcrumbItem({ children, style, ...props }: BreadcrumbItemProps) {
-  return (
-    <Flex
-      as="li"
-      {...props}
-      display="inline-flex"
-      alignItems="center"
-      gap="4px"
-      style={style}
-    >
-      {children}
-    </Flex>
-  );
-}
-
-function BreadcrumbLink({ children, style, ...props }: BreadcrumbLinkProps) {
+  const slots = useSlotRecipe<BreadcrumbSlots>('breadcrumb', {});
   return (
     <Box
-      as="a"
+      as="ol"
       {...props}
-      color="interactive.default"
-      fontSize="sm"
-      style={{ textDecoration: 'none', ...style }}
+      {...(slots.list as Record<string, unknown>)}
+      style={{ listStyle: 'none', ...style }}
     >
       {children}
     </Box>
   );
 }
 
-function BreadcrumbCurrent({ children, style, ...props }: BreadcrumbCurrentProps) {
+function BreadcrumbItem({ children, style, ...props }: BreadcrumbItemProps) {
+  const slots = useSlotRecipe<BreadcrumbSlots>('breadcrumb', {});
+  return (
+    <Box
+      as="li"
+      {...props}
+      {...(slots.item as Record<string, unknown>)}
+      style={style}
+    >
+      {children}
+    </Box>
+  );
+}
+
+function BreadcrumbLink({ children, style, ...props }: BreadcrumbLinkProps) {
+  const slots = useSlotRecipe<BreadcrumbSlots>('breadcrumb', {});
   return (
     <Text
-      as="span"
-      aria-current="page"
+      as="a"
+      variant="bodySmall"
       {...props}
-      color="text.primary"
-      fontSize="sm"
-      fontWeight="medium"
+      {...(slots.link as Record<string, unknown>)}
       style={style}
     >
       {children}
@@ -76,20 +69,42 @@ function BreadcrumbCurrent({ children, style, ...props }: BreadcrumbCurrentProps
   );
 }
 
-function BreadcrumbSeparator({ children = '/', style, ...props }: BreadcrumbSeparatorProps) {
+function BreadcrumbCurrent({ children, style, ...props }: BreadcrumbCurrentProps) {
+  const slots = useSlotRecipe<BreadcrumbSlots>('breadcrumb', {});
   return (
     <Text
       as="span"
-      aria-hidden="true"
-      role="presentation"
+      aria-current="page"
+      variant="label"
       {...props}
-      color="text.tertiary"
-      fontSize="sm"
-      userSelect="none"
+      {...(slots.current as Record<string, unknown>)}
       style={style}
     >
       {children}
     </Text>
+  );
+}
+
+function BreadcrumbSeparator({ children, style, ...props }: BreadcrumbSeparatorProps) {
+  const slots = useSlotRecipe<BreadcrumbSlots>('breadcrumb', {});
+  const hasCustomContent = children !== undefined;
+  return (
+    <Flex
+      as="span"
+      aria-hidden="true"
+      role="presentation"
+      {...props}
+      {...(slots.separator as Record<string, unknown>)}
+      style={{ userSelect: 'none', ...style }}
+    >
+      {hasCustomContent ? (
+        <Text as="span" variant="bodySmall">
+          {children}
+        </Text>
+      ) : (
+        <Icon name="ChevronRight" size="small" decorative />
+      )}
+    </Flex>
   );
 }
 
@@ -107,8 +122,12 @@ BreadcrumbSeparator.displayName = 'Breadcrumb.Separator';
  * `<nav aria-label>` com `label` default `"Navegação estrutural"`. Estrutura
  * canônica: `Root > List > Item* > Link|Current + Separator`. Use `Link` em
  * todos os níveis menos o último (a página atual), que recebe `Current` com
- * `aria-current="page"`. `Separator` é tipicamente um chevron — passe
- * `children` para customizar.
+ * `aria-current="page"`. `Separator` default renderiza `<Icon name="ChevronRight">`;
+ * passe `children` (string ou ReactNode) para customizar.
+ *
+ * Tipografia: `Link` e separator custom usam `<Text variant="bodySmall">`;
+ * `Current` usa `<Text variant="label">` (mesmo tamanho, peso medium para
+ * diferenciar). Toda cor e transição é themable via `tokens.breadcrumb`.
  *
  * @example
  * <Breadcrumb>

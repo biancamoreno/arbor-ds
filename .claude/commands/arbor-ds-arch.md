@@ -875,9 +875,16 @@ Sempre considerar:
 - APIs simples de usar
 - não transformar animação em dependência desnecessária
 
-### Direcional canônico de design + animação: "sutil/sóbrio"
+### Direcional canônico de design + animação: "sutil + elegante, customizável via tema"
 
-A identidade default do Arbor-DS é **sutil e sóbria**, não chamativa. Toda decisão de animação, microinteração e detalhe visual deve passar por essa régua antes de qualquer outra. O motor tem capacidade para mais, mas o default fica do lado contido — produtos que precisam de "expressivo" pedem via `presets.motion: 'expressive'` ou override de tema, e o DS aceita; mas **nunca é o default**.
+A identidade default do Arbor-DS é **sutil e elegante** — não chamativa, mas também **não austera**. O DS tem motion, tem hierarquia, tem refinamento visual; só que tudo isso é **calibrado**, pequeno, repetível e proposital. A diferença entre sóbrio e zen importa: zen tira motion; sóbrio reduz ele ao essencial e o usa com propósito. Toda decisão de animação, microinteração e detalhe visual deve passar por essa régua antes de qualquer outra. O motor tem capacidade para mais, mas o default fica do lado contido — produtos que precisam de "expressivo" pedem via `presets.motion: 'expressive'` ou override de tema, e o DS aceita; mas **nunca é o default**.
+
+**Pilar duplo do direcional:**
+
+1. **Sutil + elegante (não austero):** motion existe, é intencional, mas mantém-se na escala pequena. Hover muda cor 160ms; slider underline desliza 160ms; fade 100ms. Tudo perceptível, nada chamativo. O DS **não é flat estático**: é refinado em movimento contido.
+2. **Customizável via tema:** cada eixo da régua precisa estar acessível ao consumidor via `createTheme()`. Produtos que querem mais expressão (gaming, social, branded) overridam `presets.motion`, `motion.duration.*`, `motion.easing.*`, ou tokens de componente específicos (`tabs.indicator.transitionDuration`, `card.hover.opacity`). O motor é único; cada produto escala o quanto de "elegância" ele quer expor sem editar o DS.
+
+**Consequência operacional:** ao desenhar microinteração, perguntar simultaneamente: (1) o **default** está sutil? (2) o produto consumidor consegue **escalar** isso para mais expressão sem editar o DS? Se a resposta a (2) for "não", **abrir token themable** ou sub-PR de motor — não cravar literal.
 
 **Régua prática (default Arbor-DS):**
 
@@ -896,11 +903,12 @@ A identidade default do Arbor-DS é **sutil e sóbria**, não chamativa. Toda de
 
 **Princípios narrativos:**
 
-1. **Movimento serve à percepção, não ao espetáculo.** Animação confirma o que o usuário fez; não anuncia o produto. Se a animação chama atenção para si própria, está fora do tom.
+1. **Movimento serve à percepção, não ao espetáculo.** Animação confirma o que o usuário fez; não anuncia o produto. Se a animação chama atenção para si própria, está fora do tom — mas ausência total de movimento também não é meta. O ponto é **calibração**, não erradicação.
 2. **Quietude é default; ruído é exceção.** A maioria dos estados (idle, inactive) é quieto. Só o estado significativo (active, focused, hovered) ganha sinalização — e mesmo essa é discreta.
 3. **Hierarquia por contraste de papel, não por intensidade de cor ou animação.** Texto primary ≠ secondary não pela saturação, mas pela escolha de papel semântico. Indicador ativo ≠ inativo não pela explosão, mas pelo papel `brand.solid` deslizando 160ms.
-4. **Sobriedade não é austeridade.** O DS não é minimalista frio; é sóbrio: usa motion, cor de marca, sombras — mas em doses pequenas, calibradas, repetíveis.
+4. **Sobriedade ≠ austeridade.** O DS não é minimalista frio nem flat estático: é sóbrio e elegante — usa motion, cor de marca, sombras, microinterações — mas em doses pequenas, calibradas, repetíveis. Refinamento sem alarde.
 5. **Composição limpa antes de decoração.** Se a anatomia, spacing e tipografia estão bem, raramente é preciso adicionar enfeite. Quando estiver tentando "salvar" um componente com decoração, revisitar primeiro a anatomia.
+6. **Toda dimensão calibrada é themable.** Duração, easing, escala, translate, blur, opacity de hover/active, cor de focus ring, intensidade de shadow — se o default é "X sutil", o consumer tem que conseguir override para "Y expressivo" sem editar o DS. Caso contrário, o motor está capturado e a elegância é refém do default.
 
 **Quando "sutil/sóbrio" NÃO se aplica:**
 
@@ -915,7 +923,9 @@ A identidade default do Arbor-DS é **sutil e sóbria**, não chamativa. Toda de
 - [ ] Escala/translate dentro do range sutil (scale ≤ 1.03, translate ≤ 2px)
 - [ ] reduced-motion respeitado (transition: 'none' ou `setValue` direto)
 - [ ] Nenhuma decoração extra — só o eixo de mudança real
-- [ ] Override por tema (`createTheme({ presets: { motion: ... } })`) ainda funciona
+- [ ] **Refinamento, não erradicação**: motion existe e é proposital (hover muda algo, focus mostra anel, indicator desliza) — flat estático "porque sutil" é leitura equivocada do direcional
+- [ ] **Override por tema (`createTheme({ presets: { motion: ... } })` ou `components.<x>.<eixo>`) funciona**: a dimensão calibrada está exposta como token themable, não como literal no componente/recipe
+- [ ] **Cada eixo "X sutil" tem caminho para "Y expressivo"**: se default é `activeScale: 1` (drop scale), token `components.<x>.activeScale` permite ao produto subir para 1.12; se default é `transition fast`, token `components.<x>.transitionDuration` permite estender para `slow` — sem editar DS
 
 ---
 
